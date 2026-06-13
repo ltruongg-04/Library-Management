@@ -227,16 +227,17 @@
 | đăng xuất  | \- Thực hiện thoát khỏi hệ thống   |
 | cập nhật hồ sơ cá nhân  | \- Cập nhật ảnh đại diện, ngày sinh, giới tính, SĐT, … |
 | đổi mật khẩu   | \- Thay đổi mật khẩu, quản lý thông tin xác thực bảo mật  |
+| xem mã thẻ thư viện/QR cá nhân  | \- Hiển thị mã định danh (QR code hoặc mã số) để thủ thư quét/tìm nhanh tài khoản khi độc giả đến mượn sách trực tiếp tại quầy  |
 | thêm sách vào danh sách yêu thích  | \- Lưu sách quan tâm vào danh sách yêu thích   |
 | xóa sách danh sách yêu thích  | \- Xóa sách đã thêm  |
-| đặt mượn sách    | \- Chọn sách, chọn thời gian mượn (ngày đến lấy, ngày hoàn trả), gửi yêu cầu tạo phiếu mượn  |
+| đặt mượn sách  (online)  | \- Chọn sách, chọn thời gian mượn (ngày đến lấy, ngày hoàn trả), gửi yêu cầu tạo phiếu mượn \- đây là một trong hai luồng tạo phiếu mượn (luồng còn lại do thủ thư tạo trực tiếp tại quầy khi độc giả đến thư viện)  |
 | thanh toán phí mượn sách | \- Chọn sách mượn, chọn phương thức thanh toán (tiền mặt khi nhận/ví điện tử) |
 | hủy phiếu mượn  | \- Hủy yêu cầu mượn trực tuyến. |
 | gia hạn phiếu mượn   | \- Yêu cầu gia hạn thời gian mượn nếu sách không bị người khác đặt giữ  |
 | đặt giữ chỗ sách (reservation)  | \- Đặt giữ sách khi sách đang hết, nhận thông báo khi sách có sẵn  |
 | tương tác AI Chatbot  | \- Khung chat hỗ trợ tóm tắt sách, tư vấn, gợi ý lộ trình đọc theo thời gian thực   |
 | xem gợi ý sách cá nhân hóa  | \- Hiển thị danh sách sách gợi ý (AI Recommendation) tại trang chủ và trang chi tiết sách  |
-| xem lịch sử mượn sách  | \- Xem lịch sử chi tiết (lọc theo nhà sách, thời gian,trạng thái: đang mượn, đã trả, qua hạn)  |
+| xem lịch sử mượn sách  | \- Xem lịch sử chi tiết \- bao gồm cả phiếu mượn tạo online và phiếu mượn do thủ thư tạo trực tiếp tại thư viện  (lọc theo nhà sách, thời gian,trạng thái: đang mượn, đã trả, qua hạn)  |
 | thêm đánh giá/bình luận/rating  | \- Thêm mới đánh giá, bình luận, chấm điểm cho đầu sách sau khi hoàn tất trải nghiệm  |
 | xóa đánh giá  | \- Xóa đánh giá/bình luận đã đăng  |
 | xem chi tiết hóa đơn  | \- Xem hóa đơn (tiền sách quá hạn), lịch sử thanh toán  |
@@ -254,17 +255,17 @@
 | quản lý danh mục thể loại     | \- Thêm, sửa, xóa thể loại sách  |
 | quản lý danh sách tác giả   | \- Thêm, sửa, xóa thông tin tác giả  |
 | quản lý danh sách nhà xuất bản    | \- Thêm, sửa, xóa thông tin nhà xuất bản  |
-| quản lý nhà cung cấp  | \- Thêm, sửa, xóa thông tin nhà cung cấp sách  |
-| tạo phiếu nhập kho  | \- Tạo phiếu nhập sách từ nhà cung cấp, cập nhật số lượng tồn theo phiếu nhập    |
 | xem lịch sử nhập kho  | \- Hiển thị lịch sử các phiếu nhập kho  |
+| tìm kiếm thông tin độc giả tại quầy | \- Tìm kiếm tài khoản độc giả theo SĐT/email/mã thẻ thư viện để xác định người mượn khi đến trực tiếp  |
+| tạo phiếu mượn trực tiếp (Walk-in Borrow)  | \- Thủ thư chọn độc giả (hoặc tạo độc giả vãng lai nếu chưa có tài khoản), chọn sách từ kho thực tế, nhập ngày mượn/ngày hẹn trả, tạo phiếu mượn và xác nhận giao sách ngay tại quầy — không qua bước duyệt online  |
 | tiếp nhận và phê duyệt phiếu mượn  | \- Kiểm tra, phê duyệt/từ chối yêu cầu mượn sách trực tuyến từ độc giả  |
 | cập nhật trạng thái phiếu mượn  | \- Chuyển trạng thái: Chờ lấy → Đang mượn → Đã trả sách/Quá hạn  |
 | duyệt yêu cầu gia hạn  | \- Phê duyệt/từ chối yêu cầu gia hạn mượn sách của độc giả  |
 | xác nhận trả sách  | \- Ghi nhận tình trạng sách khi thu hồi (nguyên vẹn/hư hỏng), cập nhật lại kho, tự động tính tiền phạt nếu trả quá hạn  |
+| thu tiền phạt/tiền cọc tại quầy  | \- Ghi nhận thanh toán tiền mặt cho tiền cọc khi tạo phiếu mượn hoặc tiền phạt khi trả sách quá hạn, in/gửi biên nhận  |
 | kiểm duyệt đánh giá/bình luận   | \- Ẩn/xóa các bình luận vi phạm (spam, ngôn từ xấu)  |
 
-   4. **Chức năng dành cho Quản trị viên (Admin):**  
-      
+   4. **Chức năng dành cho Quản trị viên (Admin):**
 
 | Tên chức năng | Mô tả |
 | :---- | :---- |
@@ -299,8 +300,7 @@
 | unit test module Thống kê & Báo cáo  | \- Kiểm tra tính chính xác thuật toán cộng dồn doanh thu, phân loại nhóm khách hàng, lọc log hệ thống theo thời gian  |
 | unit test module Thông báo (Notification)  | \- Kiểm tra trigger gửi email đúng thời điểm (xác nhận đơn, nhắc hạn trả) \- Kiểm tra retry logic khi gửi email thất bại  |
 | unit test module RBAC  | \- Kiểm tra phân quyền chặn truy cập API khi user không đủ quyền (test 403 Forbidden the o từng role)  |
-
-   
+| unit test module Mượn sách tại quầy (Walk-in Borrow)  | \- Kiểm tra tạo phiếu mượn trực tiếp với độc giả đã có tài khoản \- Kiểm tra tạo phiếu mượn cho độc giả vãng lai (tạo hồ sơ mới) \- Kiểm tra trừ tồn kho ngay khi tạo phiếu offline, đảm bảo đồng bộ với tồn kho online \- Kiểm tra ghi nhận thu tiền cọc/tiền phạt tại quầy  |
 
 4. **Yêu cầu về cơ sở dữ liệu (Database requirements):**  
    1. **Sơ đồ (Diagram):**  
