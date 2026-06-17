@@ -38,7 +38,8 @@ Hiện tại, các thư viện truyền thống vẫn dựa hoàn toàn vào quy
 
 * **Khách vãng lai (Guest)**:
   * Tra cứu thông tin sách, tìm kiếm, xem trang chủ, đặt lịch hẹn đến thư viện.
-  * Tra cứu trạng thái phiếu mượn bằng mã phiếu + SĐT.
+  * Đặt mượn sách trực tuyến không cần tài khoản (nhập họ tên, SĐT, email).
+  * Tra cứu trạng thái phiếu mượn bằng mã phiếu + SĐT, xem chi tiết sách đang mượn và tiền phạt tích lũy.
   * Sử dụng Chatbot FAQ.
 
 * **Độc giả (Customer)**:
@@ -2406,6 +2407,562 @@ Là Thủ thư/Nhân viên, tôi muốn ghi nhận thanh toán tiền mặt cho 
 * Biên nhận có thể in (A5/thermal printer) hoặc gửi email/SMS
 
 ---
+
+### **US-37: Đặt mượn sách không cần tài khoản (Guest — Online)**
+
+#### **User Story Statement**
+
+Là một Khách vãng lai (Guest), tôi muốn đặt mượn sách trực tuyến mà không cần đăng ký tài khoản (chỉ cần nhập họ tên, SĐT, email) để có thể mượn sách nhanh chóng khi chưa muốn tạo tài khoản.
+
+#### **Luồng Người dùng (User Flow)**
+
+**Luồng chính: Guest đặt mượn sách online**
+
+1\. Guest truy cập trang chi tiết sách hoặc danh sách sách
+
+2\. Click "Mượn sách" (hoặc "Mượn sách không cần tài khoản")
+
+3\. Hệ thống hiển thị form đặt mượn dành cho Guest:
+
+   \- Họ và tên (bắt buộc)
+
+   \- Số điện thoại (bắt buộc, dùng làm định danh)
+
+   \- Email (bắt buộc, để nhận xác nhận)
+
+   \- Tên sách (read-only)
+
+   \- Ngày đến lấy sách (bắt buộc, >= ngày hiện tại + 1)
+
+   \- Ngày hoàn trả dự kiến (bắt buộc, <= ngày lấy + số ngày mượn tối đa theo cấu hình)
+
+4\. Guest điền thông tin và click "Gửi yêu cầu mượn"
+
+5\. Hệ thống validate:
+
+   \- Các trường bắt buộc không để trống
+
+   \- SĐT đúng định dạng
+
+   \- Email đúng định dạng
+
+   \- Sách vẫn còn trong kho
+
+   \- Ngày hợp lệ
+
+   \- Guest (theo SĐT) không vượt quá số sách mượn đồng thời tối đa dành cho Guest (theo cấu hình Admin, mặc định thấp hơn Customer)
+
+6\. Nếu hợp lệ:
+
+   \- Kiểm tra SĐT đã có Guest Profile chưa:
+
+     \+ Nếu có: tái sử dụng Guest Profile hiện tại
+
+     \+ Nếu chưa: tạo Guest Profile tạm thời định danh bằng SĐT
+
+   \- Tạo phiếu mượn với trạng thái "Chờ duyệt"
+
+   \- Giảm số lượng sách available trong kho (tạm giữ)
+
+   \- Gửi email xác nhận kèm Mã phiếu mượn cho Guest
+
+   \- Hiển thị thông báo: "Đặt mượn sách thành công! Mã phiếu mượn đã được gửi đến email của bạn."
+
+   \- Hiển thị Mã phiếu mượn trên màn hình để Guest ghi nhận
+
+**Luồng phụ: Guest đã từng mượn trước đó (cùng SĐT)**
+
+1\. Hệ thống phát hiện SĐT đã có Guest Profile
+
+2\. Tự động liên kết phiếu mượn mới với Guest Profile hiện tại
+
+3\. Kiểm tra tổng số sách đang mượn (cũ + mới) không vượt giới hạn
+
+**Luồng ngoại lệ: Guest mượn quá giới hạn**
+
+1\. Guest (theo SĐT) đang mượn số sách bằng giới hạn tối đa dành cho Guest
+
+2\. Hệ thống hiển thị thông báo: "Bạn đã đạt giới hạn mượn sách. Vui lòng trả sách hoặc đăng ký tài khoản để được nâng giới hạn."
+
+#### **Tiêu chí Chấp nhận (Acceptance Criteria)**
+
+**AC-01: Guest đặt mượn sách thành công**
+
+**Given**: Guest truy cập trang chi tiết sách, sách còn trong kho
+**When**: Nhập đầy đủ họ tên, SĐT, email hợp lệ, chọn ngày lấy/trả hợp lệ và click "Gửi yêu cầu mượn"
+**Then**:
+
+* Guest Profile được tạo (hoặc tái sử dụng nếu SĐT đã tồn tại)
+* Phiếu mượn được tạo với trạng thái "Chờ duyệt"
+* Tồn kho giảm tương ứng (tạm giữ)
+* Email xác nhận kèm Mã phiếu mượn được gửi đến email Guest
+* Mã phiếu mượn hiển thị trên màn hình
+
+**AC-02: Tái sử dụng Guest Profile khi cùng SĐT**
+
+**Given**: Guest đã mượn sách lần trước với SĐT "0901234567"
+**When**: Guest đặt mượn sách mới với cùng SĐT
+**Then**:
+
+* Hệ thống sử dụng Guest Profile hiện tại, không tạo mới
+* Phiếu mượn mới liên kết với Guest Profile cũ
+* Tổng số sách đang mượn được kiểm tra đúng (cũ + mới)
+
+**AC-03: Giới hạn mượn sách cho Guest thấp hơn Customer**
+
+**Given**: Cấu hình Admin: Guest tối đa 2 sách, Customer tối đa 5 sách. Guest đang mượn 2 sách.
+**When**: Guest thử mượn thêm sách
+**Then**:
+
+* Hiển thị thông báo "Bạn đã đạt giới hạn mượn sách"
+* Gợi ý đăng ký tài khoản để nâng giới hạn
+* Không tạo phiếu mượn mới
+
+**AC-04: Validate thông tin Guest**
+
+**Given**: Guest đang ở form đặt mượn
+**When**: Nhập SĐT sai định dạng hoặc bỏ trống trường bắt buộc
+**Then**:
+
+* Hiển thị lỗi validation tương ứng
+* Form không được submit
+
+**AC-05: Email xác nhận đầy đủ nội dung**
+
+**Given**: Guest đặt mượn thành công
+**When**: Email xác nhận được gửi
+**Then**:
+
+* Email chứa: Mã phiếu mượn, tên sách, ngày đến lấy, ngày hẹn trả, hướng dẫn tra cứu phiếu mượn
+* Email gửi đến đúng địa chỉ email Guest đã nhập
+
+---
+
+### **US-38: Tra cứu & xem chi tiết phiếu mượn Guest (Guest — Online)**
+
+#### **User Story Statement**
+
+Là một Khách vãng lai (Guest), tôi muốn tra cứu chi tiết phiếu mượn sách bằng Mã phiếu + SĐT để xem sách đang mượn, ngày hẹn trả và tiền phạt tích lũy (nếu quá hạn) mà không cần đăng nhập.
+
+#### **Luồng Người dùng (User Flow)**
+
+**Luồng chính: Tra cứu phiếu mượn Guest**
+
+1\. Guest truy cập trang "Tra cứu phiếu mượn"
+
+2\. Nhập Mã phiếu mượn + SĐT đã đăng ký khi mượn sách
+
+3\. Click "Tra cứu"
+
+4\. Hệ thống xác thực Mã phiếu + SĐT khớp nhau
+
+5\. Nếu khớp, hiển thị chi tiết phiếu mượn:
+
+   \- Mã phiếu mượn
+
+   \- Tên sách, ảnh bìa
+
+   \- Trạng thái phiếu: Chờ duyệt / Chờ lấy / Đang mượn / Đã trả / Quá hạn / Đã hủy
+
+   \- Ngày mượn (ngày đến lấy)
+
+   \- Ngày hẹn trả
+
+   \- Ngày trả thực tế (nếu đã trả)
+
+   \- Tiền phạt tích lũy (nếu đang quá hạn): hiển thị số ngày trễ × mức phạt/ngày
+
+   \- Tiền cọc đã đóng (nếu có)
+
+6\. Guest **không thể** tự xác nhận trả sách online — phải đến thư viện để thủ thư xác nhận vật lý
+
+**Luồng phụ: Tra cứu nhiều phiếu mượn**
+
+1\. Nếu Guest nhập SĐT mà không nhập Mã phiếu cụ thể
+
+2\. Hệ thống hiển thị danh sách tất cả phiếu mượn liên kết với SĐT đó
+
+3\. Guest chọn phiếu cần xem chi tiết
+
+**Luồng ngoại lệ: Thông tin không khớp**
+
+1\. Guest nhập Mã phiếu đúng nhưng SĐT sai (hoặc ngược lại)
+
+2\. Hệ thống hiển thị: "Không tìm thấy phiếu mượn. Vui lòng kiểm tra lại Mã phiếu và SĐT."
+
+3\. Không tiết lộ phiếu mượn có tồn tại hay không (bảo mật)
+
+#### **Tiêu chí Chấp nhận (Acceptance Criteria)**
+
+**AC-01: Tra cứu phiếu mượn thành công**
+
+**Given**: Guest đã mượn sách với Mã phiếu "BRW-2024001" và SĐT "0901234567"
+**When**: Nhập đúng Mã phiếu + SĐT và click "Tra cứu"
+**Then**:
+
+* Hiển thị chi tiết phiếu mượn: tên sách, trạng thái, ngày mượn, ngày hẹn trả
+* Nếu đang quá hạn: hiển thị số ngày trễ và tiền phạt tích lũy
+
+**AC-02: Hiển thị tiền phạt tích lũy khi quá hạn**
+
+**Given**: Phiếu mượn đang ở trạng thái "Đang mượn", quá hạn trả 3 ngày, mức phạt 5.000 VND/ngày
+**When**: Guest tra cứu phiếu mượn
+**Then**:
+
+* Hiển thị cảnh báo "Phiếu mượn đã quá hạn 3 ngày"
+* Hiển thị tiền phạt tích lũy: 3 × 5.000 = 15.000 VND
+* Hiển thị hướng dẫn: "Vui lòng đến thư viện để trả sách và thanh toán tiền phạt"
+
+**AC-03: Tra cứu thất bại — Thông tin không khớp**
+
+**Given**: Mã phiếu đúng nhưng SĐT sai
+**When**: Guest nhập thông tin và click "Tra cứu"
+**Then**:
+
+* Hiển thị "Không tìm thấy phiếu mượn. Vui lòng kiểm tra lại thông tin."
+* Không tiết lộ phiếu mượn có tồn tại hay không
+
+**AC-04: Guest không thể xác nhận trả sách online**
+
+**Given**: Guest tra cứu phiếu mượn đang ở trạng thái "Đang mượn"
+**When**: Xem chi tiết phiếu mượn
+**Then**:
+
+* Không hiển thị nút "Trả sách" hoặc bất kỳ hành động xác nhận trả sách nào
+* Hiển thị hướng dẫn: "Để trả sách, vui lòng mang sách đến trực tiếp thư viện"
+
+---
+
+### **US-39: Xem mã thẻ thư viện / QR cá nhân (Customer)**
+
+#### **User Story Statement**
+
+Là một Độc giả (Customer), tôi muốn xem mã thẻ thư viện dưới dạng QR code hoặc mã số trên ứng dụng để thủ thư có thể quét/tìm nhanh tài khoản khi tôi đến mượn sách trực tiếp tại quầy.
+
+#### **Luồng Người dùng (User Flow)**
+
+**Luồng chính: Xem mã thẻ thư viện**
+
+1\. Customer đăng nhập và truy cập trang "Hồ sơ cá nhân" hoặc "Thẻ thư viện"
+
+2\. Hệ thống hiển thị:
+
+   \- Mã thẻ thư viện (dạng số/chuỗi, VD: LIB-2024-001234)
+
+   \- QR code chứa mã thẻ thư viện (có thể quét bằng thiết bị tại quầy)
+
+   \- Họ tên Customer (hiển thị bên cạnh QR)
+
+   \- Hạng thành viên (nếu có)
+
+   \- Ngày đăng ký
+
+3\. Customer có thể:
+
+   \- Phóng to QR code để dễ quét
+
+   \- Sao chép mã thẻ thư viện
+
+   \- Lưu ảnh QR code vào thiết bị
+
+**Luồng phụ: Sử dụng tại quầy**
+
+1\. Customer đến quầy thư viện, mở trang thẻ thư viện trên điện thoại
+
+2\. Đưa QR code cho thủ thư quét
+
+3\. Hệ thống tự động nhận diện và hiển thị thông tin Customer cho thủ thư (liên kết US-34)
+
+#### **Tiêu chí Chấp nhận (Acceptance Criteria)**
+
+**AC-01: Hiển thị mã thẻ thư viện và QR code**
+
+**Given**: Customer đã đăng nhập
+**When**: Truy cập trang "Thẻ thư viện" hoặc "Hồ sơ cá nhân"
+**Then**:
+
+* Hiển thị mã thẻ thư viện dạng chuỗi (VD: LIB-2024-001234)
+* Hiển thị QR code tương ứng
+* Hiển thị họ tên, hạng thành viên, ngày đăng ký
+
+**AC-02: QR code quét được tại quầy**
+
+**Given**: Customer đưa QR code trên điện thoại cho thủ thư
+**When**: Thủ thư quét QR bằng camera/đầu đọc (theo US-34)
+**Then**:
+
+* Hệ thống nhận diện đúng Customer
+* Thời gian phản hồi < 2 giây
+* Hiển thị thông tin Customer cho thủ thư
+
+**AC-03: Lưu QR code vào thiết bị**
+
+**Given**: Customer đang xem trang thẻ thư viện
+**When**: Click "Lưu QR code"
+**Then**:
+
+* Ảnh QR code được tải về thiết bị dưới dạng PNG
+* Ảnh có chất lượng đủ cao để quét offline
+
+---
+
+### **US-40: Duyệt phiếu mượn Guest Online (Librarian/Staff)**
+
+#### **User Story Statement**
+
+Là Thủ thư/Nhân viên, tôi muốn xem và duyệt các phiếu mượn do Guest (không có tài khoản) tạo online, phân biệt rõ với phiếu của Customer, và xác nhận giao sách khi Guest đến lấy bằng cách đối chiếu SĐT + Mã phiếu, để đảm bảo quy trình mượn sách Guest được kiểm soát chặt chẽ.
+
+#### **Luồng Người dùng (User Flow)**
+
+**Luồng chính: Xem danh sách phiếu mượn Guest**
+
+1\. Staff truy cập "Quản lý phiếu mượn"
+
+2\. Hệ thống hiển thị danh sách phiếu mượn, trong đó phiếu mượn Guest được đánh dấu:
+
+   \- Badge "Guest" với màu khác biệt (VD: cam) trên phiếu
+
+   \- Hiển thị: Mã phiếu, Họ tên Guest, SĐT, Email, Tên sách, Ngày đến lấy, Ngày hẹn trả
+
+   \- Trạng thái: Chờ duyệt / Chờ lấy / Đang mượn / Đã trả / Quá hạn / Đã hủy
+
+3\. Staff có thể lọc phiếu mượn theo:
+
+   \- Loại khách: Guest / Customer / Tất cả
+
+   \- Trạng thái phiếu
+
+   \- Khoảng thời gian
+
+**Luồng chính: Xác nhận khi Guest đến lấy sách**
+
+1\. Guest đến thư viện để lấy sách đã đặt mượn online
+
+2\. Staff tìm phiếu mượn bằng:
+
+   \- Nhập Mã phiếu mượn
+
+   \- Hoặc nhập SĐT của Guest
+
+3\. Hệ thống hiển thị chi tiết phiếu mượn
+
+4\. Staff xác nhận danh tính Guest bằng SĐT + Mã phiếu (hoặc yêu cầu Guest cho xem email xác nhận)
+
+5\. Staff click "Xác nhận giao sách"
+
+6\. Hệ thống:
+
+   \- Chuyển trạng thái phiếu từ "Chờ duyệt" → "Đang mượn"
+
+   \- Ghi nhận thời gian giao sách và Staff xử lý
+
+   \- Thu tiền cọc bằng tiền mặt (bắt buộc cho Guest)
+
+   \- Gửi email xác nhận đã nhận sách cho Guest
+
+   \- Ghi nhận audit log
+
+**Luồng phụ: Từ chối phiếu mượn Guest**
+
+1\. Staff xem phiếu mượn Guest ở trạng thái "Chờ duyệt"
+
+2\. Click "Từ chối" và nhập lý do
+
+3\. Hệ thống:
+
+   \- Chuyển trạng thái sang "Đã từ chối"
+
+   \- Hoàn lại tồn kho
+
+   \- Gửi email thông báo lý do từ chối cho Guest
+
+**Luồng ngoại lệ: Guest không đến lấy sách**
+
+1\. Phiếu mượn Guest ở trạng thái "Chờ lấy" quá thời hạn (theo cấu hình, VD: 3 ngày)
+
+2\. Hệ thống tự động hủy phiếu mượn
+
+3\. Hoàn lại tồn kho
+
+4\. Gửi email thông báo hủy cho Guest
+
+#### **Tiêu chí Chấp nhận (Acceptance Criteria)**
+
+**AC-01: Phiếu mượn Guest hiển thị badge "Guest"**
+
+**Given**: Guest đã đặt mượn sách online
+**When**: Staff truy cập danh sách phiếu mượn
+**Then**:
+
+* Phiếu mượn Guest hiển thị badge "Guest" với màu cam
+* Phân biệt rõ ràng với phiếu của Customer
+* Có thể lọc riêng phiếu Guest
+
+**AC-02: Xác nhận giao sách cho Guest thành công**
+
+**Given**: Phiếu mượn Guest ở trạng thái "Chờ duyệt", Guest đã đến thư viện
+**When**: Staff xác nhận danh tính (SĐT + Mã phiếu) và click "Xác nhận giao sách"
+**Then**:
+
+* Trạng thái phiếu chuyển sang "Đang mượn"
+* Tiền cọc tiền mặt được ghi nhận
+* Email xác nhận nhận sách gửi cho Guest
+* Audit log ghi nhận hành động
+
+**AC-03: Từ chối phiếu mượn Guest**
+
+**Given**: Phiếu mượn Guest ở trạng thái "Chờ duyệt"
+**When**: Staff click "Từ chối" và nhập lý do
+**Then**:
+
+* Trạng thái chuyển "Đã từ chối"
+* Tồn kho hoàn lại
+* Email thông báo lý do từ chối gửi cho Guest
+
+**AC-04: Tự động hủy khi Guest không đến lấy sách**
+
+**Given**: Phiếu mượn Guest ở trạng thái "Chờ lấy" quá 3 ngày (theo cấu hình)
+**When**: Hệ thống chạy job kiểm tra
+**Then**:
+
+* Phiếu tự động hủy
+* Tồn kho hoàn lại
+* Email thông báo hủy gửi cho Guest
+
+---
+
+### **US-41: Xác nhận trả sách của Guest (Librarian/Staff)**
+
+#### **User Story Statement**
+
+Là Thủ thư/Nhân viên, tôi muốn xác nhận trả sách của Guest bằng cách tìm phiếu mượn theo Mã phiếu hoặc SĐT, kiểm tra tình trạng sách, tính tiền phạt (nếu quá hạn), thu tiền mặt tại quầy và gửi email xác nhận cho Guest, để đảm bảo quy trình trả sách Guest được xử lý giống Customer nhưng phù hợp với đặc thù không có tài khoản.
+
+#### **Luồng Người dùng (User Flow)**
+
+**Luồng chính: Xác nhận trả sách Guest**
+
+1\. Guest đến thư viện để trả sách
+
+2\. Staff tìm phiếu mượn bằng:
+
+   \- Nhập Mã phiếu mượn
+
+   \- Hoặc nhập SĐT của Guest
+
+3\. Hệ thống hiển thị danh sách phiếu mượn của Guest (nếu tìm theo SĐT), Staff chọn phiếu cần xử lý
+
+4\. Staff kiểm tra tình trạng sách vật lý:
+
+   \- Nguyên vẹn
+
+   \- Hư hỏng (chọn mức độ)
+
+   \- Mất sách
+
+5\. Staff click "Xác nhận trả sách"
+
+6\. Hệ thống:
+
+   \- Chuyển trạng thái phiếu sang "Đã trả"
+
+   \- Cập nhật tồn kho (tăng lại)
+
+   \- Nếu trả quá hạn: tự động tính tiền phạt = (số ngày quá hạn) × (mức phạt/ngày theo cấu hình)
+
+   \- Hiển thị chi tiết tiền phạt cho Staff: tên sách, ngày hẹn trả, ngày trả thực tế, số ngày trễ, tổng phạt
+
+7\. Staff thông báo cho Guest và thu tiền mặt (tiền phạt và/hoặc xử lý hoàn cọc)
+
+8\. Staff click "Xác nhận đã thu tiền" (hoặc "Xác nhận đã hoàn cọc" nếu trả đúng hạn)
+
+9\. Hệ thống:
+
+   \- Ghi nhận thanh toán tiền phạt / hoàn cọc
+
+   \- Tạo biên nhận
+
+   \- Gửi email xác nhận trả sách cho Guest (kèm biên nhận nếu có phạt/hoàn cọc)
+
+   \- Ghi nhận audit log
+
+**Luồng phụ: Sách bị hư hỏng**
+
+1\. Staff ghi nhận sách trả bị hư hỏng
+
+2\. Hệ thống tính phí bồi thường theo chính sách
+
+3\. Staff thu tiền bồi thường + tiền phạt quá hạn (nếu có) — trừ từ tiền cọc
+
+4\. Ghi nhận trên hệ thống, tạo biên nhận, gửi email cho Guest
+
+**Luồng ngoại lệ: Guest mất sách**
+
+1\. Staff ghi nhận mất sách
+
+2\. Hệ thống tính phí bồi thường toàn bộ (100% giá sách)
+
+3\. Tiền cọc bị giữ lại, Guest phải trả phần chênh lệch
+
+4\. Sách được đánh dấu "Mất" trong hệ thống kho, tồn kho giảm vĩnh viễn
+
+#### **Tiêu chí Chấp nhận (Acceptance Criteria)**
+
+**AC-01: Xác nhận trả sách Guest đúng hạn**
+
+**Given**: Guest trả sách đúng hạn, sách nguyên vẹn, đã đóng cọc 30.000 VND
+**When**: Staff tìm phiếu bằng SĐT/Mã phiếu, xác nhận trả sách và hoàn cọc
+**Then**:
+
+* Trạng thái phiếu chuyển "Đã trả"
+* Tồn kho tăng lại
+* Cọc 30.000 VND được ghi nhận "Đã hoàn"
+* Email xác nhận trả sách gửi cho Guest
+* Biên nhận hoàn cọc được tạo
+
+**AC-02: Xác nhận trả sách Guest quá hạn**
+
+**Given**: Guest trả sách trễ 4 ngày, mức phạt 5.000 VND/ngày → Tổng phạt = 20.000 VND
+**When**: Staff xác nhận trả sách
+**Then**:
+
+* Tiền phạt = 4 × 5.000 = 20.000 VND hiển thị cho Staff
+* Staff thu tiền phạt bằng tiền mặt và xác nhận
+* Khoản phạt ghi nhận "Đã thanh toán"
+* Phiếu mượn cập nhật trạng thái "Đã trả — Đã thu phạt"
+* Email xác nhận kèm biên nhận phạt gửi cho Guest
+
+**AC-03: Tìm phiếu mượn Guest bằng SĐT**
+
+**Given**: Guest có nhiều phiếu mượn liên kết với SĐT "0901234567"
+**When**: Staff nhập SĐT để tìm phiếu
+**Then**:
+
+* Hiển thị danh sách tất cả phiếu mượn của Guest đó
+* Staff chọn đúng phiếu cần xử lý
+* Phiếu đang mượn/quá hạn được highlight
+
+**AC-04: Xử lý sách hư hỏng của Guest**
+
+**Given**: Guest trả sách bị hư hỏng, giá sách 150.000 VND, chính sách bồi thường 50%, tiền cọc 45.000 VND
+**When**: Staff ghi nhận hư hỏng và xử lý
+**Then**:
+
+* Phí bồi thường = 75.000 VND
+* Trừ từ tiền cọc 45.000 VND → Guest trả thêm 30.000 VND tiền mặt
+* Biên nhận bồi thường được tạo
+* Email xác nhận gửi cho Guest
+* Sách đánh dấu "Hư hỏng" trong hệ thống kho
+
+**AC-05: Email xác nhận trả sách đầy đủ nội dung**
+
+**Given**: Staff xác nhận trả sách Guest thành công
+**When**: Email được gửi
+**Then**:
+
+* Email chứa: Mã phiếu mượn, tên sách, ngày mượn, ngày trả thực tế, tình trạng sách, tiền phạt (nếu có), tiền cọc hoàn (nếu có)
+* Email gửi đúng địa chỉ email đã đăng ký khi mượn
+
+---
 ---
 
 ## **3. Bảng tổng hợp User Stories**
@@ -2448,3 +3005,8 @@ Là Thủ thư/Nhân viên, tôi muốn ghi nhận thanh toán tiền mặt cho 
 | **US-34** | **Tìm kiếm thông tin độc giả tại quầy** | **Librarian/Staff** | **Cao** |
 | **US-35** | **Tạo phiếu mượn trực tiếp tại quầy (Walk-in Borrow)** | **Librarian/Staff** | **Cao** |
 | **US-36** | **Thu tiền cọc và tiền phạt tại quầy** | **Librarian/Staff** | **Cao** |
+| **US-37** | **Đặt mượn sách không cần tài khoản (Guest Online)** | **Guest** | **Cao** |
+| **US-38** | **Tra cứu & xem chi tiết phiếu mượn Guest (Guest Online)** | **Guest** | **Cao** |
+| **US-39** | **Xem mã thẻ thư viện / QR cá nhân** | **Customer** | **Trung bình** |
+| **US-40** | **Duyệt phiếu mượn Guest Online** | **Librarian/Staff** | **Cao** |
+| **US-41** | **Xác nhận trả sách của Guest** | **Librarian/Staff** | **Cao** |
