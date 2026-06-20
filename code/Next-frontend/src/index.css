@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+@layer utilities {
+  .ai-glow {
+    box-shadow: 0 0 20px rgba(45, 188, 254, 0.2);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .ai-glow:focus-within {
+    box-shadow: 0 0 30px rgba(45, 188, 254, 0.4);
+  }
+
+  .level-1-shadow {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .level-2-shadow-hover:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-gradient-bg {
+    background: linear-gradient(135deg, #15157d 0%, #2dbcfe 100%);
+  }
+
+  .ai-gradient-text {
+    background: linear-gradient(135deg, #15157d 0%, #2dbcfe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
