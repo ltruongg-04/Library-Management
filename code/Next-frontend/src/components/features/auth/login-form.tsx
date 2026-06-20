@@ -47,10 +47,10 @@ export function LoginForm() {
     <div className="w-full max-w-md animate-slide-up">
       {/* Heading */}
       <div className="mb-8">
-        <h1 className="text-4xl font-semibold text-content-primary">
+        <h1 className="text-4xl font-semibold text-on-surface dark:text-white">
           Welcome back
         </h1>
-        <p className="mt-2 text-sm text-content-secondary">
+        <p className="mt-2 text-sm text-on-surface-variant dark:text-slate-300">
           Sign in to access your curated collections and AI assistant.
         </p>
       </div>
@@ -82,7 +82,7 @@ export function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="text-content-outline hover:text-content-primary transition-colors focus:outline-none"
+                className="text-outline dark:text-slate-400 hover:text-on-surface dark:text-white transition-colors focus:outline-none"
                 aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
                 {showPassword ? (
@@ -112,18 +112,18 @@ export function LoginForm() {
 
       {/* Divider */}
       <div className="my-8 flex items-center gap-4">
-        <div className="h-px flex-1 bg-surface-high" />
-        <span className="text-xs uppercase tracking-wider text-content-outline font-mono">
+        <div className="h-px flex-1 bg-surface-container-high dark:bg-slate-800" />
+        <span className="text-xs uppercase tracking-wider text-outline dark:text-slate-400 font-mono">
           Or continue with
         </span>
-        <div className="h-px flex-1 bg-surface-high" />
+        <div className="h-px flex-1 bg-surface-container-high dark:bg-slate-800" />
       </div>
 
       {/* Social logins */}
       <div className="grid grid-cols-2 gap-4">
         <button
           type="button"
-          className="inline-flex h-12 items-center justify-center gap-2 rounded border border-surface-high bg-surface-lowest text-sm font-medium text-content-primary transition-colors hover:bg-surface-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded border border-outline-variant dark:border-slate-700 bg-surface-container-lowest dark:bg-slate-900 text-sm font-medium text-on-surface dark:text-white transition-colors hover:bg-surface-container-high dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
         >
           <GoogleIcon />
           Google
@@ -131,7 +131,7 @@ export function LoginForm() {
 
         <button
           type="button"
-          className="inline-flex h-12 items-center justify-center gap-2 rounded border border-surface-high bg-surface-lowest text-sm font-medium text-content-primary transition-colors hover:bg-surface-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded border border-outline-variant dark:border-slate-700 bg-surface-container-lowest dark:bg-slate-900 text-sm font-medium text-on-surface dark:text-white transition-colors hover:bg-surface-container-high dark:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
         >
           <AppleIcon />
           Apple
@@ -139,7 +139,7 @@ export function LoginForm() {
       </div>
 
       {/* Sign up */}
-      <p className="mt-8 text-center text-sm text-content-secondary">
+      <p className="mt-8 text-center text-sm text-on-surface-variant dark:text-slate-300">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
@@ -178,7 +178,7 @@ function GoogleIcon() {
 function AppleIcon() {
   return (
     <svg
-      className="h-5 w-5 text-content-primary"
+      className="h-5 w-5 text-on-surface dark:text-white"
       fill="currentColor"
       viewBox="0 0 24 24"
       aria-hidden="true"

@@ -33,28 +33,34 @@ export default function PublicLayout({
     setIsLoggedIn(!!token);
 
     // Check theme status
-    const isDark = document.documentElement.classList.contains("dark");
-    setIsDarkMode(isDark);
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+      setIsDarkMode(true);
+    } else {
+      setIsDarkMode(false);
+    }
   }, []);
 
   const toggleTheme = () => {
-    setIsDarkMode((prev) => {
-      const nextTheme = !prev;
-      if (nextTheme) {
-        document.documentElement.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-      }
-      return nextTheme;
-    });
+    const htmlEl = document.documentElement;
+    const isCurrentlyDark = htmlEl.classList.contains("dark");
+    
+    if (isCurrentlyDark) {
+      htmlEl.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      setIsDarkMode(false);
+    } else {
+      htmlEl.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDarkMode(true);
+    }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface-lowest dark:bg-slate-950 text-on-surface dark:text-white transition-colors duration-200">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 text-ink-950 dark:text-white transition-colors duration-200">
       {/* Top Navigation Bar — Glassmorphism */}
-      <header className="fixed top-0 w-full z-50 bg-surface-container-lowest/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-outline-variant/30 dark:border-slate-800 shadow-sm transition-all duration-200">
+      <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-ink-100 dark:border-slate-800 shadow-sm transition-all duration-200">
         <div className="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto">
           {/* Logo */}
           <div className="flex items-center gap-6">
@@ -77,7 +83,7 @@ export default function PublicLayout({
                   className={`flex flex-col justify-center h-full text-[20px] font-semibold transition-all duration-200 active:scale-95 ${
                     isActive
                       ? "text-primary-700 dark:text-white border-b-2 border-primary-700 dark:border-primary-100"
-                      : "text-on-surface-variant dark:text-white hover:text-primary-700 dark:hover:text-primary-100"
+                      : "text-ink-500 dark:text-white hover:text-primary-700 dark:hover:text-primary-100"
                   }`}
                 >
                   {link.label}
@@ -90,7 +96,7 @@ export default function PublicLayout({
           <div className="flex items-center gap-4">
             <button
               onClick={toggleTheme}
-              className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-variant dark:hover:bg-slate-800 transition-colors text-on-surface-variant dark:text-white"
+              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white cursor-pointer"
               aria-label="Toggle Theme"
             >
               <span className="material-symbols-outlined">
@@ -100,7 +106,7 @@ export default function PublicLayout({
             {isLoggedIn ? (
               <>
                 <button
-                  className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-variant dark:hover:bg-slate-800 transition-colors text-on-surface-variant dark:text-white"
+                  className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white"
                   aria-label="Notifications"
                 >
                   <span className="material-symbols-outlined">notifications</span>
