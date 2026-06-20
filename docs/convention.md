@@ -14,21 +14,40 @@ This document summarizes the latest, authoritative best practices for building, 
 
 ## 1. Project Structure & Organization
 
-- **Use the `app/` directory** (App Router) for all new projects. Prefer it over the legacy `pages/` directory.
-- **Top-level folders:**
-  - `app/` — Routing, layouts, pages, and route handlers
-  - `public/` — Static assets (images, fonts, etc.)
-  - `lib/` — Shared utilities, API clients, and logic
-  - `components/` — Reusable UI components
-  - `contexts/` — React context providers
-  - `styles/` — Global and modular stylesheets
-  - `hooks/` — Custom React hooks
-  - `types/` — TypeScript type definitions
-- **Colocation:** Place files (components, styles, tests) near where they are used, but avoid deeply nested structures.
-- **Route Groups:** Use parentheses (e.g., `(admin)`) to group routes without affecting the URL path.
-- **Private Folders:** Prefix with `_` (e.g., `_internal`) to opt out of routing and signal implementation details.
-- **Feature Folders:** For large apps, group by feature (e.g., `app/dashboard/`, `app/auth/`).
-- **Use `src/`** (optional): Place all source code in `src/` to separate from config files.
+```text
+next-frontend/
+├── .husky/ # Thư mục chứa các script chặn commit (pre-commit hook) để đảm bảo code đã chuẩn convention, đáp ứng đúng lint, build không lỗi,... trước khi được đẩy lên
+│ └── pre-commit # Script chạy tsc và eslint trước khi cho phép git commit
+│
+├── public/ # Tài nguyên tĩnh không qua build (favicon, robots.txt, ảnh landing page)
+│
+├── src/
+│ ├── assets/ # Tài nguyên tĩnh đi qua build (images, svg, local fonts)
+│ ├── app/ # Next.js App Router (Định nghĩa routing gồm layout, page,... Theo Next)
+│ ├── components/ # Chứa các component giao diện
+│ │ ├── base/ # Các component base tự custom (BaseButton, BaseTable...)
+│ │ └── features/ # Component theo nghiệp vụ
+│ ├── lib/ # Cấu hình thư viện (Axios client, utils)
+│ ├── hooks/ # Custom React Hooks
+│ ├── store/ # Global State (Zustand/Redux)
+│ ├── types/ # Định nghĩa TypeScript
+│ ├── index.css # Global CSS (Cấu hình Tailwind)
+│ ├── providers/ # Các provider của react
+│ ├── schemas/ # Các validator trên front end (Sử dụng zod)
+│ ├── services/ # Các hàm gọi api đến backend
+│ ├── utils/ # Chứa các hàm sử dụng chung
+│ └── constants/ # Định nghĩa các hằng số
+│
+├── eslint.config.mjs # Cấu hình linter khắt khe để đảm bảo chất lượng mã nguồn. Cơ bản sẽ phải kiểm tra những điều sau: eslint-plugin-boundaries (để phân chia ranh giới các phần vào đúng folder), áp dụng quy tắc đặt tên của dự án (kebab-case), không hard code hard text hard mã màu, unusedImports, không lạm dụng any, không sử dụng Magic number
+├── .prettierrc # Cấu hình format code chuẩn chung cho cả team
+├── tailwind.config.ts # Cấu hình TailwindCSS, nên ghi đè tailwind bằng ghi đè mã màu
+├── tsconfig.json # Cấu hình TypeScript (Bật Strict Mode)
+├── package.json
+├── Dockerfile, .dockerignore, docker compose # Nếu sử dụng Docker để build
+├── Sentry # Cấu hình để ghi nhận bug trên product
+├── .gitignore # Cấu hình những thứ không push lên git
+└── .env # Cấu hình biến môi trường, có thể tạo thêm các biến thể như .env.local, .env.development,...
+```
 
 ## 2. Next.js 16+ App Router Best Practices
 
@@ -181,11 +200,68 @@ Do not create example/demo files (like ModalExample.tsx) in the main codebase un
   - `get_library_docs` for up-to-date documentation.
 
 ---
+
 title: "Convention for Backend"
-applyTo: "**/*.tsx, **/*.ts, **/*.jsx, **/*.js, **/*.css"
+applyTo: "**/\*.java, **/_.properties, \*\*/_.yml, **/\*.xml, **/\*.sql"
+
 ---
 
-## File Naming Conventions
+## 1. Project Structure & Organization
+
+```text
+backend-layered/
+├── src/main/java/com/ioc/internship/
+│   ├── Application.java                  # File chạy chính của Spring Boot
+│   │
+│   ├── common/                           # Các tiện ích và class cốt lõi dùng chung
+│   │   ├── base/                         # Chứa các Base Classes
+│   │   │   ├── BaseEntity.java           # (@MappedSuperclass có id, created_at, updated_at)
+│   │   │   ├── BaseController.java       # (Định nghĩa chung các hàm API phản hồi HTTP)
+│   │   │   ├── BaseService.java          # (Interface CRUD dùng Generics <T, ID>)
+│   │   │   └── BaseServiceImpl.java      # (Code thực thi CRUD dùng chung)
+│   │   ├── constants/                    # Hằng số (ErrorCodes, SystemConstants, RegexConstants)
+│   │   ├── exception/                    # Xử lý lỗi toàn hệ thống
+│   │   │   ├── GlobalExceptionHandler.java # (@RestControllerAdvice bắt lỗi tập trung)
+│   │   │   └── CustomBusinessException.java# Định nghĩa lỗi nghiệp vụ riêng
+│   │   └── utils/                        # Các hàm phụ trợ (JwtUtils, DateUtils, PasswordEncoder)
+│   │
+│   ├── config/                           # Cấu hình Framework
+│   │   ├── SecurityConfig.java           # Cấu hình phân quyền, chặn API, CORS
+│   │   ├── OpenApiConfig.java            # Cấu hình tài liệu Swagger API
+│   │   └── DatabaseConfig.java           # Cấu hình kết nối nhiều DB (nếu cần)
+│   │
+│   ├── controller/                       # TẦNG API (Giao tiếp HTTP)
+│   │   ├── admin/                        # Nhóm API cho Admin (ví dụ: AdminUserController)
+│   │   └── student/                      # Nhóm API cho Sinh viên (ví dụ: StudentProjectController)
+│   │
+│   ├── dto/                              # DATA TRANSFER OBJECT (Chứa object gửi/nhận)
+│   │   ├── request/                      # Dữ liệu Client gửi lên (UserCreateReq, LoginReq) - chứa @Valid
+│   │   └── response/                     # Dữ liệu trả về (UserDetailRes, PaginatedRes)
+│   │
+│   ├── entity/                           # TẦNG MAP VỚI DATABASE (JPA)
+│   │   ├── UserEntity.java               # Map với bảng users
+│   │   └── ProjectEntity.java            # Map với bảng projects
+│   │
+│   ├── repository/                       # TẦNG TRUY VẤN DỮ LIỆU
+│   │   ├── custom/                       # Nơi chứa interface gọi Stored Procedure / Native SQL phức tạp
+│   │   └── UserRepository.java           # Kế thừa JpaRepository cho các câu lệnh đơn giản
+│   │
+│   └── service/                          # TẦNG NGHIỆP VỤ LÕI
+│       ├── impl/                         # Thư mục bắt buộc chứa code thực thi thật
+│       │   └── UserServiceImpl.java      # Xử lý logic, tính toán, gọi Repository
+│       └── UserService.java              # Chỉ chứa Interface (Định nghĩa hành động)
+│
+│   ├── unitest/                           # Cài thêm unit test để kiểm thử
+│   ├── sonarLint/                           # Cài sonarlint để quản lý chất lượng mã nguồn
+├── Dockerfile, .dockerignore, docker compose         # Nếu sử dụng Docker để build
+└── resources/
+    ├── application.yml                   # Cấu hình port, database credentials
+    ├── text/                   # Cấu hình ResourceBundle để lưu text, không hard text vào code
+    └── db/migration/                     # Nơi viết các thay đổi DB
+        ├── V1__Init_Tables.sql           # Script tạo bảng CSDL
+```
+
+## 2. File Naming Conventions
 
 ```java
 // ✅ Good
@@ -410,7 +486,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     UserEntity findByEmail(String email); // Returns null instead of Optional
-    
+
     @Query("SELECT u FROM UserEntity u WHERE u.firstName LIKE '%' + :name + '%'")
     // SQL injection risk
     List<UserEntity> findByName(@Param("name") String name);
@@ -679,7 +755,7 @@ public class UserController {
     public UserEntity createUser(@RequestBody UserEntity user) { // Direct entity exposure
         return userService.createUser(user); // No validation
     }
-    
+
     @GetMapping("/{id}")
     public UserEntity getUser(@PathVariable String id) { // String instead of Long
         return userService.getUser(Long.valueOf(id)); // Manual conversion
