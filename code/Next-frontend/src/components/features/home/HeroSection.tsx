@@ -10,11 +10,10 @@ export default function HeroSection() {
       {/* Content */}
       <div className="relative z-10 max-w-3xl mx-auto text-center w-full">
         <h1 className="font-sans text-[48px] font-bold leading-[56px] tracking-[-0.02em] text-primary-700 mb-4">
-          Illuminated Intelligence.
+          TÌM KIẾM TRI THỨC CÙNG AI
         </h1>
         <p className="font-sans text-[20px] font-semibold leading-[28px] text-on-surface-variant mb-12 max-w-2xl mx-auto">
-          Discover your next great read using the power of AI. Search the
-          catalog with precision or intuition.
+          Tìm kiếm những cuốn sách yêu thích của bạn dễ dàng hơn với công nghệ AI.
         </p>
 
         {/* AI Semantic Search Bar */}
@@ -29,12 +28,12 @@ export default function HeroSection() {
             </span>
             <input
               className="flex-grow bg-transparent border-none outline-none font-sans text-[16px] leading-[24px] text-on-surface placeholder:text-on-surface-variant/50 h-full focus:ring-0"
-              placeholder="Search for a book by description, theme, or feeling..."
+              placeholder="Tìm kiếm sách..."
               type="text"
               aria-label="AI semantic search"
             />
             <button className="ai-gradient-bg text-on-primary px-4 py-2 rounded-lg font-semibold text-[14px] h-[40px] hover:opacity-90 transition-opacity whitespace-nowrap">
-              AI Search
+              Tìm kiếm với AI
             </button>
           </div>
         </div>

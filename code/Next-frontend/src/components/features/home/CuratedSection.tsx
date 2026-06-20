@@ -13,7 +13,7 @@ function MatchPill({
     >
       <div className="w-2 h-2 rounded-full bg-secondary-300 mr-1 animate-pulse" />
       <span className="font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] text-primary-700">
-        {percentage}% Match
+        {percentage}% phù hợp.
       </span>
     </div>
   );
@@ -28,11 +28,10 @@ export default function CuratedSection() {
           <span className="material-symbols-outlined">psychology</span>
         </span>
         <h2 className="font-sans text-[32px] font-semibold leading-[40px] tracking-[-0.01em] text-primary-700 mb-1">
-          Curated for You
+          Dành cho bạn
         </h2>
         <p className="font-sans text-[16px] leading-[24px] text-on-surface-variant">
-          Our AI engine has analyzed your reading patterns to suggest these
-          distinct collections.
+          Đề xuất dựa trên sở thích đọc sách của bạn.
         </p>
       </div>
 
@@ -65,7 +64,7 @@ export default function CuratedSection() {
               implications of thinking machines.
             </p>
             <button className="bg-transparent border border-secondary-500 text-secondary-500 hover:bg-secondary-500/5 px-4 py-2 rounded-lg font-semibold text-[14px] transition-colors w-fit">
-              Explore Collection
+              Khám phá bộ sưu tập
             </button>
           </div>
 

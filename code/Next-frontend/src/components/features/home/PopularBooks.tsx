@@ -26,17 +26,17 @@ const BOOKS: BookCardProps[] = [
   {
     title: "The Algorithmic Mind",
     author: "Dr. Elena Rostova",
-    category: "Science",
+    category: "Khoa học",
     categoryColor: "science",
     badgeIcon: "trending_up",
-    badgeText: "#1 trending",
+    badgeText: "#1 Thịnh hành",
     imageSrc:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAYlDKQmIuqCq-tqTicaKu3Yo3_ZJmzdJmUd9f-5laODWr7iO_6xc5MGw7pBqlgzRYgcmDnPSFJdaSQ3MLmMUdLvZApaDzJS-TC6acVDF90OSsK_8LtBKzFL35XNAECxSEWm4HUfIfhYYYxEGYODvnwWmAhjiZO6N81ta8KxdlnyML3EM3wR7ueblXUxAjcmEZ3JSB0PBWmD6t2M3D7scUBUCwuT4qbfHz6BPkcunChaopBdvaWcadTSqOFQ1KeOwkl_PcFdxndQ-vo",
   },
   {
     title: "Echoes of Silence",
     author: "Marcus Thorne",
-    category: "Fiction",
+    category: "Tiểu thuyết",
     categoryColor: "fiction",
     badgeIcon: "star",
     badgeText: "4.9/5",
@@ -46,7 +46,7 @@ const BOOKS: BookCardProps[] = [
   {
     title: "A Brief History of Tomorrow",
     author: "Sarah Jenkins",
-    category: "History",
+    category: "Lịch sử",
     categoryColor: "history",
     placeholderIcon: "history_edu",
     placeholderBg: "bg-primary-container",
@@ -58,7 +58,7 @@ const BOOKS: BookCardProps[] = [
   {
     title: "Design Systems",
     author: "Alex Rivera",
-    category: "Design",
+    category: "Thiết kế",
     categoryColor: "design",
     placeholderIcon: "palette",
     placeholderBg: "bg-tertiary-container",
@@ -161,14 +161,14 @@ export default function PopularBooks() {
       <div className="flex justify-between items-end mb-6">
         <div>
           <h2 className="font-sans text-[32px] font-semibold leading-[40px] tracking-[-0.01em] text-primary-700">
-            Popular Now
+            Đang thịnh hành
           </h2>
           <p className="font-sans text-[16px] leading-[24px] text-on-surface-variant">
-            Trending across the network.
+            Xu hướng hiện tại.
           </p>
         </div>
         <button className="text-secondary-500 font-semibold text-[20px] leading-[28px] hover:text-primary-700 transition-colors flex items-center">
-          View All{" "}
+          Xem tất cả{" "}
           <span className="material-symbols-outlined ml-1 text-sm">
             arrow_forward
           </span>
