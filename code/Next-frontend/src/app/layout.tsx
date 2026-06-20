@@ -1,10 +1,32 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import "@/index.css";
+import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import "./admin/globals.css";
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Lumina Library",
-  description: "Hệ thống quản lý thư viện thông minh",
+  title: "Athenaeum — Library Admin",
+  description: "Hệ thống quản lý thư viện",
 };
 
 export default function RootLayout({
@@ -13,18 +35,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="light">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="antialiased min-h-screen bg-background text-on-background font-body-md">
+    <html lang="vi">
+      <body
+        className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased text-ink-950`}
+      >
         {children}
       </body>
     </html>
