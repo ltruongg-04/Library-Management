@@ -40,7 +40,7 @@ export default function RootLayout({
           <div className="flex flex-col md:flex-row justify-between items-center px-6 max-w-[1440px] mx-auto gap-4">
             <div className="text-xl font-bold text-primary">Lumina Library</div>
             <div className="text-sm text-on-surface-variant text-center md:text-right">
-              © 2024 Lumina Library AI. Powered by Illuminated Intelligence.
+              © 2026 Lumina Library AI. Powered by Illuminated Intelligence.
             </div>
           </div>
         </footer>

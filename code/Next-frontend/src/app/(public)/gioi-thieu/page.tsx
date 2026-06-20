@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Giới thiệu | Lumina Library",
   description:
-    "Khám phá câu chuyện của Lumina Library — hệ thống thư viện thông minh kết hợp truyền thống học thuật với sức mạnh AI hiện đại.",
+    "Khám phá câu chuyện của Lumina Library — hệ thống thư viện thông minh kết hợp truyền thống.",
 };
 
 export default function AboutPage() {

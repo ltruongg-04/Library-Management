@@ -5,9 +5,9 @@ import { useState } from "react";
 const FAQ_ITEMS = [
   {
     id: "faq-ai-search",
-    question: "Làm thế nào để mượn sách từ thư viện?",
+    question: "Làm thế nào để mượn sách từ thư viện thông qua website?",
     answer:
-      "Bạn chỉ cần vào danh mục, tìm kiếm sách, chọn sách muốn mượn và chờ nhân viên thư viện xử lý. Nếu bạn mượn trực tuyến, bạn có thể nhận sách tại quầy hoặc yêu cầu giao sách đến tận nơi.",
+      "Bạn chỉ cần vào danh mục, tìm kiếm sách, chọn sách muốn mượn và chờ nhân viên thư viện xử lý nếu mượn sách trực tuyến. Sau đó, bạn có thể nhận sách tại quầy hoặc yêu cầu giao sách đến tận nơi.",
   },
   {
     id: "faq-api-access",
