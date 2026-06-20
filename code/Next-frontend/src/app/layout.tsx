@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "Hệ thống quản lý thư viện thông minh",
 };
 
+import ThemeProvider from "@/providers/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,8 +26,8 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased min-h-screen bg-background text-on-background font-body-md">
-        {children}
+      <body className="antialiased min-h-screen bg-background dark:bg-slate-950 text-on-background dark:text-white font-body-md transition-colors duration-200">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
