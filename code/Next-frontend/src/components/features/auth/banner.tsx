@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function LoginBanner() {
   return (
     <section className="fixed left-0 top-0 z-10 hidden h-screen w-1/2 overflow-hidden lg:flex">
@@ -20,10 +22,12 @@ export function LoginBanner() {
       <div className="relative z-10 flex h-full flex-col justify-between p-12">
         {/* Logo */}
         <div className="flex items-center gap-2">
-        
-          <span className="text-2xl font-bold tracking-tight text-white">
+          <Link
+            href="/"
+            className="text-2xl font-bold tracking-tight text-white transition-opacity hover:opacity-80"
+          >
             Lumina Library
-          </span>
+          </Link>
         </div>
 
         {/* Hero copy */}
