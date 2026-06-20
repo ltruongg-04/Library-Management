@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 function MatchPill({
   percentage,
@@ -63,9 +64,12 @@ export default function CuratedSection() {
               A comprehensive collection exploring the ethical and societal
               implications of thinking machines.
             </p>
-            <button className="bg-transparent border border-secondary-500 dark:border-white text-secondary-500 dark:text-white hover:bg-secondary-500/5 dark:hover:bg-white/10 px-4 py-2 rounded-lg font-semibold text-[14px] transition-colors w-fit">
+            <Link
+              href="/sach/1"
+              className="bg-transparent border border-secondary-500 dark:border-white text-secondary-500 dark:text-white hover:bg-secondary-500/5 dark:hover:bg-white/10 px-4 py-2 rounded-lg font-semibold text-[14px] transition-colors w-fit"
+            >
               Khám phá bộ sưu tập
-            </button>
+            </Link>
           </div>
 
           {/* Match Pill */}
