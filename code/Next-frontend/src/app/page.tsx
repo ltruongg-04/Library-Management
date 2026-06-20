@@ -1,9 +1,9 @@
 import { BookOpen, ClipboardList, AlertTriangle } from "lucide-react";
-import Topbar from "@/components/features/Topbar";
-import StatCard from "@/components/features/StatCard";
-import PendingRequests from "@/components/features/PendingRequests";
-import SmartCataloging from "@/components/features/SmartCataloging";
-import SystemAlerts from "@/components/features/SystemAlerts";
+import Topbar from "@/components/features/admin/Topbar";
+import StatCard from "@/components/features/admin/StatCard";
+import PendingRequests from "@/components/features/admin/PendingRequests";
+import SmartCataloging from "@/components/features/admin/SmartCataloging";
+import SystemAlerts from "@/components/features/admin/SystemAlerts";
 
 export default function DashboardPage() {
   return (
