@@ -1,6 +1,6 @@
 export function LoginBanner() {
   return (
-    <section className="relative hidden w-1/2 overflow-hidden lg:flex">
+    <section className="fixed left-0 top-0 z-10 hidden h-screen w-1/2 overflow-hidden lg:flex">
       {/* Background image */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

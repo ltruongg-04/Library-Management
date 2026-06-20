@@ -16,11 +16,11 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary:
     "bg-primary-500 text-white hover:bg-primary-700 active:bg-primary-900",
   secondary:
-    "bg-surface-high text-content-primary hover:bg-surface-default active:bg-surface-high",
+    "bg-surface-container-high dark:bg-slate-800 text-on-surface dark:text-white hover:bg-surface-default active:bg-surface-container-high dark:bg-slate-800",
   outline:
     "border border-primary-500 text-primary-500 bg-transparent hover:bg-primary-50 active:bg-primary-100",
   ghost:
-    "bg-transparent text-content-secondary hover:bg-surface-high active:bg-surface-high",
+    "bg-transparent text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-high dark:bg-slate-800 active:bg-surface-container-high dark:bg-slate-800",
   destructive:
     "bg-error-500 text-white hover:bg-error-700 active:bg-error-700",
 };

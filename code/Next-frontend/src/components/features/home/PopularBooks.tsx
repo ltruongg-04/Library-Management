@@ -16,10 +16,10 @@ interface BookCardProps {
 }
 
 const CATEGORY_STYLES = {
-  science: "text-secondary-300 bg-secondary-300/10",
-  fiction: "text-primary-700 bg-primary-700/10",
-  history: "text-secondary-300 bg-secondary-300/10",
-  design: "text-tertiary-500 bg-tertiary-500/10",
+  science: "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
+  fiction: "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
+  history: "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
+  design: "text-tertiary-500 bg-tertiary-500/10 dark:text-white dark:bg-tertiary-500/40",
 };
 
 const BOOKS: BookCardProps[] = [
@@ -85,7 +85,7 @@ function BookCard({
   hideOnTablet,
 }: BookCardProps) {
   let wrapperClass =
-    "bg-surface-container-lowest rounded-lg level-1-shadow level-2-shadow-hover transition-all duration-300 overflow-hidden flex flex-col h-full group";
+    "bg-surface-container-lowest dark:bg-slate-900 rounded-lg level-1-shadow level-2-shadow-hover transition-all duration-300 overflow-hidden flex flex-col h-full group";
   if (hideOnTablet) {
     wrapperClass += " hidden lg:flex";
   } else if (hideOnMobile) {
@@ -95,7 +95,7 @@ function BookCard({
   return (
     <div className={wrapperClass}>
       {/* Cover Image Area */}
-      <div className="relative h-48 w-full overflow-hidden bg-surface-container-low p-4 flex items-center justify-center">
+      <div className="relative h-48 w-full overflow-hidden bg-surface-container-low dark:bg-slate-800 p-4 flex items-center justify-center transition-colors duration-200">
         {imageSrc ? (
           <Image
             src={imageSrc}
@@ -117,11 +117,11 @@ function BookCard({
 
         {/* Badge */}
         {badgeText && (
-          <div className="absolute top-2 right-2 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded-full border border-outline-variant/30 flex items-center shadow-sm">
-            <span className="material-symbols-outlined text-secondary-500 text-sm mr-1">
+          <div className="absolute top-2 right-2 bg-surface-container-lowest/90 dark:bg-slate-900/90 backdrop-blur-sm px-2 py-1 rounded-full border border-outline-variant/30 dark:border-slate-700 flex items-center shadow-sm">
+            <span className="material-symbols-outlined text-secondary-500 dark:text-white text-sm mr-1">
               {badgeIcon}
             </span>
-            <span className="font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] text-on-surface">
+            <span className="font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] text-on-surface dark:text-white">
               {badgeText}
             </span>
           </div>
@@ -130,10 +130,10 @@ function BookCard({
 
       {/* Card Content */}
       <div className="p-6 flex flex-col flex-grow">
-        <h3 className="font-sans text-[20px] font-semibold leading-[28px] text-on-surface mb-1 line-clamp-1">
+        <h3 className="font-sans text-[20px] font-semibold leading-[28px] text-on-surface dark:text-white mb-1 line-clamp-1 transition-colors duration-200">
           {title}
         </h3>
-        <p className="font-sans text-[14px] leading-[20px] text-on-surface-variant mb-4">
+        <p className="font-sans text-[14px] leading-[20px] text-on-surface-variant dark:text-white mb-4 transition-colors duration-200">
           {author}
         </p>
         <div className="mt-auto flex justify-between items-center">
@@ -143,7 +143,7 @@ function BookCard({
             {category}
           </span>
           <button
-            className="text-primary-700 hover:text-secondary-300 transition-colors"
+            className="text-primary-700 dark:text-white hover:text-secondary-300 dark:hover:text-secondary-300 transition-colors"
             aria-label={`Bookmark ${title}`}
           >
             <span className="material-symbols-outlined">bookmark_add</span>
@@ -160,14 +160,14 @@ export default function PopularBooks() {
       {/* Section Header */}
       <div className="flex justify-between items-end mb-6">
         <div>
-          <h2 className="font-sans text-[32px] font-semibold leading-[40px] tracking-[-0.01em] text-primary-700">
+          <h2 className="font-sans text-[32px] font-semibold leading-[40px] tracking-[-0.01em] text-primary-700 dark:text-white transition-colors duration-200">
             Đang thịnh hành
           </h2>
-          <p className="font-sans text-[16px] leading-[24px] text-on-surface-variant">
+          <p className="font-sans text-[16px] leading-[24px] text-on-surface-variant dark:text-white transition-colors duration-200">
             Xu hướng hiện tại.
           </p>
         </div>
-        <button className="text-secondary-500 font-semibold text-[20px] leading-[28px] hover:text-primary-700 transition-colors flex items-center">
+        <button className="text-secondary-500 dark:text-white font-semibold text-[20px] leading-[28px] hover:text-primary-700 dark:hover:text-primary-300 transition-colors flex items-center">
           Xem tất cả{" "}
           <span className="material-symbols-outlined ml-1 text-sm">
             arrow_forward
