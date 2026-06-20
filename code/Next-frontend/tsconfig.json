@@ -37,13 +37,14 @@
   },
 
   "include": [
-  "next-env.d.ts",
-  "declarations.d.ts",
-  "**/*.ts",
-  "**/*.tsx",
-  ".next/types/**/*.ts"
-],
-
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.d.ts",
+    "next-env.d.ts",
+    "next.config.mjs",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]

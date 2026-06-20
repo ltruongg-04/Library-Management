@@ -25,7 +25,7 @@ export function BaseInput({
       {/* Label */}
       <label
         htmlFor={inputId}
-        className="block text-xs font-medium uppercase tracking-wider text-content-secondary"
+        className="block text-xs font-medium uppercase tracking-wider text-on-surface-variant dark:text-slate-300"
       >
         {label}
       </label>
@@ -33,7 +33,7 @@ export function BaseInput({
       {/* Input wrapper */}
       <div className="relative group">
         {leadingIcon && (
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-content-outline transition-colors group-focus-within:text-primary-500">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-400 transition-colors group-focus-within:text-primary-500">
             {leadingIcon}
           </span>
         )}
@@ -43,9 +43,9 @@ export function BaseInput({
           {...props}
           className={[
             // Base
-            "h-12 w-full rounded bg-surface-high text-content-primary text-sm",
+            "h-12 w-full rounded bg-surface-container-high dark:bg-slate-800 text-on-surface dark:text-white text-sm",
             "border-none outline-none",
-            "placeholder:text-content-outline",
+            "placeholder:text-outline dark:text-slate-400",
             "transition-shadow duration-150",
             // Focus ring
             "focus:ring-1 focus:ring-primary-500",
@@ -61,7 +61,7 @@ export function BaseInput({
         />
 
         {trailingIcon && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-content-outline">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-outline dark:text-slate-400">
             {trailingIcon}
           </span>
         )}
@@ -84,7 +84,7 @@ export function BaseInput({
 
       {/* Helper text (only when no error) */}
       {helperText && !error && (
-        <p className="text-xs text-content-outline">{helperText}</p>
+        <p className="text-xs text-outline dark:text-slate-400">{helperText}</p>
       )}
     </div>
   );
