@@ -1,0 +1,30 @@
+# Library-Management AI Agent Instructions
+
+You are assisting with the Library-Management project. Before performing any tasks, generating code, or modifying the architecture, you MUST read and strictly adhere to the guidelines provided in the `docs/` folder.
+
+## Core Documentation References
+
+1. **Coding Conventions & Architecture (`docs/convention.md`)**
+   - **Frontend (Next.js 16+)**: Follow strict App Router rules, understand Server vs. Client Components, use Turbopack, handle routing correctly, and organize components cleanly into `base/` or `features/`.
+   - **Backend (Spring Boot)**: Implement layered architecture (Controller, Service, Repository, Entity, DTO). Never expose Database Entities directly. Strictly follow naming and transaction management conventions.
+
+2. **UI/UX Design System (`docs/UI UX style guideline.md`)**
+   - Apply the correct design tokens, colors, typography, spacing, and component stylings.
+   - All frontend UI code must align with this style guideline.
+
+3. **Database Design (`docs/DB-erd.md`)**
+   - Always refer to the Entity-Relationship Diagram (ERD) when writing SQL, JPA Repositories, or designing backend entities.
+   - Ensure relationships (One-to-Many, Many-to-Many, etc.) match the documented schema.
+
+4. **Software Requirements Specification (`docs/srs.md`)**
+   - Use the SRS to understand non-functional requirements, technical constraints, and system specifications before proposing architecture changes.
+
+5. **User Stories & Business Logic (`docs/user-stories.md`)**
+   - Understand the specific workflows, user personas, and acceptance criteria.
+   - Always map the code logic back to the user stories to ensure business requirements are met.
+
+## Agent Action Rules
+
+- **No Hallucinated Standards:** Do not introduce new coding conventions that conflict with `docs/convention.md`.
+- **Clean Repository:** Do not create example or demo files unless explicitly requested.
+- **Always Check Context:** When in doubt about business logic or styling, read the respective document in the `docs/` folder first.
