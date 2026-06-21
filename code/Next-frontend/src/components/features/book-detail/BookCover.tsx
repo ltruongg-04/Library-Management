@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { MaterialIcon } from "@/components/base/material-icon";
 import type { Book } from "@/types/book";
 
 interface BookCoverProps {
@@ -26,9 +27,7 @@ export default function BookCover({ book }: BookCoverProps) {
         {/* AI Match Score Badge */}
         {book.aiMatchScore && (
           <div className="absolute top-2 right-2 bg-surface-container-lowest/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 shadow-sm border border-outline-variant/30 dark:border-slate-700">
-            <span className="material-symbols-outlined text-secondary dark:text-white text-[14px]">
-              temp_preferences_custom
-            </span>
+            <MaterialIcon name="temp_preferences_custom" className="text-secondary dark:text-white text-[14px]" />
             <span className="font-label-caps text-label-caps text-secondary dark:text-white font-bold">
               {book.aiMatchScore}% Match
             </span>
@@ -42,11 +41,11 @@ export default function BookCover({ book }: BookCoverProps) {
           disabled={!isAvailable}
           className="bg-primary dark:bg-primary-500 text-on-primary rounded-lg py-2 px-4 font-label-caps text-label-caps flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95 duration-200"
         >
-          <span className="material-symbols-outlined">book</span>
+          <MaterialIcon name="book" />
           Borrow Now
         </button>
         <button className="border border-secondary dark:border-white text-secondary dark:text-white rounded-lg py-2 px-4 font-label-caps text-label-caps flex items-center justify-center gap-2 hover:bg-secondary/10 dark:hover:bg-white/10 transition-colors bg-transparent cursor-pointer active:scale-95 duration-200">
-          <span className="material-symbols-outlined">bookmark_add</span>
+          <MaterialIcon name="bookmark_add" />
           Add to Wishlist
         </button>
       </div>

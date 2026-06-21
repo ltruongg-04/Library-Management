@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { MaterialIcon } from "@/components/base/material-icon";
 
 const NAV_LINKS = [
   { href: "/", label: "Catalog" },
@@ -99,9 +100,7 @@ export default function PublicLayout({
               className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white cursor-pointer"
               aria-label="Toggle Theme"
             >
-              <span className="material-symbols-outlined">
-                {isDarkMode ? "light_mode" : "dark_mode"}
-              </span>
+              <MaterialIcon name={isDarkMode ? "light_mode" : "dark_mode"} />
             </button>
             {isLoggedIn ? (
               <>
@@ -109,12 +108,10 @@ export default function PublicLayout({
                   className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white"
                   aria-label="Notifications"
                 >
-                  <span className="material-symbols-outlined">notifications</span>
+                  <MaterialIcon name="notifications" />
                 </button>
                 <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 border-2 border-surface-container-lowest dark:border-slate-800 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-all duration-200">
-                  <span className="material-symbols-outlined text-primary-700 dark:text-white">
-                    person
-                  </span>
+                  <MaterialIcon name="person" className="text-primary-700 dark:text-white" />
                 </div>
               </>
             ) : (
