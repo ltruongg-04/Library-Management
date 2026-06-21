@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MaterialIcon } from "@/components/base/material-icon";
+import { useAuth } from "@/providers/auth";
 
 const NAV_LINKS = [
   { href: "/", label: "Catalog" },
@@ -25,15 +27,12 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check auth status
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-
-    // Check theme status
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
@@ -43,10 +42,21 @@ export default function PublicLayout({
     }
   }, []);
 
+  // Đóng menu khi click ra ngoài
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const toggleTheme = () => {
     const htmlEl = document.documentElement;
     const isCurrentlyDark = htmlEl.classList.contains("dark");
-    
+
     if (isCurrentlyDark) {
       htmlEl.classList.remove("dark");
       localStorage.setItem("theme", "light");
@@ -58,9 +68,14 @@ export default function PublicLayout({
     }
   };
 
+  const handleLogout = async () => {
+    setIsMenuOpen(false);
+    await logout();
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 text-ink-950 dark:text-white transition-colors duration-200">
-      {/* Top Navigation Bar — Glassmorphism */}
+      {/* Top Navigation Bar */}
       <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-ink-100 dark:border-slate-800 shadow-sm transition-all duration-200">
         <div className="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto">
           {/* Logo */}
@@ -95,6 +110,7 @@ export default function PublicLayout({
 
           {/* Actions */}
           <div className="flex items-center gap-4">
+            {/* Theme toggle */}
             <button
               onClick={toggleTheme}
               className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white cursor-pointer"
@@ -102,16 +118,87 @@ export default function PublicLayout({
             >
               <MaterialIcon name={isDarkMode ? "light_mode" : "dark_mode"} />
             </button>
-            {isLoggedIn ? (
+
+            {isAuthenticated && user ? (
               <>
+                {/* Notifications */}
                 <button
                   className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white"
                   aria-label="Notifications"
                 >
                   <MaterialIcon name="notifications" />
                 </button>
-                <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 border-2 border-surface-container-lowest dark:border-slate-800 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-all duration-200">
-                  <MaterialIcon name="person" className="text-primary-700 dark:text-white" />
+
+                {/* Avatar + Dropdown */}
+                <div className="relative" ref={menuRef}>
+                  <button
+                    id="user-avatar-btn"
+                    onClick={() => setIsMenuOpen((v) => !v)}
+                    className="w-10 h-10 rounded-full border-2 border-primary-300 dark:border-primary-600 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                    aria-label="User menu"
+                    aria-expanded={isMenuOpen}
+                  >
+                    {user.image ? (
+                      <Image
+                        src={user.image}
+                        alt={user.fullName}
+                        width={40}
+                        height={40}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                        <MaterialIcon name="person" className="text-primary-700 dark:text-white" />
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-slate-800 shadow-lg border border-ink-100 dark:border-slate-700 overflow-hidden animate-slide-up z-50">
+                      {/* User info */}
+                      <div className="px-4 py-3 border-b border-ink-100 dark:border-slate-700">
+                        <p className="text-sm font-semibold text-ink-950 dark:text-white truncate">
+                          {user.fullName}
+                        </p>
+                        <p className="text-xs text-ink-500 dark:text-slate-400 truncate">
+                          {user.email}
+                        </p>
+                      </div>
+
+                      {/* Menu items */}
+                      <div className="py-1">
+                        <Link
+                          href="/profile"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
+                        >
+                          <MaterialIcon name="manage_accounts" className="text-[18px]" />
+                          Tài khoản của tôi
+                        </Link>
+                        <Link
+                          href="/my-books"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
+                        >
+                          <MaterialIcon name="book" className="text-[18px]" />
+                          Sách của tôi
+                        </Link>
+                      </div>
+
+                      {/* Logout */}
+                      <div className="border-t border-ink-100 dark:border-slate-700 py-1">
+                        <button
+                          id="btn-logout"
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                        >
+                          <MaterialIcon name="logout" className="text-[18px]" />
+                          Đăng xuất
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             ) : (
