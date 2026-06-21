@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MaterialIcon } from "@/components/base/material-icon";
 
 export const metadata: Metadata = {
   title: "Giới thiệu | Lumina Library",
@@ -40,9 +41,7 @@ export default function AboutPage() {
             type="button"
           >
             <span>Khám phá tầm nhìn</span>
-            <span className="material-symbols-outlined text-sm">
-              arrow_forward
-            </span>
+            <MaterialIcon name="arrow_forward" className="text-sm" />
           </button>
         </div>
       </section>
@@ -95,14 +94,12 @@ export default function AboutPage() {
             {/* Value 1 - Innovation */}
             <div className="flex flex-col items-start rounded-lg border border-outline-variant/20 dark:border-slate-800 bg-surface dark:bg-slate-900 p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_12px_32px_rgba(0,0,0,0.1)] md:translate-y-4">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded bg-primary-container text-on-primary-container dark:bg-primary-900/50 dark:text-primary-100">
-                <span
-                  className="material-symbols-outlined"
+                <MaterialIcon
+                  name="lightbulb"
                   style={{
                     fontVariationSettings: "'FILL' 1",
                   }}
-                >
-                  lightbulb
-                </span>
+                />
               </div>
               <h3 className="mb-1 text-xl font-semibold leading-7 text-on-surface dark:text-white transition-colors duration-200">
                 Đổi mới
@@ -116,14 +113,12 @@ export default function AboutPage() {
             {/* Value 2 - Accessibility */}
             <div className="flex flex-col items-start rounded-lg border border-outline-variant/20 dark:border-slate-800 bg-surface dark:bg-slate-900 p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_12px_32px_rgba(0,0,0,0.1)] md:translate-y-4">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded bg-secondary-container text-on-secondary-container dark:bg-secondary-500/20 dark:text-secondary-100">
-                <span
-                  className="material-symbols-outlined"
+                <MaterialIcon
+                  name="public"
                   style={{
                     fontVariationSettings: "'FILL' 1",
                   }}
-                >
-                  public
-                </span>
+                />
               </div>
               <h3 className="mb-1 text-xl font-semibold leading-7 text-on-surface dark:text-white transition-colors duration-200">
                 Tiếp cận
@@ -137,14 +132,12 @@ export default function AboutPage() {
             {/* Value 3 - Integrity */}
             <div className="flex flex-col items-start rounded-lg border border-outline-variant/20 dark:border-slate-800 bg-surface dark:bg-slate-900 p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_12px_32px_rgba(0,0,0,0.1)] md:translate-y-4">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded bg-tertiary-container text-on-tertiary-container dark:bg-tertiary-500/20 dark:text-tertiary-100">
-                <span
-                  className="material-symbols-outlined"
+                <MaterialIcon
+                  name="verified_user"
                   style={{
                     fontVariationSettings: "'FILL' 1",
                   }}
-                >
-                  verified_user
-                </span>
+                />
               </div>
               <h3 className="mb-1 text-xl font-semibold leading-7 text-on-surface dark:text-white transition-colors duration-200">
                 Chính trực

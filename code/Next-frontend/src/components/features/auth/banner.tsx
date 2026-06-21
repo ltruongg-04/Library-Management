@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UI_TEXT } from "@/constants/ui-text";
 
 export function LoginBanner() {
     return (
@@ -7,7 +8,7 @@ export function LoginBanner() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
                 src="/images/login-banner.jpg"
-                alt="Không gian thư viện Lumina"
+                alt={UI_TEXT.AUTH.BANNER.IMG_ALT}
                 className="absolute inset-0 h-full w-full object-cover"
             />
 
@@ -26,24 +27,23 @@ export function LoginBanner() {
                         href="/"
                         className="text-2xl font-bold tracking-tight text-white transition-opacity hover:opacity-80"
                     >
-                        Lumina Library
+                        {UI_TEXT.AUTH.BANNER.LOGO_TEXT}
                     </Link>
                 </div>
 
                 {/* Hero copy */}
                 <div className="max-w-md">
                     <h2 className="mb-4 text-5xl font-bold leading-tight text-white">
-                        Illuminated Intelligence.
+                        {UI_TEXT.AUTH.BANNER.HERO_HEADING}
                     </h2>
                     <p className="text-lg leading-relaxed text-primary-100">
-                        Your gateway to a synthesized catalog of human knowledge, powered by
-                        frictionless AI discovery.
+                        {UI_TEXT.AUTH.BANNER.HERO_SUBHEADING}
                     </p>
                 </div>
 
                 {/* Footer */}
                 <span className="text-sm text-primary-100/60">
-                    © 2026 Lumina Library
+                    {UI_TEXT.AUTH.BANNER.COPYRIGHT}
                 </span>
             </div>
         </section>

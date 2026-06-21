@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { MaterialIcon } from "@/components/base/material-icon";
 
 interface BookCardProps {
   id: number;
@@ -116,18 +117,14 @@ function BookCard({
           <div
             className={`w-24 h-36 ${placeholderBg} rounded shadow-md flex items-center justify-center ${placeholderIconColor} group-hover:scale-105 transition-transform duration-500`}
           >
-            <span className="material-symbols-outlined text-[48px]">
-              {placeholderIcon}
-            </span>
+            <MaterialIcon name={placeholderIcon!} className="text-[48px]" />
           </div>
         )}
 
         {/* Badge */}
         {badgeText && (
           <div className="absolute top-2 right-2 bg-surface-container-lowest/90 dark:bg-slate-900/90 backdrop-blur-sm px-2 py-1 rounded-full border border-outline-variant/30 dark:border-slate-700 flex items-center shadow-sm">
-            <span className="material-symbols-outlined text-secondary-500 dark:text-white text-sm mr-1">
-              {badgeIcon}
-            </span>
+            <MaterialIcon name={badgeIcon!} className="text-secondary-500 dark:text-white text-sm mr-1" />
             <span className="font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] text-on-surface dark:text-white">
               {badgeText}
             </span>
@@ -153,7 +150,7 @@ function BookCard({
             className="text-primary-700 dark:text-white hover:text-secondary-300 dark:hover:text-secondary-300 transition-colors"
             aria-label={`Bookmark ${title}`}
           >
-            <span className="material-symbols-outlined">bookmark_add</span>
+            <MaterialIcon name="bookmark_add" />
           </button>
         </div>
       </div>
@@ -176,9 +173,7 @@ export default function PopularBooks() {
         </div>
         <button className="text-secondary-500 dark:text-white font-semibold text-[20px] leading-[28px] hover:text-primary-700 dark:hover:text-primary-300 transition-colors flex items-center">
           Xem tất cả{" "}
-          <span className="material-symbols-outlined ml-1 text-sm">
-            arrow_forward
-          </span>
+          <MaterialIcon name="arrow_forward" className="ml-1 text-sm" />
         </button>
       </div>
 
