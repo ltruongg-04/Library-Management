@@ -22,7 +22,7 @@ export function BaseTextarea({
     <div className="space-y-1.5">
       <label
         htmlFor={textareaId}
-        className="block text-xs font-medium uppercase tracking-wider text-content-secondary"
+        className="block text-xs font-medium uppercase tracking-wider text-content-secondary dark:text-white"
       >
         {label}
       </label>
