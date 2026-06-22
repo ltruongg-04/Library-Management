@@ -25,7 +25,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Athenaeum — Library Admin",
+  title: "Athenaeum — Library",
   description: "Hệ thống quản lý thư viện",
 };
 

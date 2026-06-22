@@ -134,6 +134,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setManualUser(null)
       if (session) {
         await signOut({ callbackUrl: '/' }) // Xóa NextAuth session
+      } else {
+        window.location.href = '/' // Chuyển hướng về trang chủ đối với đăng nhập thủ công
       }
     } finally {
       setIsLoading(false)

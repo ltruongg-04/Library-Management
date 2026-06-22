@@ -35,7 +35,8 @@ export function LoginForm() {
         return next;
     }
 
-    async function handleSubmit() {
+    async function handleSubmit(e?: React.FormEvent) {
+        if (e) e.preventDefault();
         const next = validate();
         if (Object.keys(next).length) {
             setErrors(next);
@@ -75,7 +76,7 @@ export function LoginForm() {
             </div>
 
             {/* Form fields */}
-            <div className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
                 <BaseInput
                     label={UI_TEXT.AUTH.LOGIN.EMAIL_LABEL}
                     type="email"
@@ -123,11 +124,11 @@ export function LoginForm() {
                     </div>
                 </div>
 
-                <BaseButton isLoading={isLoading} onClick={handleSubmit}>
+                <BaseButton type="submit" isLoading={isLoading}>
                     <span>{UI_TEXT.AUTH.LOGIN.SUBMIT_BTN}</span>
                     <ArrowRight size={18} strokeWidth={1.5} aria-hidden="true" />
                 </BaseButton>
-            </div>
+            </form>
 
             {/* Divider */}
             <div className="my-8 flex items-center gap-4">
