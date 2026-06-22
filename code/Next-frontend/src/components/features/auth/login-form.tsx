@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, EyeOff, ArrowRight, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Mail, Lock, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { BaseButton } from "@/components/base/base-button";
@@ -9,10 +9,13 @@ import { BaseInput } from "@/components/base/base-input";
 import { AppleIcon } from "@/components/icons/apple-icon";
 import { GoogleIcon } from "@/components/icons/google-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { useAuth } from "@/providers/auth";
 
 export function LoginForm() {
+    const { loginWithGoogle } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState<{ email?: string; password?: string }>(
@@ -43,6 +46,15 @@ export function LoginForm() {
             await new Promise((r) => setTimeout(r, 1000));
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    async function handleGoogleLogin() {
+        setIsGoogleLoading(true);
+        try {
+            await loginWithGoogle();
+        } catch {
+            setIsGoogleLoading(false);
         }
     }
 
@@ -125,10 +137,17 @@ export function LoginForm() {
             {/* Social logins */}
             <div className="grid grid-cols-2 gap-4">
                 <button
+                    id="btn-login-google"
                     type="button"
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded border border-outline-variant bg-surface-container-lowest text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    onClick={handleGoogleLogin}
+                    disabled={isGoogleLoading}
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded border border-outline-variant bg-surface-container-lowest text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                    <GoogleIcon />
+                    {isGoogleLoading ? (
+                        <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                        <GoogleIcon />
+                    )}
                     {UI_TEXT.AUTH.LOGIN.GOOGLE_BTN}
                 </button>
 
