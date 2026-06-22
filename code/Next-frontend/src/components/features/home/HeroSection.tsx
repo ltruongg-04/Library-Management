@@ -1,3 +1,5 @@
+import { MaterialIcon } from "@/components/base/material-icon";
+
 export default function HeroSection() {
   return (
     <section className="relative py-12 lg:py-[120px] px-4 lg:px-6 overflow-hidden flex flex-col items-center justify-center min-h-[614px]">
@@ -23,9 +25,7 @@ export default function HeroSection() {
 
           {/* Search input container */}
           <div className="relative flex items-center bg-surface-container-lowest dark:bg-slate-900 rounded-[10px] overflow-hidden h-[56px] px-4 border border-transparent focus-within:border-secondary-300 transition-colors duration-200">
-            <span className="material-symbols-outlined text-secondary-300 mr-2">
-              auto_awesome
-            </span>
+            <MaterialIcon name="auto_awesome" className="text-secondary-300 mr-2" />
             <input
               className="flex-grow bg-transparent border-none outline-none font-sans text-[16px] leading-[24px] text-on-surface dark:text-white placeholder:text-on-surface-variant/50 dark:placeholder:text-white/70 h-full focus:ring-0"
               placeholder="Tìm kiếm sách..."

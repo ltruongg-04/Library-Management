@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MaterialIcon } from "@/components/base/material-icon";
 
 const FAQ_ITEMS = [
   {
@@ -48,9 +49,7 @@ export default function ContactContent() {
         {/* Contact Form Area (Main Focus) */}
         <section className="rounded-xl border border-surface-variant dark:border-slate-800 bg-surface-container-lowest dark:bg-slate-900 p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] md:p-12 lg:col-span-7 xl:col-span-8 transition-colors duration-200">
           <h2 className="mb-6 flex items-center gap-2 text-xl font-semibold leading-7 text-primary dark:text-white transition-colors duration-200">
-            <span className="material-symbols-outlined text-secondary dark:text-white">
-              mail
-            </span>
+            <MaterialIcon name="mail" className="text-secondary dark:text-white" />
             Gửi tin nhắn
           </h2>
           <form className="space-y-4">
@@ -128,7 +127,7 @@ export default function ContactContent() {
                 type="submit"
               >
                 Gửi yêu cầu
-                <span className="material-symbols-outlined text-sm">send</span>
+                <MaterialIcon name="send" className="text-sm" />
               </button>
             </div>
           </form>
@@ -144,9 +143,7 @@ export default function ContactContent() {
             <ul className="space-y-4 pt-2">
               <li className="group flex items-start gap-4">
                 <div className="rounded-full bg-surface-container-highest dark:bg-slate-800 p-2 text-secondary dark:text-white transition-colors group-hover:bg-secondary-container dark:group-hover:bg-secondary-500/20">
-                  <span className="material-symbols-outlined">
-                    location_on
-                  </span>
+                  <MaterialIcon name="location_on" />
                 </div>
                 <div>
                   <p className="mb-1 font-mono text-xs font-medium uppercase leading-4 tracking-[0.05em] text-on-surface-variant dark:text-white transition-colors duration-200">
@@ -163,7 +160,7 @@ export default function ContactContent() {
               </li>
               <li className="group flex items-start gap-4">
                 <div className="rounded-full bg-surface-container-highest dark:bg-slate-800 p-2 text-secondary dark:text-white transition-colors group-hover:bg-secondary-container dark:group-hover:bg-secondary-500/20">
-                  <span className="material-symbols-outlined">phone</span>
+                  <MaterialIcon name="phone" />
                 </div>
                 <div>
                   <p className="mb-1 font-mono text-xs font-medium uppercase leading-4 tracking-[0.05em] text-on-surface-variant dark:text-white transition-colors duration-200">
@@ -176,9 +173,7 @@ export default function ContactContent() {
               </li>
               <li className="group flex items-start gap-4">
                 <div className="rounded-full bg-surface-container-highest dark:bg-slate-800 p-2 text-secondary dark:text-white transition-colors group-hover:bg-secondary-container dark:group-hover:bg-secondary-500/20">
-                  <span className="material-symbols-outlined">
-                    alternate_email
-                  </span>
+                  <MaterialIcon name="alternate_email" />
                 </div>
                 <div>
                   <p className="mb-1 font-mono text-xs font-medium uppercase leading-4 tracking-[0.05em] text-on-surface-variant dark:text-white transition-colors duration-200">
@@ -206,9 +201,7 @@ export default function ContactContent() {
                 className="flex w-full items-center justify-center gap-1 rounded-lg border border-outline-variant/30 dark:border-slate-700 bg-surface-container-lowest/90 dark:bg-slate-800/90 px-4 py-2 text-xl font-semibold leading-7 text-primary dark:text-white shadow-sm backdrop-blur-sm transition-colors hover:bg-surface-container-lowest dark:hover:bg-slate-800"
                 type="button"
               >
-                <span className="material-symbols-outlined text-sm">
-                  directions
-                </span>
+                <MaterialIcon name="directions" className="text-sm" />
                 Chỉ đường
               </button>
             </div>
@@ -242,13 +235,12 @@ export default function ContactContent() {
                 <span className="text-xl font-semibold leading-7 text-on-surface dark:text-white transition-colors duration-200">
                   {item.question}
                 </span>
-                <span
-                  className={`material-symbols-outlined text-secondary dark:text-white transition-transform duration-300 ${
+                <MaterialIcon
+                  name="expand_more"
+                  className={`text-secondary dark:text-white transition-transform duration-300 ${
                     activeAccordion === item.id ? "rotate-180" : ""
                   }`}
-                >
-                  expand_more
-                </span>
+                />
               </button>
               <div
                 id={`${item.id}-content`}
