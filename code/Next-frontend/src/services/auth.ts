@@ -77,6 +77,11 @@ export const authService = {
       throw error
     }
   },
+  // 🌐 Google Login (NextAuth)
+  async loginWithGoogle(callbackUrl = '/') {
+    const { signIn } = await import('next-auth/react')
+    return signIn('google', { callbackUrl })
+  },
 
   // 🔓 Login - Đăng nhập
   async login(email: string, password: string, rememberMe?: boolean) {

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { signIn, signOut, useSession } from 'next-auth/react'
 import { authService } from '@/services/auth'
 
 // 👤 User type definition
@@ -9,6 +10,7 @@ interface User {
   email: string
   fullName: string
   role: string
+  image?: string // Google avatar
 }
 
 // 🔑 Auth Context type
@@ -18,6 +20,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   login: (email: string, password: string, rememberMe?: boolean) => Promise<User>
   register: (fullName: string, email: string, password: string, phone?: string) => Promise<void>
+  loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -43,37 +46,47 @@ function parseJwt(token: string) {
 
 // 🏗️ Auth Provider Component
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null)
+  const { data: session, status } = useSession()
+  const [manualUser, setManualUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
 
-  // 🔄 Check if user is already logged in (on mount)
+  // 🔄 Sync user from NextAuth session (Google login)
+  const googleUser: User | null = session?.user
+    ? {
+      id: (session.user as typeof session.user & { id?: string }).id ?? session.user.email ?? '',
+      email: session.user.email ?? '',
+      fullName: session.user.name ?? '',
+      role: 'user', // Google users mặc định là 'user'
+      image: session.user.image ?? undefined,
+    }
+    : null
+
+  // 🔄 Khởi tạo từ token lưu sẵn (email/password login)
   useEffect(() => {
     try {
-      const token = authService.getToken()
-      if (token) {
-        const decoded = parseJwt(token)
-        if (decoded) {
-          setUser({
-            id: String(decoded.userId || ''),
-            email: decoded.sub || '',
-            fullName: decoded.fullName || '',
-            role: (decoded.role || 'USER').toLowerCase(),
-          })
-        }
+      if (authService.isAuthenticated() && !session) {
+        // 🧪 MOCK: Set mock user nếu có token local
+        setManualUser({
+          id: '1',
+          email: 'admin@gmail.com',
+          fullName: 'Admin',
+          role: 'admin',
+        })
       }
     } catch (error) {
       console.error('Error checking authentication:', error)
     }
-    setIsMounted(true)
-  }, [])
+  }, [session])
 
-  // 🔓 Login function
+  // Ưu tiên Google session, sau đó mới đến email/password user
+  const user = googleUser ?? manualUser
+
+  // 🔓 Email/Password Login
   const login = useCallback(async (email: string, password: string, rememberMe?: boolean) => {
     setIsLoading(true)
     try {
       const userData = await authService.login(email, password, rememberMe)
-      setUser(userData)
+      setManualUser(userData)
       return userData
     } finally {
       setIsLoading(false)
@@ -86,7 +99,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const result = await authService.register({ fullName, email, password, phone })
       // Sau khi đăng ký thành công, set user từ response
-      setUser({
+      setManualUser({
         id: String(result.id),
         email: result.email,
         fullName: result.fullName,
@@ -97,24 +110,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
-  // 🚪 Logout function
+  // 🌐 Google Login
+  const loginWithGoogle = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      await signIn('google', { callbackUrl: '/' })
+    } catch (error) {
+      console.error('Google login error:', error)
+      setIsLoading(false)
+    }
+    // isLoading sẽ tự reset sau khi page redirect
+  }, [])
+
+  // 🚪 Logout — xử lý cả hai trường hợp
   const logout = useCallback(async () => {
     setIsLoading(true)
     try {
-      authService.logout()
-      setUser(null)
+      authService.logout() // Xóa token email/password
+      setManualUser(null)
+      if (session) {
+        await signOut({ callbackUrl: '/' }) // Xóa NextAuth session
+      }
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [session])
 
   // 📦 Context value
   const value: AuthContextType = {
     user,
-    isLoading,
+    isLoading: isLoading || status === 'loading',
     isAuthenticated: !!user,
     login,
     register,
+    loginWithGoogle,
     logout,
   }
 
