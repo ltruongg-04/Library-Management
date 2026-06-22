@@ -1,6 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
+import { MaterialIcon } from "@/components/base/material-icon";
 
 interface BookCardProps {
+  id: number;
   title: string;
   author: string;
   category: string;
@@ -24,6 +27,7 @@ const CATEGORY_STYLES = {
 
 const BOOKS: BookCardProps[] = [
   {
+    id: 1,
     title: "The Algorithmic Mind",
     author: "Dr. Elena Rostova",
     category: "Khoa học",
@@ -34,6 +38,7 @@ const BOOKS: BookCardProps[] = [
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAYlDKQmIuqCq-tqTicaKu3Yo3_ZJmzdJmUd9f-5laODWr7iO_6xc5MGw7pBqlgzRYgcmDnPSFJdaSQ3MLmMUdLvZApaDzJS-TC6acVDF90OSsK_8LtBKzFL35XNAECxSEWm4HUfIfhYYYxEGYODvnwWmAhjiZO6N81ta8KxdlnyML3EM3wR7ueblXUxAjcmEZ3JSB0PBWmD6t2M3D7scUBUCwuT4qbfHz6BPkcunChaopBdvaWcadTSqOFQ1KeOwkl_PcFdxndQ-vo",
   },
   {
+    id: 2,
     title: "Echoes of Silence",
     author: "Marcus Thorne",
     category: "Tiểu thuyết",
@@ -44,6 +49,7 @@ const BOOKS: BookCardProps[] = [
       "https://lh3.googleusercontent.com/aida-public/AB6AXuCA0ugb2mtgwGdYen2kuKtDcr1SgH90WiQ4t-vHPzsDIm0zDpqfLep6XfQ9Av8c80v2tgU3rhAirV116cp4WU6vxAaqbvxP-LsurS-EuqR5nwMDP0bi-oalR1xxqoIp915o3WniSMrmFkdIpZviFowlkY21DMtY0dWHCZoMw8-Iwu0CwAaEL7Dy47Wx-SwJalcesh2S3c5KnGe6KXqBDuo31QzsGJyd6YIyNeROWuCYvY5TvzGIBKEjA4lTGx4c13ZZ_i20rbfPxd7m",
   },
   {
+    id: 3,
     title: "A Brief History of Tomorrow",
     author: "Sarah Jenkins",
     category: "Lịch sử",
@@ -56,6 +62,7 @@ const BOOKS: BookCardProps[] = [
     hideOnMobile: true,
   },
   {
+    id: 4,
     title: "Design Systems",
     author: "Alex Rivera",
     category: "Thiết kế",
@@ -71,6 +78,7 @@ const BOOKS: BookCardProps[] = [
 ];
 
 function BookCard({
+  id,
   title,
   author,
   category,
@@ -93,7 +101,7 @@ function BookCard({
   }
 
   return (
-    <div className={wrapperClass}>
+    <Link href={`/sach/${id}`} className={wrapperClass}>
       {/* Cover Image Area */}
       <div className="relative h-48 w-full overflow-hidden bg-surface-container-low dark:bg-slate-800 p-4 flex items-center justify-center transition-colors duration-200">
         {imageSrc ? (
@@ -109,18 +117,14 @@ function BookCard({
           <div
             className={`w-24 h-36 ${placeholderBg} rounded shadow-md flex items-center justify-center ${placeholderIconColor} group-hover:scale-105 transition-transform duration-500`}
           >
-            <span className="material-symbols-outlined text-[48px]">
-              {placeholderIcon}
-            </span>
+            <MaterialIcon name={placeholderIcon!} className="text-[48px]" />
           </div>
         )}
 
         {/* Badge */}
         {badgeText && (
           <div className="absolute top-2 right-2 bg-surface-container-lowest/90 dark:bg-slate-900/90 backdrop-blur-sm px-2 py-1 rounded-full border border-outline-variant/30 dark:border-slate-700 flex items-center shadow-sm">
-            <span className="material-symbols-outlined text-secondary-500 dark:text-white text-sm mr-1">
-              {badgeIcon}
-            </span>
+            <MaterialIcon name={badgeIcon!} className="text-secondary-500 dark:text-white text-sm mr-1" />
             <span className="font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] text-on-surface dark:text-white">
               {badgeText}
             </span>
@@ -146,11 +150,11 @@ function BookCard({
             className="text-primary-700 dark:text-white hover:text-secondary-300 dark:hover:text-secondary-300 transition-colors"
             aria-label={`Bookmark ${title}`}
           >
-            <span className="material-symbols-outlined">bookmark_add</span>
+            <MaterialIcon name="bookmark_add" />
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -169,9 +173,7 @@ export default function PopularBooks() {
         </div>
         <button className="text-secondary-500 dark:text-white font-semibold text-[20px] leading-[28px] hover:text-primary-700 dark:hover:text-primary-300 transition-colors flex items-center">
           Xem tất cả{" "}
-          <span className="material-symbols-outlined ml-1 text-sm">
-            arrow_forward
-          </span>
+          <MaterialIcon name="arrow_forward" className="ml-1 text-sm" />
         </button>
       </div>
 

@@ -28,3 +28,6 @@ You are assisting with the Library-Management project. Before performing any tas
 - **No Hallucinated Standards:** Do not introduce new coding conventions that conflict with `docs/convention.md`.
 - **Clean Repository:** Do not create example or demo files unless explicitly requested.
 - **Always Check Context:** When in doubt about business logic or styling, read the respective document in the `docs/` folder first.
+- **Do not use hard text**: you must separate it into a .ui text file or use i18n.
+- **Create a separate .svg file and icon.**
+- **Always follow .agent file**
