@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { MaterialIcon } from "@/components/base/material-icon";
 
+import { UI_TEXT } from "@/constants/ui-text";
+
 export const metadata: Metadata = {
-  title: "Giới thiệu | Lumina Library",
-  description:
-    "Khám phá câu chuyện của Lumina Library — hệ thống thư viện thông minh kết hợp truyền thống.",
+  title: UI_TEXT.ABOUT.PAGE_TITLE,
+  description: UI_TEXT.ABOUT.PAGE_DESC,
 };
 
 export default function AboutPage() {
@@ -21,7 +22,7 @@ export default function AboutPage() {
                 "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCNP4hklh_rinbMp9WL8REWQKC92gV0-GlVBx0BMJAL6MayCEsxzl1mO-pq5-nyqR4GjHDJlpSViYN3WcASlc_UwPrUMM6OAa1ohUvrM_Br5epGq8dwY8wF_yd9ZvCu6-Z5nLfDyN1yecj7VEOvfaYkqF-2w-BiBWgJcflSPA2C9FSzRVNfiLrZ4wJySkrNjoNZSeHMmX_8LNiyWQ-HP_3_kEQ8AnlCGdWzIZOsDESp_YB_SEUujo2G_tJzLPArVZA0AOWbCUZGJFbf')",
             }}
             role="img"
-            aria-label="Không gian thư viện hiện đại với kiến trúc hùng vĩ"
+            aria-label={UI_TEXT.ABOUT.ARIA_HERO}
           />
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background dark:from-slate-950/80 dark:via-slate-950/60 dark:to-slate-950 transition-colors duration-200" />
@@ -29,18 +30,16 @@ export default function AboutPage() {
 
         <div className="relative z-10 mx-auto max-w-[1440px] px-6 text-center">
           <h1 className="mb-4 text-5xl font-bold leading-[56px] tracking-[-0.02em] text-primary dark:text-white transition-colors duration-200">
-            Khai sáng tri thức bằng AI
+            {UI_TEXT.ABOUT.HERO_HEADING}
           </h1>
           <p className="mx-auto mb-6 max-w-3xl text-xl font-semibold leading-7 text-on-surface-variant dark:text-white transition-colors duration-200">
-            Lumina Library kết nối di sản sâu sắc của kho tàng truyền thống với
-            tốc độ liền mạch của trí tuệ nhân tạo hiện đại. Chúng tôi đang tái
-            định nghĩa sự khám phá.
+            {UI_TEXT.ABOUT.HERO_DESC_1}
           </p>
           <button
             className="ai-glow mx-auto inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary-700 to-secondary-300 px-12 py-4 text-xl font-semibold leading-7 text-on-primary shadow-lg transition-opacity hover:opacity-90 active:scale-95"
             type="button"
           >
-            <span>Khám phá tầm nhìn</span>
+            <span>{UI_TEXT.ABOUT.EXPLORE_VISION}</span>
             <MaterialIcon name="arrow_forward" className="text-sm" />
           </button>
         </div>
@@ -57,23 +56,18 @@ export default function AboutPage() {
                   "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCYfB9DiX-0NNMfrZ7SBvnOXX6ZAOwZXraYCf_EEW-jFgHo-_bVwnqK080G8g6XEvJ8Ytrq5u2DU5lErTTQilc-x2bMrYj65zQqNTPYh1Dta2stVIZNlODWAhvsfewlJtf1HftRExfq9-tnFXukW-6EX7EldmVUbis89SI-UeoPMnDSFbcjf8lVnI50ub7E3vXykNHkdD9BvF1WvCkT6KxibfMDmbggdbnVH9Yj_jBR7rWkfocHO2LEreJx0K5r_QimIsm7ObIEJCfq')",
               }}
               role="img"
-              aria-label="Giao diện hệ thống quản lý thư viện thông minh"
+              aria-label={UI_TEXT.ABOUT.ARIA_STORY}
             />
           </div>
           <div className="order-1 flex-1 md:order-2">
             <h2 className="mb-4 text-[32px] font-semibold leading-10 tracking-[-0.01em] text-primary dark:text-white transition-colors duration-200">
-              Câu chuyện của chúng tôi
+              {UI_TEXT.ABOUT.STORY_HEADING}
             </h2>
             <p className="mb-4 text-base leading-6 text-on-surface-variant dark:text-white transition-colors duration-200">
-              Khởi nguồn từ mong muốn biến đại dương tri thức bao la của nhân
-              loại trở nên dễ dàng tiếp cận, Lumina Library bắt đầu như một sáng
-              kiến nghiên cứu về xử lý ngữ nghĩa tiên tiến.
+              {UI_TEXT.ABOUT.STORY_DESC_1}
             </p>
             <p className="text-base leading-6 text-on-surface-variant dark:text-white transition-colors duration-200">
-              Ngày nay, chúng tôi cung cấp sự tổng hòa tinh tế giữa chủ nghĩa
-              hiện đại doanh nghiệp và công nghệ AI cao cấp, đảm bảo rằng dù
-              bạn là nhà nghiên cứu học thuật hay độc giả bình thường, thông tin
-              chính xác bạn cần không bao giờ xa quá một suy nghĩ.
+              {UI_TEXT.ABOUT.STORY_DESC_2}
             </p>
           </div>
         </div>
@@ -84,10 +78,10 @@ export default function AboutPage() {
         <div className="mx-auto max-w-[1440px] px-6">
           <div className="mb-12 text-center">
             <h2 className="mb-2 text-[32px] font-semibold leading-10 tracking-[-0.01em] text-primary dark:text-white transition-colors duration-200">
-              Giá trị cốt lõi
+              {UI_TEXT.ABOUT.CORE_VALUES.HEADING}
             </h2>
             <p className="text-base leading-6 text-on-surface-variant dark:text-white transition-colors duration-200">
-              Những nguyên tắc dẫn dắt trí tuệ của chúng tôi.
+              {UI_TEXT.ABOUT.CORE_VALUES.SUBHEADING}
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -102,11 +96,10 @@ export default function AboutPage() {
                 />
               </div>
               <h3 className="mb-1 text-xl font-semibold leading-7 text-on-surface dark:text-white transition-colors duration-200">
-                Đổi mới
+                {UI_TEXT.ABOUT.CORE_VALUES.V1_TITLE}
               </h3>
               <p className="text-sm leading-5 text-on-surface-variant dark:text-white/80 transition-colors duration-200">
-                Tiên phong trong giao diện mượt mà và tìm kiếm ngữ nghĩa để
-                phát triển cách chúng ta tương tác với dữ liệu.
+                {UI_TEXT.ABOUT.CORE_VALUES.V1_DESC}
               </p>
             </div>
 
@@ -121,11 +114,10 @@ export default function AboutPage() {
                 />
               </div>
               <h3 className="mb-1 text-xl font-semibold leading-7 text-on-surface dark:text-white transition-colors duration-200">
-                Tiếp cận
+                {UI_TEXT.ABOUT.CORE_VALUES.V2_TITLE}
               </h3>
               <p className="text-sm leading-5 text-on-surface-variant dark:text-white/80 transition-colors duration-200">
-                Thiết kế hệ thống toàn diện giúp mọi người, ở mọi nơi, khám
-                phá và học hỏi một cách dễ dàng.
+                {UI_TEXT.ABOUT.CORE_VALUES.V2_DESC}
               </p>
             </div>
 
@@ -140,11 +132,10 @@ export default function AboutPage() {
                 />
               </div>
               <h3 className="mb-1 text-xl font-semibold leading-7 text-on-surface dark:text-white transition-colors duration-200">
-                Chính trực
+                {UI_TEXT.ABOUT.CORE_VALUES.V3_TITLE}
               </h3>
               <p className="text-sm leading-5 text-on-surface-variant dark:text-white/80 transition-colors duration-200">
-                Duy trì sức nặng thẩm quyền và sự thật nghiêm ngặt của thư viện
-                truyền thống trong mọi tương tác AI.
+                {UI_TEXT.ABOUT.CORE_VALUES.V3_DESC}
               </p>
             </div>
           </div>

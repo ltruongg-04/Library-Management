@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { MaterialIcon } from "@/components/base/material-icon";
 import Link from "next/link";
+import { UI_TEXT } from "@/constants/ui-text";
 
 function MatchPill({
   percentage,
@@ -15,7 +16,7 @@ function MatchPill({
     >
       <div className="w-2 h-2 rounded-full bg-secondary-300 dark:bg-white mr-1 animate-pulse" />
       <span className="font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] text-primary-700 dark:text-white">
-        {percentage}% phù hợp.
+        {percentage}{UI_TEXT.HOME.MATCH_SUFFIX}
       </span>
     </div>
   );
@@ -30,10 +31,10 @@ export default function CuratedSection() {
           <MaterialIcon name="psychology" />
         </span>
         <h2 className="font-sans text-[32px] font-semibold leading-[40px] tracking-[-0.01em] text-primary-700 dark:text-white transition-colors duration-200 mb-1">
-          Dành cho bạn
+          {UI_TEXT.HOME.CURATED_HEADING}
         </h2>
         <p className="font-sans text-[16px] leading-[24px] text-on-surface-variant dark:text-white transition-colors duration-200">
-          Đề xuất dựa trên sở thích đọc sách của bạn.
+          {UI_TEXT.HOME.CURATED_SUBHEADING}
         </p>
       </div>
 
@@ -69,7 +70,7 @@ export default function CuratedSection() {
               href="/sach/1"
               className="bg-transparent border border-secondary-500 dark:border-white text-secondary-500 dark:text-white hover:bg-secondary-500/5 dark:hover:bg-white/10 px-4 py-2 rounded-lg font-semibold text-[14px] transition-colors w-fit"
             >
-              Khám phá bộ sưu tập
+              {UI_TEXT.HOME.EXPLORE_COLLECTION}
             </Link>
           </div>
 

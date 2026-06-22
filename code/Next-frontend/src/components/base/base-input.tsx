@@ -26,7 +26,7 @@ export function BaseInput({
             {/* Label */}
             <label
                 htmlFor={inputId}
-                className="block text-xs font-medium uppercase tracking-wider text-on-surface-variant "
+                className="block text-xs font-medium uppercase tracking-wider text-on-surface-variant dark:text-white"
             >
                 {label}
             </label>

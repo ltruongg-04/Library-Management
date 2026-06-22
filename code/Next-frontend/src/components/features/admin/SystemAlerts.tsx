@@ -1,4 +1,5 @@
 import { AlertOctagon, Info } from "lucide-react";
+import { UI_TEXT } from "@/constants/ui-text";
 
 interface Alert {
   id: string;
@@ -13,15 +14,15 @@ const ALERTS: Alert[] = [
     id: "a1",
     tone: "rust",
     icon: AlertOctagon,
-    title: "Đồng bộ máy chủ bị trễ",
-    body: "Kho Chi nhánh 8 chưa đồng bộ trong 2 giờ qua.",
+    title: UI_TEXT.ADMIN_LAYOUT.ALERTS.SYNC_DELAY_TITLE,
+    body: UI_TEXT.ADMIN_LAYOUT.ALERTS.SYNC_DELAY_DESC,
   },
   {
     id: "a2",
     tone: "brass",
     icon: Info,
-    title: "Cập nhật mô hình AI",
-    body: "Tìm kiếm ngữ nghĩa được cải thiện cho thể loại lịch sử.",
+    title: UI_TEXT.ADMIN_LAYOUT.ALERTS.AI_UPDATE_TITLE,
+    body: UI_TEXT.ADMIN_LAYOUT.ALERTS.AI_UPDATE_DESC,
   },
 ];
 
@@ -44,7 +45,7 @@ export default function SystemAlerts() {
   return (
     <div className="rounded-xl border border-ink-950/[0.06] bg-white p-5 shadow-card">
       <h2 className="font-serif text-[16px] font-semibold text-ink-950">
-        Cảnh báo hệ thống
+        {UI_TEXT.ADMIN_LAYOUT.ALERTS.HEADING}
       </h2>
 
       <div className="mt-3.5 space-y-2.5">
