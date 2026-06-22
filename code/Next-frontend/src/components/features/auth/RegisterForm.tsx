@@ -6,18 +6,14 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { registerSchema, type RegisterFormData } from '@/schemas/auth'
+import { authService } from '@/services/auth'
 import Input from '@/components/base/Input'
 import Button from '@/components/base/Button'
 import { UI_TEXT } from '@/constants/ui-text'
 
-interface RegisterFormProps {
-  onSubmit: (data: RegisterFormData) => Promise<void>
-  isLoading?: boolean
-}
-
-export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFormProps) {
+export default function RegisterForm() {
   const router = useRouter()
-
+  const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [successMessage, setSuccessMessage] = useState<string>('')
 
@@ -36,16 +32,28 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
     },
   })
 
-  // 🔄 Form submit handler
+  // 🔄 Form submit handler — gọi API thực
   const handleFormSubmit = async (data: RegisterFormData) => {
-    console.log('DATA:', data)
+    setIsLoading(true)
+    setErrorMessage('')
+    setSuccessMessage('')
 
     try {
-      setErrorMessage('')
-      setSuccessMessage('')
-      await onSubmit(data)
-      setSuccessMessage(UI_TEXT.AUTH.REGISTER.SUCCESS_MSG)
-      setTimeout(() => { router.push('/login') }, 1500)
+      // 📡 Gọi API đăng ký thực
+      const result = await authService.register({
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+        phone: data.phoneNumber || undefined,
+      })
+
+      console.log('✅ Đăng ký thành công:', result)
+      setSuccessMessage(`Đăng ký thành công! Chào mừng ${result.fullName}`)
+
+      // Chuyển đến trang login sau 2 giây
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -60,7 +68,7 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       {/* ✅ Success Alert */}
       {successMessage && (
-        <div className="p-4 rounded-lg bg-green-50 border border-green-500 text-green-500 flex items-start gap-3">
+        <div className="p-4 rounded-lg bg-green-50 border border-green-500 text-green-700 flex items-start gap-3 animate-fade-in">
           <span className="text-xl flex-shrink-0">✅</span>
           <span className="text-sm">{successMessage}</span>
         </div>
@@ -68,7 +76,7 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
 
       {/* ⚠️ Error Alert */}
       {errorMessage && (
-        <div className="p-4 rounded-lg bg-red-50 border border-red-500 text-red-500 flex items-start gap-3">
+        <div className="p-4 rounded-lg bg-red-50 border border-red-500 text-red-700 flex items-start gap-3 animate-fade-in">
           <span className="text-xl flex-shrink-0">⚠️</span>
           <span className="text-sm">{errorMessage}</span>
         </div>

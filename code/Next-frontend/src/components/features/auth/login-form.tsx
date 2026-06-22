@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowRight, Mail, Lock, Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -12,7 +13,8 @@ import { UI_TEXT } from "@/constants/ui-text";
 import { useAuth } from "@/providers/auth";
 
 export function LoginForm() {
-    const { loginWithGoogle } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -33,7 +35,8 @@ export function LoginForm() {
         return next;
     }
 
-    async function handleSubmit() {
+    async function handleSubmit(e?: React.FormEvent) {
+        if (e) e.preventDefault();
         const next = validate();
         if (Object.keys(next).length) {
             setErrors(next);
@@ -42,8 +45,10 @@ export function LoginForm() {
         setErrors({});
         setIsLoading(true);
         try {
-            // TODO: replace with real auth call
-            await new Promise((r) => setTimeout(r, 1000));
+            await login(email, password);
+            router.push("/");
+        } catch (error: any) {
+            setErrors({ email: error.message || "Đăng nhập thất bại" });
         } finally {
             setIsLoading(false);
         }
@@ -71,7 +76,7 @@ export function LoginForm() {
             </div>
 
             {/* Form fields */}
-            <div className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
                 <BaseInput
                     label={UI_TEXT.AUTH.LOGIN.EMAIL_LABEL}
                     type="email"
@@ -119,11 +124,11 @@ export function LoginForm() {
                     </div>
                 </div>
 
-                <BaseButton isLoading={isLoading} onClick={handleSubmit}>
+                <BaseButton type="submit" isLoading={isLoading}>
                     <span>{UI_TEXT.AUTH.LOGIN.SUBMIT_BTN}</span>
                     <ArrowRight size={18} strokeWidth={1.5} aria-hidden="true" />
                 </BaseButton>
-            </div>
+            </form>
 
             {/* Divider */}
             <div className="my-8 flex items-center gap-4">
