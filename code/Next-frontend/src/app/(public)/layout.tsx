@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { useAuth } from "@/providers/auth";
+import { UI_TEXT } from "@/constants/ui-text";
 
 const NAV_LINKS = [
   { href: "/", label: "Catalog" },
@@ -174,7 +175,7 @@ export default function PublicLayout({
                           className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
                         >
                           <MaterialIcon name="manage_accounts" className="text-[18px]" />
-                          Tài khoản của tôi
+                          {UI_TEXT.PUBLIC_LAYOUT.MY_ACCOUNT}
                         </Link>
                         <Link
                           href="/my-books"
@@ -182,7 +183,7 @@ export default function PublicLayout({
                           className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
                         >
                           <MaterialIcon name="book" className="text-[18px]" />
-                          Sách của tôi
+                          {UI_TEXT.PUBLIC_LAYOUT.MY_BOOKS}
                         </Link>
                       </div>
 
@@ -194,7 +195,7 @@ export default function PublicLayout({
                           className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                         >
                           <MaterialIcon name="logout" className="text-[18px]" />
-                          Đăng xuất
+                          {UI_TEXT.PUBLIC_LAYOUT.LOGOUT}
                         </button>
                       </div>
                     </div>
@@ -206,7 +207,7 @@ export default function PublicLayout({
                 href="/login"
                 className="bg-primary-700 dark:bg-primary-500 text-on-primary px-6 py-2 rounded-full font-semibold text-[20px] hover:opacity-90 transition-opacity"
               >
-                Đăng nhập
+                {UI_TEXT.PUBLIC_LAYOUT.LOGIN}
               </Link>
             )}
           </div>

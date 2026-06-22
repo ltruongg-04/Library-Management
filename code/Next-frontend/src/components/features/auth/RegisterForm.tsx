@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { registerSchema, type RegisterFormData } from '@/schemas/auth'
 import Input from '@/components/base/Input'
 import Button from '@/components/base/Button'
+import { UI_TEXT } from '@/constants/ui-text'
 
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => Promise<void>
@@ -43,13 +44,13 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
     setErrorMessage('')
     setSuccessMessage('')
     await onSubmit(data)
-    setSuccessMessage('Đăng ký thành công! Vui lòng đăng nhập.')
+    setSuccessMessage(UI_TEXT.AUTH.REGISTER.SUCCESS_MSG)
       setTimeout(() => {        router.push('/login')     }, 1500)
   } catch (error) {
     setErrorMessage(
       error instanceof Error
         ? error.message
-        : 'Đăng ký thất bại. Vui lòng thử lại.'
+        : UI_TEXT.AUTH.REGISTER.ERROR_MSG
     )
   }
 }
@@ -75,8 +76,8 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
 
       {/* 👤 Full Name Input */}
       <Input
-        label="Họ và tên"
-        placeholder="Nguyễn Văn A"
+        label={UI_TEXT.AUTH.REGISTER.FULL_NAME_LABEL}
+        placeholder={UI_TEXT.AUTH.REGISTER.FULL_NAME_PLACEHOLDER}
         type="text"
         error={errors.fullName?.message}
         {...register('fullName')}
@@ -84,8 +85,8 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
 
       {/* 📱 Phone Number Input */}
       <Input
-        label="Số điện thoại"
-        placeholder="0901234567"
+        label={UI_TEXT.AUTH.REGISTER.PHONE_LABEL}
+        placeholder={UI_TEXT.AUTH.REGISTER.PHONE_PLACEHOLDER}
         type="tel"
         error={errors.phoneNumber?.message}
         {...register('phoneNumber')}
@@ -93,8 +94,8 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
 
       {/* 📧 Email Input */}
       <Input
-        label="Email Address"
-        placeholder="name@example.com"
+        label={UI_TEXT.AUTH.REGISTER.EMAIL_LABEL}
+        placeholder={UI_TEXT.AUTH.REGISTER.EMAIL_PLACEHOLDER}
         type="email"
         error={errors.email?.message}
         {...register('email')}
@@ -102,8 +103,8 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
 
       {/* 🔐 Password Input */}
       <Input
-        label="Password"
-        placeholder="••••••••"
+        label={UI_TEXT.AUTH.REGISTER.PASSWORD_LABEL}
+        placeholder={UI_TEXT.AUTH.REGISTER.PASSWORD_PLACEHOLDER}
         type="password"
         error={errors.password?.message}
         {...register('password')}
@@ -111,7 +112,7 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
 
       {/* 🔐 Confirm Password Input */}
       <Input
-        label="Confirm Password"
+        label={UI_TEXT.AUTH.REGISTER.CONFIRM_PASSWORD_LABEL}
         placeholder="••••••••"
         type="password"
         error={errors.confirmPassword?.message}
@@ -125,17 +126,17 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
         isLoading={isLoading}
         disabled={isLoading}
       >
-        {isLoading ? 'Đang đăng ký...' : 'Continue →'}
+        {isLoading ? UI_TEXT.AUTH.REGISTER.LOADING_BTN : UI_TEXT.AUTH.REGISTER.SUBMIT_BTN}
       </Button>
 
       {/* 📝 Login Link */}
       <div className="text-center text-sm text-gray-600">
-        Đã có tài khoản?{' '}
+        {UI_TEXT.AUTH.REGISTER.ALREADY_HAVE_ACCOUNT}{' '}
         <Link
           href="/login"
           className="text-primary-500 hover:text-primary-700 font-medium"
         >
-          Đăng nhập ngay
+          {UI_TEXT.AUTH.REGISTER.LOGIN_LINK}
         </Link>
       </div>
     </form>
