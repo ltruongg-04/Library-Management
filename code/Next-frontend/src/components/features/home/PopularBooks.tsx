@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { MaterialIcon } from "@/components/base/material-icon";
+import { UI_TEXT } from "@/constants/ui-text";
 
 interface BookCardProps {
   id: number;
@@ -29,10 +31,10 @@ const BOOKS: BookCardProps[] = [
     id: 1,
     title: "The Algorithmic Mind",
     author: "Dr. Elena Rostova",
-    category: "Khoa học",
+    category: UI_TEXT.HOME.CATEGORIES.SCIENCE,
     categoryColor: "science",
     badgeIcon: "trending_up",
-    badgeText: "#1 Thịnh hành",
+    badgeText: UI_TEXT.HOME.BADGES.TRENDING_1,
     imageSrc:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAYlDKQmIuqCq-tqTicaKu3Yo3_ZJmzdJmUd9f-5laODWr7iO_6xc5MGw7pBqlgzRYgcmDnPSFJdaSQ3MLmMUdLvZApaDzJS-TC6acVDF90OSsK_8LtBKzFL35XNAECxSEWm4HUfIfhYYYxEGYODvnwWmAhjiZO6N81ta8KxdlnyML3EM3wR7ueblXUxAjcmEZ3JSB0PBWmD6t2M3D7scUBUCwuT4qbfHz6BPkcunChaopBdvaWcadTSqOFQ1KeOwkl_PcFdxndQ-vo",
   },
@@ -40,7 +42,7 @@ const BOOKS: BookCardProps[] = [
     id: 2,
     title: "Echoes of Silence",
     author: "Marcus Thorne",
-    category: "Tiểu thuyết",
+    category: UI_TEXT.HOME.CATEGORIES.NOVEL,
     categoryColor: "fiction",
     badgeIcon: "star",
     badgeText: "4.9/5",
@@ -51,7 +53,7 @@ const BOOKS: BookCardProps[] = [
     id: 3,
     title: "A Brief History of Tomorrow",
     author: "Sarah Jenkins",
-    category: "Lịch sử",
+    category: UI_TEXT.HOME.CATEGORIES.HISTORY,
     categoryColor: "history",
     placeholderIcon: "history_edu",
     placeholderBg: "bg-primary-container",
@@ -64,7 +66,7 @@ const BOOKS: BookCardProps[] = [
     id: 4,
     title: "Design Systems",
     author: "Alex Rivera",
-    category: "Thiết kế",
+    category: UI_TEXT.HOME.CATEGORIES.DESIGN,
     categoryColor: "design",
     placeholderIcon: "palette",
     placeholderBg: "bg-tertiary-container",
@@ -116,18 +118,14 @@ function BookCard({
           <div
             className={`w-24 h-36 ${placeholderBg} rounded shadow-md flex items-center justify-center ${placeholderIconColor} group-hover:scale-105 transition-transform duration-500`}
           >
-            <span className="material-symbols-outlined text-[48px]">
-              {placeholderIcon}
-            </span>
+            <MaterialIcon name={placeholderIcon!} className="text-[48px]" />
           </div>
         )}
 
         {/* Badge */}
         {badgeText && (
           <div className="absolute top-2 right-2 bg-surface-container-lowest/90 dark:bg-slate-900/90 backdrop-blur-sm px-2 py-1 rounded-full border border-outline-variant/30 dark:border-slate-700 flex items-center shadow-sm">
-            <span className="material-symbols-outlined text-secondary-500 dark:text-white text-sm mr-1">
-              {badgeIcon}
-            </span>
+            <MaterialIcon name={badgeIcon!} className="text-secondary-500 dark:text-white text-sm mr-1" />
             <span className="font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] text-on-surface dark:text-white">
               {badgeText}
             </span>
@@ -153,7 +151,7 @@ function BookCard({
             className="text-primary-700 dark:text-white hover:text-secondary-300 dark:hover:text-secondary-300 transition-colors"
             aria-label={`Bookmark ${title}`}
           >
-            <span className="material-symbols-outlined">bookmark_add</span>
+            <MaterialIcon name="bookmark_add" />
           </button>
         </div>
       </div>
@@ -168,17 +166,15 @@ export default function PopularBooks() {
       <div className="flex justify-between items-end mb-6">
         <div>
           <h2 className="font-sans text-[32px] font-semibold leading-[40px] tracking-[-0.01em] text-primary-700 dark:text-white transition-colors duration-200">
-            Đang thịnh hành
+            {UI_TEXT.HOME.TRENDING_HEADING}
           </h2>
           <p className="font-sans text-[16px] leading-[24px] text-on-surface-variant dark:text-white transition-colors duration-200">
-            Xu hướng hiện tại.
+            {UI_TEXT.HOME.TRENDING_SUBHEADING}
           </p>
         </div>
         <button className="text-secondary-500 dark:text-white font-semibold text-[20px] leading-[28px] hover:text-primary-700 dark:hover:text-primary-300 transition-colors flex items-center">
-          Xem tất cả{" "}
-          <span className="material-symbols-outlined ml-1 text-sm">
-            arrow_forward
-          </span>
+          {UI_TEXT.HOME.VIEW_ALL}{" "}
+          <MaterialIcon name="arrow_forward" className="ml-1 text-sm" />
         </button>
       </div>
 

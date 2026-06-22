@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Headphones } from "lucide-react";
+import { UI_TEXT } from "@/constants/ui-text";
 
 export const metadata: Metadata = {
-  title: "Đang bảo trì — Lumina Library",
-  description:
-    "Hệ thống đang được cập nhật thông minh. Chúng tôi sẽ sớm trở lại với trải nghiệm khám phá tốt hơn.",
+  title: UI_TEXT.MAINTENANCE.PAGE_TITLE,
+  description: UI_TEXT.MAINTENANCE.PAGE_DESC,
 };
 
 export default function MaintenancePage() {
@@ -27,7 +27,7 @@ export default function MaintenancePage() {
         <div className="mb-12 h-64 w-64 overflow-hidden rounded-full shadow-[0_12px_32px_rgba(0,0,0,0.10),0_0_40px_rgba(45,188,254,0.20)] md:h-80 md:w-80">
           <Image
             src="/images/maintenance-illustration.png"
-            alt="Minh hoạ thư viện đang cập nhật AI"
+            alt={UI_TEXT.MAINTENANCE.IMG_ALT}
             width={320}
             height={320}
             className="h-full w-full object-cover"
@@ -37,13 +37,12 @@ export default function MaintenancePage() {
 
         {/* Heading — display-lg on desktop, headline-lg-mobile on mobile */}
         <h1 className="mb-4 text-[24px] font-semibold leading-[32px] text-primary-700 md:text-[48px] md:font-bold md:leading-[56px] md:tracking-[-0.02em]">
-          Thư viện đang được cập nhật thông minh
+          {UI_TEXT.MAINTENANCE.HEADING}
         </h1>
 
         {/* Body text — body-md */}
         <p className="mx-auto mb-12 max-w-lg text-[16px] leading-[24px] text-[#464652]">
-          Các mô hình AI đang lập chỉ mục tri thức mới và tối ưu hoá lộ trình tìm kiếm. Chúng tôi
-          sẽ sớm trở lại với trải nghiệm khám phá tri thức được nâng cao hơn.
+          {UI_TEXT.MAINTENANCE.SUBHEADING}
         </p>
 
         {/* Actions */}
@@ -57,7 +56,7 @@ export default function MaintenancePage() {
             className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary-500 px-6 text-[16px] font-semibold text-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-colors duration-150 ease-in-out hover:bg-primary-700 active:bg-primary-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
             <Headphones size={20} aria-hidden="true" />
-            Liên hệ hỗ trợ
+            {UI_TEXT.MAINTENANCE.CONTACT_BTN}
           </Link>
         </div>
       </div>

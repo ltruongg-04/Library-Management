@@ -1,4 +1,5 @@
 import type { Book } from "@/types/book";
+import { MaterialIcon } from "@/components/base/material-icon";
 
 interface BookInfoProps {
   book: Book;
@@ -25,12 +26,11 @@ export default function BookInfo({ book }: BookInfoProps) {
 
           {/* Rating */}
           <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-white flex items-center transition-colors duration-200">
-            <span
-              className="material-symbols-outlined text-[16px] text-amber-500 mr-1"
+            <MaterialIcon
+              name="star"
+              className="text-[16px] text-amber-500 mr-1"
               style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              star
-            </span>
+            />
             {book.rating} ({book.reviewCount} Reviews)
           </span>
         </div>

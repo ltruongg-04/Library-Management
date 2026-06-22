@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MaterialIcon } from "@/components/base/material-icon";
 
 interface BreadcrumbItem {
   label: string;
@@ -15,9 +16,7 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
       {items.map((item, index) => (
         <span key={index} className="flex items-center">
           {index > 0 && (
-            <span className="material-symbols-outlined text-[16px] mx-1">
-              chevron_right
-            </span>
+            <MaterialIcon name="chevron_right" className="text-[16px] mx-1" />
           )}
           {item.href ? (
             <Link

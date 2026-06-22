@@ -1,16 +1,17 @@
 "use client";
 
 import { Search, Sparkles, Bell } from "lucide-react";
+import { UI_TEXT } from "@/constants/ui-text";
 
 export default function Topbar() {
   return (
     <header className="flex items-start justify-between gap-6 px-8 pt-8">
       <div>
         <h1 className="font-serif text-[28px] font-semibold leading-tight text-ink-950">
-          Tổng quan
+          {UI_TEXT.ADMIN_LAYOUT.TOPBAR.HEADING}
         </h1>
         <p className="mt-1 text-[14.5px] text-ink-950/55">
-          Chào mừng trở lại, Admin. Đây là tình hình hôm nay.
+          {UI_TEXT.ADMIN_LAYOUT.TOPBAR.SUBHEADING}
         </p>
       </div>
 
@@ -22,7 +23,7 @@ export default function Topbar() {
           />
           <input
             type="text"
-            placeholder="Tìm kho sách bằng ngữ nghĩa AI…"
+            placeholder={UI_TEXT.ADMIN_LAYOUT.TOPBAR.SEARCH_PLACEHOLDER}
             className="focus-ring w-80 rounded-full border border-ink-950/10 bg-white py-2.5 pl-10 pr-16 text-[13.5px] text-ink-950 placeholder:text-ink-950/35 shadow-card transition-shadow focus:shadow-panel"
           />
           <span className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-md bg-brass-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-brass-600">

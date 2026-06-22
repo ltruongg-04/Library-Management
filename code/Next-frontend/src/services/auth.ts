@@ -1,17 +1,44 @@
 // 🔐 API Service cho authentication
 
+// 📦 Response types
+interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data: T | null
+  timestamp: string
+}
+
+interface RegisterResponseData {
+  id: number
+  fullName: string
+  email: string
+  phone: string | null
+  role: string
+  token: string
+  createdAt: string
+}
+
 interface LoginResponse {
   token: string
-  refreshToken: string
   user: {
-    id: string
+    id: number
     email: string
     fullName: string
     role: string
   }
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+// 📝 Request types
+interface RegisterRequestData {
+  fullName: string
+  email: string
+  password: string
+  phone?: string
+}
+
+// Client-side: gọi qua Next.js proxy (relative URL) để tránh CORS
+// Server-side (NextAuth callback): dùng NEXT_PUBLIC_API_URL trực tiếp
+const API_URL = ''
 
 // 🧪 MOCK DATA - Xóa khi có API thực
 const MOCK_USER = {
@@ -22,52 +49,74 @@ const MOCK_USER = {
 }
 
 export const authService = {
+  // 📝 Register - Đăng ký
+  async register(data: RegisterRequestData): Promise<RegisterResponseData> {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result: ApiResponse<RegisterResponseData> = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Đăng ký thất bại')
+      }
+
+      // 💾 Lưu token sau khi đăng ký thành công
+      if (result.data?.token) {
+        authService.saveToken(result.data.token)
+      }
+
+      return result.data!
+    } catch (error) {
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.')
+      }
+      throw error
+    }
+  },
+  // 🌐 Google Login (NextAuth)
+  async loginWithGoogle(callbackUrl = '/') {
+    const { signIn } = await import('next-auth/react')
+    return signIn('google', { callbackUrl })
+  },
+
   // 🔓 Login - Đăng nhập
   async login(email: string, password: string, rememberMe?: boolean) {
     try {
-      // ⏳ Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      // 🧪 MOCK: Kiểm tra email/password đơn giản
-      if (email === 'user@example.com' && password === '123456') {
-        const mockToken = 'mock_token_' + Date.now()
-        const mockRefreshToken = 'mock_refresh_token_' + Date.now()
-
-        // 💾 Save tokens
-        authService.saveToken(mockToken)
-        localStorage.setItem('refreshToken', mockRefreshToken)
-
-        return MOCK_USER
-      } else {
-        throw new Error('Email hoặc mật khẩu không đúng')
-      }
-
-      // 📡 Thực tế: fetch từ API thực
-      /*
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, rememberMe }),
+        body: JSON.stringify({ email, password }),
       })
 
-      if (!response.ok) {
-        throw new Error('Login failed')
+      const result: ApiResponse<LoginResponse> = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Email hoặc mật khẩu không đúng')
       }
 
-      const data: LoginResponse = await response.json()
+      const loginData = result.data!
 
-      // 💾 Save tokens
-      authService.saveToken(data.token)
-      if (data.refreshToken) {
-        localStorage.setItem('refreshToken', data.refreshToken)
+      // 💾 Lưu token
+      authService.saveToken(loginData.token)
+
+      return {
+        id: String(loginData.user.id),
+        email: loginData.user.email,
+        fullName: loginData.user.fullName,
+        role: loginData.user.role.toLowerCase(),
       }
-
-      return data.user
-      */
     } catch (error) {
-      console.error('Login error:', error)
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.')
+      }
       throw error
     }
   },

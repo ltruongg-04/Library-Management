@@ -25,11 +25,11 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Athenaeum — Library Admin",
+  title: "Athenaeum — Library",
   description: "Hệ thống quản lý thư viện",
 };
 
-import ThemeProvider from "@/providers/ThemeProvider";
+import { Providers } from "@/providers/Providers";
 
 export default function RootLayout({
   children,
@@ -38,13 +38,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-      </head>
       <body
         className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background dark:bg-slate-950 text-ink-950 dark:text-white transition-colors duration-200`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

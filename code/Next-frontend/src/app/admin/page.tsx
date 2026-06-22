@@ -1,4 +1,5 @@
 import { BookOpen, ClipboardList, AlertTriangle } from "lucide-react";
+import { UI_TEXT } from "@/constants/ui-text";
 import Topbar from "@/components/features/admin/Topbar";
 import StatCard from "@/components/features/admin/StatCard";
 import PendingRequests from "@/components/features/admin/PendingRequests";
@@ -11,25 +12,25 @@ export default function DashboardPage() {
       <Topbar />
       <div className="flex flex-col gap-5 sm:flex-row">
         <StatCard
-          eyebrow="Sách mượn hôm nay"
+          eyebrow={UI_TEXT.ADMIN_PAGES.DASHBOARD.BOOKS_TODAY}
           value="342"
           icon={BookOpen}
           tone="brass"
-          meta={{ type: "trend", text: "+12% so với tuần trước" }}
+          meta={{ type: "trend", text: UI_TEXT.ADMIN_PAGES.DASHBOARD.BOOKS_TODAY_TREND }}
         />
         <StatCard
-          eyebrow="Chờ phê duyệt"
+          eyebrow={UI_TEXT.ADMIN_PAGES.DASHBOARD.PENDING_APPROVAL}
           value="18"
           icon={ClipboardList}
           tone="moss"
-          meta={{ type: "info", text: "Cần xem xét trong 24h" }}
+          meta={{ type: "info", text: UI_TEXT.ADMIN_PAGES.DASHBOARD.PENDING_APPROVAL_DESC }}
         />
         <StatCard
-          eyebrow="Sách quá hạn"
+          eyebrow={UI_TEXT.ADMIN_PAGES.DASHBOARD.OVERDUE_BOOKS}
           value="45"
           icon={AlertTriangle}
           tone="rust"
-          meta={{ type: "alert", text: "Cần xử lý ngay" }}
+          meta={{ type: "alert", text: UI_TEXT.ADMIN_PAGES.DASHBOARD.OVERDUE_BOOKS_DESC }}
         />
       </div>
 

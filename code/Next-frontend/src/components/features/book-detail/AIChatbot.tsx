@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MaterialIcon } from "@/components/base/material-icon";
 
 interface AIChatbotProps {
   bookTitle: string;
@@ -36,9 +37,7 @@ export default function AIChatbot({ bookTitle }: AIChatbotProps) {
       {/* Chat Header */}
       <div className="p-4 border-b border-outline-variant/20 dark:border-slate-700 flex items-center gap-2 bg-surface-container-lowest/50 dark:bg-slate-900/50 rounded-t-xl transition-colors duration-200">
         <div className="w-8 h-8 rounded-full ai-gradient-bg flex items-center justify-center text-on-primary shadow-sm">
-          <span className="material-symbols-outlined text-[18px]">
-            robot_2
-          </span>
+          <MaterialIcon name="robot_2" className="text-[18px]" />
         </div>
         <div>
           <h4 className="font-title-md text-body-md font-semibold text-on-surface dark:text-white leading-tight transition-colors duration-200">
@@ -56,9 +55,7 @@ export default function AIChatbot({ bookTitle }: AIChatbotProps) {
           msg.role === "ai" ? (
             <div key={index} className="flex gap-2">
               <div className="w-6 h-6 rounded-full ai-gradient-bg flex-shrink-0 flex items-center justify-center text-on-primary mt-1">
-                <span className="material-symbols-outlined text-[14px]">
-                  auto_awesome
-                </span>
+                <MaterialIcon name="auto_awesome" className="text-[14px]" />
               </div>
               <div className="bg-primary-container dark:bg-primary-700 text-on-primary-container dark:text-white p-4 rounded-2xl rounded-tl-none shadow-sm font-body-md text-body-md transition-colors duration-200">
                 {msg.content}
@@ -77,9 +74,7 @@ export default function AIChatbot({ bookTitle }: AIChatbotProps) {
         {isAnalyzing && (
           <div className="flex gap-2 items-center text-on-surface-variant dark:text-slate-400 opacity-70 transition-colors duration-200">
             <div className="flex items-center gap-2 animate-pulse text-secondary dark:text-secondary-300">
-              <span className="material-symbols-outlined text-[18px]">
-                auto_awesome
-              </span>
+              <MaterialIcon name="auto_awesome" className="text-[18px]" />
               <span className="font-label-caps text-[12px] tracking-wider">
                 Lumina is analyzing...
               </span>
@@ -112,7 +107,7 @@ export default function AIChatbot({ bookTitle }: AIChatbotProps) {
             className="w-full bg-surface-container-low dark:bg-slate-800 border-none rounded-full py-2 pl-4 pr-10 font-body-sm text-body-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/50 dark:placeholder:text-slate-400 focus:ring-1 focus:ring-secondary focus:bg-surface-container-lowest dark:focus:bg-slate-900 transition-colors"
           />
           <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-secondary dark:text-secondary-300 hover:text-primary dark:hover:text-primary-300 transition-colors cursor-pointer">
-            <span className="material-symbols-outlined">send</span>
+            <MaterialIcon name="send" />
           </button>
         </div>
       </div>

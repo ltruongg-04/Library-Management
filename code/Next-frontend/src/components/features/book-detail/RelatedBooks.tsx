@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { MaterialIcon } from "@/components/base/material-icon";
 import type { RelatedBook } from "@/types/book";
 
 interface RelatedBooksProps {
@@ -19,9 +20,7 @@ export default function RelatedBooks({ books }: RelatedBooksProps) {
           className="font-body-sm text-body-sm text-primary dark:text-primary-300 hover:underline flex items-center transition-colors duration-200"
         >
           View all
-          <span className="material-symbols-outlined text-[18px] ml-1">
-            arrow_forward
-          </span>
+          <MaterialIcon name="arrow_forward" className="text-[18px] ml-1" />
         </Link>
       </div>
 

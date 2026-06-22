@@ -14,6 +14,7 @@ import {
   LogOut,
   BookMarked,
 } from "lucide-react";
+import { useAuth } from "@/providers/auth";
 
 const NAV_ITEMS = [
   { label: "Tổng quan", icon: LayoutGrid, href: "/admin" },
@@ -26,19 +27,26 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   return (
     <aside className="fixed left-0 top-0 z-20 h-screen w-64 flex-col bg-primary-900 text-parchment-100 flex">
       {/* Brand / admin identity */}
       <div className="flex items-center gap-3 border-b border-white/10 px-6 py-6">
-        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brass-50 to-brass-600 ring-2 ring-white/10">
-          <BookMarked size={18} className="text-ink-950" strokeWidth={2.25} />
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brass-50 to-brass-600 ring-2 ring-white/10 overflow-hidden">
+          {user?.image ? (
+            <img src={user.image} alt={user.fullName} className="h-full w-full object-cover" />
+          ) : (
+            <BookMarked size={18} className="text-ink-950" strokeWidth={2.25} />
+          )}
         </div>
         <div className="min-w-0">
-          <p className="truncate font-serif text-[15px] font-semibold leading-tight text-white">
-            Quản trị viên
+          <p className="truncate font-serif text-[15px] font-semibold leading-tight text-white" title={user?.fullName || "Quản trị viên"}>
+            {user?.fullName || "Quản trị viên"}
           </p>
-          <p className="truncate text-xs text-white/50">Hệ thống quản lý</p>
+          <p className="truncate text-xs text-white/50" title={user?.email || "Hệ thống quản lý"}>
+            {user?.email || "Hệ thống quản lý"}
+          </p>
         </div>
       </div>
 
@@ -86,7 +94,10 @@ export default function Sidebar() {
             <HelpCircle size={15} />
             Hỗ trợ
           </button>
-          <button className="focus-ring flex items-center gap-1.5 rounded-md px-2 py-1.5 hover:text-white/80">
+          <button 
+            onClick={() => logout()}
+            className="focus-ring flex items-center gap-1.5 rounded-md px-2 py-1.5 hover:text-white/80"
+          >
             <LogOut size={15} />
             Đăng xuất
           </button>
