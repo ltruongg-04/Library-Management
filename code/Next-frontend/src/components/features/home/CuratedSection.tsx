@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { MaterialIcon } from "@/components/base/material-icon";
+import Link from "next/link";
 
 function MatchPill({
   percentage,
@@ -25,7 +27,7 @@ export default function CuratedSection() {
       {/* Section Header */}
       <div className="mb-6 text-center max-w-2xl mx-auto">
         <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-secondary-300/20 dark:bg-white/20 text-secondary-300 dark:text-white mb-2">
-          <span className="material-symbols-outlined">psychology</span>
+          <MaterialIcon name="psychology" />
         </span>
         <h2 className="font-sans text-[32px] font-semibold leading-[40px] tracking-[-0.01em] text-primary-700 dark:text-white transition-colors duration-200 mb-1">
           Dành cho bạn
@@ -63,9 +65,12 @@ export default function CuratedSection() {
               A comprehensive collection exploring the ethical and societal
               implications of thinking machines.
             </p>
-            <button className="bg-transparent border border-secondary-500 dark:border-white text-secondary-500 dark:text-white hover:bg-secondary-500/5 dark:hover:bg-white/10 px-4 py-2 rounded-lg font-semibold text-[14px] transition-colors w-fit">
+            <Link
+              href="/sach/1"
+              className="bg-transparent border border-secondary-500 dark:border-white text-secondary-500 dark:text-white hover:bg-secondary-500/5 dark:hover:bg-white/10 px-4 py-2 rounded-lg font-semibold text-[14px] transition-colors w-fit"
+            >
               Khám phá bộ sưu tập
-            </button>
+            </Link>
           </div>
 
           {/* Match Pill */}
@@ -78,7 +83,7 @@ export default function CuratedSection() {
           <div className="bg-surface-container-lowest dark:bg-slate-900 rounded-lg p-6 level-1-shadow flex flex-col border border-transparent hover:border-secondary-300/30 transition-colors duration-200 relative flex-1">
             <div className="flex-grow">
               <div className="w-10 h-10 rounded bg-primary-container/20 dark:bg-white/10 text-primary-700 dark:text-white mb-4 flex items-center justify-center">
-                <span className="material-symbols-outlined">science</span>
+                <MaterialIcon name="science" />
               </div>
               <h3 className="font-sans text-[20px] font-semibold leading-[28px] text-primary-700 dark:text-white transition-colors duration-200 mb-1">
                 Hard Sci-Fi Essentials
@@ -94,9 +99,7 @@ export default function CuratedSection() {
                 className="text-secondary-500 dark:text-white hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
                 aria-label="View Hard Sci-Fi Essentials"
               >
-                <span className="material-symbols-outlined">
-                  arrow_forward
-                </span>
+                <MaterialIcon name="arrow_forward" />
               </button>
             </div>
             <MatchPill percentage={92} className="absolute top-4 right-4" />
@@ -106,7 +109,7 @@ export default function CuratedSection() {
           <div className="bg-surface-container-lowest dark:bg-slate-900 rounded-lg p-6 level-1-shadow flex flex-col border border-transparent hover:border-secondary-300/30 transition-colors duration-200 relative flex-1">
             <div className="flex-grow">
               <div className="w-10 h-10 rounded bg-tertiary-container/20 dark:bg-white/10 text-tertiary-500 dark:text-white mb-4 flex items-center justify-center">
-                <span className="material-symbols-outlined">landscape</span>
+                <MaterialIcon name="landscape" />
               </div>
               <h3 className="font-sans text-[20px] font-semibold leading-[28px] text-primary-700 dark:text-white transition-colors duration-200 mb-1">
                 World Building Masterclass

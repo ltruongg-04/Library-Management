@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
-import "./admin/globals.css";
+import "../index.css";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -29,19 +29,19 @@ export const metadata: Metadata = {
   description: "Hệ thống quản lý thư viện",
 };
 
-import ThemeProvider from "@/providers/ThemeProvider";
+import { Providers } from "@/providers/Providers";
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="vi">
+    <html lang="vi" suppressHydrationWarning>
       <body
-        className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased text-ink-950`}
+        className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background dark:bg-slate-950 text-ink-950 dark:text-white transition-colors duration-200`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
