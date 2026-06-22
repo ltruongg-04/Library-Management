@@ -2,6 +2,7 @@ package library.service.impl;
 
 import library.common.exception.CustomBusinessException;
 import library.config.JwtUtil;
+import library.dto.request.GoogleLoginRequest;
 import library.dto.request.LoginRequest;
 import library.dto.request.RegisterRequest;
 import library.dto.response.LoginResponse;
@@ -14,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +67,8 @@ public class UserServiceImpl implements UserService {
     public LoginResponse login(LoginRequest request) {
         // 1. Tìm user bằng email
         UserEntity user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new CustomBusinessException("Email hoặc mật khẩu không chính xác", HttpStatus.UNAUTHORIZED));
+                .orElseThrow(() -> new CustomBusinessException("Email hoặc mật khẩu không chính xác",
+                        HttpStatus.UNAUTHORIZED));
 
         // 2. Kiểm tra mật khẩu
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -80,6 +84,43 @@ public class UserServiceImpl implements UserService {
         String token = jwtUtil.generateToken(user);
 
         // 5. Trả về response
+        return LoginResponse.builder()
+                .token(token)
+                .user(LoginResponse.UserInfo.builder()
+                        .id(user.getId())
+                        .email(user.getEmail())
+                        .fullName(user.getFullName())
+                        .role(user.getRole().name())
+                        .build())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse loginWithGoogle(GoogleLoginRequest request) {
+        // 1. Tìm user theo email, nếu chưa có thì tạo mới
+        UserEntity user = userRepository.findByEmail(request.getEmail())
+                .orElseGet(() -> {
+                    // Tạo user mới với mật khẩu ngẫu nhiên (không thể đăng nhập thủ công)
+                    UserEntity newUser = UserEntity.builder()
+                            .fullName(request.getFullName())
+                            .email(request.getEmail())
+                            .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                            .role(UserEntity.Role.USER)
+                            .active(true)
+                            .build();
+                    return userRepository.save(newUser);
+                });
+
+        // 2. Kiểm tra tài khoản có bị khóa không
+        if (!user.isActive()) {
+            throw new CustomBusinessException("Tài khoản đã bị khóa", HttpStatus.FORBIDDEN);
+        }
+
+        // 3. Tạo JWT token
+        String token = jwtUtil.generateToken(user);
+
+        // 4. Trả về response (giống login thường)
         return LoginResponse.builder()
                 .token(token)
                 .user(LoginResponse.UserInfo.builder()

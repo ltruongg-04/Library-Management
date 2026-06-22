@@ -13,7 +13,8 @@ import { UI_TEXT } from "@/constants/ui-text";
 import { useAuth } from "@/providers/auth";
 
 export function LoginForm() {
-    const { loginWithGoogle } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -43,8 +44,10 @@ export function LoginForm() {
         setErrors({});
         setIsLoading(true);
         try {
-            // TODO: replace with real auth call
-            await new Promise((r) => setTimeout(r, 1000));
+            await login(email, password);
+            router.push("/");
+        } catch (error: any) {
+            setErrors({ email: error.message || "Đăng nhập thất bại" });
         } finally {
             setIsLoading(false);
         }

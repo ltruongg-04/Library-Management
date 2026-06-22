@@ -53,10 +53,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // 🔄 Sync user from NextAuth session (Google login)
   const googleUser: User | null = session?.user
     ? {
-      id: (session.user as typeof session.user & { id?: string }).id ?? session.user.email ?? '',
+      id: session.user.id ?? session.user.email ?? '',
       email: session.user.email ?? '',
       fullName: session.user.name ?? '',
-      role: 'user', // Google users mặc định là 'user'
+      role: session.user.role ?? 'USER',
       image: session.user.image ?? undefined,
     }
     : null
@@ -64,14 +64,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // 🔄 Khởi tạo từ token lưu sẵn (email/password login)
   useEffect(() => {
     try {
-      if (authService.isAuthenticated() && !session) {
-        // 🧪 MOCK: Set mock user nếu có token local
-        setManualUser({
-          id: '1',
-          email: 'admin@gmail.com',
-          fullName: 'Admin',
-          role: 'admin',
-        })
+      const token = authService.getToken()
+      if (token && !session) {
+        const payload = parseJwt(token)
+        if (payload) {
+          // Token do backend tạo có subject là email, có role, userId, fullName
+          setManualUser({
+            id: String(payload.userId || payload.sub),
+            email: payload.sub,
+            fullName: payload.fullName || '',
+            role: payload.role ? payload.role.toLowerCase() : 'user',
+          })
+        }
       }
     } catch (error) {
       console.error('Error checking authentication:', error)

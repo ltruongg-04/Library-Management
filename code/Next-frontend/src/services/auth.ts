@@ -36,7 +36,9 @@ interface RegisterRequestData {
   phone?: string
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
+// Client-side: gọi qua Next.js proxy (relative URL) để tránh CORS
+// Server-side (NextAuth callback): dùng NEXT_PUBLIC_API_URL trực tiếp
+const API_URL = ''
 
 // 🧪 MOCK DATA - Xóa khi có API thực
 const MOCK_USER = {
