@@ -17,7 +17,7 @@ interface RegisterFormProps {
 
 export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFormProps) {
   const router = useRouter()
-  
+
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [successMessage, setSuccessMessage] = useState<string>('')
 
@@ -37,23 +37,23 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
   })
 
   // 🔄 Form submit handler
- const handleFormSubmit = async (data: RegisterFormData) => {
-  console.log('DATA:', data)
+  const handleFormSubmit = async (data: RegisterFormData) => {
+    console.log('DATA:', data)
 
-  try {
-    setErrorMessage('')
-    setSuccessMessage('')
-    await onSubmit(data)
-    setSuccessMessage(UI_TEXT.AUTH.REGISTER.SUCCESS_MSG)
-      setTimeout(() => {        router.push('/login')     }, 1500)
-  } catch (error) {
-    setErrorMessage(
-      error instanceof Error
-        ? error.message
-        : UI_TEXT.AUTH.REGISTER.ERROR_MSG
-    )
+    try {
+      setErrorMessage('')
+      setSuccessMessage('')
+      await onSubmit(data)
+      setSuccessMessage(UI_TEXT.AUTH.REGISTER.SUCCESS_MSG)
+      setTimeout(() => { router.push('/login') }, 1500)
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : UI_TEXT.AUTH.REGISTER.ERROR_MSG
+      )
+    }
   }
-}
   console.log('ERRORS:', errors)
 
   return (
@@ -113,7 +113,7 @@ export default function RegisterForm({ onSubmit, isLoading = false }: RegisterFo
       {/* 🔐 Confirm Password Input */}
       <Input
         label={UI_TEXT.AUTH.REGISTER.CONFIRM_PASSWORD_LABEL}
-        placeholder="••••••••"
+        placeholder={UI_TEXT.AUTH.REGISTER.PASSWORD_PLACEHOLDER}
         type="password"
         error={errors.confirmPassword?.message}
         {...register('confirmPassword')}

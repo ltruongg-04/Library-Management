@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Smartphone, CheckCircle } from 'lucide-react';
 import { Toggle } from '@/components/base/Toggle';
+import { SuccessModal } from '@/components/base/success-modal';
+import { UI_TEXT } from '@/constants/ui-text';
 
 export default function NotificationSettingsPage() {
     const [emailNewArrivals, setEmailNewArrivals] = useState(true);
@@ -27,141 +29,99 @@ export default function NotificationSettingsPage() {
         }
     }, []);
 
-    const handleSave = () => {
-        const settings = {
-            emailNewArrivals,
-            emailDueDates,
-            emailReservations,
-            pushMobileAlerts,
-        };
-        localStorage.setItem('lumina_notification_settings', JSON.stringify(settings));
+    const updateSetting = (key: 'emailNewArrivals' | 'emailDueDates' | 'emailReservations' | 'pushMobileAlerts', value: boolean) => {
+        let newSettings = { emailNewArrivals, emailDueDates, emailReservations, pushMobileAlerts };
+        if (key === 'emailNewArrivals') {
+            setEmailNewArrivals(value);
+            newSettings.emailNewArrivals = value;
+        }
+        if (key === 'emailDueDates') {
+            setEmailDueDates(value);
+            newSettings.emailDueDates = value;
+        }
+        if (key === 'emailReservations') {
+            setEmailReservations(value);
+            newSettings.emailReservations = value;
+        }
+        if (key === 'pushMobileAlerts') {
+            setPushMobileAlerts(value);
+            newSettings.pushMobileAlerts = value;
+        }
+        localStorage.setItem('lumina_notification_settings', JSON.stringify(newSettings));
         setShowSuccessModal(true);
-        // Optional: Tự động đóng sau 3 giây
         setTimeout(() => {
             setShowSuccessModal(false);
         }, 3000);
     };
 
-    const handleDiscard = () => {
-        // Reset from local storage
-        const savedSettings = localStorage.getItem('lumina_notification_settings');
-        if (savedSettings) {
-            try {
-                const parsed = JSON.parse(savedSettings);
-                if (typeof parsed.emailNewArrivals === 'boolean') setEmailNewArrivals(parsed.emailNewArrivals);
-                if (typeof parsed.emailDueDates === 'boolean') setEmailDueDates(parsed.emailDueDates);
-                if (typeof parsed.emailReservations === 'boolean') setEmailReservations(parsed.emailReservations);
-                if (typeof parsed.pushMobileAlerts === 'boolean') setPushMobileAlerts(parsed.pushMobileAlerts);
-            } catch (e) {
-                console.error("Failed to parse notification settings", e);
-            }
-        } else {
-            // Default
-            setEmailNewArrivals(true);
-            setEmailDueDates(true);
-            setEmailReservations(true);
-            setPushMobileAlerts(false);
-        }
-    };
-
     return (
-        <div className="w-full max-w-4xl bg-surface-container-lowest rounded-2xl p-xl shadow-sm border border-surface-variant">
+        <div className="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl p-xl shadow-sm border border-ink-200 dark:border-slate-800 transition-colors duration-200">
             <div className="mb-xl">
-                <h1 className="font-display-lg text-display-lg text-on-surface mb-sm">Notification Settings</h1>
-                <p className="font-body-md text-body-md text-on-surface-variant max-w-2xl">
-                    Control how Lumina Library communicates with you. Tailor your alerts to stay informed without feeling overwhelmed.
+                <h1 className="font-display-lg text-display-lg text-ink-950 dark:text-white mb-sm">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.HEADING}</h1>
+                <p className="font-body-md text-body-md text-ink-600 dark:text-slate-400 max-w-2xl">
+                    {UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.SUBHEADING}
                 </p>
             </div>
 
             <div className="space-y-xl">
-                <section className="border-b border-surface-variant pb-xl">
+                <section className="border-b border-ink-200 dark:border-slate-800 pb-xl">
                     <div className="flex items-center gap-sm mb-lg">
-                        <Mail className="text-on-surface" size={24} />
-                        <h2 className="font-title-md text-title-md text-on-surface">Email Notifications</h2>
+                        <Mail className="text-ink-950 dark:text-white" size={24} />
+                        <h2 className="font-title-md text-title-md text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.EMAIL_NOTIFICATIONS}</h2>
                     </div>
 
                     <div className="space-y-md">
                         <div className="flex items-center justify-between py-sm">
                             <div>
-                                <h3 className="font-body-md text-body-md font-semibold text-on-surface">New Arrivals</h3>
-                                <p className="font-body-sm text-body-sm text-on-surface-variant">Get notified when books from your favorite authors arrive.</p>
+                                <h3 className="font-body-md text-body-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.NEW_ARRIVALS_TITLE}</h3>
+                                <p className="font-body-sm text-body-sm text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.NEW_ARRIVALS_DESC}</p>
                             </div>
-                            <Toggle checked={emailNewArrivals} onChange={setEmailNewArrivals} />
+                            <Toggle checked={emailNewArrivals} onChange={(val) => updateSetting('emailNewArrivals', val)} />
                         </div>
 
-                        <div className="flex items-center justify-between py-sm border-t border-surface-variant">
+                        <div className="flex items-center justify-between py-sm border-t border-ink-200 dark:border-slate-800">
                             <div>
-                                <h3 className="font-body-md text-body-md font-semibold text-on-surface">Due Date Reminders</h3>
-                                <p className="font-body-sm text-body-sm text-on-surface-variant">Receive alerts 3 days before your items are due.</p>
+                                <h3 className="font-body-md text-body-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.DUE_DATE_TITLE}</h3>
+                                <p className="font-body-sm text-body-sm text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.DUE_DATE_DESC}</p>
                             </div>
-                            <Toggle checked={emailDueDates} onChange={setEmailDueDates} />
+                            <Toggle checked={emailDueDates} onChange={(val) => updateSetting('emailDueDates', val)} />
                         </div>
 
-                        <div className="flex items-center justify-between py-sm border-t border-surface-variant">
+                        <div className="flex items-center justify-between py-sm border-t border-ink-200 dark:border-slate-800">
                             <div>
-                                <h3 className="font-body-md text-body-md font-semibold text-on-surface">Reservation Alerts</h3>
-                                <p className="font-body-sm text-body-sm text-on-surface-variant">We&apos;ll let you know the moment a reserved book is ready.</p>
+                                <h3 className="font-body-md text-body-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.RESERVATION_TITLE}</h3>
+                                <p className="font-body-sm text-body-sm text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.RESERVATION_DESC}</p>
                             </div>
-                            <Toggle checked={emailReservations} onChange={setEmailReservations} />
+                            <Toggle checked={emailReservations} onChange={(val) => updateSetting('emailReservations', val)} />
                         </div>
                     </div>
                 </section>
 
-                <section className="border-b border-surface-variant pb-xl">
+                <section className="border-b border-ink-200 dark:border-slate-800 pb-xl">
                     <div className="flex items-center gap-sm mb-lg">
-                        <Smartphone className="text-on-surface" size={24} />
-                        <h2 className="font-title-md text-title-md text-on-surface">Push Notifications</h2>
+                        <Smartphone className="text-ink-950 dark:text-white" size={24} />
+                        <h2 className="font-title-md text-title-md text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.PUSH_NOTIFICATIONS}</h2>
                     </div>
 
                     <div className="space-y-md">
                         <div className="flex items-center justify-between py-sm">
                             <div>
-                                <h3 className="font-body-md text-body-md font-semibold text-on-surface">Mobile Alerts</h3>
-                                <p className="font-body-sm text-body-sm text-on-surface-variant">Instant notifications sent to your registered devices.</p>
+                                <h3 className="font-body-md text-body-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.MOBILE_ALERTS_TITLE}</h3>
+                                <p className="font-body-sm text-body-sm text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.MOBILE_ALERTS_DESC}</p>
                             </div>
-                            <Toggle checked={pushMobileAlerts} onChange={setPushMobileAlerts} />
+                            <Toggle checked={pushMobileAlerts} onChange={(val) => updateSetting('pushMobileAlerts', val)} />
                         </div>
                     </div>
                 </section>
 
-                <div className="pt-xl flex justify-end gap-md border-t border-surface-variant mt-xl">
-                    <button 
-                        onClick={handleDiscard}
-                        className="px-lg py-sm rounded border border-outline text-on-surface font-label-caps text-label-caps hover:bg-surface-variant/50 transition-colors"
-                    >
-                        Discard Changes
-                    </button>
-                    <button 
-                        onClick={handleSave}
-                        className="px-lg py-sm rounded bg-primary text-on-primary font-label-caps text-label-caps hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm"
-                    >
-                        Save Preferences
-                    </button>
-                </div>
             </div>
 
             {/* Custom Success Modal */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
-                    <div className="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-sm w-full mx-4 animate-in fade-in zoom-in-95 duration-200">
-                        <div className="px-6 py-6 flex flex-col items-center text-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-success-50 flex items-center justify-center text-success-500">
-                                <CheckCircle size={28} />
-                            </div>
-                            <div>
-                                <h3 className="font-title-md text-title-md font-semibold text-on-surface mb-2">Thành công!</h3>
-                                <p className="font-body-sm text-body-sm text-on-surface-variant">Cài đặt thông báo đã được lưu thành công.</p>
-                            </div>
-                            <button 
-                                onClick={() => setShowSuccessModal(false)}
-                                className="w-full mt-4 py-3 rounded bg-primary text-on-primary font-label-caps text-label-caps hover:bg-primary-700 transition-colors"
-                            >
-                                Đóng
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <SuccessModal 
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                message={UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.SUCCESS_MSG}
+            />
         </div>
     );
 }
