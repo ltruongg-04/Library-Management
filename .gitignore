@@ -1,8 +1,17 @@
+# Node / Next.js
+node_modules/
+.next/
+/out/
+/build/
 .env
-node_modules
-package-lock.json
-.husky
-.next
-.env.local
+.env.*
+!.env.example
 *.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Maven / Spring Boot
 target/
+*.log
