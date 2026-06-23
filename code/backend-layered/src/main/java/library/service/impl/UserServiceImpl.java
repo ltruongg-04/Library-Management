@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService {
     private String createRefreshToken(UserEntity user) {
         // Xóa token cũ nếu có
         refreshTokenRepository.deleteByUser(user);
+        refreshTokenRepository.flush(); // Bắt buộc flush để câu lệnh DELETE chạy trước INSERT
         
         // Tạo token mới sống 7 ngày
         RefreshTokenEntity refreshToken = RefreshTokenEntity.builder()

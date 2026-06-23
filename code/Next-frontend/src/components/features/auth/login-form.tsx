@@ -1,5 +1,7 @@
 "use client";
 
+import { getSession } from "next-auth/react";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowRight, Mail, Lock, Loader2 } from "lucide-react";
@@ -46,7 +48,12 @@ export function LoginForm() {
         setIsLoading(true);
         try {
             await login(email, password);
-            router.push("/");
+            const session = await getSession();
+            if (session?.user?.role === 'ADMIN') {
+                router.push("/admin");
+            } else {
+                router.push("/");
+            }
         } catch (error: any) {
             setErrors({ email: error.message || "Đăng nhập thất bại" });
         } finally {
