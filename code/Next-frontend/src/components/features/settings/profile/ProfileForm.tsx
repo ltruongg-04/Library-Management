@@ -109,6 +109,7 @@ export default function ProfileForm() {
           error={errors.fullName}
           placeholder={UI_TEXT.PROFILE.FORM.FULL_NAME_PLACEHOLDER}
           className="h-10 !bg-gray-100 dark:!bg-slate-800 dark:text-white dark:border-slate-700"
+          labelClassName="dark:text-white"
         />
 
         <BaseInput
@@ -120,6 +121,7 @@ export default function ProfileForm() {
           error={errors.email}
           placeholder={UI_TEXT.PROFILE.FORM.EMAIL_PLACEHOLDER}
           className="h-10 !bg-gray-100 dark:!bg-slate-800 dark:text-white dark:border-slate-700"
+          labelClassName="dark:text-white"
         />
 
         <BaseInput
@@ -130,6 +132,7 @@ export default function ProfileForm() {
           error={errors.phone}
           placeholder={UI_TEXT.PROFILE.FORM.PHONE_PLACEHOLDER}
           className="h-10 !bg-gray-100 dark:!bg-slate-800 dark:text-white dark:border-slate-700"
+          labelClassName="dark:text-white"
         />
       </div>
 

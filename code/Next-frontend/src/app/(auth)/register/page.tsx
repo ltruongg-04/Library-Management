@@ -4,7 +4,7 @@ import RegisterForm from "@/components/features/auth/RegisterForm";
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-surface transition-colors duration-200">
       {/* Sidebar trang trí */}
       <LoginBanner />
 
