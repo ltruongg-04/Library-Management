@@ -7,6 +7,8 @@ import { useState, useEffect, useRef } from "react";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { useAuth } from "@/providers/auth";
 import { UI_TEXT } from "@/constants/ui-text";
+import NotificationDropdown from "@/components/features/notifications/NotificationDropdown";
+import { notifications } from "@/constants/notifications";
 
 const NAV_LINKS = [
   { href: "/", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.CATALOG },
@@ -20,29 +22,67 @@ export function PublicHeader() {
   const { user, isAuthenticated, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const unreadCount = notifications.filter(
+    (item) => item.unread
+  ).length;
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+    if (
+      savedTheme === "dark" ||
+      (!savedTheme && prefersDark)
+    ) {
+      document.documentElement.classList.add(
+        "dark"
+      );
       setIsDarkMode(true);
     } else {
+      document.documentElement.classList.remove(
+        "dark"
+      );
       setIsDarkMode(false);
     }
   }, []);
 
   // Đóng menu khi click ra ngoài
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+    function handleClickOutside(
+      e: MouseEvent
+    ) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(
+          e.target as Node
+        )
+      ) {
         setIsMenuOpen(false);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(
+          e.target as Node
+        )
+      ) {
+        setIsNotificationOpen(false);
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+  }, []);
   const toggleTheme = () => {
     const htmlEl = document.documentElement;
     const isCurrentlyDark = htmlEl.classList.contains("dark");
@@ -60,6 +100,7 @@ export function PublicHeader() {
 
   const handleLogout = async () => {
     setIsMenuOpen(false);
+    setIsNotificationOpen(false);
     await logout();
   };
 
@@ -107,96 +148,195 @@ export function PublicHeader() {
               <MaterialIcon name={isDarkMode ? "light_mode" : "dark_mode"} />
             </button>
 
-            {isAuthenticated && user ? (
-              <>
-                {/* Notifications */}
+          {isAuthenticated && user ? (
+            <>
+              {/* Notifications */}
+              <div
+                className="relative"
+                ref={notificationRef}
+              >
                 <button
-                  className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsNotificationOpen(
+                      !isNotificationOpen
+                    );
+                  }}
+                  className="
+                    relative
+                    flex
+                    items-center
+                    justify-center
+                    w-10
+                    h-10
+                    rounded-full
+                    hover:bg-ink-100
+                    dark:hover:bg-slate-800
+                    transition-colors
+                    text-ink-500
+                    dark:text-white
+                  "
                   aria-label="Notifications"
                 >
-                  <MaterialIcon name="notifications" />
+                  <MaterialIcon
+                    name="notifications"
+                  />
+
+                  {unreadCount > 0 && (
+                    <span
+                      className="
+                        absolute
+                        -top-1
+                        -right-1
+                        w-5
+                        h-5
+                        rounded-full
+                        bg-red-500
+                        text-white
+                        text-xs
+                        flex
+                        items-center
+                        justify-center
+                      "
+                    >
+                      {unreadCount}
+                    </span>
+                  )}
                 </button>
 
-                {/* Avatar + Dropdown */}
-                <div className="relative" ref={menuRef}>
-                  <button
-                    id="user-avatar-btn"
-                    onClick={() => setIsMenuOpen((v) => !v)}
-                    className="w-10 h-10 rounded-full border-2 border-primary-300 dark:border-primary-600 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                    aria-label="User menu"
-                    aria-expanded={isMenuOpen}
-                  >
-                    {user.image ? (
-                      <Image
-                        src={user.image}
-                        alt={user.fullName}
-                        width={40}
-                        height={40}
-                        className="w-full h-full object-cover"
+                {isNotificationOpen && (
+                  <NotificationDropdown />
+                )}
+              </div>
+
+              {/* Avatar + Dropdown */}
+              <div
+                className="relative"
+                ref={menuRef}
+              >
+                <button
+                  id="user-avatar-btn"
+                  onClick={() => {
+                    setIsNotificationOpen(false);
+                    setIsMenuOpen((v) => !v);
+                  }}
+                  className="
+                    w-10
+                    h-10
+                    rounded-full
+                    border-2
+                    border-primary-300
+                    dark:border-primary-600
+                    flex
+                    items-center
+                    justify-center
+                    overflow-hidden
+                    cursor-pointer
+                    hover:opacity-80
+                    transition-all
+                    duration-200
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-primary-500
+                    focus:ring-offset-2
+                  "
+                  aria-label="User menu"
+                  aria-expanded={isMenuOpen}
+                >
+                  {user.image ? (
+                    <Image
+                      src={user.image}
+                      alt={user.fullName}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                      <MaterialIcon
+                        name="person"
+                        className="text-primary-700 dark:text-white"
                       />
-                    ) : (
-                      <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
-                        <MaterialIcon name="person" className="text-primary-700 dark:text-white" />
-                      </div>
-                    )}
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {isMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-slate-800 shadow-lg border border-ink-100 dark:border-slate-700 overflow-hidden animate-slide-up z-50">
-                      {/* User info */}
-                      <div className="px-4 py-3 border-b border-ink-100 dark:border-slate-700">
-                        <p className="text-sm font-semibold text-ink-950 dark:text-white truncate">
-                          {user.fullName}
-                        </p>
-                        <p className="text-xs text-ink-500 dark:text-slate-400 truncate">
-                          {user.email}
-                        </p>
-                      </div>
-
-                      {/* Menu items */}
-                      <div className="py-1">
-                        <Link
-                          href="/settings/profile"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
-                        >
-                          <MaterialIcon name="manage_accounts" className="text-[18px]" />
-                          {UI_TEXT.PUBLIC_LAYOUT.MY_ACCOUNT}
-                        </Link>
-                        <Link
-                          href="/my-books"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
-                        >
-                          <MaterialIcon name="book" className="text-[18px]" />
-                          {UI_TEXT.PUBLIC_LAYOUT.MY_BOOKS}
-                        </Link>
-                      </div>
-
-                      {/* Logout */}
-                      <div className="border-t border-ink-100 dark:border-slate-700 py-1">
-                        <button
-                          id="btn-logout"
-                          onClick={handleLogout}
-                          className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                        >
-                          <MaterialIcon name="logout" className="text-[18px]" />
-                          {UI_TEXT.PUBLIC_LAYOUT.LOGOUT}
-                        </button>
-                      </div>
                     </div>
                   )}
-                </div>
-              </>
-            ) : (
-              <Link
-                href="/login"
-                className="bg-primary-700 dark:bg-primary-500 text-on-primary px-6 py-2 rounded-full font-semibold text-[20px] hover:opacity-90 transition-opacity"
-              >
-                {UI_TEXT.PUBLIC_LAYOUT.LOGIN}
-              </Link>
-            )}
+                </button>
+
+                {isMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-slate-800 shadow-lg border border-ink-100 dark:border-slate-700 overflow-hidden animate-slide-up z-50">
+                    <div className="px-4 py-3 border-b border-ink-100 dark:border-slate-700">
+                      <p className="text-sm font-semibold text-ink-950 dark:text-white truncate">
+                        {user.fullName}
+                      </p>
+
+                      <p className="text-xs text-ink-500 dark:text-slate-400 truncate">
+                        {user.email}
+                      </p>
+                    </div>
+
+                    <div className="py-1">
+                      <Link
+                        href="/settings/profile"
+                        onClick={() =>
+                          setIsMenuOpen(false)
+                        }
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
+                      >
+                        <MaterialIcon
+                          name="manage_accounts"
+                          className="text-[18px]"
+                        />
+                        {
+                          UI_TEXT.PUBLIC_LAYOUT
+                            .MY_ACCOUNT
+                        }
+                      </Link>
+
+                      <Link
+                        href="/my-books"
+                        onClick={() =>
+                          setIsMenuOpen(false)
+                        }
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
+                      >
+                        <MaterialIcon
+                          name="book"
+                          className="text-[18px]"
+                        />
+                        {
+                          UI_TEXT.PUBLIC_LAYOUT
+                            .MY_BOOKS
+                        }
+                      </Link>
+                    </div>
+
+                    <div className="border-t border-ink-100 dark:border-slate-700 py-1">
+                      <button
+                        id="btn-logout"
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                      >
+                        <MaterialIcon
+                          name="logout"
+                          className="text-[18px]"
+                        />
+                        {
+                          UI_TEXT.PUBLIC_LAYOUT
+                            .LOGOUT
+                        }
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="bg-primary-700 dark:bg-primary-500 text-on-primary px-6 py-2 rounded-full font-semibold text-[20px] hover:opacity-90 transition-opacity"
+            >
+              {UI_TEXT.PUBLIC_LAYOUT.LOGIN}
+            </Link>
+          )}          
           </div>
         </div>
       </header>
