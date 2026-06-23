@@ -7,6 +7,7 @@ interface BaseInputProps extends InputHTMLAttributes<HTMLInputElement> {
     helperText?: string;
     leadingIcon?: ReactNode;
     trailingIcon?: ReactNode;
+    labelClassName?: string;
 }
 
 export function BaseInput({
@@ -15,6 +16,7 @@ export function BaseInput({
     helperText,
     leadingIcon,
     trailingIcon,
+    labelClassName,
     id,
     className = "",
     ...props
@@ -26,7 +28,7 @@ export function BaseInput({
             {/* Label */}
             <label
                 htmlFor={inputId}
-                className="block text-xs font-medium uppercase tracking-wider text-on-surface-variant dark:text-white"
+                className={`block text-xs font-medium uppercase tracking-wider text-on-surface-variant ${labelClassName || ''}`}
             >
                 {label}
             </label>
