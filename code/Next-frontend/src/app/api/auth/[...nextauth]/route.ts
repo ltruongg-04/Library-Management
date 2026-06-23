@@ -23,7 +23,7 @@ const authOptions: NextAuthOptions = {
 
         try {
           // Gọi API backend để đồng bộ tài khoản Google vào DB
-          const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
           console.log("[NextAuth] Calling backend:", `${API_URL}/api/auth/google`);
 
           const res = await fetch(`${API_URL}/api/auth/google`, {
