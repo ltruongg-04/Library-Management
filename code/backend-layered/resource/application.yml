@@ -3,7 +3,7 @@ server:
 
 spring:
   config:
-    import: optional:file:.env
+    import: optional:file:.env[.properties]
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -16,9 +16,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+        jdbc.time_zone: Asia/Ho_Chi_Minh
     show-sql: true
 
 app:
   jwt:
     secret: ${JWT_SECRET}
-    expiration: 86400000
+    expiration: 900000

@@ -13,4 +13,8 @@ public interface UserService {
     LoginResponse login(LoginRequest request);
 
     LoginResponse loginWithGoogle(GoogleLoginRequest request);
+
+    library.dto.response.TokenRefreshResponse refreshToken(String refreshToken);
+
+    void logout(String refreshToken);
 }
