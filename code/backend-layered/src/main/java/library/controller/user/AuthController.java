@@ -50,4 +50,24 @@ public class AuthController {
                 return ResponseEntity
                                 .ok(ApiResponse.success("Đăng nhập Google thành công", response));
         }
+
+        @PostMapping("/refresh")
+        public ResponseEntity<ApiResponse<library.dto.response.TokenRefreshResponse>> refreshToken(
+                        @Valid @RequestBody library.dto.request.RefreshTokenRequest request) {
+
+                library.dto.response.TokenRefreshResponse response = userService.refreshToken(request.getRefreshToken());
+
+                return ResponseEntity
+                                .ok(ApiResponse.success("Làm mới token thành công", response));
+        }
+
+        @PostMapping("/logout")
+        public ResponseEntity<ApiResponse<String>> logout(
+                        @Valid @RequestBody library.dto.request.RefreshTokenRequest request) {
+
+                userService.logout(request.getRefreshToken());
+
+                return ResponseEntity
+                                .ok(ApiResponse.success("Đăng xuất thành công", null));
+        }
 }

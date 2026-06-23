@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class LoginResponse {
 
     private String token;
+    private String refreshToken;
     private UserInfo user;
 
     @Data
@@ -19,7 +20,7 @@ public class LoginResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserInfo {
-        private Long id;
+        private Integer id;
         private String email;
         private String fullName;
         private String role;
