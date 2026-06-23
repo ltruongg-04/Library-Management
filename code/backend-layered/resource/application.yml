@@ -2,10 +2,12 @@ server:
   port: 8081
 
 spring:
+  config:
+    import: optional:file:.env
   datasource:
-    url: jdbc:mysql://thomas.proxy.rlwy.net:55860/librarydb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
-    password: uMVlSdNUpzhLxTktNkzGecwOrmOoXMLN
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -18,5 +20,5 @@ spring:
 
 app:
   jwt:
-    secret: bGlicmFyeS1tYW5hZ2VtZW50LXN5c3RlbS1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbi0yMDI2
+    secret: ${JWT_SECRET}
     expiration: 86400000
