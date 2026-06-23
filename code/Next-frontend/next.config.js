@@ -8,12 +8,12 @@ const nextConfig = {
       // Proxy backend auth endpoints (login, register, google) — nhưng KHÔNG proxy NextAuth routes
       {
         source: '/api/auth/:slug(login|register|google)',
-        destination: 'http://localhost:8081/api/auth/:slug',
+        destination: 'http://127.0.0.1:8081/api/auth/:slug',
       },
       // Proxy tất cả API khác (không phải /api/auth/*)
       {
         source: '/api/:path((?!auth(?:/|$)).*)',
-        destination: 'http://localhost:8081/api/:path*',
+        destination: 'http://127.0.0.1:8081/api/:path*',
       },
     ]
   },
