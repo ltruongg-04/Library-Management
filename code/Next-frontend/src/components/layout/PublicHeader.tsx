@@ -7,6 +7,8 @@ import { useState, useEffect, useRef } from "react";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { useAuth } from "@/providers/auth";
 import { UI_TEXT } from "@/constants/ui-text";
+import NotificationDropdown from "@/components/features/notifications/NotificationDropdown";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const NAV_LINKS = [
   { href: "/", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.HOME },
@@ -19,27 +21,66 @@ export function PublicHeader() {
   const { user, isAuthenticated, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const notificationState =  useNotifications();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+    if (
+      savedTheme === "dark" ||
+      (!savedTheme && prefersDark)
+    ) {
+      document.documentElement.classList.add(
+        "dark"
+      );
       setIsDarkMode(true);
     } else {
+      document.documentElement.classList.remove(
+        "dark"
+      );
       setIsDarkMode(false);
     }
   }, []);
-
+  useEffect(() => {
+    setIsNotificationOpen(false);
+  }, [pathname]);
   // Đóng menu khi click ra ngoài
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+    function handleClickOutside(
+      e: MouseEvent
+    ) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(
+          e.target as Node
+        )
+      ) {
         setIsMenuOpen(false);
       }
+
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(
+          e.target as Node
+        )
+      ) {
+        setIsNotificationOpen(false);
+      }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
   }, []);
 
   const toggleTheme = () => {
@@ -59,6 +100,7 @@ export function PublicHeader() {
 
   const handleLogout = async () => {
     setIsMenuOpen(false);
+    setIsNotificationOpen(false);
     await logout();
   };
 
