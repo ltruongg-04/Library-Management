@@ -1,9 +1,18 @@
 export interface Notification {
-  id: string;
+  id: number;
+
   title: string;
+
   message: string;
-  date: string;
-  unread: boolean;
-  type: "urgent" | "recommendation" | "normal";
-  badge?: string;
+
+  type:
+    | "SYSTEM"
+    | "AI_INSIGHT"
+    | "BORROW"
+    | "RETURN"
+    | "OVERDUE";
+
+  isRead: boolean;
+
+  time: string;
 }

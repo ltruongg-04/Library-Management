@@ -1,44 +1,40 @@
 "use client";
 
-import { useState } from "react";
+interface Props {
+  activeTab: string;
+  onChange: (tab: string) => void;
+}
 
-export default function NotificationTabs() {
-  const [active, setActive] = useState("all");
+export default function NotificationTabs({
+  activeTab,
+  onChange,
+}: Props) {
+  const tabs = [
+    "ALL",
+    "SYSTEM",
+    "AI_INSIGHT",
+  ];
 
   return (
-    <div className="flex gap-6 border-b mb-6">
-      <button
-        onClick={() => setActive("all")}
-        className={`pb-3 ${
-          active === "all"
-            ? "border-b-2 border-primary-600 text-primary-600"
-            : ""
-        }`}
-      >
-        All Messages
-      </button>
-
-      <button
-        onClick={() => setActive("loan")}
-        className={`pb-3 ${
-          active === "loan"
-            ? "border-b-2 border-primary-600 text-primary-600"
-            : ""
-        }`}
-      >
-        Loans & Returns
-      </button>
-
-      <button
-        onClick={() => setActive("ai")}
-        className={`pb-3 ${
-          active === "ai"
-            ? "border-b-2 border-primary-600 text-primary-600"
-            : ""
-        }`}
-      >
-        AI Insights
-      </button>
+    <div className="flex gap-8 border-b mb-8">
+      {tabs.map((tab) => (
+        <button
+          key={tab}
+          type="button"
+          onClick={() => onChange(tab)}
+          className={`pb-3 font-medium ${
+            activeTab === tab
+              ? "border-b-2 border-primary-600 text-primary-600"
+              : "text-gray-500"
+          }`}
+        >
+          {tab === "ALL"
+            ? "All Messages"
+            : tab === "SYSTEM"
+            ? "System"
+            : "AI Insights"}
+        </button>
+      ))}
     </div>
   );
 }

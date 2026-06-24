@@ -8,7 +8,7 @@ import { MaterialIcon } from "@/components/base/material-icon";
 import { useAuth } from "@/providers/auth";
 import { UI_TEXT } from "@/constants/ui-text";
 import NotificationDropdown from "@/components/features/notifications/NotificationDropdown";
-import { notifications } from "@/constants/notifications";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const NAV_LINKS = [
   { href: "/", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.CATALOG },
@@ -25,9 +25,7 @@ export function PublicHeader() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const unreadCount = notifications.filter(
-    (item) => item.unread
-  ).length;
+  const notificationState =  useNotifications();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -47,7 +45,9 @@ export function PublicHeader() {
       setIsDarkMode(false);
     }
   }, []);
-
+  useEffect(() => {
+    setIsNotificationOpen(false);
+  }, [pathname]);
   // Đóng menu khi click ra ngoài
   useEffect(() => {
     function handleClickOutside(
@@ -83,6 +83,7 @@ export function PublicHeader() {
         handleClickOutside
       );
   }, []);
+
   const toggleTheme = () => {
     const htmlEl = document.documentElement;
     const isCurrentlyDark = htmlEl.classList.contains("dark");
@@ -182,7 +183,7 @@ export function PublicHeader() {
                     name="notifications"
                   />
 
-                  {unreadCount > 0 && (
+                  {notificationState.unreadCount > 0 && (
                     <span
                       className="
                         absolute
@@ -199,13 +200,19 @@ export function PublicHeader() {
                         justify-center
                       "
                     >
-                      {unreadCount}
+                      {notificationState.unreadCount}
                     </span>
                   )}
                 </button>
 
                 {isNotificationOpen && (
-                  <NotificationDropdown />
+                  <NotificationDropdown
+                    notifications={notificationState.items}
+                    markAsRead={notificationState.markAsRead}
+                    onClose={() =>
+                      setIsNotificationOpen(false)
+                    }
+                  />
                 )}
               </div>
 

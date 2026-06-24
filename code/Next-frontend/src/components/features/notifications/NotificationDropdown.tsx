@@ -1,104 +1,112 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { notifications } from "@/constants/notifications";
+import type { Notification } from "@/types/notification";
 
-export default function NotificationDropdown() {
-  const [tab, setTab] = useState<
-    "all" | "unread"
-  >("all");
+interface Props {
+  notifications: Notification[];
+  markAsRead: (id: number) => void;
+  onClose?: () => void;
+}
 
-  const filtered =
-    tab === "all"
-      ? notifications
-      : notifications.filter(
-          (item) => item.unread
-        );
+export default function NotificationDropdown({
+  notifications,
+  markAsRead,
+  onClose,
+}: Props) {
+  const latestNotifications =
+    notifications.slice(0, 5);
+
+  const handleNotificationClick = (
+    id: number
+  ) => {
+    markAsRead(id);
+    onClose?.();
+  };
+
+  const handleViewAll = () => {
+    onClose?.();
+  };
 
   return (
     <div
       className="
-      absolute
-      top-12
-      right-0
-      w-[380px]
-      bg-white
-      dark:bg-slate-900
-      rounded-xl
-      border
-      shadow-xl
-      z-50
-    "
+        absolute
+        right-0
+        mt-3
+        w-[380px]
+        bg-white
+        dark:bg-slate-900
+        border
+        rounded-xl
+        shadow-lg
+        z-50
+      "
     >
       <div className="p-4 border-b">
-        <h3 className="font-bold text-lg">
+        <h3 className="font-semibold">
           Notifications
         </h3>
-
-        <div className="flex gap-2 mt-3">
-          <button
-            onClick={() => setTab("all")}
-            className={`px-3 py-1 rounded-full text-sm ${
-              tab === "all"
-                ? "bg-primary-100 text-primary-700"
-                : "bg-gray-100"
-            }`}
-          >
-            Tất cả
-          </button>
-
-          <button
-            onClick={() => setTab("unread")}
-            className={`px-3 py-1 rounded-full text-sm ${
-              tab === "unread"
-                ? "bg-primary-100 text-primary-700"
-                : "bg-gray-100"
-            }`}
-          >
-            Chưa đọc
-          </button>
-        </div>
       </div>
 
       <div className="max-h-[400px] overflow-y-auto">
-        {filtered.map((item) => (
-          <div
-            key={item.id}
-            className="
-              p-4
-              border-b
-              hover:bg-gray-50
-              cursor-pointer
-            "
-          >
-            <div className="flex justify-between">
-              <h4 className="font-medium">
-                {item.title}
-              </h4>
+        {latestNotifications.map(
+          (notification) => (
+            <Link
+              key={notification.id}
+              href={`/notifications/${notification.id}`}
+              onClick={() =>
+                handleNotificationClick(
+                  notification.id
+                )
+              }
+              className={`
+                block
+                px-4
+                py-3
+                border-b
+                hover:bg-gray-50
+                dark:hover:bg-slate-800
+                ${
+                  !notification.isRead
+                    ? "bg-blue-50"
+                    : ""
+                }
+              `}
+            >
+              <div className="flex justify-between">
+                <h4 className="font-medium text-sm">
+                  {notification.title}
+                </h4>
 
-              {item.unread && (
-                <span className="w-3 h-3 rounded-full bg-blue-500" />
-              )}
-            </div>
+                {!notification.isRead && (
+                  <span className="w-2 h-2 rounded-full bg-blue-500 mt-1" />
+                )}
+              </div>
 
-            <p className="text-sm text-gray-600 mt-1">
-              {item.message}
-            </p>
+              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                {notification.message}
+              </p>
 
-            <p className="text-xs text-gray-400 mt-2">
-              {item.date}
-            </p>
-          </div>
-        ))}
+              <span className="text-xs text-gray-400">
+                {notification.time}
+              </span>
+            </Link>
+          )
+        )}
       </div>
 
-      <div className="p-3 text-center">
+      <div className="p-4 text-center">
         <Link
           href="/notifications"
-          className="text-primary-600 font-medium"
+          onClick={handleViewAll}
+          className="
+            text-primary-600
+            font-medium
+            hover:underline
+          "
         >
-          Xem tất cả thông báo
+          View all notifications
         </Link>
       </div>
     </div>

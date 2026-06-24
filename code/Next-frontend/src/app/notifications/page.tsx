@@ -1,27 +1,61 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
 import NotificationCard from "@/components/features/notifications/NotificationCard";
 import NotificationHeader from "@/components/features/notifications/NotificationHeader";
 import NotificationTabs from "@/components/features/notifications/NotificationTabs";
 
-import { notifications } from "@/constants/notifications";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export default function NotificationsPage() {
+  const [activeTab, setActiveTab] =
+    useState("ALL");
+
+  const {
+    items,
+    markAllAsRead,
+  } = useNotifications();
+
+  const filteredNotifications =
+    useMemo(() => {
+      if (activeTab === "ALL") {
+        return items;
+      }
+
+      return items.filter(
+        (item) =>
+          item.type === activeTab
+      );
+    }, [activeTab, items]);
+
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8">
-      <NotificationHeader />
+    <div className="max-w-5xl mx-auto px-6 py-10">
+      <NotificationHeader
+        onMarkAllRead={markAllAsRead}
+      />
 
-      <NotificationTabs />
+      <NotificationTabs
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
 
-      <div className="mt-6">
-        {notifications.map((notification) => (
-          <NotificationCard
-            key={notification.id}
-            notification={notification}
-          />
-        ))}
+      <div>
+        {filteredNotifications.map(
+          (notification) => (
+            <NotificationCard
+              key={notification.id}
+              notification={notification}
+            />
+          )
+        )}
       </div>
 
       <div className="text-center mt-8">
-        <button className="text-primary-600 font-medium hover:underline">
+        <button
+          type="button"
+          className="text-primary-600 hover:underline"
+        >
           Load Older Messages
         </button>
       </div>

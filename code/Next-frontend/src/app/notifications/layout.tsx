@@ -7,14 +7,14 @@ export default function NotificationsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <PublicHeader />
 
-      <main className="flex-1 pt-24">
+      <main className="min-h-screen pt-24">
         {children}
       </main>
 
       <PublicFooter />
-    </div>
+    </>
   );
 }
