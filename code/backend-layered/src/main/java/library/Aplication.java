@@ -21,6 +21,13 @@ public class Aplication {
         SpringApplication.run(Aplication.class, args);
     }
 
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        // Đặt múi giờ mặc định cho toàn hệ thống là GMT+7 (Giờ Việt Nam)
+        java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        log.info("Spring boot application running in GMT+7 timezone : {}", java.util.Date.from(java.time.Instant.now()));
+    }
+
     @Bean
     public CommandLineRunner verifyDatabaseConnection(DataSource dataSource) {
         return args -> {

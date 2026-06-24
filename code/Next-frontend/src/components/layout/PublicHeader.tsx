@@ -11,10 +11,9 @@ import NotificationDropdown from "@/components/features/notifications/Notificati
 import { useNotifications } from "@/hooks/useNotifications";
 
 const NAV_LINKS = [
-  { href: "/", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.CATALOG },
-  { href: "/dashboard", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.DASHBOARD },
-  { href: "/insights", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.INSIGHTS },
-  { href: "/reports", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.REPORTS },
+  { href: "/", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.HOME },
+  { href: "/gioi-thieu", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.ABOUT },
+  { href: "/lien-he", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.CONTACT },
 ];
 
 export function PublicHeader() {
@@ -106,147 +105,64 @@ export function PublicHeader() {
   };
 
   return (
-      <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-ink-100 dark:border-slate-800 shadow-sm transition-all duration-200">
-        <div className="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto">
-          {/* Logo */}
-          <div className="flex items-center gap-6">
-            <Link
-              href="/"
-              className="font-sans text-[32px] font-bold text-primary-700 dark:text-white tracking-tight transition-colors duration-200"
-            >
-              {UI_TEXT.PROFILE.LAYOUT.BRAND}
-            </Link>
-          </div>
+    <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-ink-100 dark:border-slate-800 shadow-sm transition-all duration-200">
+      <div className="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto">
+        {/* Logo */}
+        <div className="flex items-center gap-6">
+          <Link
+            href="/"
+            className="font-sans text-[32px] font-bold text-primary-700 dark:text-white tracking-tight transition-colors duration-200"
+          >
+            {UI_TEXT.PROFILE.LAYOUT.BRAND}
+          </Link>
+        </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex gap-6 h-full">
-            {NAV_LINKS.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex flex-col justify-center h-full text-[20px] font-semibold transition-all duration-200 active:scale-95 ${
-                    isActive
-                      ? "text-primary-700 dark:text-white border-b-2 border-primary-700 dark:border-primary-100"
-                      : "text-ink-500 dark:text-white hover:text-primary-700 dark:hover:text-primary-100"
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex gap-6 h-full">
+          {NAV_LINKS.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex flex-col justify-center h-full text-[20px] font-semibold transition-all duration-200 active:scale-95 ${isActive
+                  ? "text-primary-700 dark:text-white border-b-2 border-primary-700 dark:border-primary-100"
+                  : "text-ink-500 dark:text-white hover:text-primary-700 dark:hover:text-primary-100"
                   }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-          {/* Actions */}
-          <div className="flex items-center gap-4">
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white cursor-pointer"
-              aria-label="Toggle Theme"
-            >
-              <MaterialIcon name={isDarkMode ? "light_mode" : "dark_mode"} />
-            </button>
+        {/* Actions */}
+        <div className="flex items-center gap-4">
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white cursor-pointer"
+            aria-label="Toggle Theme"
+          >
+            <MaterialIcon name={isDarkMode ? "light_mode" : "dark_mode"} />
+          </button>
 
           {isAuthenticated && user ? (
             <>
               {/* Notifications */}
-              <div
-                className="relative"
-                ref={notificationRef}
+              <button
+                className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-ink-100 dark:hover:bg-slate-800 transition-colors text-ink-500 dark:text-white"
+                aria-label="Notifications"
               >
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    setIsNotificationOpen(
-                      !isNotificationOpen
-                    );
-                  }}
-                  className="
-                    relative
-                    flex
-                    items-center
-                    justify-center
-                    w-10
-                    h-10
-                    rounded-full
-                    hover:bg-ink-100
-                    dark:hover:bg-slate-800
-                    transition-colors
-                    text-ink-500
-                    dark:text-white
-                  "
-                  aria-label="Notifications"
-                >
-                  <MaterialIcon
-                    name="notifications"
-                  />
-
-                  {notificationState.unreadCount > 0 && (
-                    <span
-                      className="
-                        absolute
-                        -top-1
-                        -right-1
-                        w-5
-                        h-5
-                        rounded-full
-                        bg-red-500
-                        text-white
-                        text-xs
-                        flex
-                        items-center
-                        justify-center
-                      "
-                    >
-                      {notificationState.unreadCount}
-                    </span>
-                  )}
-                </button>
-
-                {isNotificationOpen && (
-                  <NotificationDropdown
-                    notifications={notificationState.items}
-                    markAsRead={notificationState.markAsRead}
-                    onClose={() =>
-                      setIsNotificationOpen(false)
-                    }
-                  />
-                )}
-              </div>
+                <MaterialIcon name="notifications" />
+              </button>
 
               {/* Avatar + Dropdown */}
-              <div
-                className="relative"
-                ref={menuRef}
-              >
+              <div className="relative" ref={menuRef}>
                 <button
                   id="user-avatar-btn"
-                  onClick={() => {
-                    setIsNotificationOpen(false);
-                    setIsMenuOpen((v) => !v);
-                  }}
-                  className="
-                    w-10
-                    h-10
-                    rounded-full
-                    border-2
-                    border-primary-300
-                    dark:border-primary-600
-                    flex
-                    items-center
-                    justify-center
-                    overflow-hidden
-                    cursor-pointer
-                    hover:opacity-80
-                    transition-all
-                    duration-200
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-primary-500
-                    focus:ring-offset-2
-                  "
+                  onClick={() => setIsMenuOpen((v) => !v)}
+                  className="w-10 h-10 rounded-full border-2 border-primary-300 dark:border-primary-600 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                   aria-label="User menu"
                   aria-expanded={isMenuOpen}
                 >
@@ -260,76 +176,53 @@ export function PublicHeader() {
                     />
                   ) : (
                     <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
-                      <MaterialIcon
-                        name="person"
-                        className="text-primary-700 dark:text-white"
-                      />
+                      <MaterialIcon name="person" className="text-primary-700 dark:text-white" />
                     </div>
                   )}
                 </button>
 
+                {/* Dropdown Menu */}
                 {isMenuOpen && (
                   <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-slate-800 shadow-lg border border-ink-100 dark:border-slate-700 overflow-hidden animate-slide-up z-50">
+                    {/* User info */}
                     <div className="px-4 py-3 border-b border-ink-100 dark:border-slate-700">
                       <p className="text-sm font-semibold text-ink-950 dark:text-white truncate">
                         {user.fullName}
                       </p>
-
                       <p className="text-xs text-ink-500 dark:text-slate-400 truncate">
                         {user.email}
                       </p>
                     </div>
 
+                    {/* Menu items */}
                     <div className="py-1">
                       <Link
                         href="/settings/profile"
-                        onClick={() =>
-                          setIsMenuOpen(false)
-                        }
+                        onClick={() => setIsMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
                       >
-                        <MaterialIcon
-                          name="manage_accounts"
-                          className="text-[18px]"
-                        />
-                        {
-                          UI_TEXT.PUBLIC_LAYOUT
-                            .MY_ACCOUNT
-                        }
+                        <MaterialIcon name="manage_accounts" className="text-[18px]" />
+                        {UI_TEXT.PUBLIC_LAYOUT.MY_ACCOUNT}
                       </Link>
-
                       <Link
                         href="/my-books"
-                        onClick={() =>
-                          setIsMenuOpen(false)
-                        }
+                        onClick={() => setIsMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 dark:text-slate-200 hover:bg-ink-50 dark:hover:bg-slate-700 transition-colors"
                       >
-                        <MaterialIcon
-                          name="book"
-                          className="text-[18px]"
-                        />
-                        {
-                          UI_TEXT.PUBLIC_LAYOUT
-                            .MY_BOOKS
-                        }
+                        <MaterialIcon name="book" className="text-[18px]" />
+                        {UI_TEXT.PUBLIC_LAYOUT.MY_BOOKS}
                       </Link>
                     </div>
 
+                    {/* Logout */}
                     <div className="border-t border-ink-100 dark:border-slate-700 py-1">
                       <button
                         id="btn-logout"
                         onClick={handleLogout}
                         className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                       >
-                        <MaterialIcon
-                          name="logout"
-                          className="text-[18px]"
-                        />
-                        {
-                          UI_TEXT.PUBLIC_LAYOUT
-                            .LOGOUT
-                        }
+                        <MaterialIcon name="logout" className="text-[18px]" />
+                        {UI_TEXT.PUBLIC_LAYOUT.LOGOUT}
                       </button>
                     </div>
                   </div>
@@ -343,9 +236,9 @@ export function PublicHeader() {
             >
               {UI_TEXT.PUBLIC_LAYOUT.LOGIN}
             </Link>
-          )}          
-          </div>
+          )}
         </div>
-      </header>
+      </div>
+    </header>
   );
 }

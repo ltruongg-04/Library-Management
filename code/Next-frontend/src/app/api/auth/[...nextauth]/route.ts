@@ -1,5 +1,37 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
+
+async function refreshAccessToken(token: any) {
+  try {
+    const res = await fetch(`${API_URL}/api/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken: token.refreshToken }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Refresh token failed");
+    }
+
+    return {
+      ...token,
+      backendToken: data.data.token,
+      refreshToken: data.data.refreshToken ?? token.refreshToken,
+      expiresAt: Date.now() + 15 * 60 * 1000, // 15 mins
+    };
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -7,71 +39,118 @@ const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-  ],
-
-  // Dùng JWT strategy (không cần database)
-  session: {
-    strategy: "jwt",
-  },
-
-  callbacks: {
-    // Đưa thêm user id vào JWT token
-    async jwt({ token, account, profile }) {
-      if (account && profile) {
-        // Mặc định dùng thông tin từ Google profile
-        token.id = profile.sub;
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          // Gọi API backend để đồng bộ tài khoản Google vào DB
-          const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
-          console.log("[NextAuth] Calling backend:", `${API_URL}/api/auth/google`);
-
-          const res = await fetch(`${API_URL}/api/auth/google`, {
+          const res = await fetch(`${API_URL}/api/auth/login`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              email: profile.email,
-              fullName: profile.name,
+              email: credentials.email,
+              password: credentials.password,
             }),
           });
 
           const data = await res.json();
-          console.log("[NextAuth] Backend response:", JSON.stringify(data));
-
           if (data.success && data.data) {
-            token.backendToken = data.data.token;
-            token.id = String(data.data.user.id);
-            token.role = data.data.user.role;
-          } else {
-            console.error("[NextAuth] Backend auth error:", data.message);
-            // Không throw — vẫn cho đăng nhập bằng Google, nhưng không có backend token
+            return {
+              id: String(data.data.user.id),
+              email: data.data.user.email,
+              name: data.data.user.fullName,
+              role: data.data.user.role,
+              backendToken: data.data.token,
+              refreshToken: data.data.refreshToken,
+            };
           }
-        } catch (error) {
-          console.error("[NextAuth] Error syncing Google login with backend:", error);
-          // Không throw — vẫn cho đăng nhập, log lỗi để debug
+          return null;
+        } catch (e) {
+          return null;
         }
       }
-      return token;
+    })
+  ],
+
+  session: { strategy: "jwt" },
+
+  callbacks: {
+    async jwt({ token, user, account, profile }) {
+      // Initial sign in
+      if (user || (account && profile)) {
+        if (account?.provider === "google") {
+          // Sync Google Login
+          try {
+            const res = await fetch(`${API_URL}/api/auth/google`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: profile?.email, fullName: profile?.name }),
+            });
+            const data = await res.json();
+            if (data.success && data.data) {
+              token.backendToken = data.data.token;
+              token.refreshToken = data.data.refreshToken;
+              token.id = String(data.data.user.id);
+              token.role = data.data.user.role;
+              token.expiresAt = Date.now() + 15 * 60 * 1000;
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        } else if (user) {
+          // Credentials login
+          token.backendToken = (user as any).backendToken;
+          token.refreshToken = (user as any).refreshToken;
+          token.id = user.id;
+          token.role = (user as any).role;
+          token.expiresAt = Date.now() + 15 * 60 * 1000;
+        }
+        return token;
+      }
+
+      // Check if access token is expired
+      if (Date.now() < (token.expiresAt as number)) {
+        return token;
+      }
+
+      // Access token expired, refresh it
+      return refreshAccessToken(token);
     },
 
-    // Đưa thêm user info từ token vào session
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.backendToken = token.backendToken;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.backendToken = token.backendToken as string;
+        session.error = token.error as string;
       }
       return session;
     },
   },
 
-  pages: {
-    signIn: "/login", // Redirect về trang login của app khi cần sign in
+  events: {
+    async signOut({ token }) {
+      if (token?.refreshToken) {
+        try {
+          await fetch(`${API_URL}/api/auth/logout`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken: token.refreshToken }),
+          });
+        } catch (e) {
+          console.error("Failed to call backend logout", e);
+        }
+      }
+    }
   },
+
+  pages: { signIn: "/login" },
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };
