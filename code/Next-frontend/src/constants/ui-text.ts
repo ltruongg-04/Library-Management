@@ -60,10 +60,9 @@ export const UI_TEXT = {
         LOGOUT: "Đăng xuất",
         LOGIN: "Đăng nhập",
         NAV_LINKS: {
-            CATALOG: "Catalog",
-            DASHBOARD: "Dashboard",
-            INSIGHTS: "Insights",
-            REPORTS: "Reports"
+            HOME: "Trang chủ",
+            ABOUT: "Giới thiệu",
+            CONTACT: "Liên hệ"
         },
         FOOTER_LINKS: {
             TERMS: "Terms of Service",
