@@ -55,7 +55,7 @@ export function LoginForm() {
                 router.push("/");
             }
         } catch (error: any) {
-            setErrors({ email: error.message || "Đăng nhập thất bại" });
+            setErrors({ email: error.message || UI_TEXT.AUTH.LOGIN.ERROR_MSG });
         } finally {
             setIsLoading(false);
         }

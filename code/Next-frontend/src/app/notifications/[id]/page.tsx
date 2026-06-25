@@ -2,6 +2,9 @@
 
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const { NOTIFICATIONS } = UI_TEXT;
 
 import NotificationDetail from "@/components/features/notifications/NotificationDetail";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -14,7 +17,7 @@ export default function NotificationDetailPage() {
     markAsRead,
   } = useNotifications();
 
-  const id = Number(params.id);
+  const id = Number(params?.id);
 
   const notification = items.find(
     (item) => item.id === id
@@ -29,7 +32,7 @@ export default function NotificationDetailPage() {
   if (!notification) {
     return (
       <div className="p-10">
-        Notification not found
+        {NOTIFICATIONS.NO_NOTIFICATIONS}
       </div>
     );
   }

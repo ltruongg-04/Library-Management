@@ -2,6 +2,7 @@
 
 import { ButtonHTMLAttributes, ReactNode } from "react";
 import { SpinnerIcon } from "../icons";
+import { UI_TEXT } from "@/constants/ui-text";
 
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "destructive";
 type ButtonSize = "sm" | "md" | "lg";
@@ -61,7 +62,7 @@ export function BaseButton({
             {isLoading ? (
                 <>
                     <SpinnerIcon className="h-4 w-4 animate-spin" />
-                    <span>Đang xử lý...</span>
+                    <span>{UI_TEXT.COMMON.LOADING}</span>
                 </>
             ) : (
                 children

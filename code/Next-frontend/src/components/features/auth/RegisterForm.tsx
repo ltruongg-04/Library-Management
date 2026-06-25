@@ -48,7 +48,7 @@ export default function RegisterForm() {
       })
 
       console.log('✅ Đăng ký thành công:', result)
-      setSuccessMessage(`Đăng ký thành công! Chào mừng ${result.fullName}`)
+      setSuccessMessage(`${UI_TEXT.AUTH.REGISTER.SUCCESS_MSG} ${result.fullName}`)
 
       // Chuyển đến trang login sau 2 giây
       setTimeout(() => {

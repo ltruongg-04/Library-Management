@@ -1,5 +1,9 @@
 "use client";
 
+import { UI_TEXT } from "@/constants/ui-text";
+
+const { TABS } = UI_TEXT.NOTIFICATIONS;
+
 interface Props {
   activeTab: string;
   onChange: (tab: string) => void;
@@ -29,10 +33,10 @@ export default function NotificationTabs({
           }`}
         >
           {tab === "ALL"
-            ? "All Messages"
+            ? TABS.ALL
             : tab === "SYSTEM"
-            ? "System"
-            : "AI Insights"}
+            ? TABS.SYSTEM
+            : TABS.AI_INSIGHT}
         </button>
       ))}
     </div>

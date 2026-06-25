@@ -5,6 +5,11 @@ import CredentialsProvider from "next-auth/providers/credentials";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
 
 async function refreshAccessToken(token: any) {
+  // Không có refreshToken (ví dụ: Google OAuth thuần frontend) → bỏ qua refresh
+  if (!token.refreshToken) {
+    return token;
+  }
+
   try {
     const res = await fetch(`${API_URL}/api/auth/refresh`, {
       method: "POST",
@@ -84,7 +89,7 @@ const authOptions: NextAuthOptions = {
       // Initial sign in
       if (user || (account && profile)) {
         if (account?.provider === "google") {
-          // Sync Google Login
+          // Sync Google Login với backend
           try {
             const res = await fetch(`${API_URL}/api/auth/google`, {
               method: "POST",
@@ -94,13 +99,22 @@ const authOptions: NextAuthOptions = {
             const data = await res.json();
             if (data.success && data.data) {
               token.backendToken = data.data.token;
-              token.refreshToken = data.data.refreshToken;
+              // Chỉ set refreshToken nếu backend trả về — tránh undefined
+              token.refreshToken = data.data.refreshToken ?? null;
               token.id = String(data.data.user.id);
               token.role = data.data.user.role;
-              token.expiresAt = Date.now() + 15 * 60 * 1000;
+              // Nếu có refreshToken thì set expiry, không thì để session tự quản lý
+              token.expiresAt = token.refreshToken
+                ? Date.now() + 15 * 60 * 1000
+                : Number.MAX_SAFE_INTEGER;
+            } else {
+              // Backend sync thất bại → giữ session Google, không có backend token
+              token.expiresAt = Number.MAX_SAFE_INTEGER;
             }
           } catch (e) {
-            console.error(e);
+            console.error("Google backend sync error:", e);
+            // Không crash session nếu backend offline — giữ Google session
+            token.expiresAt = Number.MAX_SAFE_INTEGER;
           }
         } else if (user) {
           // Credentials login

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const { PENDING_REQUESTS } = UI_TEXT.ADMIN;
 
 interface Request {
   id: string;
@@ -70,17 +73,17 @@ export default function PendingRequests() {
     <div className="rounded-xl border border-ink-950/[0.06] bg-white shadow-card">
       <div className="flex items-center justify-between border-b border-ink-950/[0.06] px-5 py-4">
         <h2 className="font-serif text-[17px] font-semibold text-ink-950">
-          Yêu cầu chờ duyệt
+          {PENDING_REQUESTS.TITLE}
         </h2>
         <button className="focus-ring rounded-md px-2 py-1 text-[13px] font-medium text-brass-600 hover:bg-brass-500/10">
-          Xem tất cả
+          {PENDING_REQUESTS.VIEW_ALL}
         </button>
       </div>
 
       {requests.length === 0 ? (
         <div className="px-5 py-12 text-center">
           <p className="text-[14px] text-ink-950/45">
-            Không còn yêu cầu nào đang chờ. Mọi thứ đã được xử lý.
+            {PENDING_REQUESTS.EMPTY_STATE}
           </p>
         </div>
       ) : (
@@ -88,16 +91,16 @@ export default function PendingRequests() {
           <thead>
             <tr className="border-b border-ink-950/[0.06] text-left">
               <th className="px-5 py-2.5 text-[11.5px] font-semibold uppercase tracking-wide text-ink-950/40">
-                Thành viên
+                {PENDING_REQUESTS.TABLE_MEMBER}
               </th>
               <th className="px-3 py-2.5 text-[11.5px] font-semibold uppercase tracking-wide text-ink-950/40">
-                Tựa sách yêu cầu
+                {PENDING_REQUESTS.TABLE_BOOK_TITLE}
               </th>
               <th className="px-3 py-2.5 text-[11.5px] font-semibold uppercase tracking-wide text-ink-950/40">
-                Độ khớp
+                {PENDING_REQUESTS.TABLE_MATCH}
               </th>
               <th className="px-5 py-2.5 text-right text-[11.5px] font-semibold uppercase tracking-wide text-ink-950/40">
-                Thao tác
+                {PENDING_REQUESTS.TABLE_ACTIONS}
               </th>
             </tr>
           </thead>
@@ -131,13 +134,13 @@ export default function PendingRequests() {
                       onClick={() => handleAction(req.id)}
                       className="focus-ring rounded-md border border-ink-950/10 px-3 py-1.5 text-[13px] font-medium text-ink-950/60 transition-colors hover:bg-ink-950/[0.04] hover:text-ink-950"
                     >
-                      Từ chối
+                      {PENDING_REQUESTS.BTN_REJECT}
                     </button>
                     <button
                       onClick={() => handleAction(req.id)}
                       className="focus-ring rounded-md bg-ink-950 px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-ink-900"
                     >
-                      Duyệt
+                      {PENDING_REQUESTS.BTN_APPROVE}
                     </button>
                   </div>
                 </td>

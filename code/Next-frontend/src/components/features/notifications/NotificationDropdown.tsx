@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import type { Notification } from "@/types/notification";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const { NOTIFICATIONS } = UI_TEXT;
 
 interface Props {
   notifications: Notification[];
@@ -45,7 +48,7 @@ export default function NotificationDropdown({
     >
       <div className="p-4 border-b">
         <h3 className="font-semibold">
-          Notifications
+          {NOTIFICATIONS.DROPDOWN_TITLE}
         </h3>
       </div>
 
@@ -106,7 +109,7 @@ export default function NotificationDropdown({
             hover:underline
           "
         >
-          View all notifications
+          {NOTIFICATIONS.VIEW_ALL}
         </Link>
       </div>
     </div>

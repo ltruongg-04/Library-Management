@@ -1,4 +1,11 @@
 export const UI_TEXT = {
+    COMMON: {
+        LOADING: "Đang xử lý...",
+        SUCCESS_MODAL: {
+            SUCCESS: "Thành công!",
+            CLOSE: "Đóng"
+        }
+    },
     AUTH: {
         LOGIN: {
             HEADING: "Chào mừng quay trở lại",
@@ -22,6 +29,7 @@ export const UI_TEXT = {
                 PASSWORD_REQUIRED: "Mật khẩu không được để trống.",
                 PASSWORD_MIN_LENGTH: "Mật khẩu phải có ít nhất 6 ký tự.",
             },
+            ERROR_MSG: "Đăng nhập thất bại. Vui lòng thử lại.",
         },
         REGISTER: {
             FULL_NAME_LABEL: "Họ và tên",
@@ -34,8 +42,8 @@ export const UI_TEXT = {
             PASSWORD_PLACEHOLDER: "••••••••",
             CONFIRM_PASSWORD_LABEL: "Xác nhận mật khẩu",
             SUBMIT_BTN: "Đăng ký →",
-            LOADING_BTN: "Đang đăng ký...",
-            SUCCESS_MSG: "Đăng ký thành công! Vui lòng đăng nhập.",
+            LOADING_BTN: "Đang xử lý...",
+            SUCCESS_MSG: "Đăng ký thành công! Chào mừng",
             ERROR_MSG: "Đăng ký thất bại. Vui lòng thử lại.",
             ALREADY_HAVE_ACCOUNT: "Đã có tài khoản?",
             LOGIN_LINK: "Đăng nhập ngay",
@@ -48,7 +56,54 @@ export const UI_TEXT = {
             COPYRIGHT: "© 2026 Lumina Library",
         },
     },
+    NOTIFICATIONS: {
+        HEADER_TITLE: "Thông báo",
+        HEADER_SUBTITLE: "Cập nhật các hoạt động thư viện của bạn.",
+        MARK_ALL_READ: "Đánh dấu tất cả đã đọc",
+        TABS: {
+            ALL: "Tất cả thông báo",
+            SYSTEM: "Hệ thống",
+            AI_INSIGHT: "AI Đề xuất"
+        },
+        DROPDOWN_TITLE: "Thông báo",
+        VIEW_ALL: "Xem tất cả thông báo",
+        LOAD_MORE: "Tải thêm",
+        BACK_TO_LIST: "Quay lại danh sách",
+        NO_NOTIFICATIONS: "Không có thông báo nào."
+    },
     ADMIN: {
+        SIDEBAR: {
+            NAV_OVERVIEW: "Tổng quan",
+            NAV_BOOKS: "Kho sách",
+            NAV_BORROWS: "Lượt mượn",
+            NAV_MEMBERS: "Thành viên",
+            NAV_STATS: "Thống kê",
+            NAV_SETTINGS: "Cài đặt",
+            ROLE_ADMIN: "Quản trị viên",
+            SYS_NAME: "Hệ thống quản lý",
+            HEADING_NAV: "Điều hướng",
+            ADD_BOOK: "Thêm sách mới",
+            SUPPORT: "Hỗ trợ",
+            LOGOUT: "Đăng xuất"
+        },
+        PENDING_REQUESTS: {
+            TITLE: "Yêu cầu chờ duyệt",
+            VIEW_ALL: "Xem tất cả",
+            EMPTY_STATE: "Không còn yêu cầu nào đang chờ. Mọi thứ đã được xử lý.",
+            TABLE_MEMBER: "Thành viên",
+            TABLE_BOOK_TITLE: "Tựa sách yêu cầu",
+            TABLE_MATCH: "Độ khớp",
+            TABLE_ACTIONS: "Thao tác",
+            BTN_REJECT: "Từ chối",
+            BTN_APPROVE: "Duyệt"
+        },
+        SMART_CATALOGING: {
+            TITLE: "Lên danh mục tự động",
+            SUBTITLE: "Tải ảnh gáy sách hoặc mã ISBN — AI sẽ tự trích xuất thông tin.",
+            DRAG_DROP: "Thả ảnh vào đây",
+            OR_CLICK: "hoặc bấm để chọn tệp",
+            MANUAL_ENTRY: "Nhập thủ công"
+        },
         THONG_KE: {
             TITLE: "Thống kê",
             DESCRIPTION: "Trang thống kê sẽ chứa biểu đồ và số liệu tại đây.",
@@ -291,12 +346,6 @@ export const UI_TEXT = {
             MOBILE_ALERTS_TITLE: "Mobile Alerts",
             MOBILE_ALERTS_DESC: "Instant notifications sent to your registered devices.",
             SUCCESS_MSG: "Cài đặt thông báo đã được lưu thành công."
-        }
-    },
-    COMMON: {
-        SUCCESS_MODAL: {
-            SUCCESS: "Thành công!",
-            CLOSE: "Đóng"
         }
     }
 };

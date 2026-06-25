@@ -1,5 +1,9 @@
 "use client";
 
+import { UI_TEXT } from "@/constants/ui-text";
+
+const { NOTIFICATIONS } = UI_TEXT;
+
 interface Props {
   onMarkAllRead: () => void;
 }
@@ -11,11 +15,11 @@ export default function NotificationHeader({
     <div className="flex items-center justify-between mb-8">
       <div>
         <h1 className="text-3xl font-bold">
-          Notifications
+          {NOTIFICATIONS.HEADER_TITLE}
         </h1>
 
         <p className="text-gray-500 mt-2">
-          Stay updated with your library activity.
+          {NOTIFICATIONS.HEADER_SUBTITLE}
         </p>
       </div>
 
@@ -24,7 +28,7 @@ export default function NotificationHeader({
         onClick={onMarkAllRead}
         className="text-primary-600 font-medium hover:underline"
       >
-        Mark all as read
+        {NOTIFICATIONS.MARK_ALL_READ}
       </button>
     </div>
   );

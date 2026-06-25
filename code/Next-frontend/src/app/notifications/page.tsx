@@ -1,6 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const { NOTIFICATIONS } = UI_TEXT;
 
 import NotificationCard from "@/components/features/notifications/NotificationCard";
 import NotificationHeader from "@/components/features/notifications/NotificationHeader";
@@ -56,7 +59,7 @@ export default function NotificationsPage() {
           type="button"
           className="text-primary-600 hover:underline"
         >
-          Load Older Messages
+          {NOTIFICATIONS.LOAD_MORE}
         </button>
       </div>
     </div>

@@ -2,6 +2,9 @@
 
 import { useState, useCallback } from "react";
 import { ScanLine, UploadCloud, PenLine } from "lucide-react";
+import { UI_TEXT } from "@/constants/ui-text";
+
+const { SMART_CATALOGING } = UI_TEXT.ADMIN;
 
 export default function SmartCataloging() {
   const [isDragging, setIsDragging] = useState(false);
@@ -22,11 +25,11 @@ export default function SmartCataloging() {
       <div className="flex items-center gap-2">
         <ScanLine size={17} className="text-brass-600" strokeWidth={2.25} />
         <h2 className="font-serif text-[16px] font-semibold text-ink-950">
-          Lên danh mục tự động
+          {SMART_CATALOGING.TITLE}
         </h2>
       </div>
       <p className="mt-1.5 text-[13px] leading-relaxed text-ink-950/50">
-        Tải ảnh gáy sách hoặc mã ISBN — AI sẽ tự trích xuất thông tin.
+        {SMART_CATALOGING.SUBTITLE}
       </p>
 
       <label
@@ -44,14 +47,14 @@ export default function SmartCataloging() {
           <UploadCloud size={19} className="text-ink-950/40" strokeWidth={1.75} />
         </div>
         <p className="text-[13px] font-medium text-ink-950/60">
-          Thả ảnh vào đây
+          {SMART_CATALOGING.DRAG_DROP}
         </p>
-        <p className="text-[12px] text-ink-950/35">hoặc bấm để chọn tệp</p>
+        <p className="text-[12px] text-ink-950/35">{SMART_CATALOGING.OR_CLICK}</p>
       </label>
 
       <button className="focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-ink-950/10 py-2.5 text-[13px] font-medium text-ink-950/60 transition-colors hover:bg-ink-950/[0.03] hover:text-ink-950">
         <PenLine size={14} strokeWidth={2} />
-        Nhập thủ công
+        {SMART_CATALOGING.MANUAL_ENTRY}
       </button>
     </div>
   );
