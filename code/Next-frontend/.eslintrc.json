@@ -1,8 +1,37 @@
 {
-  "extends": "next/core-web-vitals",
-  "settings": {
-    "next": {
-      "rootDir": "code/Next-frontend/"
+    "extends": ["next/core-web-vitals", "plugin:i18next/recommended"],
+    "plugins": ["i18next"],
+    "rules": {
+        "i18next/no-literal-string": [
+            "error",
+            {
+                "markupOnly": true,
+                "ignoreAttribute": [
+                    "href",
+                    "src",
+                    "className",
+                    "id",
+                    "alt",
+                    "title",
+                    "name",
+                    "type",
+                    "placeholder",
+                    "strokeWidth",
+                    "size",
+                    "viewBox",
+                    "xmlns",
+                    "target",
+                    "rel",
+                    "aria-label",
+                    "aria-hidden"
+                ]
+            }
+        ],
+        "@next/next/no-html-link-for-pages": "off"
+    },
+    "settings": {
+        "next": {
+            "rootDir": "code/Next-frontend/"
+        }
     }
-  }
 }
