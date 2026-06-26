@@ -1,12 +1,10 @@
 "use client";
 
+import { useState } from "react";
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { getSession } from "next-auth/react";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, ArrowRight, Mail, Lock, Loader2 } from "lucide-react";
-import { useState } from "react";
-
 import { BaseButton } from "@/components/base/base-button";
 import { BaseInput } from "@/components/base/base-input";
 import { AppleIcon } from "@/components/icons/apple-icon";
@@ -22,18 +20,14 @@ export function LoginForm() {
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-        {}
-    );
+    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
     function validate() {
         const next: typeof errors = {};
         if (!email) next.email = UI_TEXT.AUTH.LOGIN.VALIDATION.EMAIL_REQUIRED;
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-            next.email = UI_TEXT.AUTH.LOGIN.VALIDATION.EMAIL_INVALID;
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = UI_TEXT.AUTH.LOGIN.VALIDATION.EMAIL_INVALID;
         if (!password) next.password = UI_TEXT.AUTH.LOGIN.VALIDATION.PASSWORD_REQUIRED;
-        else if (password.length < 6)
-            next.password = UI_TEXT.AUTH.LOGIN.VALIDATION.PASSWORD_MIN_LENGTH;
+        else if (password.length < 8) next.password = UI_TEXT.AUTH.LOGIN.VALIDATION.PASSWORD_MIN_LENGTH;
         return next;
     }
 
@@ -49,7 +43,7 @@ export function LoginForm() {
         try {
             await login(email, password);
             const session = await getSession();
-            if (session?.user?.role === 'ADMIN') {
+            if (session?.user?.role === "ADMIN") {
                 router.push("/admin");
             } else {
                 router.push("/");
@@ -71,15 +65,11 @@ export function LoginForm() {
     }
 
     return (
-        <div className="w-full max-w-md animate-slide-up">
+        <div className="animate-slide-up w-full max-w-md">
             {/* Heading */}
             <div className="mb-8">
-                <h1 className="text-4xl font-semibold text-on-surface ">
-                    {UI_TEXT.AUTH.LOGIN.HEADING}
-                </h1>
-                <p className="mt-2 text-sm text-on-surface-variant ">
-                    {UI_TEXT.AUTH.LOGIN.SUBHEADING}
-                </p>
+                <h1 className="text-4xl font-semibold text-on-surface">{UI_TEXT.AUTH.LOGIN.HEADING}</h1>
+                <p className="mt-2 text-sm text-on-surface-variant">{UI_TEXT.AUTH.LOGIN.SUBHEADING}</p>
             </div>
 
             {/* Form fields */}
@@ -109,23 +99,16 @@ export function LoginForm() {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword((v) => !v)}
-                                className="text-outline hover:text-on-surface transition-colors focus:outline-none"
+                                className="text-outline transition-colors hover:text-on-surface focus:outline-none"
                                 aria-label={showPassword ? UI_TEXT.AUTH.LOGIN.HIDE_PASSWORD_ARIA : UI_TEXT.AUTH.LOGIN.SHOW_PASSWORD_ARIA}
                             >
-                                {showPassword ? (
-                                    <EyeOff size={16} strokeWidth={1.5} />
-                                ) : (
-                                    <Eye size={16} strokeWidth={1.5} />
-                                )}
+                                {showPassword ? <EyeOff size={16} strokeWidth={1.5} /> : <Eye size={16} strokeWidth={1.5} />}
                             </button>
                         }
                     />
 
                     <div className="flex justify-end">
-                        <Link
-                            href="/forgot-password"
-                            className="text-xs text-secondary-500 hover:text-primary-700 transition-colors"
-                        >
+                        <Link href="/forgot-password" className="text-xs text-secondary-500 transition-colors hover:text-primary-700">
                             {UI_TEXT.AUTH.LOGIN.FORGOT_PASSWORD}
                         </Link>
                     </div>
@@ -139,11 +122,9 @@ export function LoginForm() {
 
             {/* Divider */}
             <div className="my-8 flex items-center gap-4">
-                <div className="h-px flex-1 bg-surface-container-high " />
-                <span className="text-xs uppercase tracking-wider text-outline font-mono">
-                    {UI_TEXT.AUTH.LOGIN.OR_CONTINUE_WITH}
-                </span>
-                <div className="h-px flex-1 bg-surface-container-high " />
+                <div className="h-px flex-1 bg-surface-container-high" />
+                <span className="font-mono text-xs uppercase tracking-wider text-outline">{UI_TEXT.AUTH.LOGIN.OR_CONTINUE_WITH}</span>
+                <div className="h-px flex-1 bg-surface-container-high" />
             </div>
 
             {/* Social logins */}
@@ -153,13 +134,9 @@ export function LoginForm() {
                     type="button"
                     onClick={handleGoogleLogin}
                     disabled={isGoogleLoading}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded border border-outline-variant bg-surface-container-lowest text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded border border-outline-variant bg-surface-container-lowest text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                    {isGoogleLoading ? (
-                        <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                        <GoogleIcon />
-                    )}
+                    {isGoogleLoading ? <Loader2 size={16} className="animate-spin" /> : <GoogleIcon />}
                     {UI_TEXT.AUTH.LOGIN.GOOGLE_BTN}
                 </button>
 
@@ -173,11 +150,11 @@ export function LoginForm() {
             </div>
 
             {/* Sign up */}
-            <p className="mt-8 text-center text-sm text-on-surface-variant ">
+            <p className="mt-8 text-center text-sm text-on-surface-variant">
                 {UI_TEXT.AUTH.LOGIN.NO_ACCOUNT}{" "}
                 <Link
                     href="/register"
-                    className="font-semibold text-primary-500 underline underline-offset-4 decoration-primary-100 hover:text-primary-700 transition-colors"
+                    className="font-semibold text-primary-500 underline decoration-primary-100 underline-offset-4 transition-colors hover:text-primary-700"
                 >
                     {UI_TEXT.AUTH.LOGIN.SIGN_UP_LINK}
                 </Link>

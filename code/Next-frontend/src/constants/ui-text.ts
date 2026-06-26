@@ -3,8 +3,8 @@ export const UI_TEXT = {
         LOADING: "Đang xử lý...",
         SUCCESS_MODAL: {
             SUCCESS: "Thành công!",
-            CLOSE: "Đóng"
-        }
+            CLOSE: "Đóng",
+        },
     },
     AUTH: {
         LOGIN: {
@@ -63,13 +63,13 @@ export const UI_TEXT = {
         TABS: {
             ALL: "Tất cả thông báo",
             SYSTEM: "Hệ thống",
-            AI_INSIGHT: "AI Đề xuất"
+            AI_INSIGHT: "AI Đề xuất",
         },
         DROPDOWN_TITLE: "Thông báo",
         VIEW_ALL: "Xem tất cả thông báo",
         LOAD_MORE: "Tải thêm",
         BACK_TO_LIST: "Quay lại danh sách",
-        NO_NOTIFICATIONS: "Không có thông báo nào."
+        NO_NOTIFICATIONS: "Không có thông báo nào.",
     },
     ADMIN: {
         SIDEBAR: {
@@ -84,7 +84,7 @@ export const UI_TEXT = {
             HEADING_NAV: "Điều hướng",
             ADD_BOOK: "Thêm sách mới",
             SUPPORT: "Hỗ trợ",
-            LOGOUT: "Đăng xuất"
+            LOGOUT: "Đăng xuất",
         },
         PENDING_REQUESTS: {
             TITLE: "Yêu cầu chờ duyệt",
@@ -95,14 +95,14 @@ export const UI_TEXT = {
             TABLE_MATCH: "Độ khớp",
             TABLE_ACTIONS: "Thao tác",
             BTN_REJECT: "Từ chối",
-            BTN_APPROVE: "Duyệt"
+            BTN_APPROVE: "Duyệt",
         },
         SMART_CATALOGING: {
             TITLE: "Lên danh mục tự động",
             SUBTITLE: "Tải ảnh gáy sách hoặc mã ISBN — AI sẽ tự trích xuất thông tin.",
             DRAG_DROP: "Thả ảnh vào đây",
             OR_CLICK: "hoặc bấm để chọn tệp",
-            MANUAL_ENTRY: "Nhập thủ công"
+            MANUAL_ENTRY: "Nhập thủ công",
         },
         THONG_KE: {
             TITLE: "Thống kê",
@@ -117,15 +117,45 @@ export const UI_TEXT = {
         NAV_LINKS: {
             HOME: "Trang chủ",
             ABOUT: "Giới thiệu",
-            CONTACT: "Liên hệ"
+            CONTACT: "Liên hệ",
         },
         FOOTER_LINKS: {
             TERMS: "Terms of Service",
             PRIVACY: "Privacy Policy",
             CONTACT: "Contact Support",
             API_DOCS: "API Docs",
-            COPYRIGHT: "© 2026 Lumina Library AI. Powered by Illuminated Intelligence."
-        }
+            COPYRIGHT: "© 2026 Lumina Library AI. Powered by Illuminated Intelligence.",
+        },
+    },
+    BOOK_LIST: {
+        BREADCRUMB_HOME: "Trang chủ",
+        BREADCRUMB_LIST: "Danh sách sách",
+        HERO_HEADING: "Khám phá Tri thức",
+        HERO_SUBHEADING: "Tìm kiếm, khám phá và đắm chìm trong thế giới sách đa dạng của chúng tôi. Hàng ngàn đầu sách đang chờ bạn.",
+        SEARCH_PLACEHOLDER: "Tìm kiếm theo tên sách, tác giả...",
+        SIDEBAR_CATEGORY: "Danh mục",
+        SIDEBAR_FILTER: "Lọc theo",
+        SORT_LABEL: "Sắp xếp",
+        SORT_OPTIONS: {
+            NEWEST: "Mới nhất",
+            TOP_RATED: "Đánh giá cao nhất",
+            POPULAR: "Phổ biến nhất",
+        },
+        RESULTS_COUNT_PRE: "Hiển thị",
+        RESULTS_COUNT_POST: "kết quả",
+        RESULTS_FOR: "cho",
+        IMAGE_ALT: "Bìa sách:",
+        NO_RESULTS_HEADING: "Không tìm thấy sách nào",
+        NO_RESULTS_DESC: "Hãy thử thay đổi tiêu chí tìm kiếm hoặc danh mục để xem thêm kết quả.",
+        CLEAR_FILTER_BTN: "Xóa bộ lọc",
+        CATEGORIES: {
+            ALL: "Tất cả",
+            SCIENCE: "Khoa học & Công nghệ",
+            FICTION: "Tiểu thuyết",
+            HISTORY: "Lịch sử",
+            DESIGN: "Thiết kế & Nghệ thuật",
+            BUSINESS: "Kinh doanh",
+        },
     },
     HOME: {
         HERO_HEADING: "TÌM KIẾM TRI THỨC CÙNG AI",
@@ -143,21 +173,24 @@ export const UI_TEXT = {
             SCIENCE: "Khoa học",
             NOVEL: "Tiểu thuyết",
             HISTORY: "Lịch sử",
-            DESIGN: "Thiết kế"
+            DESIGN: "Thiết kế",
         },
         BADGES: {
-            TRENDING_1: "#1 Thịnh hành"
-        }
+            TRENDING_1: "#1 Thịnh hành",
+        },
     },
     ABOUT: {
         PAGE_TITLE: "Giới thiệu | Lumina Library",
         PAGE_DESC: "Khám phá câu chuyện của Lumina Library — hệ thống thư viện thông minh kết hợp truyền thống.",
         HERO_HEADING: "Khai sáng tri thức bằng AI",
-        HERO_DESC_1: "Lumina Library kết nối di sản sâu sắc của kho tàng truyền thống với tốc độ liền mạch của trí tuệ nhân tạo hiện đại. Chúng tôi đang tái định nghĩa sự khám phá.",
+        HERO_DESC_1:
+            "Lumina Library kết nối di sản sâu sắc của kho tàng truyền thống với tốc độ liền mạch của trí tuệ nhân tạo hiện đại. Chúng tôi đang tái định nghĩa sự khám phá.",
         EXPLORE_VISION: "Khám phá tầm nhìn",
         STORY_HEADING: "Câu chuyện của chúng tôi",
-        STORY_DESC_1: "Khởi nguồn từ mong muốn biến đại dương tri thức bao la của nhân loại trở nên dễ dàng tiếp cận, Lumina Library bắt đầu như một sáng kiến nghiên cứu về xử lý ngữ nghĩa tiên tiến.",
-        STORY_DESC_2: "Ngày nay, chúng tôi cung cấp sự tổng hòa tinh tế giữa chủ nghĩa hiện đại doanh nghiệp và công nghệ AI cao cấp, đảm bảo rằng dù bạn đang tìm kiếm luận văn học thuật hay tiểu thuyết, mọi thứ đều hiển hiện ngay trước mắt.",
+        STORY_DESC_1:
+            "Khởi nguồn từ mong muốn biến đại dương tri thức bao la của nhân loại trở nên dễ dàng tiếp cận, Lumina Library bắt đầu như một sáng kiến nghiên cứu về xử lý ngữ nghĩa tiên tiến.",
+        STORY_DESC_2:
+            "Ngày nay, chúng tôi cung cấp sự tổng hòa tinh tế giữa chủ nghĩa hiện đại doanh nghiệp và công nghệ AI cao cấp, đảm bảo rằng dù bạn đang tìm kiếm luận văn học thuật hay tiểu thuyết, mọi thứ đều hiển hiện ngay trước mắt.",
         ARIA_HERO: "Không gian thư viện hiện đại với kiến trúc hùng vĩ",
         ARIA_STORY: "Giao diện hệ thống quản lý thư viện thông minh",
         CORE_VALUES: {
@@ -168,8 +201,8 @@ export const UI_TEXT = {
             V2_TITLE: "Tiếp cận",
             V2_DESC: "Thiết kế hệ thống toàn diện giúp mọi người, ở mọi nơi, khám phá và học hỏi một cách dễ dàng.",
             V3_TITLE: "Chính trực",
-            V3_DESC: "Duy trì sức nặng thẩm quyền và sự thật nghiêm ngặt của thư viện truyền thống trong mọi tương tác AI."
-        }
+            V3_DESC: "Duy trì sức nặng thẩm quyền và sự thật nghiêm ngặt của thư viện truyền thống trong mọi tương tác AI.",
+        },
     },
     CONTACT: {
         PAGE_TITLE: "Liên hệ | Lumina Library",
@@ -186,7 +219,7 @@ export const UI_TEXT = {
             ACCESS: "Truy cập Tổ chức",
             TECH_SUPPORT: "Hỗ trợ Kỹ thuật (Tìm kiếm AI)",
             COLLECTION: "Đề xuất Bộ sưu tập",
-            OTHER: "Yêu cầu khác"
+            OTHER: "Yêu cầu khác",
         },
         MESSAGE_LABEL: "Nội dung",
         MESSAGE_PLACEHOLDER: "Chúng tôi có thể hỗ trợ bạn điều gì?",
@@ -207,31 +240,31 @@ export const UI_TEXT = {
         FAQS: [
             {
                 QUESTION: "Làm thế nào để mượn sách từ thư viện thông qua website?",
-                ANSWER: "Bạn chỉ cần vào danh mục, tìm kiếm sách, chọn sách muốn mượn và chờ nhân viên thư viện xử lý nếu mượn sách trực tuyến. Sau đó, bạn có thể nhận sách tại quầy hoặc yêu cầu giao sách đến tận nơi."
+                ANSWER: "Bạn chỉ cần vào danh mục, tìm kiếm sách, chọn sách muốn mượn và chờ nhân viên thư viện xử lý nếu mượn sách trực tuyến. Sau đó, bạn có thể nhận sách tại quầy hoặc yêu cầu giao sách đến tận nơi.",
             },
             {
                 QUESTION: "Tôi có thể mượn sách dễ dàng không?",
-                ANSWER: "Có, Lumina Library cho phép mượn sách dễ dàng thông qua website hoặc mượn trực tiếp từ thư viện"
+                ANSWER: "Có, Lumina Library cho phép mượn sách dễ dàng thông qua website hoặc mượn trực tiếp từ thư viện",
             },
             {
                 QUESTION: "Giờ hoạt động của thư viện là bao nhiêu?",
-                ANSWER: "Các phòng đọc tại thư viện mở cửa từ Thứ Hai đến Thứ Sáu, 8:00 sáng đến 9:00 tối. Truy cập cuối tuần được giới hạn cho các nghiên cứu sinh cao cấp theo lịch hẹn. Danh mục kỹ thuật số hoạt động 24/7."
-            }
-        ]
+                ANSWER: "Các phòng đọc tại thư viện mở cửa từ Thứ Hai đến Thứ Sáu, 8:00 sáng đến 9:00 tối. Truy cập cuối tuần được giới hạn cho các nghiên cứu sinh cao cấp theo lịch hẹn. Danh mục kỹ thuật số hoạt động 24/7.",
+            },
+        ],
     },
     ADMIN_LAYOUT: {
         TOPBAR: {
             HEADING: "Tổng quan",
             SUBHEADING: "Chào mừng trở lại, Admin. Đây là tình hình hôm nay.",
-            SEARCH_PLACEHOLDER: "Tìm kho sách bằng ngữ nghĩa AI…"
+            SEARCH_PLACEHOLDER: "Tìm kho sách bằng ngữ nghĩa AI…",
         },
         ALERTS: {
             HEADING: "Cảnh báo hệ thống",
             SYNC_DELAY_TITLE: "Đồng bộ máy chủ bị trễ",
             SYNC_DELAY_DESC: "Kho Chi nhánh 8 chưa đồng bộ trong 2 giờ qua.",
             AI_UPDATE_TITLE: "Cập nhật mô hình AI",
-            AI_UPDATE_DESC: "Tìm kiếm ngữ nghĩa được cải thiện cho thể loại lịch sử."
-        }
+            AI_UPDATE_DESC: "Tìm kiếm ngữ nghĩa được cải thiện cho thể loại lịch sử.",
+        },
     },
     ADMIN_PAGES: {
         DASHBOARD: {
@@ -240,40 +273,41 @@ export const UI_TEXT = {
             PENDING_APPROVAL: "Chờ phê duyệt",
             PENDING_APPROVAL_DESC: "Cần xem xét trong 24h",
             OVERDUE_BOOKS: "Sách quá hạn",
-            OVERDUE_BOOKS_DESC: "Cần xử lý ngay"
+            OVERDUE_BOOKS_DESC: "Cần xử lý ngay",
         },
         MEMBERS: {
             TITLE: "Thành viên",
-            DESC: "Trang quản lý thành viên thư viện sẽ hiển thị ở đây."
+            DESC: "Trang quản lý thành viên thư viện sẽ hiển thị ở đây.",
         },
         BORROW_LOGS: {
             TITLE: "Lượt mượn",
-            DESC: "Trang quản lý lượt mượn sách sẽ hiển thị thông tin ở đây."
+            DESC: "Trang quản lý lượt mượn sách sẽ hiển thị thông tin ở đây.",
         },
         INVENTORY: {
             TITLE: "Kho sách",
-            DESC: "Đây là trang kho sách. Bạn có thể thêm nội dung quản lý sách ở đây."
+            DESC: "Đây là trang kho sách. Bạn có thể thêm nội dung quản lý sách ở đây.",
         },
         SETTINGS: {
             TITLE: "Cài đặt",
-            DESC: "Trang cài đặt của hệ thống quản lý thư viện."
-        }
+            DESC: "Trang cài đặt của hệ thống quản lý thư viện.",
+        },
     },
     MAINTENANCE: {
         PAGE_TITLE: "Đang bảo trì — Lumina Library",
         PAGE_DESC: "Hệ thống đang được cập nhật thông minh. Chúng tôi sẽ sớm trở lại với trải nghiệm khám phá tốt hơn.",
         HEADING: "Thư viện đang được cập nhật thông minh",
-        SUBHEADING: "Các mô hình AI đang lập chỉ mục tri thức mới và tối ưu hoá lộ trình tìm kiếm. Chúng tôi sẽ sớm trở lại với trải nghiệm khám phá tri thức được nâng cao hơn.",
+        SUBHEADING:
+            "Các mô hình AI đang lập chỉ mục tri thức mới và tối ưu hoá lộ trình tìm kiếm. Chúng tôi sẽ sớm trở lại với trải nghiệm khám phá tri thức được nâng cao hơn.",
         IMG_ALT: "Minh hoạ thư viện đang cập nhật AI",
-        CONTACT_BTN: "Liên hệ hỗ trợ"
+        CONTACT_BTN: "Liên hệ hỗ trợ",
     },
     PROFILE: {
         LAYOUT: {
-            BRAND: "Lumina Library"
+            BRAND: "Lumina Library",
         },
         PAGE: {
             HEADING: "Personal Info",
-            SUBHEADING: "Update your personal details and how we can reach you."
+            SUBHEADING: "Update your personal details and how we can reach you.",
         },
         SIDEBAR: {
             HEADING: "Settings",
@@ -281,8 +315,8 @@ export const UI_TEXT = {
                 PERSONAL_INFO: "Personal Info",
                 SECURITY: "Security",
                 NOTIFICATIONS: "Notifications",
-                AI_CONFIG: "AI Configuration"
-            }
+                AI_CONFIG: "AI Configuration",
+            },
         },
         AVATAR: {
             HEADING: "Profile Picture",
@@ -291,7 +325,7 @@ export const UI_TEXT = {
             REMOVE_BTN: "Remove",
             IMG_ALT: "Profile avatar",
             UPLOAD_ALERT: "Upload avatar",
-            REMOVE_ALERT: "Remove avatar"
+            REMOVE_ALERT: "Remove avatar",
         },
         FORM: {
             FULL_NAME_LABEL: "Full Name",
@@ -311,16 +345,16 @@ export const UI_TEXT = {
                 EMAIL_REQUIRED: "Email is required.",
                 EMAIL_INVALID: "Invalid email format.",
                 PHONE_REQUIRED: "Phone number is required.",
-                BIO_MAX_LENGTH: "Bio must be 500 characters or fewer."
-            }
-        }
+                BIO_MAX_LENGTH: "Bio must be 500 characters or fewer.",
+            },
+        },
     },
     SETTINGS_HEADER: {
         BRAND: "Lumina Library",
         NAV_CATALOG: "Catalog",
         NAV_COLLECTIONS: "Collections",
         NAV_BRANCHES: "Branches",
-        AVATAR_ALT: "User Avatar"
+        AVATAR_ALT: "User Avatar",
     },
     SETTINGS_SIDEBAR: {
         HEADING: "Settings",
@@ -328,8 +362,8 @@ export const UI_TEXT = {
             PERSONAL_INFO: "Personal Info",
             SECURITY: "Security",
             NOTIFICATIONS: "Notifications",
-            AI_CONFIG: "AI Configuration"
-        }
+            AI_CONFIG: "AI Configuration",
+        },
     },
     SETTINGS_NOTIFICATIONS: {
         PAGE: {
@@ -345,7 +379,7 @@ export const UI_TEXT = {
             RESERVATION_DESC: "We'll let you know the moment a reserved book is ready.",
             MOBILE_ALERTS_TITLE: "Mobile Alerts",
             MOBILE_ALERTS_DESC: "Instant notifications sent to your registered devices.",
-            SUCCESS_MSG: "Cài đặt thông báo đã được lưu thành công."
-        }
-    }
+            SUCCESS_MSG: "Cài đặt thông báo đã được lưu thành công.",
+        },
+    },
 };
