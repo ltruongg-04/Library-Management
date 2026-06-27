@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomBusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(CustomBusinessException ex) {
         ApiResponse<Void> response = ApiResponse.error(ex.getMessage());
-        return new ResponseEntity<>(response, ex.getHttpStatus());
+        return ResponseEntity.status(ex.getHttpStatus().value()).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

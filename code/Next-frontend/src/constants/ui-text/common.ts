@@ -1,5 +1,14 @@
 export const COMMON = {
     LOADING: "Đang xử lý...",
+    LOADING_BOOKS: "Đang tải danh sách sách...",
+    LOADING_BOOK_DETAIL: "Đang tải chi tiết sách...",
+    LOADING_TRENDING: "Đang tải sách thịnh hành...",
+    ERROR_LOAD_BOOKS: "Không thể tải danh sách sách. Vui lòng thử lại.",
+    ERROR_LOAD_BOOK_DETAIL: "Không thể tải chi tiết sách. Vui lòng thử lại.",
+    ERROR_LOAD_TRENDING: "Không thể tải sách thịnh hành.",
+    ERROR_CONNECT: "Không thể kết nối đến server.",
+    RETRY_BTN: "Thử lại",
+    EMPTY_DATA: "Chưa có dữ liệu",
     SUCCESS_MODAL: {
         SUCCESS: "Thành công!",
         CLOSE: "Đóng",

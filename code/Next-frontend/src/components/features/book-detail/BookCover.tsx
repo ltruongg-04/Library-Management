@@ -3,27 +3,35 @@
 import Image from "next/image";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
-import type { Book } from "@/types/book";
+import type { BookDetail } from "@/types/book";
 
 interface BookCoverProps {
-    book: Book;
+    book: BookDetail;
 }
 
 export default function BookCover({ book }: BookCoverProps) {
     const isAvailable = book.availableCount > 0;
+    const hasCoverImage = book.coverImage && book.coverImage.length > 0;
 
     return (
         <div className="flex flex-col gap-2">
             {/* Cover Image */}
             <div className="relative overflow-hidden rounded-lg border border-outline-variant/20 bg-surface-container-lowest shadow-sm transition-colors duration-200 dark:border-slate-700 dark:bg-slate-900">
-                <Image
-                    src={book.coverImage}
-                    alt={`Book Cover: ${book.title}`}
-                    width={400}
-                    height={600}
-                    className="aspect-[2/3] h-auto w-full rounded-t-sm object-cover"
-                    priority
-                />
+                {hasCoverImage ? (
+                    <Image
+                        src={book.coverImage}
+                        alt={`Book Cover: ${book.title}`}
+                        width={400}
+                        height={600}
+                        className="aspect-[2/3] h-auto w-full rounded-t-sm object-cover"
+                        priority
+                        unoptimized
+                    />
+                ) : (
+                    <div className="flex aspect-[2/3] w-full items-center justify-center bg-primary-container">
+                        <MaterialIcon name="menu_book" className="text-[80px] text-on-primary-container" />
+                    </div>
+                )}
 
                 {/* AI Match Score Badge */}
                 {book.aiMatchScore && (
