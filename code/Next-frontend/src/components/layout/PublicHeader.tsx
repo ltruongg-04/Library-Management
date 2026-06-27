@@ -85,9 +85,10 @@ export function PublicHeader() {
     const renderNotificationButton = () => (
         <div className="relative" ref={notificationRef}>
             <button
+                type="button"
                 onClick={() => setIsNotificationOpen((value) => !value)}
                 className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink-500 transition-colors hover:bg-ink-100 dark:text-white dark:hover:bg-slate-800"
-                aria-label="Notifications"
+                aria-label={UI_TEXT.PUBLIC_LAYOUT.ARIA.NOTIFICATIONS}
                 aria-expanded={isNotificationOpen}
             >
                 <MaterialIcon name="notifications" />
@@ -142,9 +143,10 @@ export function PublicHeader() {
 
                 <div className="flex items-center gap-4">
                     <button
+                        type="button"
                         onClick={toggleTheme}
                         className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink-500 transition-colors hover:bg-ink-100 dark:text-white dark:hover:bg-slate-800"
-                        aria-label="Toggle Theme"
+                        aria-label={UI_TEXT.PUBLIC_LAYOUT.ARIA.TOGGLE_THEME}
                     >
                         <MaterialIcon name={isDarkMode ? "light_mode" : "dark_mode"} />
                     </button>
@@ -155,8 +157,9 @@ export function PublicHeader() {
                                 renderNotificationButton()
                             ) : (
                                 <button
+                                    type="button"
                                     className="flex h-10 w-10 items-center justify-center rounded-full text-ink-500 transition-colors hover:bg-ink-100 dark:text-white dark:hover:bg-slate-800"
-                                    aria-label="Notifications"
+                                    aria-label={UI_TEXT.PUBLIC_LAYOUT.ARIA.NOTIFICATIONS}
                                 >
                                     <MaterialIcon name="notifications" />
                                 </button>
@@ -164,7 +167,7 @@ export function PublicHeader() {
                             <Link
                                 href="/settings/profile"
                                 className="flex h-10 w-10 items-center justify-center rounded-full text-ink-500 transition-colors hover:bg-ink-100 dark:text-white dark:hover:bg-slate-800"
-                                aria-label="Profile"
+                                aria-label={UI_TEXT.PUBLIC_LAYOUT.ARIA.PROFILE}
                             >
                                 <MaterialIcon name="account_circle" />
                             </Link>
@@ -175,10 +178,11 @@ export function PublicHeader() {
 
                             <div className="relative" ref={menuRef}>
                                 <button
+                                    type="button"
                                     id="user-avatar-btn"
                                     onClick={() => setIsMenuOpen((value) => !value)}
                                     className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-primary-300 transition-all duration-200 hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-primary-600"
-                                    aria-label="User menu"
+                                    aria-label={UI_TEXT.PUBLIC_LAYOUT.ARIA.USER_MENU}
                                     aria-expanded={isMenuOpen}
                                 >
                                     {user.image ? (
@@ -218,6 +222,7 @@ export function PublicHeader() {
 
                                         <div className="border-t border-ink-100 py-1 dark:border-slate-700">
                                             <button
+                                                type="button"
                                                 id="btn-logout"
                                                 onClick={handleLogout}
                                                 className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"

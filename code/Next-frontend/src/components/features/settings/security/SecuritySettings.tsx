@@ -244,6 +244,7 @@ export default function SecuritySettings() {
             <label className="relative mt-2 inline-flex shrink-0 cursor-pointer items-center">
               <input
                 type="checkbox"
+                aria-label={securityText.TWO_FACTOR_TITLE}
                 checked={twoFactorEnabled}
                 onChange={handleTwoFactorChange}
                 className="peer sr-only"
