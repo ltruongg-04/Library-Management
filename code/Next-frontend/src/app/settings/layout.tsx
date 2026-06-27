@@ -9,12 +9,14 @@ export default function SettingsLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 text-ink-950 dark:text-white transition-colors duration-200">
+        <div className="flex min-h-screen flex-col bg-white text-ink-950 transition-colors duration-200 dark:bg-slate-950 dark:text-white">
             <PublicHeader />
-            <div className="flex flex-1 pt-[64px]">
+            <div className="flex flex-1 bg-surface-container-low pt-[72px] transition-colors duration-200 dark:bg-black">
                 <SettingsSidebar />
-                <main className="flex-1 md:ml-sidebar-width p-lg md:p-xl w-full flex justify-center">
-                    {children}
+                <main className="flex min-h-[calc(100vh-72px)] w-full flex-1 justify-center px-4 py-8 md:justify-start md:px-6 lg:px-12 lg:py-14">
+                    <div className="w-full max-w-[980px] md:ml-4 lg:ml-8 xl:ml-12">
+                        {children}
+                    </div>
                 </main>
             </div>
             <PublicFooter />

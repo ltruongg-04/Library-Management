@@ -5,15 +5,15 @@ import Link from "next/link";
 import { UI_TEXT } from "@/constants/ui-text";
 
 const FOOTER_LINKS = [
-  { href: "/terms", label: UI_TEXT.PUBLIC_LAYOUT.FOOTER_LINKS.TERMS },
   { href: "/privacy", label: UI_TEXT.PUBLIC_LAYOUT.FOOTER_LINKS.PRIVACY },
+  { href: "/terms", label: UI_TEXT.PUBLIC_LAYOUT.FOOTER_LINKS.TERMS },
   { href: "/lien-he", label: UI_TEXT.PUBLIC_LAYOUT.FOOTER_LINKS.CONTACT },
   { href: "/api-docs", label: UI_TEXT.PUBLIC_LAYOUT.FOOTER_LINKS.API_DOCS },
 ];
 
 export function PublicFooter() {
   return (
-      <footer className="bg-surface-container-low dark:bg-slate-900 border-t border-outline-variant/50 dark:border-slate-800 w-full py-12 mt-auto transition-colors duration-200 z-50 relative">
+      <footer className="relative z-50 mt-auto w-full border-t border-outline-variant/30 bg-white py-6 transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-col md:flex-row justify-between items-center px-6 max-w-[1440px] mx-auto gap-6">
           <div className="flex items-center gap-2">
             <span className="text-[20px] font-bold text-primary-700 dark:text-white">

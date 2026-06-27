@@ -18,10 +18,10 @@ type ProfileData = {
 type ProfileErrors = Partial<Record<keyof ProfileData, string>>;
 
 const initialData: ProfileData = {
-  fullName: "Alex Morgan",
+  fullName: "Nguyễn Minh Anh",
   email: "alex.morgan@example.com",
   phone: "+1 (555) 123-4567",
-  bio: "Avid reader, aspiring author, and technology enthusiast. Usually found in the science fiction section or attending a local book club.",
+  bio: "Độc giả yêu sách, quan tâm đến công nghệ và thường đọc các đầu sách khoa học viễn tưởng tại thư viện.",
 };
 
 export default function ProfileForm() {
@@ -79,7 +79,7 @@ export default function ProfileForm() {
   const handleSave = () => {
     if (!validate()) return;
 
-    console.log("Saved profile:", formData);
+    console.log("Đã lưu hồ sơ:", formData);
     setModalMessage(UI_TEXT.PROFILE.FORM.SUCCESS_MSG);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
@@ -92,7 +92,7 @@ export default function ProfileForm() {
   };
 
   return (
-    <div className="rounded-xl border border-ink-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-5 shadow-sm">
+    <div>
       {/* Avatar */}
       <ProfileAvatar
         avatarUrl="https://placehold.co/80x80"
@@ -100,7 +100,7 @@ export default function ProfileForm() {
       />
 
       {/* Form fields */}
-      <div className="mt-5 grid grid-cols-1 gap-x-8 gap-y-5 border-t border-ink-200 dark:border-slate-800 pt-5 md:grid-cols-2">
+      <div className="mt-xl grid grid-cols-1 gap-x-8 gap-y-5 border-t border-ink-200 pt-xl dark:border-slate-800 md:grid-cols-2">
         <BaseInput
           label={UI_TEXT.PROFILE.FORM.FULL_NAME_LABEL}
           name="fullName"
@@ -136,8 +136,8 @@ export default function ProfileForm() {
         />
       </div>
 
-      {/* Bio */}
-      <div className="mt-5 border-t border-ink-200 dark:border-slate-800 pt-5">
+      {/* Giới thiệu */}
+      <div className="mt-xl border-t border-ink-200 pt-xl dark:border-slate-800">
         <BaseTextarea
           label={UI_TEXT.PROFILE.FORM.BIO_LABEL}
           name="bio"
@@ -155,13 +155,13 @@ export default function ProfileForm() {
       </div>
 
       {/* Actions */}
-      <div className="mt-5 flex justify-end gap-3 border-t border-ink-200 dark:border-slate-800 pt-5">
+      <div className="mt-xl flex flex-col justify-end gap-3 border-t border-ink-200 pt-xl dark:border-slate-800 sm:flex-row">
         <BaseButton
           type="button"
           variant="outline"
           size="sm"
           onClick={handleCancel}
-          className="w-auto min-w-[90px]"
+          className="h-12 w-full rounded-lg px-6 text-body-md font-semibold sm:w-[220px]"
         >
           {UI_TEXT.PROFILE.FORM.CANCEL_BTN}
         </BaseButton>
@@ -171,7 +171,7 @@ export default function ProfileForm() {
           variant="primary"
           size="sm"
           onClick={handleSave}
-          className="w-auto min-w-[90px]"
+          className="h-12 w-full rounded-lg bg-primary-700 px-6 text-body-md font-semibold hover:bg-primary-500 sm:w-[220px]"
         >
           {UI_TEXT.PROFILE.FORM.SAVE_BTN}
         </BaseButton>
