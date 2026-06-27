@@ -35,8 +35,8 @@ public class BookEntity extends BaseEntity {
     @Column(name = "publisher")
     private String publisher;
 
-    @Column(name = "publish_year")
-    private Integer publishYear;
+    @Column(name = "publication_date")
+    private java.time.LocalDate publicationDate;
 
     @Column(name = "pages")
     private Integer pages;
@@ -61,7 +61,7 @@ public class BookEntity extends BaseEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "image_url", length = 500)
+    @Column(name = "cover_image", length = 500)
     private String imageUrl;
 
     @Column(name = "rating")
@@ -78,8 +78,4 @@ public class BookEntity extends BaseEntity {
     @Column(name = "deposit_price", precision = 10, scale = 2)
     private BigDecimal depositPrice;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    @Builder.Default
-    private BookStatus status = BookStatus.AVAILABLE;
 }

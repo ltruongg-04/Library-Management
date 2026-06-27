@@ -81,7 +81,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
             .map((b) => ({
               id: b.id,
               title: b.title,
-              author: b.author,
+              authors: b.authors || [],
               coverImage: b.imageUrl || "",
             }));
           setRelatedBooks(related);
@@ -127,7 +127,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
 
   const breadcrumbItems = [
     { label: "Catalog", href: "/" },
-    { label: book.categories?.[0] || "General", href: "/" },
+    { label: book.categories?.[0]?.name || "General", href: "/" },
     { label: book.title },
   ];
 

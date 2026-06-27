@@ -41,16 +41,25 @@ export default function CategoryTable() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xoá thể loại này? Các sách thuộc thể loại này sẽ không còn hiển thị thể loại này nữa.")) {
-      return;
-    }
+  const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteClick = (id: number) => {
+    setDeleteCategoryId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteCategoryId === null) return;
     
     try {
-      await categoryService.deleteCategory(id);
+      setIsDeleting(true);
+      await categoryService.deleteCategory(deleteCategoryId);
       fetchCategories();
+      setDeleteCategoryId(null);
     } catch (err: any) {
       alert(err.message || "Lỗi khi xoá thể loại");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -98,16 +107,16 @@ export default function CategoryTable() {
             <table className="w-full text-left text-[14px]">
               <thead className="bg-surface-container-lowest border-b border-surface-container-high">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-on-surface-variant w-16 text-center">ID</th>
+                  <th className="px-6 py-4 font-semibold text-on-surface-variant w-16 text-center">STT</th>
                   <th className="px-6 py-4 font-semibold text-on-surface-variant w-1/3">Tên thể loại</th>
                   <th className="px-6 py-4 font-semibold text-on-surface-variant w-1/2">Mô tả</th>
                   <th className="px-6 py-4 font-semibold text-on-surface-variant text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-container-high">
-                {categories.map((category) => (
+                {categories.map((category, index) => (
                   <tr key={category.id} className="hover:bg-surface-container-lowest/50 transition-colors">
-                    <td className="px-6 py-4 text-center text-on-surface-variant">{category.id}</td>
+                    <td className="px-6 py-4 text-center text-on-surface-variant">{index + 1}</td>
                     <td className="px-6 py-4 font-medium text-ink-950">{category.name}</td>
                     <td className="px-6 py-4 text-on-surface-variant">
                       {category.description || <span className="italic text-outline-variant">Không có mô tả</span>}
@@ -122,7 +131,7 @@ export default function CategoryTable() {
                           <Edit2 size={16} />
                         </button>
                         <button
-                          onClick={() => handleDelete(category.id)}
+                          onClick={() => handleDeleteClick(category.id)}
                           className="p-2 rounded-lg text-error hover:bg-error-50 transition-colors focus-ring"
                           title="Xoá"
                         >
@@ -144,6 +153,39 @@ export default function CategoryTable() {
         category={editingCategory}
         onSuccess={fetchCategories}
       />
+
+      {/* Delete Confirmation Modal */}
+      {deleteCategoryId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-xl">
+            <div className="p-6">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-error-50 text-error mb-4">
+                <Trash2 size={24} />
+              </div>
+              <h3 className="text-center text-lg font-semibold text-ink-950">Xác nhận xoá thể loại</h3>
+              <p className="mt-2 text-center text-sm text-on-surface-variant">
+                Bạn có chắc chắn muốn xoá thể loại này? Các sách thuộc thể loại này sẽ không còn hiển thị thể loại này nữa. Hành động này không thể hoàn tác.
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-3 bg-surface-container-lowest px-6 py-4 border-t border-surface-container-high">
+              <button
+                onClick={() => setDeleteCategoryId(null)}
+                className="rounded-lg px-4 py-2 text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors"
+                disabled={isDeleting}
+              >
+                Hủy
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex items-center justify-center gap-2 rounded-lg bg-error px-4 py-2 text-sm font-semibold text-white hover:bg-error-600 transition-colors w-[130px]"
+                disabled={isDeleting}
+              >
+                {isDeleting ? <Loader2 size={16} className="animate-spin" /> : "Xóa thể loại"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

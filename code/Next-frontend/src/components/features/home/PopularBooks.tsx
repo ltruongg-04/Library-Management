@@ -31,8 +31,8 @@ function BookCard({ book }: { book: BookListItem }) {
     "w-[260px] md:w-[280px] shrink-0 bg-surface-container-lowest dark:bg-slate-900 rounded-lg level-1-shadow level-2-shadow-hover transition-all duration-300 overflow-hidden flex flex-col h-full group snap-start";
 
   // Lấy category đầu tiên để hiển thị tag
-  const displayCategory = book.category
-    ? book.category.split(",")[0].trim()
+  const displayCategory = book.categories && book.categories.length > 0
+    ? book.categories[0].name
     : "General";
 
   return (
@@ -75,7 +75,7 @@ function BookCard({ book }: { book: BookListItem }) {
           {book.title}
         </h3>
         <p className="font-sans text-[14px] leading-[20px] text-on-surface-variant dark:text-white mb-4 transition-colors duration-200 line-clamp-1">
-          {book.author}
+          {book.authors && book.authors.length > 0 ? book.authors.map(a => a.name).join(", ") : "Unknown Author"}
         </p>
         <div className="mt-auto flex justify-between items-center">
           <span

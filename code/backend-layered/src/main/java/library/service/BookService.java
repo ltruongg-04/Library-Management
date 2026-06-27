@@ -15,7 +15,6 @@ public interface BookService {
 
     org.springframework.data.domain.Page<BookListResponse> getAdminBookInventory(
             String keyword,
-            library.entity.BookStatus status,
             Integer categoryId,
             int page,
             int size);

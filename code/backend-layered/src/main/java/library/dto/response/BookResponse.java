@@ -18,7 +18,7 @@ public class BookResponse {
     private String title;
     private List<AuthorResponse> authors;
     private String publisher;
-    private Integer publishYear;
+    private java.time.LocalDate publicationDate;
     private Integer pages;
     private String isbn;
     private String description;
@@ -30,5 +30,4 @@ public class BookResponse {
     private String shelfLocation;
     private BigDecimal depositPrice;
     private List<CategoryResponse> categories;
-    private library.entity.BookStatus status;
 }

@@ -160,7 +160,7 @@ export default function BookTable() {
       setLoading(true);
       setError(null);
       // We no longer pass status since it's removed from filters
-      const result = await bookService.getAdminBookInventory(page, 10, keyword, undefined, category);
+      const result = await bookService.getAdminBookInventory(page, 10, keyword, category);
       setData(result);
     } catch (err: any) {
       setError(err.message || 'Lỗi khi tải dữ liệu');

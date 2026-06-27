@@ -57,6 +57,11 @@ public class CategoryService {
         if (!categoryRepository.existsById(id)) {
             throw new RuntimeException("Không tìm thấy thể loại");
         }
+        
+        // 1. Xóa liên kết trong bảng trung gian (book_categories)
+        categoryRepository.deleteCategoryAssociations(id);
+        
+        // 2. Xóa thể loại
         categoryRepository.deleteById(id);
     }
 

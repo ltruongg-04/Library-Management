@@ -27,7 +27,7 @@ export default function EditBookModal({ bookId, isOpen, onClose, onSuccess }: Ed
   const [authorIds, setAuthorIds] = useState<number[]>([]);
   const [isbn, setIsbn] = useState("");
   const [categoryIds, setCategoryIds] = useState<number[]>([]);
-  const [status, setStatus] = useState("AVAILABLE");
+
   const [shelfLocation, setShelfLocation] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
@@ -71,7 +71,7 @@ export default function EditBookModal({ bookId, isOpen, onClose, onSuccess }: Ed
       setAuthorIds(data.authors?.map(a => a.id) || []);
       setIsbn(data.isbn || "");
       setCategoryIds(data.categories?.map(c => c.id) || []);
-      setStatus((data as any).status || "AVAILABLE"); // handle missing status in type if not updated properly
+
       setShelfLocation(data.shelfLocation || "");
       setImageUrl(data.imageUrl || "");
       setQuantity(data.quantity || 0);
@@ -94,7 +94,7 @@ export default function EditBookModal({ bookId, isOpen, onClose, onSuccess }: Ed
         authorIds,
         isbn,
         categoryIds,
-        status, // keep sending the existing status so we don't accidentally overwrite it with null
+
         shelfLocation,
         imageUrl,
         quantity,

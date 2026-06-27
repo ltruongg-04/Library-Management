@@ -52,12 +52,11 @@ public class BookServiceImpl implements BookService {
         @Override
         public org.springframework.data.domain.Page<BookListResponse> getAdminBookInventory(
                 String keyword,
-                library.entity.BookStatus status,
                 Integer categoryId,
                 int page,
                 int size) {
                 org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
-                return bookRepository.findForAdminInventory(keyword, status, categoryId, pageable)
+                return bookRepository.findForAdminInventory(keyword, categoryId, pageable)
                         .map(this::toBookListResponse);
         }
 
@@ -79,7 +78,6 @@ public class BookServiceImpl implements BookService {
                         java.util.List<library.entity.CategoryEntity> categoryEntities = categoryRepository.findAllById(request.getCategoryIds());
                         book.setCategories(new java.util.HashSet<>(categoryEntities));
                 }
-                if (request.getStatus() != null) book.setStatus(request.getStatus());
                 if (request.getShelfLocation() != null) book.setShelfLocation(request.getShelfLocation());
                 if (request.getImageUrl() != null) book.setImageUrl(request.getImageUrl());
 
@@ -98,7 +96,6 @@ public class BookServiceImpl implements BookService {
                                 .rating(entity.getRating())
                                 .availableQuantity(entity.getAvailableQuantity())
                                 .quantity(entity.getQuantity())
-                                .status(entity.getStatus())
                                 .isbn(entity.getIsbn())
                                 .shelfLocation(entity.getShelfLocation())
                                 .build();
@@ -112,7 +109,7 @@ public class BookServiceImpl implements BookService {
                                 .title(entity.getTitle())
                                 .authors(mapAuthors(entity.getAuthors()))
                                 .publisher(entity.getPublisher())
-                                .publishYear(entity.getPublishYear())
+                                .publicationDate(entity.getPublicationDate())
                                 .pages(entity.getPages())
                                 .isbn(entity.getIsbn())
                                 .description(entity.getDescription())
@@ -124,7 +121,6 @@ public class BookServiceImpl implements BookService {
                                 .shelfLocation(entity.getShelfLocation())
                                 .depositPrice(entity.getDepositPrice())
                                 .categories(mapCategories(entity.getCategories()))
-                                .status(entity.getStatus())
                                 .build();
         }
 

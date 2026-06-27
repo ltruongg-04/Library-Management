@@ -47,7 +47,7 @@ export default function BookInfo({ book }: BookInfoProps) {
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 gap-4 border-y border-outline-variant/30 py-4 dark:border-slate-700 md:grid-cols-4">
                 <MetadataItem label="Publisher" value={book.publisher || "N/A"} />
-                <MetadataItem label="Published" value={book.publishYear ? String(book.publishYear) : "N/A"} />
+                <MetadataItem label="Published" value={book.publicationDate ? new Date(book.publicationDate).getFullYear().toString() : "N/A"} />
                 <MetadataItem label="Pages" value={book.pages ? String(book.pages) : "N/A"} />
                 <MetadataItem label="ISBN" value={book.isbn || "N/A"} />
             </div>
