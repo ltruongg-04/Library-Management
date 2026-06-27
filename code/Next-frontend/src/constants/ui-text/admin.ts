@@ -42,6 +42,7 @@ export const ADMIN_LAYOUT = {
         HEADING: "Tổng quan",
         SUBHEADING: "Chào mừng trở lại, Admin. Đây là tình hình hôm nay.",
         SEARCH_PLACEHOLDER: "Tìm kho sách bằng ngữ nghĩa AI…",
+        SEARCH_SHORTCUT: "⌘K",
     },
     ALERTS: {
         HEADING: "Cảnh báo hệ thống",

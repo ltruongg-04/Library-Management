@@ -1,14 +1,13 @@
 import ProfileForm from "@/components/features/settings/profile/ProfileForm";
+import { UI_TEXT } from "@/constants/ui-text";
 
 export default function ProfilePage() {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Personal Info</h1>
-      <p className="text-gray-500 mb-6">
-        Update your personal details and how we can reach you.
-      </p>
+    return (
+        <div>
+            <h1 className="mb-2 text-3xl font-bold text-gray-900">{UI_TEXT.PROFILE.PAGE.HEADING}</h1>
+            <p className="mb-6 text-gray-500">{UI_TEXT.PROFILE.PAGE.SUBHEADING}</p>
 
-      <ProfileForm />
-    </div>
-  );
+            <ProfileForm />
+        </div>
+    );
 }

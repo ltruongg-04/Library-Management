@@ -69,6 +69,16 @@ export const HOME = {
     BADGES: {
         TRENDING_1: "#1 Thịnh hành",
     },
+    CURATED_SECTION: {
+        DEEP_DIVE: "Deep Dive",
+        PHILOSOPHY_AI: "The Philosophy of Artificial Intelligence",
+        PHILOSOPHY_AI_DESC: "A comprehensive collection exploring the ethical and societal implications of thinking machines.",
+        HARD_SCIFI: "Hard Sci-Fi Essentials",
+        HARD_SCIFI_DESC: "Highly technical speculative fiction based on your recent searches.",
+        BOOKS_12: "12 Books",
+        WORLD_BUILDING: "World Building Masterclass",
+        WORLD_BUILDING_DESC: "Because you read 'Dune' and 'Foundation'.",
+    },
 };
 
 export const ABOUT = {
@@ -144,4 +154,19 @@ export const CONTACT = {
             ANSWER: "Các phòng đọc tại thư viện mở cửa từ Thứ Hai đến Thứ Sáu, 8:00 sáng đến 9:00 tối. Truy cập cuối tuần được giới hạn cho các nghiên cứu sinh cao cấp theo lịch hẹn. Danh mục kỹ thuật số hoạt động 24/7.",
         },
     ],
+};
+
+export const BOOK_DETAIL = {
+    RELATED_BOOKS_HEADING: "Related Titles",
+    VIEW_ALL: "View all",
+    REVIEWS: "Reviews",
+    BY: "By",
+    TAGS_CATEGORIES: "Tags & Categories",
+    MATCH_SCORE_SUFFIX: "% Match",
+    BORROW_NOW: "Borrow Now",
+    ADD_WISHLIST: "Add to Wishlist",
+    AI_CHATBOT: {
+        TITLE: "Lumina AI",
+        SUBTITLE: "Book Summary & Reading Path",
+    },
 };

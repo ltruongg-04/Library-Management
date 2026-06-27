@@ -2,53 +2,55 @@
 
 import Image from "next/image";
 import { MaterialIcon } from "@/components/base/material-icon";
+import { UI_TEXT } from "@/constants/ui-text";
 import type { Book } from "@/types/book";
 
 interface BookCoverProps {
-  book: Book;
+    book: Book;
 }
 
 export default function BookCover({ book }: BookCoverProps) {
-  const isAvailable = book.availableCount > 0;
+    const isAvailable = book.availableCount > 0;
 
-  return (
-    <div className="flex flex-col gap-2">
-      {/* Cover Image */}
-      <div className="bg-surface-container-lowest dark:bg-slate-900 rounded-lg shadow-sm border border-outline-variant/20 dark:border-slate-700 overflow-hidden relative transition-colors duration-200">
-        <Image
-          src={book.coverImage}
-          alt={`Book Cover: ${book.title}`}
-          width={400}
-          height={600}
-          className="w-full h-auto object-cover aspect-[2/3] rounded-t-sm"
-          priority
-        />
+    return (
+        <div className="flex flex-col gap-2">
+            {/* Cover Image */}
+            <div className="relative overflow-hidden rounded-lg border border-outline-variant/20 bg-surface-container-lowest shadow-sm transition-colors duration-200 dark:border-slate-700 dark:bg-slate-900">
+                <Image
+                    src={book.coverImage}
+                    alt={`Book Cover: ${book.title}`}
+                    width={400}
+                    height={600}
+                    className="aspect-[2/3] h-auto w-full rounded-t-sm object-cover"
+                    priority
+                />
 
-        {/* AI Match Score Badge */}
-        {book.aiMatchScore && (
-          <div className="absolute top-2 right-2 bg-surface-container-lowest/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 shadow-sm border border-outline-variant/30 dark:border-slate-700">
-            <MaterialIcon name="temp_preferences_custom" className="text-secondary dark:text-white text-[14px]" />
-            <span className="font-label-caps text-label-caps text-secondary dark:text-white font-bold">
-              {book.aiMatchScore}% Match
-            </span>
-          </div>
-        )}
-      </div>
+                {/* AI Match Score Badge */}
+                {book.aiMatchScore && (
+                    <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full border border-outline-variant/30 bg-surface-container-lowest/90 px-2 py-1 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/90">
+                        <MaterialIcon name="temp_preferences_custom" className="text-[14px] text-secondary dark:text-white" />
+                        <span className="font-label-caps text-label-caps font-bold text-secondary dark:text-white">
+                            {book.aiMatchScore}
+                            {UI_TEXT.BOOK_DETAIL.MATCH_SCORE_SUFFIX}
+                        </span>
+                    </div>
+                )}
+            </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col gap-2 mt-2">
-        <button
-          disabled={!isAvailable}
-          className="bg-primary dark:bg-primary-500 text-on-primary rounded-lg py-2 px-4 font-label-caps text-label-caps flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95 duration-200"
-        >
-          <MaterialIcon name="book" />
-          Borrow Now
-        </button>
-        <button className="border border-secondary dark:border-white text-secondary dark:text-white rounded-lg py-2 px-4 font-label-caps text-label-caps flex items-center justify-center gap-2 hover:bg-secondary/10 dark:hover:bg-white/10 transition-colors bg-transparent cursor-pointer active:scale-95 duration-200">
-          <MaterialIcon name="bookmark_add" />
-          Add to Wishlist
-        </button>
-      </div>
-    </div>
-  );
+            {/* Action Buttons */}
+            <div className="mt-2 flex flex-col gap-2">
+                <button
+                    disabled={!isAvailable}
+                    className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-label-caps text-label-caps text-on-primary shadow-sm transition-colors duration-200 hover:bg-on-primary-fixed-variant active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500"
+                >
+                    <MaterialIcon name="book" />
+                    {UI_TEXT.BOOK_DETAIL.BORROW_NOW}
+                </button>
+                <button className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-secondary bg-transparent px-4 py-2 font-label-caps text-label-caps text-secondary transition-colors duration-200 hover:bg-secondary/10 active:scale-95 dark:border-white dark:text-white dark:hover:bg-white/10">
+                    <MaterialIcon name="bookmark_add" />
+                    {UI_TEXT.BOOK_DETAIL.ADD_WISHLIST}
+                </button>
+            </div>
+        </div>
+    );
 }
