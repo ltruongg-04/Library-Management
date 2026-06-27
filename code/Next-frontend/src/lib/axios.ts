@@ -1,0 +1,43 @@
+import axios from "axios";
+import { getSession } from "next-auth/react";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
+
+export const axiosInstance = axios.create({
+    baseURL: API_URL,
+    headers: {
+        "Content-Type": "application/json",
+    },
+});
+
+// Thêm interceptor cho request để tự động gắn token
+axiosInstance.interceptors.request.use(
+    async (config) => {
+        // Chỉ tự động lấy session trên client side
+        // Trên server side (Server Components), cần truyền token thủ công hoặc tạo một instance riêng
+        if (typeof window !== "undefined") {
+            const session = await getSession();
+            if (session?.backendToken) {
+                config.headers.Authorization = `Bearer ${session.backendToken}`;
+            }
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    },
+);
+
+// Thêm interceptor cho response để xử lý lỗi chung (như 401 Unauthorized)
+axiosInstance.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        // Có thể xử lý refresh token ở đây nếu cần gọi api trực tiếp qua axios thay vì NextAuth
+        // Tuy nhiên NextAuth đang xử lý refresh token trong callbacks.jwt rồi.
+        return Promise.reject(error);
+    },
+);
+
+export default axiosInstance;

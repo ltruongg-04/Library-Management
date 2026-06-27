@@ -24,6 +24,7 @@ export const AUTH = {
         ERROR_MSG: "Đăng nhập thất bại. Vui lòng thử lại.",
     },
     REGISTER: {
+        HEADING: "Tạo tài khoản",
         FULL_NAME_LABEL: "Họ và tên",
         FULL_NAME_PLACEHOLDER: "Nguyễn Văn A",
         PHONE_LABEL: "Số điện thoại",
@@ -39,6 +40,8 @@ export const AUTH = {
         ERROR_MSG: "Đăng ký thất bại. Vui lòng thử lại.",
         ALREADY_HAVE_ACCOUNT: "Đã có tài khoản?",
         LOGIN_LINK: "Đăng nhập ngay",
+        SUCCESS_ICON: "✅",
+        ERROR_ICON: "⚠️",
     },
     BANNER: {
         IMG_ALT: "Không gian thư viện Lumina",
