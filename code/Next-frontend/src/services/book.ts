@@ -102,7 +102,7 @@ export const bookService = {
       });
       if (keyword) queryParams.append('keyword', keyword);
       if (status && status !== 'All') queryParams.append('status', status);
-      if (category && category !== 'All') queryParams.append('category', category);
+      if (category && category !== 'All') queryParams.append('categoryId', category);
 
       // Note: In real app, this goes to backend (e.g. `http://localhost:8080/api/admin/books`)
       // Using Next.js rewrites or hardcoded URL depending on env

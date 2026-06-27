@@ -5,6 +5,8 @@ import library.common.base.BaseEntity;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "books")
@@ -18,8 +20,14 @@ public class BookEntity extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "author", nullable = false)
-    private String author;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "book_authors",
+        joinColumns = @JoinColumn(name = "book_id"),
+        inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    @Builder.Default
+    private Set<AuthorEntity> authors = new HashSet<>();
 
     @Column(name = "isbn", unique = true, length = 20)
     private String isbn;
@@ -33,16 +41,22 @@ public class BookEntity extends BaseEntity {
     @Column(name = "pages")
     private Integer pages;
 
-    @Column(name = "quantity", nullable = false)
+    @org.hibernate.annotations.Formula("(SELECT COUNT(*) FROM book_copies bc WHERE bc.book_id = id)")
     @Builder.Default
     private int quantity = 0;
 
-    @Column(name = "available_quantity", nullable = false)
+    @org.hibernate.annotations.Formula("(SELECT COUNT(*) FROM book_copies bc WHERE bc.book_id = id AND bc.status = 'AVAILABLE')")
     @Builder.Default
     private int availableQuantity = 0;
 
-    @Column(name = "category")
-    private String category;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "book_categories",
+        joinColumns = @JoinColumn(name = "book_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    @Builder.Default
+    private Set<CategoryEntity> categories = new HashSet<>();
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;

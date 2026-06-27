@@ -15,11 +15,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookServiceImpl implements BookService {
 
         private final BookRepository bookRepository;
+        private final library.repository.CategoryRepository categoryRepository;
+        private final library.repository.AuthorRepository authorRepository;
 
         @Override
         public List<BookListResponse> getAllBooks() {
@@ -48,15 +53,16 @@ public class BookServiceImpl implements BookService {
         public org.springframework.data.domain.Page<BookListResponse> getAdminBookInventory(
                 String keyword,
                 library.entity.BookStatus status,
-                String category,
+                Integer categoryId,
                 int page,
                 int size) {
                 org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
-                return bookRepository.findForAdminInventory(keyword, status, category, pageable)
+                return bookRepository.findForAdminInventory(keyword, status, categoryId, pageable)
                         .map(this::toBookListResponse);
         }
 
         @Override
+        @Transactional
         public BookResponse updateBook(Integer id, library.dto.request.BookUpdateRequest request) {
                 BookEntity book = bookRepository.findById(id)
                                 .orElseThrow(() -> new CustomBusinessException(
@@ -64,14 +70,19 @@ public class BookServiceImpl implements BookService {
                                                 HttpStatus.NOT_FOUND));
 
                 if (request.getTitle() != null) book.setTitle(request.getTitle());
-                if (request.getAuthor() != null) book.setAuthor(request.getAuthor());
+                if (request.getAuthorIds() != null) {
+                        java.util.List<library.entity.AuthorEntity> authorEntities = authorRepository.findAllById(request.getAuthorIds());
+                        book.setAuthors(new java.util.HashSet<>(authorEntities));
+                }
                 if (request.getIsbn() != null) book.setIsbn(request.getIsbn());
-                if (request.getCategory() != null) book.setCategory(request.getCategory());
+                if (request.getCategoryIds() != null) {
+                        java.util.List<library.entity.CategoryEntity> categoryEntities = categoryRepository.findAllById(request.getCategoryIds());
+                        book.setCategories(new java.util.HashSet<>(categoryEntities));
+                }
                 if (request.getStatus() != null) book.setStatus(request.getStatus());
                 if (request.getShelfLocation() != null) book.setShelfLocation(request.getShelfLocation());
                 if (request.getImageUrl() != null) book.setImageUrl(request.getImageUrl());
-                if (request.getQuantity() != null) book.setQuantity(request.getQuantity());
-                if (request.getAvailableQuantity() != null) book.setAvailableQuantity(request.getAvailableQuantity());
+
 
                 bookRepository.save(book);
                 return toBookResponse(book);
@@ -81,8 +92,8 @@ public class BookServiceImpl implements BookService {
                 return BookListResponse.builder()
                                 .id(entity.getId())
                                 .title(entity.getTitle())
-                                .author(entity.getAuthor())
-                                .category(entity.getCategory())
+                                .authors(mapAuthors(entity.getAuthors()))
+                                .categories(mapCategories(entity.getCategories()))
                                 .imageUrl(entity.getImageUrl())
                                 .rating(entity.getRating())
                                 .availableQuantity(entity.getAvailableQuantity())
@@ -94,19 +105,12 @@ public class BookServiceImpl implements BookService {
         }
 
         private BookResponse toBookResponse(BookEntity entity) {
-                // Tách category string thành danh sách (phân cách bằng dấu phẩy)
-                List<String> categories = Collections.emptyList();
-                if (entity.getCategory() != null && !entity.getCategory().isBlank()) {
-                        categories = Arrays.stream(entity.getCategory().split(","))
-                                        .map(String::trim)
-                                        .filter(s -> !s.isEmpty())
-                                        .collect(Collectors.toList());
-                }
+
 
                 return BookResponse.builder()
                                 .id(entity.getId())
                                 .title(entity.getTitle())
-                                .author(entity.getAuthor())
+                                .authors(mapAuthors(entity.getAuthors()))
                                 .publisher(entity.getPublisher())
                                 .publishYear(entity.getPublishYear())
                                 .pages(entity.getPages())
@@ -119,8 +123,30 @@ public class BookServiceImpl implements BookService {
                                 .quantity(entity.getQuantity())
                                 .shelfLocation(entity.getShelfLocation())
                                 .depositPrice(entity.getDepositPrice())
-                                .categories(categories)
+                                .categories(mapCategories(entity.getCategories()))
                                 .status(entity.getStatus())
                                 .build();
+        }
+
+        private List<library.dto.response.CategoryResponse> mapCategories(java.util.Set<library.entity.CategoryEntity> categories) {
+                if (categories == null) return Collections.emptyList();
+                return categories.stream()
+                        .map(c -> library.dto.response.CategoryResponse.builder()
+                                .id(c.getId())
+                                .name(c.getName())
+                                .description(c.getDescription())
+                                .build())
+                        .collect(Collectors.toList());
+        }
+
+        private List<library.dto.response.AuthorResponse> mapAuthors(java.util.Set<library.entity.AuthorEntity> authors) {
+                if (authors == null) return Collections.emptyList();
+                return authors.stream()
+                        .map(a -> library.dto.response.AuthorResponse.builder()
+                                .id(a.getId())
+                                .name(a.getName())
+                                .biography(a.getBiography())
+                                .build())
+                        .collect(Collectors.toList());
         }
 }

@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,8 +15,8 @@ public class BookListResponse {
 
     private Integer id;
     private String title;
-    private String author;
-    private String category;
+    private List<AuthorResponse> authors;
+    private List<CategoryResponse> categories;
     private String imageUrl;
     private Double rating;
     private int availableQuantity;

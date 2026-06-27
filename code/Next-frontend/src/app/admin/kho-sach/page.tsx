@@ -1,6 +1,7 @@
-import BookFilters from "@/components/features/admin/BookFilters";
-import BookTable from "@/components/features/admin/BookTable";
+import BookFilters from "@/components/features/admin/inventory/BookFilters";
+import BookTable from "@/components/features/admin/inventory/BookTable";
 import { ScanLine, Sparkles } from "lucide-react";
+import { Suspense } from "react";
 
 export default function KhoSachPage() {
   return (
@@ -29,10 +30,14 @@ export default function KhoSachPage() {
 
       <div className="flex flex-col">
         {/* Filters and Search */}
-        <BookFilters />
+        <Suspense fallback={<div className="mb-6 h-14 bg-surface-container-high rounded-xl animate-pulse"></div>}>
+          <BookFilters />
+        </Suspense>
 
         {/* Table View */}
-        <BookTable />
+        <Suspense fallback={<div className="min-h-[400px] bg-surface-container-high rounded-xl animate-pulse"></div>}>
+          <BookTable />
+        </Suspense>
       </div>
     </div>
   );

@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, Save } from "lucide-react";
 import { bookService } from "@/services/book";
+import { categoryService } from "@/services/category";
+import { authorService } from "@/services/author";
 import type { Book, BookUpdateRequest } from "@/types/book";
+import type { Category } from "@/types/category";
+import type { Author } from "@/types/author";
 
 interface EditBookModalProps {
   bookId: number;
@@ -20,15 +24,34 @@ export default function EditBookModal({ bookId, isOpen, onClose, onSuccess }: Ed
 
   // Form states
   const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
+  const [authorIds, setAuthorIds] = useState<number[]>([]);
   const [isbn, setIsbn] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryIds, setCategoryIds] = useState<number[]>([]);
   const [status, setStatus] = useState("AVAILABLE");
   const [shelfLocation, setShelfLocation] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
   const [quantity, setQuantity] = useState<number>(0);
   const [availableQuantity, setAvailableQuantity] = useState<number>(0);
+
+  const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
+  const [availableAuthors, setAvailableAuthors] = useState<Author[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [catData, authData] = await Promise.all([
+          categoryService.getAllCategories(),
+          authorService.getAllAuthors()
+        ]);
+        setAvailableCategories(catData);
+        setAvailableAuthors(authData);
+      } catch (err) {
+        console.error("Failed to load reference data:", err);
+      }
+    };
+    loadData();
+  }, []);
 
   useEffect(() => {
     if (isOpen && bookId) {
@@ -45,9 +68,9 @@ export default function EditBookModal({ bookId, isOpen, onClose, onSuccess }: Ed
       setBook(data);
       
       setTitle(data.title || "");
-      setAuthor(data.author || "");
+      setAuthorIds(data.authors?.map(a => a.id) || []);
       setIsbn(data.isbn || "");
-      setCategory(data.categories?.join(", ") || "");
+      setCategoryIds(data.categories?.map(c => c.id) || []);
       setStatus((data as any).status || "AVAILABLE"); // handle missing status in type if not updated properly
       setShelfLocation(data.shelfLocation || "");
       setImageUrl(data.imageUrl || "");
@@ -68,10 +91,10 @@ export default function EditBookModal({ bookId, isOpen, onClose, onSuccess }: Ed
 
       const updateData: BookUpdateRequest = {
         title,
-        author,
+        authorIds,
         isbn,
-        category,
-        status,
+        categoryIds,
+        status, // keep sending the existing status so we don't accidentally overwrite it with null
         shelfLocation,
         imageUrl,
         quantity,
@@ -133,15 +156,27 @@ export default function EditBookModal({ bookId, isOpen, onClose, onSuccess }: Ed
                   />
                 </div>
                 
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <label className="text-[13px] font-medium text-on-surface-variant">Tác giả *</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
-                    className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  />
+                  <div className="flex flex-wrap gap-2 max-h-[100px] overflow-y-auto p-2 border border-surface-container-high rounded-lg bg-surface">
+                    {availableAuthors.map(auth => (
+                      <label key={auth.id} className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-surface-container-low cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="rounded border-surface-container-high text-primary-600 focus:ring-primary-500"
+                          checked={authorIds.includes(auth.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setAuthorIds([...authorIds, auth.id]);
+                            } else {
+                              setAuthorIds(authorIds.filter(id => id !== auth.id));
+                            }
+                          }}
+                        />
+                        <span className="text-[13px] text-on-surface">{auth.name}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
@@ -154,49 +189,48 @@ export default function EditBookModal({ bookId, isOpen, onClose, onSuccess }: Ed
                   />
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <label className="text-[13px] font-medium text-on-surface-variant">Thể loại</label>
-                  <input 
-                    type="text" 
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  />
+                  <div className="flex flex-wrap gap-2 max-h-[100px] overflow-y-auto p-2 border border-surface-container-high rounded-lg bg-surface">
+                    {availableCategories.map(cat => (
+                      <label key={cat.id} className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-surface-container-low cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="rounded border-surface-container-high text-primary-600 focus:ring-primary-500"
+                          checked={categoryIds.includes(cat.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setCategoryIds([...categoryIds, cat.id]);
+                            } else {
+                              setCategoryIds(categoryIds.filter(id => id !== cat.id));
+                            }
+                          }}
+                        />
+                        <span className="text-[13px] text-on-surface">{cat.name}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[13px] font-medium text-on-surface-variant">Tổng số lượng</label>
                   <input 
                     type="number" 
-                    min="0"
                     value={quantity}
-                    onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                    className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    disabled
+                    className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] bg-surface-container-low cursor-not-allowed text-on-surface-variant"
                   />
+                  <p className="text-[11px] text-outline">Tự động cập nhật từ danh sách bản sao</p>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[13px] font-medium text-on-surface-variant">Số lượng có sẵn</label>
                   <input 
                     type="number" 
-                    min="0"
                     value={availableQuantity}
-                    onChange={(e) => setAvailableQuantity(parseInt(e.target.value) || 0)}
-                    className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    disabled
+                    className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] bg-surface-container-low cursor-not-allowed text-on-surface-variant"
                   />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[13px] font-medium text-on-surface-variant">Trạng thái</label>
-                  <select 
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
-                  >
-                    <option value="AVAILABLE">Có sẵn</option>
-                    <option value="BORROWED">Đang mượn</option>
-                    <option value="PROCESSING_AI_SCAN">Đang xử lý AI</option>
-                  </select>
                 </div>
 
                 <div className="space-y-1.5">
@@ -231,7 +265,7 @@ export default function EditBookModal({ bookId, isOpen, onClose, onSuccess }: Ed
                 <button 
                   type="submit" 
                   disabled={saving}
-                  className="flex items-center gap-2 rounded-lg bg-primary-600 px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-70 focus-ring"
+                  className="flex items-center gap-2 rounded-lg bg-primary-700 px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-500 disabled:opacity-70 focus-ring"
                 >
                   {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                   Lưu thay đổi

@@ -14,9 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 public class BookUpdateRequest {
     private String title;
-    private String author;
+    private List<Integer> authorIds;
     private String isbn;
-    private String category;
+    private List<Integer> categoryIds;
     private BookStatus status;
     private String shelfLocation;
     private String imageUrl;
