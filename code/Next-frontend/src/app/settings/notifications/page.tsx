@@ -56,58 +56,58 @@ export default function NotificationSettingsPage() {
 
     return (
         <div className="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl p-xl shadow-sm border border-ink-200 dark:border-slate-800 transition-colors duration-200">
-            <div className="mb-xl">
-                <h1 className="font-display-lg text-display-lg text-ink-950 dark:text-white mb-sm">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.HEADING}</h1>
+            <div className="mb-xl border-b border-ink-200 pb-xl dark:border-slate-800">
+                <h1 className="mb-2 text-3xl font-bold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.HEADING}</h1>
                 <p className="font-body-md text-body-md text-ink-600 dark:text-slate-400 max-w-2xl">
                     {UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.SUBHEADING}
                 </p>
             </div>
 
             <div className="space-y-xl">
-                <section className="border-b border-ink-200 dark:border-slate-800 pb-xl">
+                <section>
                     <div className="flex items-center gap-sm mb-lg">
                         <Mail className="text-ink-950 dark:text-white" size={24} />
-                        <h2 className="font-title-md text-title-md text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.EMAIL_NOTIFICATIONS}</h2>
+                        <h2 className="font-title-md text-title-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.EMAIL_NOTIFICATIONS}</h2>
                     </div>
 
                     <div className="space-y-md">
-                        <div className="flex items-center justify-between py-sm">
+                        <div className="flex items-center justify-between py-md">
                             <div>
                                 <h3 className="font-body-md text-body-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.NEW_ARRIVALS_TITLE}</h3>
-                                <p className="font-body-sm text-body-sm text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.NEW_ARRIVALS_DESC}</p>
+                                <p className="font-body-md text-body-md text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.NEW_ARRIVALS_DESC}</p>
                             </div>
                             <Toggle checked={emailNewArrivals} onChange={(val) => updateSetting('emailNewArrivals', val)} />
                         </div>
 
-                        <div className="flex items-center justify-between py-sm border-t border-ink-200 dark:border-slate-800">
+                        <div className="flex items-center justify-between border-t border-ink-200 py-md dark:border-slate-800">
                             <div>
                                 <h3 className="font-body-md text-body-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.DUE_DATE_TITLE}</h3>
-                                <p className="font-body-sm text-body-sm text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.DUE_DATE_DESC}</p>
+                                <p className="font-body-md text-body-md text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.DUE_DATE_DESC}</p>
                             </div>
                             <Toggle checked={emailDueDates} onChange={(val) => updateSetting('emailDueDates', val)} />
                         </div>
 
-                        <div className="flex items-center justify-between py-sm border-t border-ink-200 dark:border-slate-800">
+                        <div className="flex items-center justify-between border-t border-ink-200 py-md dark:border-slate-800">
                             <div>
                                 <h3 className="font-body-md text-body-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.RESERVATION_TITLE}</h3>
-                                <p className="font-body-sm text-body-sm text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.RESERVATION_DESC}</p>
+                                <p className="font-body-md text-body-md text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.RESERVATION_DESC}</p>
                             </div>
                             <Toggle checked={emailReservations} onChange={(val) => updateSetting('emailReservations', val)} />
                         </div>
                     </div>
                 </section>
 
-                <section className="border-b border-ink-200 dark:border-slate-800 pb-xl">
+                <section>
                     <div className="flex items-center gap-sm mb-lg">
                         <Smartphone className="text-ink-950 dark:text-white" size={24} />
-                        <h2 className="font-title-md text-title-md text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.PUSH_NOTIFICATIONS}</h2>
+                        <h2 className="font-title-md text-title-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.PUSH_NOTIFICATIONS}</h2>
                     </div>
 
                     <div className="space-y-md">
-                        <div className="flex items-center justify-between py-sm">
+                        <div className="flex items-center justify-between py-md">
                             <div>
                                 <h3 className="font-body-md text-body-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.MOBILE_ALERTS_TITLE}</h3>
-                                <p className="font-body-sm text-body-sm text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.MOBILE_ALERTS_DESC}</p>
+                                <p className="font-body-md text-body-md text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.MOBILE_ALERTS_DESC}</p>
                             </div>
                             <Toggle checked={pushMobileAlerts} onChange={(val) => updateSetting('pushMobileAlerts', val)} />
                         </div>
