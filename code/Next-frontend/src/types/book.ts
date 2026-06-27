@@ -1,7 +1,7 @@
 export interface Book {
   id: number;
   title: string;
-  author: string;
+  authors: { id: number; name: string }[];
   publisher: string;
   publishYear: number;
   pages: number;
@@ -14,14 +14,14 @@ export interface Book {
   quantity: number;
   shelfLocation?: string;
   depositPrice?: number;
-  categories: string[];
+  categories: { id: number; name: string }[];
 }
 
 export interface BookListItem {
   id: number;
   title: string;
-  author: string;
-  category: string;
+  authors: { id: number; name: string }[];
+  categories: { id: number; name: string }[];
   imageUrl: string;
   rating: number;
   availableQuantity: number;
@@ -47,15 +47,15 @@ export interface PageResponse<T> {
 export interface RelatedBook {
   id: number;
   title: string;
-  author: string;
+  authors: { id: number; name: string }[];
   coverImage: string;
 }
 
 export interface BookUpdateRequest {
   title?: string;
-  author?: string;
+  authorIds?: number[];
   isbn?: string;
-  category?: string;
+  categoryIds?: number[];
   status?: string;
   shelfLocation?: string;
   imageUrl?: string;

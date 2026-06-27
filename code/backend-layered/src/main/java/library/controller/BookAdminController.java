@@ -19,11 +19,11 @@ public class BookAdminController {
     public ResponseEntity<Page<BookListResponse>> getAdminBookInventory(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) BookStatus status,
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Integer categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        Page<BookListResponse> bookPage = bookService.getAdminBookInventory(keyword, status, category, page, size);
+        Page<BookListResponse> bookPage = bookService.getAdminBookInventory(keyword, status, categoryId, page, size);
         return ResponseEntity.ok(bookPage);
     }
 

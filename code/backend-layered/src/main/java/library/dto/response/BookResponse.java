@@ -16,7 +16,7 @@ public class BookResponse {
 
     private Integer id;
     private String title;
-    private String author;
+    private List<AuthorResponse> authors;
     private String publisher;
     private Integer publishYear;
     private Integer pages;
@@ -29,6 +29,6 @@ public class BookResponse {
     private int quantity;
     private String shelfLocation;
     private BigDecimal depositPrice;
-    private List<String> categories;
+    private List<CategoryResponse> categories;
     private library.entity.BookStatus status;
 }

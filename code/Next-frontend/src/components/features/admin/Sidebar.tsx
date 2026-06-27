@@ -13,12 +13,15 @@ import {
   HelpCircle,
   LogOut,
   BookMarked,
+  Tags,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth";
 
 const NAV_ITEMS = [
   { label: "Tổng quan", icon: LayoutGrid, href: "/admin" },
   { label: "Kho sách", icon: Library, href: "/admin/kho-sach" },
+  { label: "Thể loại", icon: Tags, href: "/admin/the-loai" },
+  { label: "Tác giả", icon: Users, href: "/admin/tac-gia" },
   { label: "Lượt mượn", icon: ArrowLeftRight, href: "/admin/luot-muon" },
   { label: "Thành viên", icon: Users, href: "/admin/thanh-vien" },
   { label: "Thống kê", icon: LineChart, href: "/admin/thong-ke" },

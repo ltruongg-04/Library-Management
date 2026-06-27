@@ -15,13 +15,13 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     List<BookEntity> findTop10ByOrderByRatingDesc();
 
-    @Query("SELECT b FROM BookEntity b WHERE " +
-           "(:keyword IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(b.category) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+    @Query("SELECT DISTINCT b FROM BookEntity b LEFT JOIN b.categories c LEFT JOIN b.authors a WHERE " +
+           "(:keyword IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
            "(:status IS NULL OR b.status = :status) AND " +
-           "(:category IS NULL OR b.category = :category)")
+           "(:categoryId IS NULL OR c.id = :categoryId)")
     Page<BookEntity> findForAdminInventory(
             @Param("keyword") String keyword,
             @Param("status") BookStatus status,
-            @Param("category") String category,
+            @Param("categoryId") Integer categoryId,
             Pageable pageable);
 }
