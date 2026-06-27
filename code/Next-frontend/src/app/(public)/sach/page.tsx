@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MaterialIcon } from "@/components/base/material-icon";
 import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
+import { useBooks } from "@/hooks/useBooks";
 
-// Mock Data
 const CATEGORIES = [
     { id: "all", name: UI_TEXT.BOOK_LIST.CATEGORIES.ALL },
     { id: "science", name: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE },
@@ -17,107 +17,55 @@ const CATEGORIES = [
     { id: "business", name: UI_TEXT.BOOK_LIST.CATEGORIES.BUSINESS },
 ];
 
-const MOCK_BOOKS = [
-    {
-        id: 1,
-        title: "The Algorithmic Mind",
-        author: "Dr. Elena Rostova",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.9,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCMQZBwRZKLiwS6s_Ghy2_0232U4u8yrVt0UoLSfqDN1CsrwPHmS4Kd3UrRaqEu5cFueLAfwFeL3RtxDYO7mBdlOrBmIzg1LAifXS5Ke852HdIZXRvjSe4ILboN6D9bnTPk2oVp8CcdJHT_g9gFy4fKK7fq14vo4smnYqVAjuCZEztGQohjl9HlXhovVOfuT65lwKU7ToahWuCAmutimIZCyfsJRzk_ai_vPVd5iaGoXpNl0KfkXbDYOMAEMBlDryuGgvAuZWKCZdpM",
-    },
-    {
-        id: 2,
-        title: "Echoes of Silence",
-        author: "Marcus Thorne",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.FICTION,
-        categoryColor: "fiction",
-        rating: 4.8,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCA0ugb2mtgwGdYen2kuKtDcr1SgH90WiQ4t-vHPzsDIm0zDpqfLep6XfQ9Av8c80v2tgU3rhAirV116cp4WU6vxAaqbvxP-LsurS-EuqR5nwMDP0bi-oalR1xxqoIp915o3WniSMrmFkdIpZviFowlkY21DMtY0dWHCZoMw8-Iwu0CwAaEL7Dy47Wx-SwJalcesh2S3c5KnGe6KXqBDuo31QzsGJyd6YIyNeROWuCYvY5TvzGIBKEjA4lTGx4c13ZZ_i20rbfPxd7m",
-    },
-    {
-        id: 3,
-        title: "A Brief History of Tomorrow",
-        author: "Sarah Jenkins",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.HISTORY,
-        categoryColor: "history",
-        rating: 4.5,
-        placeholderIcon: "history_edu",
-        placeholderBg: "bg-primary-container",
-        placeholderIconColor: "text-on-primary-container",
-    },
-    {
-        id: 4,
-        title: "Design Systems",
-        author: "Alex Rivera",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.DESIGN,
-        categoryColor: "design",
-        rating: 4.7,
-        placeholderIcon: "palette",
-        placeholderBg: "bg-tertiary-container",
-        placeholderIconColor: "text-on-tertiary-container",
-    },
-    {
-        id: 5,
-        title: "Sentient Systems",
-        author: "Marcus Vance",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.6,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCMmCiisoJSpv4dvhtaCdcoE1uS_CBtUC8kwsFUNxhgnupzh2gwqkc6Y61JxPoMMe0t1hLC4S9Fc8AOG56NdzVsft_J2ipvPnX6C33CeHDKy52GPyZqEVLz6lu_dZsDLLY2itV8C5MLT15dj45eRZ0J81iwUfWxdKAeiCE-xUwDW8rGHqtvIb08Zg-4B-e_bPNOvXGM_HPoopmXuUMpyNxcCk6oPfjU30Z2uZXIL8IiztciFMYH8PPFcNUkuJG83f6ivzfK5E-N2qRn",
-    },
-    {
-        id: 6,
-        title: "Code & Cognition",
-        author: "Dr. Sarah Jenkins",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.9,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuBehlRBluY2H86XNuf3iXURag8OtXWdzR6luPuT4-Rz95fi7OdFVShqx6GzXoQL_1TxeQ1eJgUhzMsiMr0qvszKS-w-TRgLwxnEx1m_QW7uo0-Tsc3nx4LKefihl3fK67GYd90rW2TPNHUbOQ76xNdBMxgtPYfYkH37Kh32ujcSJHGthQAh_Yg4MmvfBOaxWRWETJHWKRqOT1CZ8ngmnJSn3tkL5ctkWxrvLIjrphtCon2lbuI_CZrArUWwhI64ltwT-_Z5rq-J0R2x",
-    },
-    {
-        id: 7,
-        title: "The Silicon Soul",
-        author: "A.J. Thorne",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.8,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCV7DbciVnkrS3xPbNq6UHVgda6vZZl5njAKfTRjjTA4_tVAYoxD5hVSN6qghwyj6UDqfkCAbldQhcpQQUfTvt0Kj-yXaFnuzdsuRDAymk9draKu64TLo4MUOQDKNr6WAm7dT-cfnzXfsjcHbVLssYz2g8EDY-3rqN3O3vkf8zzSSvcBir9sb4oWihUCvGb8JHIdDJQoBdNN-RVoGOxkeI6_JmWdPugeZD2ahUxc54v9h9weUoW31mHaqCB2O6Vs6OB7PDckAR1aL23",
-    },
-    {
-        id: 8,
-        title: "Conversational AI",
-        author: "L. Chen",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.5,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCw80Sw2BU5XvcHA7V09zy6UirEiamVjKAyEZ8laM82itQA-nmvRR5bVmwqL_RncEl3k9MnuPi8hQM1nhdxPaSe8HcpVT50_mAlPN5VIA6iuBd1Fd_wd8pZgE_jTxDq7QZzb4wp-wMQ-swOURcipKmxWZ5CS4ZrMpl2NSgVaxEjJOLq0omNKzLmHZbjjRFGDdZkRe9bZrqfLpnK1Ff3pT2yidmLlg8iK8x4FfTaUtz6x1PQ47VnvDky9wFccasiJAm8rPWq8b_s8Oth",
-    },
-];
-
 const CATEGORY_STYLES: Record<string, string> = {
-    science: "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
-    fiction: "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
-    history: "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
-    design: "text-tertiary-500 bg-tertiary-500/10 dark:text-white dark:bg-tertiary-500/40",
+    "Khoa học & Công nghệ": "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
+    "Tiểu thuyết": "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
+    "Lịch sử": "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
+    "Thiết kế & Nghệ thuật": "text-tertiary-500 bg-tertiary-500/10 dark:text-white dark:bg-tertiary-500/40",
+    "Kinh doanh": "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
 };
 
-export default function BookListPage() {
-    const [selectedCategory, setSelectedCategory] = useState("all");
-    const [searchQuery, setSearchQuery] = useState("");
+const DEFAULT_CATEGORY_STYLE = "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40";
 
-    const filteredBooks = MOCK_BOOKS.filter((book) => {
-        const matchesCategory = selectedCategory === "all" || CATEGORIES.find((c) => c.id === selectedCategory)?.name === book.category;
-        const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
-    });
+export default function BookListPage() {
+    const {
+        books,
+        loading,
+        error,
+        page,
+        totalPages,
+        totalElements,
+        setPage,
+        setKeyword,
+        setCategory,
+        clearFilters,
+    } = useBooks({ size: 12 });
+
+    const [selectedCategory, setSelectedCategory] = React.useState("all");
+    const [searchInput, setSearchInput] = React.useState("");
+
+    const handleCategoryChange = (categoryId: string) => {
+        setSelectedCategory(categoryId);
+        if (categoryId === "all") {
+            setCategory("");
+        } else {
+            const cat = CATEGORIES.find((c) => c.id === categoryId);
+            if (cat) {
+                setCategory(cat.name);
+            }
+        }
+    };
+
+    const handleSearch = (value: string) => {
+        setSearchInput(value);
+        setKeyword(value);
+    };
+
+    const handleClearFilters = () => {
+        setSelectedCategory("all");
+        setSearchInput("");
+        clearFilters();
+    };
 
     const breadcrumbItems = [{ label: UI_TEXT.BOOK_LIST.BREADCRUMB_HOME, href: "/" }, { label: UI_TEXT.BOOK_LIST.BREADCRUMB_LIST }];
 
@@ -138,8 +86,8 @@ export default function BookListPage() {
                             type="text"
                             placeholder={UI_TEXT.BOOK_LIST.SEARCH_PLACEHOLDER}
                             className="w-full rounded-full border border-white/20 bg-white/10 py-3 pl-12 pr-4 text-white placeholder-white/60 backdrop-blur-sm transition-colors focus:bg-white/20 focus:outline-none"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            value={searchInput}
+                            onChange={(e) => handleSearch(e.target.value)}
                         />
                         <MaterialIcon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60" />
                     </div>
@@ -162,7 +110,7 @@ export default function BookListPage() {
                             {CATEGORIES.map((category) => (
                                 <li key={category.id}>
                                     <button
-                                        onClick={() => setSelectedCategory(category.id)}
+                                        onClick={() => handleCategoryChange(category.id)}
                                         className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-left font-sans text-[16px] transition-colors duration-200 ${
                                             selectedCategory === category.id
                                                 ? "bg-primary-700/10 font-medium text-primary-700 dark:bg-primary-700/30 dark:text-primary-300"
@@ -182,7 +130,6 @@ export default function BookListPage() {
                             <MaterialIcon name="tune" className="mr-2 text-primary-700 dark:text-primary-300" />
                             {UI_TEXT.BOOK_LIST.SIDEBAR_FILTER}
                         </h3>
-                        {/* Additional filters can go here */}
                         <div className="space-y-4">
                             <div>
                                 <label className="mb-2 block text-[14px] text-on-surface-variant dark:text-white/70">{UI_TEXT.BOOK_LIST.SORT_LABEL}</label>
@@ -200,18 +147,50 @@ export default function BookListPage() {
                 <div className="lg:col-span-3">
                     <div className="mb-6 flex items-center justify-between">
                         <p className="font-sans text-on-surface-variant dark:text-white/80">
-                            {UI_TEXT.BOOK_LIST.RESULTS_COUNT_PRE} <strong>{filteredBooks.length}</strong> {UI_TEXT.BOOK_LIST.RESULTS_COUNT_POST}{" "}
-                            {searchQuery && (
+                            {UI_TEXT.BOOK_LIST.RESULTS_COUNT_PRE} <strong>{totalElements}</strong> {UI_TEXT.BOOK_LIST.RESULTS_COUNT_POST}{" "}
+                            {searchInput && (
                                 <span>
-                                    {UI_TEXT.BOOK_LIST.RESULTS_FOR} &quot;{searchQuery}&quot;
+                                    {UI_TEXT.BOOK_LIST.RESULTS_FOR} &quot;{searchInput}&quot;
                                 </span>
                             )}
                         </p>
                     </div>
 
-                    {filteredBooks.length > 0 ? (
+                    {/* Loading State */}
+                    {loading && (
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-                            {filteredBooks.map((book) => (
+                            {Array.from({ length: 6 }).map((_, i) => (
+                                <div key={i} className="level-1-shadow animate-pulse overflow-hidden rounded-xl bg-surface-container-lowest dark:bg-slate-900">
+                                    <div className="h-56 bg-surface-container-low dark:bg-slate-800"></div>
+                                    <div className="p-5 space-y-3">
+                                        <div className="h-5 w-3/4 rounded bg-surface-container-low dark:bg-slate-800"></div>
+                                        <div className="h-4 w-1/2 rounded bg-surface-container-low dark:bg-slate-800"></div>
+                                        <div className="h-4 w-1/3 rounded bg-surface-container-low dark:bg-slate-800"></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Error State */}
+                    {!loading && error && (
+                        <div className="level-1-shadow rounded-2xl bg-surface-container-lowest p-12 text-center dark:bg-slate-900">
+                            <MaterialIcon name="error_outline" className="mb-4 text-[64px] text-red-400" />
+                            <h3 className="mb-2 text-[20px] font-semibold text-on-surface dark:text-white">{UI_TEXT.COMMON.ERROR_LOAD_BOOKS}</h3>
+                            <p className="text-on-surface-variant dark:text-white/70">{error}</p>
+                            <button
+                                onClick={() => clearFilters()}
+                                className="mt-6 rounded-lg bg-primary-700 px-6 py-2 text-white transition-colors hover:bg-primary-800"
+                            >
+                                {UI_TEXT.COMMON.RETRY_BTN}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Books Grid */}
+                    {!loading && !error && books.length > 0 && (
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                            {books.map((book) => (
                                 <Link
                                     key={book.id}
                                     href={`/sach/${book.id}`}
@@ -219,9 +198,9 @@ export default function BookListPage() {
                                 >
                                     {/* Cover Image */}
                                     <div className="relative flex h-56 w-full items-center justify-center overflow-hidden bg-surface-container-low p-4 transition-colors duration-200 dark:bg-slate-800">
-                                        {book.imageSrc ? (
+                                        {book.imageUrl ? (
                                             <Image
-                                                src={book.imageSrc}
+                                                src={book.imageUrl}
                                                 alt={`${UI_TEXT.BOOK_LIST.IMAGE_ALT} ${book.title}`}
                                                 width={128}
                                                 height={192}
@@ -229,18 +208,10 @@ export default function BookListPage() {
                                                 unoptimized
                                             />
                                         ) : (
-                                            <div
-                                                className={`h-40 w-28 ${book.placeholderBg} flex items-center justify-center rounded shadow-md ${book.placeholderIconColor} transition-transform duration-500 group-hover:scale-105`}
-                                            >
-                                                <MaterialIcon name={book.placeholderIcon!} className="text-[56px]" />
+                                            <div className="flex h-40 w-28 items-center justify-center rounded bg-primary-container shadow-md transition-transform duration-500 group-hover:scale-105">
+                                                <MaterialIcon name="menu_book" className="text-[56px] text-on-primary-container" />
                                             </div>
                                         )}
-
-                                        {/* Rating Badge */}
-                                        <div className="absolute right-3 top-3 flex items-center rounded-full bg-white/90 px-2 py-1 shadow-sm backdrop-blur-sm dark:bg-slate-900/90">
-                                            <MaterialIcon name="star" className="mr-1 text-sm text-yellow-500" />
-                                            <span className="font-mono text-[12px] font-bold text-on-surface dark:text-white">{book.rating}</span>
-                                        </div>
                                     </div>
 
                                     {/* Card Content */}
@@ -253,32 +224,29 @@ export default function BookListPage() {
                                         </p>
                                         <div className="mt-auto flex items-center justify-between">
                                             <span
-                                                className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES[book.categoryColor] || CATEGORY_STYLES.science} max-w-[120px] truncate rounded px-2 py-1`}
+                                                className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES[book.category] || DEFAULT_CATEGORY_STYLE} max-w-[120px] truncate rounded px-2 py-1`}
                                                 title={book.category}
                                             >
-                                                {book.category}
+                                                {book.category || "—"}
                                             </span>
-                                            <button
-                                                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-700/5 text-primary-700 transition-colors hover:bg-primary-700 hover:text-white dark:bg-primary-700/20 dark:text-primary-300 dark:hover:bg-primary-700 dark:hover:text-white"
-                                                aria-label={`${UI_TEXT.BOOK_LIST.IMAGE_ALT} ${book.title}`}
-                                            >
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-700/5 text-primary-700 transition-colors hover:bg-primary-700 hover:text-white dark:bg-primary-700/20 dark:text-primary-300 dark:hover:bg-primary-700 dark:hover:text-white">
                                                 <MaterialIcon name="arrow_forward" className="text-[18px]" />
-                                            </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </Link>
                             ))}
                         </div>
-                    ) : (
+                    )}
+
+                    {/* Empty State */}
+                    {!loading && !error && books.length === 0 && (
                         <div className="level-1-shadow rounded-2xl bg-surface-container-lowest p-12 text-center dark:bg-slate-900">
                             <MaterialIcon name="search_off" className="mb-4 text-[64px] text-on-surface-variant/50 dark:text-white/30" />
                             <h3 className="mb-2 text-[20px] font-semibold text-on-surface dark:text-white">{UI_TEXT.BOOK_LIST.NO_RESULTS_HEADING}</h3>
                             <p className="text-on-surface-variant dark:text-white/70">{UI_TEXT.BOOK_LIST.NO_RESULTS_DESC}</p>
                             <button
-                                onClick={() => {
-                                    setSearchQuery("");
-                                    setSelectedCategory("all");
-                                }}
+                                onClick={handleClearFilters}
                                 className="hover:bg-primary-800 mt-6 rounded-lg bg-primary-700 px-6 py-2 text-white transition-colors"
                             >
                                 {UI_TEXT.BOOK_LIST.CLEAR_FILTER_BTN}
@@ -286,27 +254,48 @@ export default function BookListPage() {
                         </div>
                     )}
 
-                    {/* Pagination (Mock) */}
-                    {filteredBooks.length > 0 && (
+                    {/* Pagination */}
+                    {!loading && !error && totalPages > 1 && (
                         <div className="mt-8 flex justify-center">
                             <div className="flex items-center space-x-2">
                                 <button
                                     className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant/30 text-on-surface-variant transition-colors hover:bg-surface-container-low disabled:opacity-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
-                                    disabled
+                                    disabled={page === 0}
+                                    onClick={() => setPage(page - 1)}
                                 >
                                     <MaterialIcon name="chevron_left" />
                                 </button>
-                                <button className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-700 font-medium text-white shadow-md">
-                                    1
-                                </button>
-                                <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant/30 text-on-surface-variant transition-colors hover:bg-surface-container-low dark:border-slate-700 dark:text-white dark:hover:bg-slate-800">
-                                    2
-                                </button>
-                                <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant/30 text-on-surface-variant transition-colors hover:bg-surface-container-low dark:border-slate-700 dark:text-white dark:hover:bg-slate-800">
-                                    3
-                                </button>
-                                <span className="px-2 text-on-surface-variant dark:text-white/70">...</span>
-                                <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant/30 text-on-surface-variant transition-colors hover:bg-surface-container-low dark:border-slate-700 dark:text-white dark:hover:bg-slate-800">
+                                {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => {
+                                    let pageNum: number;
+                                    if (totalPages <= 5) {
+                                        pageNum = i;
+                                    } else if (page < 3) {
+                                        pageNum = i;
+                                    } else if (page > totalPages - 4) {
+                                        pageNum = totalPages - 5 + i;
+                                    } else {
+                                        pageNum = page - 2 + i;
+                                    }
+
+                                    return (
+                                        <button
+                                            key={pageNum}
+                                            onClick={() => setPage(pageNum)}
+                                            className={`flex h-10 w-10 items-center justify-center rounded-lg font-medium transition-colors ${
+                                                page === pageNum
+                                                    ? "bg-primary-700 text-white shadow-md"
+                                                    : "border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+                                            }`}
+                                        >
+                                            {pageNum + 1}
+                                        </button>
+                                    );
+                                })}
+                                <button
+                                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant/30 text-on-surface-variant transition-colors hover:bg-surface-container-low disabled:opacity-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+                                    disabled={page === totalPages - 1}
+                                    onClick={() => setPage(page + 1)}
+                                >
                                     <MaterialIcon name="chevron_right" />
                                 </button>
                             </div>
