@@ -20,6 +20,7 @@ export function PublicHeader() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const isSettingsRoute = pathname.startsWith("/settings");
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -63,20 +64,20 @@ export function PublicHeader() {
   };
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-ink-100 dark:border-slate-800 shadow-sm transition-all duration-200">
-      <div className="flex justify-between items-center h-16 px-6 max-w-[1440px] mx-auto">
+    <header className="fixed top-0 z-50 w-full border-b border-ink-100 bg-white shadow-sm backdrop-blur-md transition-all duration-200 dark:border-slate-800 dark:bg-slate-900/90">
+      <div className={`mx-auto flex items-center justify-between px-6 ${isSettingsRoute ? "h-[72px] max-w-none lg:px-14" : "h-16 max-w-[1440px]"}`}>
         {/* Logo */}
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="font-sans text-[32px] font-bold text-primary-700 dark:text-white tracking-tight transition-colors duration-200"
+            className={`font-sans font-bold text-primary-700 transition-colors duration-200 dark:text-white ${isSettingsRoute ? "text-[24px]" : "text-[32px] tracking-tight"}`}
           >
             {UI_TEXT.PROFILE.LAYOUT.BRAND}
           </Link>
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-6 h-full">
+        {!isSettingsRoute && <nav className="hidden h-full gap-6 md:flex">
           {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -92,7 +93,7 @@ export function PublicHeader() {
               </Link>
             );
           })}
-        </nav>
+        </nav>}
 
         {/* Actions */}
         <div className="flex items-center gap-4">
@@ -105,7 +106,23 @@ export function PublicHeader() {
             <MaterialIcon name={isDarkMode ? "light_mode" : "dark_mode"} />
           </button>
 
-          {isAuthenticated && user ? (
+          {isSettingsRoute ? (
+            <>
+              <button
+                className="flex h-10 w-10 items-center justify-center rounded-full text-ink-500 transition-colors hover:bg-ink-100 dark:text-white dark:hover:bg-slate-800"
+                aria-label="Notifications"
+              >
+                <MaterialIcon name="notifications" />
+              </button>
+              <Link
+                href="/settings/profile"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-ink-500 transition-colors hover:bg-ink-100 dark:text-white dark:hover:bg-slate-800"
+                aria-label="Profile"
+              >
+                <MaterialIcon name="account_circle" />
+              </Link>
+            </>
+          ) : isAuthenticated && user ? (
             <>
               {/* Notifications */}
               <button
