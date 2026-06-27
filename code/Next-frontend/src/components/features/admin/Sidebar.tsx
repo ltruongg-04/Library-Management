@@ -28,7 +28,7 @@ export default function Sidebar() {
             <div className="flex items-center gap-3 border-b border-white/10 px-6 py-6">
                 <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-brass-50 to-brass-600 ring-2 ring-white/10">
                     {user?.image ? (
-                        <Image src={user.image} alt={user.fullName} className="h-full w-full object-cover" />
+                        <Image src={user.image} alt={user.fullName} width={40} height={40} className="h-full w-full object-cover" />
                     ) : (
                         <BookMarked size={18} className="text-ink-950" strokeWidth={2.25} />
                     )}
