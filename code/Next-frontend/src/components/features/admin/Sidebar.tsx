@@ -34,7 +34,7 @@ export default function Sidebar() {
                     )}
                 </div>
                 <div className="min-w-0">
-                    <p className="truncate font-serif text-[15px] font-semibold leading-tight text-white" title={user?.fullName || "Quản trị viên"}>
+                    <p className="truncate text-[15px] font-semibold leading-tight text-white" title={user?.fullName || "Quản trị viên"}>
                         {user?.fullName || "Quản trị viên"}
                     </p>
                     <p className="truncate text-xs text-white/50" title={user?.email || "Hệ thống quản lý"}>

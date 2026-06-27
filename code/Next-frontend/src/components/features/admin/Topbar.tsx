@@ -7,7 +7,7 @@ export default function Topbar() {
     return (
         <header className="flex items-start justify-between gap-6 px-8 pt-8">
             <div>
-                <h1 className="font-serif text-[28px] font-semibold leading-tight text-ink-950">{UI_TEXT.ADMIN_LAYOUT.TOPBAR.HEADING}</h1>
+                <h1 className="text-[28px] font-semibold leading-tight text-ink-950">{UI_TEXT.ADMIN_LAYOUT.TOPBAR.HEADING}</h1>
                 <p className="mt-1 text-[14.5px] text-ink-950/55">{UI_TEXT.ADMIN_LAYOUT.TOPBAR.SUBHEADING}</p>
             </div>
 
