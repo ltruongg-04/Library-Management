@@ -94,14 +94,13 @@ export const bookService = {
   },
 
   // 📖 Lấy danh sách sách cho Admin Inventory (có phân trang)
-  async getAdminBookInventory(page: number = 0, size: number = 10, keyword?: string, status?: string, category?: string): Promise<import('@/types/book').PageResponse<BookListItem>> {
+  async getAdminBookInventory(page: number = 0, size: number = 10, keyword?: string, category?: string): Promise<import('@/types/book').PageResponse<BookListItem>> {
     try {
       const queryParams = new URLSearchParams({
         page: page.toString(),
         size: size.toString(),
       });
       if (keyword) queryParams.append('keyword', keyword);
-      if (status && status !== 'All') queryParams.append('status', status);
       if (category && category !== 'All') queryParams.append('categoryId', category);
 
       // Note: In real app, this goes to backend (e.g. `http://localhost:8080/api/admin/books`)

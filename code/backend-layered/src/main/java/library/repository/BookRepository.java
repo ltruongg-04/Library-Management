@@ -1,7 +1,7 @@
 package library.repository;
 
 import library.entity.BookEntity;
-import library.entity.BookStatus;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,11 +17,9 @@ public interface BookRepository extends JpaRepository<BookEntity, Integer> {
 
     @Query("SELECT DISTINCT b FROM BookEntity b LEFT JOIN b.categories c LEFT JOIN b.authors a WHERE " +
            "(:keyword IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
-           "(:status IS NULL OR b.status = :status) AND " +
            "(:categoryId IS NULL OR c.id = :categoryId)")
     Page<BookEntity> findForAdminInventory(
             @Param("keyword") String keyword,
-            @Param("status") BookStatus status,
             @Param("categoryId") Integer categoryId,
             Pageable pageable);
 }

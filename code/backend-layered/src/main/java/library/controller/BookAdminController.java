@@ -1,7 +1,6 @@
 package library.controller;
 
 import library.dto.response.BookListResponse;
-import library.entity.BookStatus;
 import library.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,12 +17,11 @@ public class BookAdminController {
     @GetMapping
     public ResponseEntity<Page<BookListResponse>> getAdminBookInventory(
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) BookStatus status,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        Page<BookListResponse> bookPage = bookService.getAdminBookInventory(keyword, status, categoryId, page, size);
+        Page<BookListResponse> bookPage = bookService.getAdminBookInventory(keyword, categoryId, page, size);
         return ResponseEntity.ok(bookPage);
     }
 

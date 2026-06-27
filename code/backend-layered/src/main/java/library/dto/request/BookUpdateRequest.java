@@ -1,6 +1,5 @@
 package library.dto.request;
 
-import library.entity.BookStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +16,6 @@ public class BookUpdateRequest {
     private List<Integer> authorIds;
     private String isbn;
     private List<Integer> categoryIds;
-    private BookStatus status;
     private String shelfLocation;
     private String imageUrl;
     private Integer quantity;

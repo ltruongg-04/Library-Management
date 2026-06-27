@@ -1,106 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MaterialIcon } from "@/components/base/material-icon";
 import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
+import { bookService } from "@/services/book";
+import { categoryService } from "@/services/category";
+import type { BookListItem } from "@/types/book";
 
-// Mock Data
-const CATEGORIES = [
-    { id: "all", name: UI_TEXT.BOOK_LIST.CATEGORIES.ALL },
-    { id: "science", name: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE },
-    { id: "fiction", name: UI_TEXT.BOOK_LIST.CATEGORIES.FICTION },
-    { id: "history", name: UI_TEXT.BOOK_LIST.CATEGORIES.HISTORY },
-    { id: "design", name: UI_TEXT.BOOK_LIST.CATEGORIES.DESIGN },
-    { id: "business", name: UI_TEXT.BOOK_LIST.CATEGORIES.BUSINESS },
-];
+// Dynamic categories from API
 
-const MOCK_BOOKS = [
-    {
-        id: 1,
-        title: "The Algorithmic Mind",
-        author: "Dr. Elena Rostova",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.9,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCMQZBwRZKLiwS6s_Ghy2_0232U4u8yrVt0UoLSfqDN1CsrwPHmS4Kd3UrRaqEu5cFueLAfwFeL3RtxDYO7mBdlOrBmIzg1LAifXS5Ke852HdIZXRvjSe4ILboN6D9bnTPk2oVp8CcdJHT_g9gFy4fKK7fq14vo4smnYqVAjuCZEztGQohjl9HlXhovVOfuT65lwKU7ToahWuCAmutimIZCyfsJRzk_ai_vPVd5iaGoXpNl0KfkXbDYOMAEMBlDryuGgvAuZWKCZdpM",
-    },
-    {
-        id: 2,
-        title: "Echoes of Silence",
-        author: "Marcus Thorne",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.FICTION,
-        categoryColor: "fiction",
-        rating: 4.8,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCA0ugb2mtgwGdYen2kuKtDcr1SgH90WiQ4t-vHPzsDIm0zDpqfLep6XfQ9Av8c80v2tgU3rhAirV116cp4WU6vxAaqbvxP-LsurS-EuqR5nwMDP0bi-oalR1xxqoIp915o3WniSMrmFkdIpZviFowlkY21DMtY0dWHCZoMw8-Iwu0CwAaEL7Dy47Wx-SwJalcesh2S3c5KnGe6KXqBDuo31QzsGJyd6YIyNeROWuCYvY5TvzGIBKEjA4lTGx4c13ZZ_i20rbfPxd7m",
-    },
-    {
-        id: 3,
-        title: "A Brief History of Tomorrow",
-        author: "Sarah Jenkins",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.HISTORY,
-        categoryColor: "history",
-        rating: 4.5,
-        placeholderIcon: "history_edu",
-        placeholderBg: "bg-primary-container",
-        placeholderIconColor: "text-on-primary-container",
-    },
-    {
-        id: 4,
-        title: "Design Systems",
-        author: "Alex Rivera",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.DESIGN,
-        categoryColor: "design",
-        rating: 4.7,
-        placeholderIcon: "palette",
-        placeholderBg: "bg-tertiary-container",
-        placeholderIconColor: "text-on-tertiary-container",
-    },
-    {
-        id: 5,
-        title: "Sentient Systems",
-        author: "Marcus Vance",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.6,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCMmCiisoJSpv4dvhtaCdcoE1uS_CBtUC8kwsFUNxhgnupzh2gwqkc6Y61JxPoMMe0t1hLC4S9Fc8AOG56NdzVsft_J2ipvPnX6C33CeHDKy52GPyZqEVLz6lu_dZsDLLY2itV8C5MLT15dj45eRZ0J81iwUfWxdKAeiCE-xUwDW8rGHqtvIb08Zg-4B-e_bPNOvXGM_HPoopmXuUMpyNxcCk6oPfjU30Z2uZXIL8IiztciFMYH8PPFcNUkuJG83f6ivzfK5E-N2qRn",
-    },
-    {
-        id: 6,
-        title: "Code & Cognition",
-        author: "Dr. Sarah Jenkins",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.9,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuBehlRBluY2H86XNuf3iXURag8OtXWdzR6luPuT4-Rz95fi7OdFVShqx6GzXoQL_1TxeQ1eJgUhzMsiMr0qvszKS-w-TRgLwxnEx1m_QW7uo0-Tsc3nx4LKefihl3fK67GYd90rW2TPNHUbOQ76xNdBMxgtPYfYkH37Kh32ujcSJHGthQAh_Yg4MmvfBOaxWRWETJHWKRqOT1CZ8ngmnJSn3tkL5ctkWxrvLIjrphtCon2lbuI_CZrArUWwhI64ltwT-_Z5rq-J0R2x",
-    },
-    {
-        id: 7,
-        title: "The Silicon Soul",
-        author: "A.J. Thorne",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.8,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCV7DbciVnkrS3xPbNq6UHVgda6vZZl5njAKfTRjjTA4_tVAYoxD5hVSN6qghwyj6UDqfkCAbldQhcpQQUfTvt0Kj-yXaFnuzdsuRDAymk9draKu64TLo4MUOQDKNr6WAm7dT-cfnzXfsjcHbVLssYz2g8EDY-3rqN3O3vkf8zzSSvcBir9sb4oWihUCvGb8JHIdDJQoBdNN-RVoGOxkeI6_JmWdPugeZD2ahUxc54v9h9weUoW31mHaqCB2O6Vs6OB7PDckAR1aL23",
-    },
-    {
-        id: 8,
-        title: "Conversational AI",
-        author: "L. Chen",
-        category: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE,
-        categoryColor: "science",
-        rating: 4.5,
-        imageSrc:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCw80Sw2BU5XvcHA7V09zy6UirEiamVjKAyEZ8laM82itQA-nmvRR5bVmwqL_RncEl3k9MnuPi8hQM1nhdxPaSe8HcpVT50_mAlPN5VIA6iuBd1Fd_wd8pZgE_jTxDq7QZzb4wp-wMQ-swOURcipKmxWZ5CS4ZrMpl2NSgVaxEjJOLq0omNKzLmHZbjjRFGDdZkRe9bZrqfLpnK1Ff3pT2yidmLlg8iK8x4FfTaUtz6x1PQ47VnvDky9wFccasiJAm8rPWq8b_s8Oth",
-    },
-];
+
 
 const CATEGORY_STYLES: Record<string, string> = {
     science: "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
@@ -110,12 +22,50 @@ const CATEGORY_STYLES: Record<string, string> = {
 };
 
 export default function BookListPage() {
-    const [selectedCategory, setSelectedCategory] = useState("all");
+    const [selectedCategory, setSelectedCategory] = useState<number | "all">("all");
     const [searchQuery, setSearchQuery] = useState("");
+    const [books, setBooks] = useState<BookListItem[]>([]);
+    const [categories, setCategories] = useState<{ id: number | "all"; name: string }[]>([
+        { id: "all", name: UI_TEXT.BOOK_LIST.CATEGORIES.ALL }
+    ]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const filteredBooks = MOCK_BOOKS.filter((book) => {
-        const matchesCategory = selectedCategory === "all" || CATEGORIES.find((c) => c.id === selectedCategory)?.name === book.category;
-        const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase());
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                
+                const [booksData, categoriesData] = await Promise.all([
+                    bookService.getBooks(),
+                    categoryService.getAllCategories().catch(() => []) // Fallback to empty if categories fail
+                ]);
+                
+                setBooks(booksData);
+                
+                const categoryList = Array.isArray(categoriesData) ? categoriesData : (categoriesData as any).data || [];
+                setCategories([
+                    { id: "all", name: UI_TEXT.BOOK_LIST.CATEGORIES.ALL },
+                    ...categoryList.map((c: any) => ({ id: c.id, name: c.name }))
+                ]);
+                
+                setError(null);
+            } catch (err: any) {
+                setError(err.message || "Đã xảy ra lỗi khi tải dữ liệu");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const filteredBooks = books.filter((book) => {
+        const categoryName = book.categories && book.categories.length > 0 ? book.categories[0].name : "Khác";
+        const authorNames = book.authors ? book.authors.map(a => a.name).join(", ") : "";
+
+        const matchesCategory = selectedCategory === "all" || categories.find((c) => c.id === selectedCategory)?.name === categoryName;
+        const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || authorNames.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
     });
 
@@ -159,7 +109,7 @@ export default function BookListPage() {
                             {UI_TEXT.BOOK_LIST.SIDEBAR_CATEGORY}
                         </h3>
                         <ul className="space-y-2">
-                            {CATEGORIES.map((category) => (
+                            {categories.map((category) => (
                                 <li key={category.id}>
                                     <button
                                         onClick={() => setSelectedCategory(category.id)}
@@ -209,7 +159,23 @@ export default function BookListPage() {
                         </p>
                     </div>
 
-                    {filteredBooks.length > 0 ? (
+                    {loading ? (
+                        <div className="flex justify-center p-12">
+                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-700 border-t-transparent"></div>
+                        </div>
+                    ) : error ? (
+                        <div className="level-1-shadow rounded-2xl bg-surface-container-lowest p-12 text-center dark:bg-slate-900">
+                            <MaterialIcon name="error" className="mb-4 text-[64px] text-red-500" />
+                            <h3 className="mb-2 text-[20px] font-semibold text-on-surface dark:text-white">Lỗi tải dữ liệu</h3>
+                            <p className="text-on-surface-variant dark:text-white/70">{error}</p>
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="hover:bg-primary-800 mt-6 rounded-lg bg-primary-700 px-6 py-2 text-white transition-colors"
+                            >
+                                Thử lại
+                            </button>
+                        </div>
+                    ) : filteredBooks.length > 0 ? (
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                             {filteredBooks.map((book) => (
                                 <Link
@@ -219,9 +185,9 @@ export default function BookListPage() {
                                 >
                                     {/* Cover Image */}
                                     <div className="relative flex h-56 w-full items-center justify-center overflow-hidden bg-surface-container-low p-4 transition-colors duration-200 dark:bg-slate-800">
-                                        {book.imageSrc ? (
+                                        {book.imageUrl ? (
                                             <Image
-                                                src={book.imageSrc}
+                                                src={book.imageUrl}
                                                 alt={`${UI_TEXT.BOOK_LIST.IMAGE_ALT} ${book.title}`}
                                                 width={128}
                                                 height={192}
@@ -230,16 +196,16 @@ export default function BookListPage() {
                                             />
                                         ) : (
                                             <div
-                                                className={`h-40 w-28 ${book.placeholderBg} flex items-center justify-center rounded shadow-md ${book.placeholderIconColor} transition-transform duration-500 group-hover:scale-105`}
+                                                className={`h-40 w-28 bg-primary-container flex items-center justify-center rounded shadow-md text-on-primary-container transition-transform duration-500 group-hover:scale-105`}
                                             >
-                                                <MaterialIcon name={book.placeholderIcon!} className="text-[56px]" />
+                                                <MaterialIcon name="menu_book" className="text-[56px]" />
                                             </div>
                                         )}
 
                                         {/* Rating Badge */}
                                         <div className="absolute right-3 top-3 flex items-center rounded-full bg-white/90 px-2 py-1 shadow-sm backdrop-blur-sm dark:bg-slate-900/90">
                                             <MaterialIcon name="star" className="mr-1 text-sm text-yellow-500" />
-                                            <span className="font-mono text-[12px] font-bold text-on-surface dark:text-white">{book.rating}</span>
+                                            <span className="font-mono text-[12px] font-bold text-on-surface dark:text-white">{book.rating || "5.0"}</span>
                                         </div>
                                     </div>
 
@@ -249,14 +215,14 @@ export default function BookListPage() {
                                             {book.title}
                                         </h3>
                                         <p className="mb-4 line-clamp-1 font-sans text-[14px] text-on-surface-variant transition-colors duration-200 dark:text-white/70">
-                                            {book.author}
+                                            {book.authors && book.authors.length > 0 ? book.authors.map((a) => a.name).join(", ") : "Đang cập nhật"}
                                         </p>
                                         <div className="mt-auto flex items-center justify-between">
                                             <span
-                                                className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES[book.categoryColor] || CATEGORY_STYLES.science} max-w-[120px] truncate rounded px-2 py-1`}
-                                                title={book.category}
+                                                className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES.science} max-w-[120px] truncate rounded px-2 py-1`}
+                                                title={book.categories && book.categories.length > 0 ? book.categories[0].name : "Khác"}
                                             >
-                                                {book.category}
+                                                {book.categories && book.categories.length > 0 ? book.categories[0].name : "Khác"}
                                             </span>
                                             <button
                                                 className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-700/5 text-primary-700 transition-colors hover:bg-primary-700 hover:text-white dark:bg-primary-700/20 dark:text-primary-300 dark:hover:bg-primary-700 dark:hover:text-white"

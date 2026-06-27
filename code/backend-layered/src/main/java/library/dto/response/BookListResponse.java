@@ -21,7 +21,6 @@ public class BookListResponse {
     private Double rating;
     private int availableQuantity;
     private int quantity;
-    private library.entity.BookStatus status;
     private String isbn;
     private String shelfLocation;
 }

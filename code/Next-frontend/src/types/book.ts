@@ -3,7 +3,7 @@ export interface Book {
   title: string;
   authors: { id: number; name: string }[];
   publisher: string;
-  publishYear: number;
+  publicationDate: string;
   pages: number;
   isbn: string;
   description: string;
@@ -27,7 +27,6 @@ export interface BookListItem {
   rating: number;
   availableQuantity: number;
   quantity?: number;
-  status?: string;
   isbn?: string;
   shelfLocation?: string;
 }
@@ -57,7 +56,6 @@ export interface BookUpdateRequest {
   authorIds?: number[];
   isbn?: string;
   categoryIds?: number[];
-  status?: string;
   shelfLocation?: string;
   imageUrl?: string;
   quantity?: number;
