@@ -36,12 +36,19 @@ export default function RelatedBooks({ books }: RelatedBooksProps) {
                         } ${index === 4 ? "hidden lg:block" : ""}`}
                     >
                         <div className="relative mb-2 aspect-[2/3] overflow-hidden rounded-sm">
-                            <Image
-                                src={book.coverImage}
-                                alt={`Book Cover: ${book.title}`}
-                                fill
-                                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
+                            {book.coverImage ? (
+                                <Image
+                                    src={book.coverImage}
+                                    alt={`Book Cover: ${book.title}`}
+                                    fill
+                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                    unoptimized
+                                />
+                            ) : (
+                                <div className="flex h-full w-full items-center justify-center bg-primary-container transition-transform duration-300 group-hover:scale-105">
+                                    <MaterialIcon name="menu_book" className="text-[40px] text-on-primary-container" />
+                                </div>
+                            )}
                         </div>
                         <h4 className="line-clamp-1 font-title-md text-body-sm font-semibold text-on-surface transition-colors duration-200 dark:text-white">
                             {book.title}

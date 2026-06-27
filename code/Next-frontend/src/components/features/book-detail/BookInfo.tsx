@@ -1,9 +1,9 @@
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
-import type { Book } from "@/types/book";
+import type { BookDetail } from "@/types/book";
 
 interface BookInfoProps {
-    book: Book;
+    book: BookDetail;
 }
 
 export default function BookInfo({ book }: BookInfoProps) {

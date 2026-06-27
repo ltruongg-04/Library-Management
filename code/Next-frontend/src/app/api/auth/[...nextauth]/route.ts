@@ -28,8 +28,8 @@ async function refreshAccessToken(token: any) {
             refreshToken: data.data.refreshToken ?? token.refreshToken,
             expiresAt: Date.now() + 15 * 60 * 1000, // 15 mins
         };
-    } catch (error) {
-        console.error("Error refreshing token:", error);
+    } catch (error: any) {
+        console.error("Error refreshing token:", error.response?.data?.message || error.message);
         return {
             ...token,
             error: "RefreshAccessTokenError",
