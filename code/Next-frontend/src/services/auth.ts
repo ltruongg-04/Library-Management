@@ -1,3 +1,5 @@
+import axiosInstance from "@/lib/axios";
+
 // 🔐 API Service cho authentication
 
 // 📦 Response types
@@ -26,31 +28,24 @@ interface RegisterRequestData {
     phone?: string;
 }
 
-// Client-side: gọi qua Next.js proxy (relative URL) để tránh CORS
-// Server-side (NextAuth callback): dùng NEXT_PUBLIC_API_URL trực tiếp
-const API_URL = "";
-
 export const authService = {
     // 📝 Register - Đăng ký
     async register(data: RegisterRequestData): Promise<RegisterResponseData> {
         try {
-            const response = await fetch(`${API_URL}/api/auth/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
+            const response = await axiosInstance.post<ApiResponse<RegisterResponseData>>("/api/auth/register", data);
 
-            const result: ApiResponse<RegisterResponseData> = await response.json();
+            const result = response.data;
 
-            if (!response.ok || !result.success) {
+            if (!result.success) {
                 throw new Error(result.message || "Đăng ký thất bại");
             }
 
             return result.data!;
-        } catch (error) {
-            if (error instanceof TypeError && error.message === "Failed to fetch") {
+        } catch (error: any) {
+            if (error.response?.data?.message) {
+                throw new Error(error.response.data.message);
+            }
+            if (error.code === "ECONNABORTED" || error.message === "Network Error") {
                 throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
             }
             throw error;
