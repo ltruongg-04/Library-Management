@@ -31,6 +31,7 @@ Bạn đang hỗ trợ dự án Library-Management. Trước khi thực hiện b
 - **Không sử dụng text cứng (hard text):** bạn phải tách text ra thành file text .ui hoặc sử dụng i18n.
 - **Tạo file `.svg` và icon riêng biệt.**
 - **Luôn tuân theo file `.agent`**
+- **Đảm bảo tính tương tác (Interactive UI):** Khi sử dụng hoặc thêm các component UI như Dropdown, Modal, Dialog... PHẢI đảm bảo đã gắn sự kiện trigger (như `onClick`) và quản lý state tương ứng để component hoạt động. Tuyệt đối không import component mà không sử dụng (ghost import) hoặc thiếu logic trigger.
 
 # Frontend Development Guidelines (Next-frontend)
 
