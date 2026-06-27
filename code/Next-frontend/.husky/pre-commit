@@ -1,3 +1,6 @@
 #!/bin/sh
+# Chuyển hướng vào thư mục frontend vì Git luôn chạy hook từ thư mục gốc (root)
+cd code/Next-frontend || exit 1
+
 npx lint-staged
 npx tsc --noEmit
