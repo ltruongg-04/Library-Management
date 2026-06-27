@@ -1,68 +1,57 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-import { notifications as initialNotifications } from "@/constants/notifications";
+import { notifications as initialNotifications } from "@/mocks/notifications";
 import { Notification } from "@/types/notification";
 
 export function useNotifications() {
-  const [items, setItems] = useState<Notification[]>([]);
+    const [items, setItems] = useState<Notification[]>([]);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("notifications");
+    useEffect(() => {
+        const saved = localStorage.getItem("notifications");
 
-    if (saved) {
-      setItems(JSON.parse(saved));
-    } else {
-      setItems(initialNotifications);
-      localStorage.setItem(
-        "notifications",
-        JSON.stringify(initialNotifications)
-      );
-    }
-  }, []);
+        if (saved) {
+            setItems(JSON.parse(saved));
+        } else {
+            setItems(initialNotifications);
+            localStorage.setItem("notifications", JSON.stringify(initialNotifications));
+        }
+    }, []);
 
-  const saveNotifications = (
-    updatedItems: Notification[]
-  ) => {
-    setItems(updatedItems);
+    const saveNotifications = (updatedItems: Notification[]) => {
+        setItems(updatedItems);
 
-    localStorage.setItem(
-      "notifications",
-      JSON.stringify(updatedItems)
-    );
-  };
+        localStorage.setItem("notifications", JSON.stringify(updatedItems));
+    };
 
-  const markAsRead = (id: number) => {
-    const updatedItems = items.map((item) =>
-      item.id === id
-        ? {
+    const markAsRead = (id: number) => {
+        const updatedItems = items.map((item) =>
+            item.id === id
+                ? {
+                      ...item,
+                      isRead: true,
+                  }
+                : item,
+        );
+
+        saveNotifications(updatedItems);
+    };
+
+    const markAllAsRead = () => {
+        const updatedItems = items.map((item) => ({
             ...item,
             isRead: true,
-          }
-        : item
-    );
+        }));
 
-    saveNotifications(updatedItems);
-  };
+        saveNotifications(updatedItems);
+    };
 
-  const markAllAsRead = () => {
-    const updatedItems = items.map((item) => ({
-      ...item,
-      isRead: true,
-    }));
+    const unreadCount = items.filter((item) => !item.isRead).length;
 
-    saveNotifications(updatedItems);
-  };
-
-  const unreadCount = items.filter(
-    (item) => !item.isRead
-  ).length;
-
-  return {
-    items,
-    unreadCount,
-    markAsRead,
-    markAllAsRead,
-  };
+    return {
+        items,
+        unreadCount,
+        markAsRead,
+        markAllAsRead,
+    };
 }

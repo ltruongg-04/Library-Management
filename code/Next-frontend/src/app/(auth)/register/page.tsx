@@ -1,20 +1,21 @@
-'use client'
-import { LoginBanner } from "@/components/features/auth/banner";
+"use client";
 import RegisterForm from "@/components/features/auth/RegisterForm";
+import { LoginBanner } from "@/components/features/auth/banner";
+import { AUTH } from "@/constants/ui-text/auth";
 
 export default function RegisterPage() {
-  return (
-    <div className="min-h-screen flex bg-surface transition-colors duration-200">
-      {/* Sidebar trang trí */}
-      <LoginBanner />
+    return (
+        <div className="flex min-h-screen bg-surface transition-colors duration-200">
+            {/* Sidebar trang trí */}
+            <LoginBanner />
 
-      {/* Form Container */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:ml-[50%]">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">Tạo tài khoản</h2>
-          <RegisterForm />
+            {/* Form Container */}
+            <div className="flex flex-1 items-center justify-center p-6 lg:ml-[50%]">
+                <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
+                    <h2 className="mb-6 text-2xl font-bold text-slate-900">{AUTH.REGISTER.HEADING}</h2>
+                    <RegisterForm />
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
