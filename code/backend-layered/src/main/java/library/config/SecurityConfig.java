@@ -29,6 +29,7 @@ public class SecurityConfig {
                         // Cho phép truy cập không cần auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/books/**").permitAll()
+                        .requestMatchers("/api/admin/books/**").permitAll()
                         .requestMatchers("/db-health").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()

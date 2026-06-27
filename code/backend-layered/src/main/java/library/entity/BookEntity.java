@@ -63,4 +63,9 @@ public class BookEntity extends BaseEntity {
 
     @Column(name = "deposit_price", precision = 10, scale = 2)
     private BigDecimal depositPrice;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    @Builder.Default
+    private BookStatus status = BookStatus.AVAILABLE;
 }

@@ -1,12 +1,39 @@
-import { UI_TEXT } from "@/constants/ui-text";
+import BookFilters from "@/components/features/admin/BookFilters";
+import BookTable from "@/components/features/admin/BookTable";
+import { ScanLine, Sparkles } from "lucide-react";
 
 export default function KhoSachPage() {
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-semibold text-ink-950">{UI_TEXT.ADMIN_PAGES.INVENTORY.TITLE}</h1>
-      <p className="mt-4 text-ink-950/70">
-        {UI_TEXT.ADMIN_PAGES.INVENTORY.DESC}
-      </p>
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="max-w-2xl">
+          <h1 className="text-3xl font-bold text-primary-900 tracking-tight">Quản lý kho sách</h1>
+          <p className="mt-2 text-[15px] leading-relaxed text-on-surface-variant">
+            Quản lý các mục trong danh mục, giám sát tình trạng có sẵn và tận dụng tính năng quét AI để nhập liệu nhanh chóng.
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center shrink-0 shadow-sm rounded-lg overflow-hidden">
+          <button className="flex items-center gap-2 bg-primary-700 px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-900 focus-ring">
+            <ScanLine size={18} />
+            Thêm sách
+          </button>
+          <button className="flex items-center gap-1.5 bg-info-400 px-4 py-2.5 text-[14px] font-bold text-white transition-colors hover:bg-info-500 focus-ring border-l border-white/20">
+            <Sparkles size={16} />
+            AI OCR
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-col">
+        {/* Filters and Search */}
+        <BookFilters />
+
+        {/* Table View */}
+        <BookTable />
+      </div>
     </div>
   );
 }

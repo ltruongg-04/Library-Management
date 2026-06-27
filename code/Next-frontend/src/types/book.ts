@@ -25,6 +25,23 @@ export interface BookListItem {
   imageUrl: string;
   rating: number;
   availableQuantity: number;
+  quantity?: number;
+  status?: string;
+  isbn?: string;
+  shelfLocation?: string;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  pageable: any;
+  last: boolean;
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  numberOfElements: number;
+  empty: boolean;
 }
 
 export interface RelatedBook {
@@ -32,5 +49,17 @@ export interface RelatedBook {
   title: string;
   author: string;
   coverImage: string;
+}
+
+export interface BookUpdateRequest {
+  title?: string;
+  author?: string;
+  isbn?: string;
+  category?: string;
+  status?: string;
+  shelfLocation?: string;
+  imageUrl?: string;
+  quantity?: number;
+  availableQuantity?: number;
 }
 

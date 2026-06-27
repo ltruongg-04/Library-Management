@@ -12,4 +12,13 @@ public interface BookService {
     List<BookListResponse> getTopRatedBooks();
 
     BookResponse getBookById(Integer id);
+
+    org.springframework.data.domain.Page<BookListResponse> getAdminBookInventory(
+            String keyword,
+            library.entity.BookStatus status,
+            String category,
+            int page,
+            int size);
+
+    BookResponse updateBook(Integer id, library.dto.request.BookUpdateRequest request);
 }

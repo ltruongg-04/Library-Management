@@ -44,6 +44,39 @@ public class BookServiceImpl implements BookService {
                 return toBookResponse(book);
         }
 
+        @Override
+        public org.springframework.data.domain.Page<BookListResponse> getAdminBookInventory(
+                String keyword,
+                library.entity.BookStatus status,
+                String category,
+                int page,
+                int size) {
+                org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+                return bookRepository.findForAdminInventory(keyword, status, category, pageable)
+                        .map(this::toBookListResponse);
+        }
+
+        @Override
+        public BookResponse updateBook(Integer id, library.dto.request.BookUpdateRequest request) {
+                BookEntity book = bookRepository.findById(id)
+                                .orElseThrow(() -> new CustomBusinessException(
+                                                "Không tìm thấy sách với ID: " + id,
+                                                HttpStatus.NOT_FOUND));
+
+                if (request.getTitle() != null) book.setTitle(request.getTitle());
+                if (request.getAuthor() != null) book.setAuthor(request.getAuthor());
+                if (request.getIsbn() != null) book.setIsbn(request.getIsbn());
+                if (request.getCategory() != null) book.setCategory(request.getCategory());
+                if (request.getStatus() != null) book.setStatus(request.getStatus());
+                if (request.getShelfLocation() != null) book.setShelfLocation(request.getShelfLocation());
+                if (request.getImageUrl() != null) book.setImageUrl(request.getImageUrl());
+                if (request.getQuantity() != null) book.setQuantity(request.getQuantity());
+                if (request.getAvailableQuantity() != null) book.setAvailableQuantity(request.getAvailableQuantity());
+
+                bookRepository.save(book);
+                return toBookResponse(book);
+        }
+
         private BookListResponse toBookListResponse(BookEntity entity) {
                 return BookListResponse.builder()
                                 .id(entity.getId())
@@ -53,6 +86,10 @@ public class BookServiceImpl implements BookService {
                                 .imageUrl(entity.getImageUrl())
                                 .rating(entity.getRating())
                                 .availableQuantity(entity.getAvailableQuantity())
+                                .quantity(entity.getQuantity())
+                                .status(entity.getStatus())
+                                .isbn(entity.getIsbn())
+                                .shelfLocation(entity.getShelfLocation())
                                 .build();
         }
 
@@ -83,6 +120,7 @@ public class BookServiceImpl implements BookService {
                                 .shelfLocation(entity.getShelfLocation())
                                 .depositPrice(entity.getDepositPrice())
                                 .categories(categories)
+                                .status(entity.getStatus())
                                 .build();
         }
 }
