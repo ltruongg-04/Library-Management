@@ -16,21 +16,36 @@ export const bookService = {
     async getBooks(params?: import("@/types/book").BookSearchParams): Promise<import("@/types/book").BookPageResponse> {
         try {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
+            
+            // Call the admin paginated endpoint for server-side search and filtering
             const queryParams = new URLSearchParams();
             if (params?.keyword) queryParams.append("keyword", params.keyword);
-            if (params?.category) queryParams.append("category", params.category);
+            
+            // Note: params.category now contains categoryId instead of category name, handled in page.tsx
+            if (params?.category && params.category !== "Tất cả" && params.category !== "all") {
+                queryParams.append("categoryId", params.category);
+            }
+            
             if (params?.page !== undefined) queryParams.append("page", params.page.toString());
             if (params?.size !== undefined) queryParams.append("size", params.size.toString());
-            if (params?.sortBy) queryParams.append("sortBy", params.sortBy);
 
-            const response = await fetch(`${baseUrl}/api/public/books?${queryParams.toString()}`, {
+            const response = await fetch(`${baseUrl}/api/admin/books?${queryParams.toString()}`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
 
             const result = await response.json();
-            if (!response.ok || !result.success) throw new Error(result.message || "Lỗi");
-            return result.data;
+            if (!response.ok) throw new Error("Lỗi");
+            
+            // Backend returns Page<BookListResponse> directly without ApiResponse wrapper for this endpoint
+            return {
+                content: result.content,
+                page: result.number,
+                size: result.size,
+                totalElements: result.totalElements,
+                totalPages: result.totalPages,
+                last: result.last
+            };
         } catch (e) {
             throw e;
         }
@@ -38,15 +53,27 @@ export const bookService = {
 
     async getTrendingBooks(limit: number = 8): Promise<import("@/types/book").BookPageResponse> {
         try {
+            // Backend endpoint is /api/books/top-rated, not /api/public/books/trending
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
-            const response = await fetch(`${baseUrl}/api/public/books/trending?limit=${limit}`, {
+            const response = await fetch(`${baseUrl}/api/books/top-rated`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
 
             const result = await response.json();
             if (!response.ok || !result.success) throw new Error(result.message || "Lỗi");
-            return result.data;
+            
+            const books = result.data || [];
+            const limitedBooks = books.slice(0, limit);
+            
+            return {
+                content: limitedBooks as any,
+                page: 0,
+                size: limit,
+                totalElements: limitedBooks.length,
+                totalPages: 1,
+                last: true
+            };
         } catch (e) {
             throw e;
         }

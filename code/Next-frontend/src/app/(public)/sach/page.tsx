@@ -8,15 +8,7 @@ import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useBooks } from "@/hooks/useBooks";
 
-const CATEGORIES = [
-    { id: "all", name: UI_TEXT.BOOK_LIST.CATEGORIES.ALL },
-    { id: "science", name: UI_TEXT.BOOK_LIST.CATEGORIES.SCIENCE },
-    { id: "fiction", name: UI_TEXT.BOOK_LIST.CATEGORIES.FICTION },
-    { id: "history", name: UI_TEXT.BOOK_LIST.CATEGORIES.HISTORY },
-    { id: "design", name: UI_TEXT.BOOK_LIST.CATEGORIES.DESIGN },
-    { id: "business", name: UI_TEXT.BOOK_LIST.CATEGORIES.BUSINESS },
-];
-
+// Removed static CATEGORIES constant
 const CATEGORY_STYLES: Record<string, string> = {
     "Khoa học & Công nghệ": "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
     "Tiểu thuyết": "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
@@ -41,18 +33,30 @@ export default function BookListPage() {
         clearFilters,
     } = useBooks({ size: 12 });
 
-    const [selectedCategory, setSelectedCategory] = React.useState("all");
+    const [selectedCategory, setSelectedCategory] = React.useState<string | number>("all");
     const [searchInput, setSearchInput] = React.useState("");
+    const [categories, setCategories] = React.useState<{id: string | number, name: string}[]>([
+        { id: "all", name: UI_TEXT.BOOK_LIST.CATEGORIES.ALL }
+    ]);
 
-    const handleCategoryChange = (categoryId: string) => {
+    React.useEffect(() => {
+        import("@/services/category").then(({ categoryService }) => {
+            categoryService.getAllCategories().then((data) => {
+                const dynamicCategories = data.map(c => ({ id: c.id, name: c.name }));
+                setCategories([
+                    { id: "all", name: UI_TEXT.BOOK_LIST.CATEGORIES.ALL },
+                    ...dynamicCategories
+                ]);
+            }).catch(err => console.error("Failed to fetch categories:", err));
+        });
+    }, []);
+
+    const handleCategoryChange = (categoryId: string | number) => {
         setSelectedCategory(categoryId);
         if (categoryId === "all") {
             setCategory("");
         } else {
-            const cat = CATEGORIES.find((c) => c.id === categoryId);
-            if (cat) {
-                setCategory(cat.name);
-            }
+            setCategory(categoryId.toString());
         }
     };
 
@@ -107,7 +111,7 @@ export default function BookListPage() {
                             {UI_TEXT.BOOK_LIST.SIDEBAR_CATEGORY}
                         </h3>
                         <ul className="space-y-2">
-                            {CATEGORIES.map((category) => (
+                            {categories.map((category) => (
                                 <li key={category.id}>
                                     <button
                                         onClick={() => handleCategoryChange(category.id)}
