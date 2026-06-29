@@ -84,6 +84,10 @@ export const ADMIN_PAGES = {
         TITLE: "Cài đặt",
         DESC: "Trang cài đặt của hệ thống quản lý thư viện.",
     },
+    ROLES: {
+        TITLE: "Vai trò & quyền",
+        DESC: "Quản lý quyền hạn truy cập của nhân viên.",
+    },
 };
 
 export const ADMIN_SETTINGS = {
@@ -180,6 +184,7 @@ export const ADMIN_USER_MANAGEMENT = {
         BTN_EDIT: "Edit",
         BTN_LOCK: "Lock",
         BTN_UNLOCK: "Unlock",
+        PAGINATION_INFO: "Showing 1 to 3 of 128 users",
     },
     MODAL: {
         CREATE_TITLE: "Create User",

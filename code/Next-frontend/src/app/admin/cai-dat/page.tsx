@@ -1,8 +1,9 @@
 "use client";
 
+import type { ElementType, ReactNode } from "react";
+import { useEffect, useState } from "react";
 import {
     AlertTriangle,
-    Bell,
     BookOpen,
     ChevronDown,
     CircleDollarSign,
@@ -13,14 +14,11 @@ import {
     Info,
     Landmark,
     Save,
-    Settings,
     Sparkles,
     ToggleRight,
     WalletCards,
 } from "lucide-react";
 import Link from "next/link";
-import type { ElementType, ReactNode } from "react";
-import { useEffect, useState } from "react";
 import { Toggle } from "@/components/base/Toggle";
 import { SuccessModal } from "@/components/base/success-modal";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -185,15 +183,7 @@ function readSavedSettings() {
     }
 }
 
-function SectionCard({
-    icon: Icon,
-    title,
-    children,
-}: {
-    icon: ElementType;
-    title: string;
-    children: ReactNode;
-}) {
+function SectionCard({ icon: Icon, title, children }: { icon: ElementType; title: string; children: ReactNode }) {
     return (
         <section className="level-1-shadow rounded-lg border border-outline-variant/20 bg-surface-container-lowest p-lg">
             <div className="mb-lg flex items-center gap-sm border-b border-outline-variant/30 pb-sm">
@@ -205,17 +195,7 @@ function SectionCard({
     );
 }
 
-function PolicyField({
-    label,
-    value,
-    suffix,
-    onChange,
-}: {
-    label: string;
-    value: string;
-    suffix?: string;
-    onChange: (value: string) => void;
-}) {
+function PolicyField({ label, value, suffix, onChange }: { label: string; value: string; suffix?: string; onChange: (value: string) => void }) {
     return (
         <label className="flex flex-col gap-xs">
             <span className="font-mono text-[13px] font-medium leading-5 tracking-[0.02em] text-on-surface-variant">{label}</span>
@@ -287,26 +267,26 @@ function GatewayRow({
     return (
         <div className="flex flex-col gap-md rounded-lg border border-outline-variant/20 bg-surface-bright p-md transition-colors hover:border-primary/30">
             <div className="flex flex-col gap-md sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex min-w-0 items-start gap-md">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-surface-container-high text-on-surface-variant">
-                    <Icon size={24} strokeWidth={1.8} />
+                <div className="flex min-w-0 items-start gap-md">
+                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-surface-container-high text-on-surface-variant">
+                        <Icon size={24} strokeWidth={1.8} />
+                    </div>
+                    <div className="min-w-0">
+                        <h3 className="truncate text-body-md font-semibold text-on-surface">{name}</h3>
+                        <p className="text-body-sm text-on-surface-variant">{description}</p>
+                        <p className="mt-xs text-[13px] leading-5 text-on-surface-variant">{note}</p>
+                    </div>
                 </div>
-                <div className="min-w-0">
-                    <h3 className="truncate text-body-md font-semibold text-on-surface">{name}</h3>
-                    <p className="text-body-sm text-on-surface-variant">{description}</p>
-                    <p className="mt-xs text-[13px] leading-5 text-on-surface-variant">{note}</p>
+                <div className="flex shrink-0 items-center gap-sm sm:justify-end">
+                    <span
+                        className={`inline-flex items-center gap-xs rounded-full px-3 py-1 text-[12px] font-semibold ${
+                            active ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-warning-100 text-warning-800"
+                        }`}
+                    >
+                        <span className={`h-2 w-2 rounded-full ${active ? "bg-secondary" : "bg-warning-600"}`} />
+                        {active ? SETTINGS.PAYMENTS.VERIFIED : SETTINGS.PAYMENTS.NEEDS_CONNECTION}
+                    </span>
                 </div>
-            </div>
-            <div className="flex shrink-0 items-center gap-sm sm:justify-end">
-                <span
-                    className={`inline-flex items-center gap-xs rounded-full px-3 py-1 text-[12px] font-semibold ${
-                        active ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-warning-100 text-warning-800"
-                    }`}
-                >
-                    <span className={`h-2 w-2 rounded-full ${active ? "bg-secondary" : "bg-warning-600"}`} />
-                    {active ? SETTINGS.PAYMENTS.VERIFIED : SETTINGS.PAYMENTS.NEEDS_CONNECTION}
-                </span>
-            </div>
             </div>
 
             <div className="flex flex-col gap-sm border-t border-outline-variant/20 pt-md sm:flex-row sm:items-center sm:justify-between">
@@ -360,15 +340,7 @@ function SelectField({
     );
 }
 
-function ConfirmDiscardModal({
-    isOpen,
-    onClose,
-    onConfirm,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-}) {
+function ConfirmDiscardModal({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: () => void }) {
     if (!isOpen) {
         return null;
     }
@@ -404,12 +376,17 @@ function ConfirmDiscardModal({
 
 export default function CaiDatPage() {
     const [adminSettings, setAdminSettings] = useState(DEFAULT_SETTINGS);
+    const [savedSettings, setSavedSettings] = useState(DEFAULT_SETTINGS);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showDiscardModal, setShowDiscardModal] = useState(false);
 
     useEffect(() => {
-        setAdminSettings(readSavedSettings());
+        const loaded = readSavedSettings();
+        setAdminSettings(loaded);
+        setSavedSettings(loaded);
     }, []);
+
+    const hasChanges = JSON.stringify(adminSettings) !== JSON.stringify(savedSettings);
 
     const updateBorrowing = (key: keyof AdminSettingsState["borrowing"], value: string) => {
         setAdminSettings((current) => ({
@@ -443,44 +420,27 @@ export default function CaiDatPage() {
 
     const handleSave = () => {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(adminSettings));
+        setSavedSettings(adminSettings);
         setShowSuccessModal(true);
         window.setTimeout(() => setShowSuccessModal(false), 3000);
     };
 
     const confirmDiscard = () => {
-        setAdminSettings(readSavedSettings());
+        setAdminSettings(savedSettings);
         setShowDiscardModal(false);
     };
 
     return (
         <div className="min-h-screen bg-surface pb-28 text-on-surface">
-            <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-outline-variant/30 bg-surface/90 px-lg shadow-sm backdrop-blur-md">
-                <div className="flex items-center gap-sm text-title-md">
+            <main className="mx-auto max-w-[1440px] px-lg py-xl">
+                <div className="mb-md flex items-center gap-sm text-title-md">
                     <Link href="/admin" className="font-bold text-primary transition-colors hover:text-primary-container">
                         {SETTINGS.TOPBAR_TITLE}
                     </Link>
                     <ChevronDown size={22} strokeWidth={1.8} className="-rotate-90 text-on-surface-variant" aria-hidden="true" />
                     <span className="font-medium text-on-surface-variant">{UI_TEXT.ADMIN.SIDEBAR.NAV_SETTINGS}</span>
                 </div>
-                <div className="flex items-center gap-md">
-                    <button className="focus-ring grid h-10 w-10 place-items-center rounded-full text-on-surface-variant transition-colors hover:text-primary" aria-label="Notifications">
-                        <Bell size={22} strokeWidth={1.8} />
-                    </button>
-                    <Link
-                        href="/admin/cai-dat"
-                        className="focus-ring grid h-10 w-10 place-items-center rounded-full text-on-surface-variant transition-colors hover:text-primary"
-                        aria-label="Settings"
-                    >
-                        <Settings size={22} strokeWidth={1.8} />
-                    </Link>
-                    <div className="h-6 w-px bg-outline-variant/60" />
-                    <div className="grid h-8 w-8 place-items-center rounded-full border border-outline-variant/50 bg-primary-container text-[11px] font-semibold text-on-primary">
-                        AD
-                    </div>
-                </div>
-            </header>
 
-            <main className="mx-auto max-w-[1440px] px-lg py-xl">
                 <div className="mb-xl max-w-3xl">
                     <h2 className="text-[32px] font-semibold leading-10 text-on-surface">{SETTINGS.PAGE_TITLE}</h2>
                     <p className="mt-sm text-body-md text-on-surface-variant">{SETTINGS.PAGE_DESCRIPTION}</p>
@@ -488,70 +448,70 @@ export default function CaiDatPage() {
 
                 <div className="grid grid-cols-1 items-start gap-lg xl:grid-cols-12 xl:gap-xl">
                     <div className="xl:col-span-7">
-                    <SectionCard icon={BookOpen} title={SETTINGS.BORROWING.TITLE}>
-                        <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
-                            {borrowingFields.map((field) => (
-                                <PolicyField
-                                    key={field.key}
-                                    label={field.label}
-                                    value={adminSettings.borrowing[field.key]}
-                                    suffix={field.suffix}
-                                    onChange={(value) => updateBorrowing(field.key, value)}
-                                />
-                            ))}
-                            <div className="md:col-span-2">
-                                <div className="max-w-sm">
+                        <SectionCard icon={BookOpen} title={SETTINGS.BORROWING.TITLE}>
+                            <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
+                                {borrowingFields.map((field) => (
                                     <PolicyField
-                                        label={SETTINGS.BORROWING.MAX_RENEWALS}
-                                        value={adminSettings.borrowing.maxRenewals}
-                                        onChange={(value) => updateBorrowing("maxRenewals", value)}
+                                        key={field.key}
+                                        label={field.label}
+                                        value={adminSettings.borrowing[field.key]}
+                                        suffix={field.suffix}
+                                        onChange={(value) => updateBorrowing(field.key, value)}
                                     />
+                                ))}
+                                <div className="md:col-span-2">
+                                    <div className="max-w-sm">
+                                        <PolicyField
+                                            label={SETTINGS.BORROWING.MAX_RENEWALS}
+                                            value={adminSettings.borrowing.maxRenewals}
+                                            onChange={(value) => updateBorrowing("maxRenewals", value)}
+                                        />
+                                    </div>
+                                    <p className="mt-xs text-[13px] leading-5 text-on-surface-variant">* {SETTINGS.BORROWING.RENEWALS_HELP}</p>
                                 </div>
-                                <p className="mt-xs text-[13px] leading-5 text-on-surface-variant">* {SETTINGS.BORROWING.RENEWALS_HELP}</p>
                             </div>
-                        </div>
-                    </SectionCard>
+                        </SectionCard>
                     </div>
 
                     <div className="xl:col-span-5">
-                    <SectionCard icon={ToggleRight} title={SETTINGS.FEATURES.TITLE}>
-                        <div className="flex flex-col gap-lg">
-                            {featureItems.map((item, index) => (
-                                <FeatureToggle
-                                    key={item.title}
-                                    id={`feature-toggle-${index}`}
-                                    title={item.title}
-                                    description={item.description}
-                                    icon={item.icon}
-                                    checked={adminSettings.features[item.key]}
-                                    onChange={(checked) => updateFeature(item.key, checked)}
-                                />
-                            ))}
-                        </div>
-                    </SectionCard>
+                        <SectionCard icon={ToggleRight} title={SETTINGS.FEATURES.TITLE}>
+                            <div className="flex flex-col gap-lg">
+                                {featureItems.map((item, index) => (
+                                    <FeatureToggle
+                                        key={item.title}
+                                        id={`feature-toggle-${index}`}
+                                        title={item.title}
+                                        description={item.description}
+                                        icon={item.icon}
+                                        checked={adminSettings.features[item.key]}
+                                        onChange={(checked) => updateFeature(item.key, checked)}
+                                    />
+                                ))}
+                            </div>
+                        </SectionCard>
                     </div>
 
                     <div className="xl:col-span-7">
-                    <SectionCard icon={WalletCards} title={SETTINGS.PAYMENTS.TITLE}>
-                        <div className="flex flex-col gap-md">
-                            <GatewayRow
-                                icon={Landmark}
-                                name={SETTINGS.PAYMENTS.MOMO_NAME}
-                                description={SETTINGS.PAYMENTS.MOMO_DESC}
-                                note={SETTINGS.PAYMENTS.MOMO_NOTE}
-                                token={SETTINGS.PAYMENTS.MOMO_TOKEN}
-                                active
-                            />
-                            <GatewayRow
-                                icon={CreditCard}
-                                name={SETTINGS.PAYMENTS.VNPAY_NAME}
-                                description={SETTINGS.PAYMENTS.VNPAY_DESC}
-                                note={SETTINGS.PAYMENTS.VNPAY_NOTE}
-                                token={SETTINGS.PAYMENTS.VNPAY_TOKEN}
-                                active={false}
-                            />
-                        </div>
-                    </SectionCard>
+                        <SectionCard icon={WalletCards} title={SETTINGS.PAYMENTS.TITLE}>
+                            <div className="flex flex-col gap-md">
+                                <GatewayRow
+                                    icon={Landmark}
+                                    name={SETTINGS.PAYMENTS.MOMO_NAME}
+                                    description={SETTINGS.PAYMENTS.MOMO_DESC}
+                                    note={SETTINGS.PAYMENTS.MOMO_NOTE}
+                                    token={SETTINGS.PAYMENTS.MOMO_TOKEN}
+                                    active
+                                />
+                                <GatewayRow
+                                    icon={CreditCard}
+                                    name={SETTINGS.PAYMENTS.VNPAY_NAME}
+                                    description={SETTINGS.PAYMENTS.VNPAY_DESC}
+                                    note={SETTINGS.PAYMENTS.VNPAY_NOTE}
+                                    token={SETTINGS.PAYMENTS.VNPAY_TOKEN}
+                                    active={false}
+                                />
+                            </div>
+                        </SectionCard>
                     </div>
 
                     <div className="grid grid-cols-1 gap-lg md:grid-cols-2 xl:col-span-5 xl:grid-cols-1">
@@ -576,29 +536,31 @@ export default function CaiDatPage() {
                 </div>
             </main>
 
-            <footer className="fixed bottom-0 left-sidebar-width right-0 z-40 flex flex-col gap-md border-t border-outline-variant/30 bg-surface/90 px-lg py-md shadow-[0_-4px_12px_rgba(0,0,0,0.05)] backdrop-blur-md md:flex-row md:items-center md:justify-between">
-                <p className="flex items-center gap-xs text-body-sm text-on-surface-variant">
-                    <Info size={16} strokeWidth={1.8} />
-                    {SETTINGS.ACTION_BAR.WARNING}
-                </p>
-                <div className="flex flex-col gap-sm sm:flex-row">
-                    <button
-                        type="button"
-                        onClick={() => setShowDiscardModal(true)}
-                        className="focus-ring h-11 rounded-lg border border-secondary bg-transparent px-lg text-body-md font-medium text-secondary transition-colors hover:bg-secondary/10"
-                    >
-                        {SETTINGS.ACTION_BAR.DISCARD}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleSave}
-                        className="focus-ring inline-flex h-11 items-center justify-center gap-sm rounded-lg bg-primary px-lg text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
-                    >
-                        <Save size={18} strokeWidth={2} />
-                        {SETTINGS.ACTION_BAR.SAVE}
-                    </button>
-                </div>
-            </footer>
+            {hasChanges && (
+                <footer className="fixed bottom-0 left-sidebar-width right-0 z-40 flex flex-col gap-md border-t border-outline-variant/30 bg-surface/90 px-lg py-md shadow-[0_-4px_12px_rgba(0,0,0,0.05)] backdrop-blur-md md:flex-row md:items-center md:justify-between">
+                    <p className="flex items-center gap-xs text-body-sm text-on-surface-variant">
+                        <Info size={16} strokeWidth={1.8} />
+                        {SETTINGS.ACTION_BAR.WARNING}
+                    </p>
+                    <div className="flex flex-col gap-sm sm:flex-row">
+                        <button
+                            type="button"
+                            onClick={() => setShowDiscardModal(true)}
+                            className="focus-ring h-11 rounded-lg border border-secondary bg-transparent px-lg text-body-md font-medium text-secondary transition-colors hover:bg-secondary/10"
+                        >
+                            {SETTINGS.ACTION_BAR.DISCARD}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            className="focus-ring inline-flex h-11 items-center justify-center gap-sm rounded-lg bg-primary px-lg text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
+                        >
+                            <Save size={18} strokeWidth={2} />
+                            {SETTINGS.ACTION_BAR.SAVE}
+                        </button>
+                    </div>
+                </footer>
+            )}
 
             <SuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} message={SETTINGS.ACTION_BAR.SUCCESS} />
             <ConfirmDiscardModal isOpen={showDiscardModal} onClose={() => setShowDiscardModal(false)} onConfirm={confirmDiscard} />
