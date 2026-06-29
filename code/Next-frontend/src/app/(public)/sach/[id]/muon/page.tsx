@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
 import BorrowForm from "@/components/features/borrow/BorrowForm";
+import BorrowSuccess from "@/components/features/borrow/BorrowSuccess";
 import LoanSummary from "@/components/features/borrow/LoanSummary";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useBookDetail } from "@/hooks/useBooks";
@@ -34,11 +35,6 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
         setTimeout(() => {
             setIsSubmitting(false);
             setIsSuccess(true);
-
-            // Redirect back to my-books or book detail after success
-            setTimeout(() => {
-                router.push("/my-books");
-            }, 2000);
         }, 1500);
     };
 
@@ -69,6 +65,14 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
     // Wait until we have a user
     if (!user) {
         return null;
+    }
+
+    if (isSuccess) {
+        return (
+            <main className="mx-auto flex w-full max-w-container-max justify-center px-6 py-12">
+                <BorrowSuccess book={book} />
+            </main>
+        );
     }
 
     return (
