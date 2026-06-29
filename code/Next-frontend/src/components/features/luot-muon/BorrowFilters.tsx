@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CalendarDays, Filter, Search } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 
