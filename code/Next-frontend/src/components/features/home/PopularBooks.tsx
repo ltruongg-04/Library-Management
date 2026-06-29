@@ -52,14 +52,14 @@ function BookCard({ book, hideOnMobile, hideOnTablet }: { book: Book; hideOnMobi
                     {book.title}
                 </h3>
                 <p className="font-sans text-[14px] leading-[20px] text-on-surface-variant dark:text-white mb-4 transition-colors duration-200">
-                    {book.author}
+                    {book.authors?.map((a: any) => a.name).join(", ")}
                 </p>
                 <div className="mt-auto flex justify-between items-center">
                     <span
-                        className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES[book.category] || DEFAULT_CATEGORY_STYLE} px-2 py-1 rounded max-w-[120px] truncate`}
-                        title={book.category}
+                        className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES[book.categories?.[0]?.name] || DEFAULT_CATEGORY_STYLE} px-2 py-1 rounded max-w-[120px] truncate`}
+                        title={book.categories?.[0]?.name}
                     >
-                        {book.category || "—"}
+                        {book.categories?.[0]?.name || "—"}
                     </span>
                     <button
                         className="text-primary-700 dark:text-white hover:text-secondary-300 dark:hover:text-secondary-300 transition-colors"

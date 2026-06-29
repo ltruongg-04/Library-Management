@@ -35,7 +35,7 @@ export default function BookInfo({ book }: BookInfoProps) {
 
                 {/* Author */}
                 <p className="mb-4 font-title-md text-title-md text-on-surface-variant transition-colors duration-200 dark:text-white">
-                    {UI_TEXT.BOOK_DETAIL.BY} {book.author}
+                    {UI_TEXT.BOOK_DETAIL.BY} {book.author || "Unknown"}
                 </p>
 
                 {/* Description */}
@@ -46,10 +46,10 @@ export default function BookInfo({ book }: BookInfoProps) {
 
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 gap-4 border-y border-outline-variant/30 py-4 dark:border-slate-700 md:grid-cols-4">
-                <MetadataItem label="Publisher" value={book.publisher} />
-                <MetadataItem label="Published" value={book.publishedDate} />
-                <MetadataItem label="Pages" value={String(book.pages)} />
-                <MetadataItem label="ISBN" value={book.isbn} />
+                <MetadataItem label="Publisher" value={book.publisher || "N/A"} />
+                <MetadataItem label="Published" value={book.publishedDate ? new Date(book.publishedDate).getFullYear().toString() : "N/A"} />
+                <MetadataItem label="Pages" value={book.pages ? String(book.pages) : "N/A"} />
+                <MetadataItem label="ISBN" value={book.isbn || "N/A"} />
             </div>
 
             {/* Tags & Categories */}
@@ -58,9 +58,9 @@ export default function BookInfo({ book }: BookInfoProps) {
                     {UI_TEXT.BOOK_DETAIL.TAGS_CATEGORIES}
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                    {book.categories.map((category) => (
+                    {book.categories?.map((category, index) => (
                         <span
-                            key={category}
+                            key={index}
                             className="rounded-full bg-surface-container px-2 py-1 font-body-sm text-body-sm text-on-surface-variant transition-colors duration-200 dark:bg-slate-800 dark:text-white"
                         >
                             {category}
@@ -80,3 +80,4 @@ function MetadataItem({ label, value }: { label: string; value: string }) {
         </div>
     );
 }
+

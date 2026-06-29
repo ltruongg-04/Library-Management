@@ -1,7 +1,7 @@
-import axios from "axios";
-import type { BookPageResponse, Book, BookSearchParams } from "@/types/book";
+// 📚 API Service cho Books
+import type { Book, BookListItem } from "@/types/book";
 
-// 📦 API Response type (khớp với ApiResponse<T> từ backend)
+// Response type từ backend
 interface ApiResponse<T> {
     success: boolean;
     message: string;
@@ -9,89 +9,229 @@ interface ApiResponse<T> {
     timestamp: string;
 }
 
+// Gọi qua Next.js proxy route (relative URL) để tránh CORS
+const API_URL = "";
+
 export const bookService = {
-    /**
-     * Lấy danh sách sách (có phân trang, tìm kiếm, lọc category)
-     * GET /api/public/books
-     */
-    async getBooks(params?: BookSearchParams): Promise<BookPageResponse> {
+    async getBooks(params?: import("@/types/book").BookSearchParams): Promise<import("@/types/book").BookPageResponse> {
         try {
-            const response = await axios.get<ApiResponse<BookPageResponse>>("/api/public/books", {
-                params: {
-                    keyword: params?.keyword || undefined,
-                    category: params?.category || undefined,
-                    page: params?.page ?? 0,
-                    size: params?.size ?? 12,
-                    sortBy: params?.sortBy ?? "newest",
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
+
+            // Call the admin paginated endpoint for server-side search and filtering
+            const queryParams = new URLSearchParams();
+            if (params?.keyword) queryParams.append("keyword", params.keyword);
+
+            // Note: params.category now contains categoryId instead of category name, handled in page.tsx
+            if (params?.category && params.category !== "Tất cả" && params.category !== "all") {
+                queryParams.append("categoryId", params.category);
+            }
+
+            if (params?.page !== undefined) queryParams.append("page", params.page.toString());
+            if (params?.size !== undefined) queryParams.append("size", params.size.toString());
+
+            const response = await fetch(`${baseUrl}/api/admin/books?${queryParams.toString()}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            const result = await response.json();
+            if (!response.ok) throw new Error("Lỗi");
+
+            // Backend returns Page<BookListResponse> directly without ApiResponse wrapper for this endpoint
+            return {
+                content: result.content,
+                page: result.number,
+                size: result.size,
+                totalElements: result.totalElements,
+                totalPages: result.totalPages,
+                last: result.last
+            };
+        } catch (e) {
+            throw e;
+        }
+    },
+
+    async getTrendingBooks(limit: number = 8): Promise<import("@/types/book").BookPageResponse> {
+        try {
+            // Backend endpoint is /api/books/top-rated, not /api/public/books/trending
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
+            const response = await fetch(`${baseUrl}/api/books/top-rated`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message || "Lỗi");
+
+            const books = result.data || [];
+            const limitedBooks = books.slice(0, limit);
+
+            return {
+                content: limitedBooks as any,
+                page: 0,
+                size: limit,
+                totalElements: limitedBooks.length,
+                totalPages: 1,
+                last: true
+            };
+        } catch (e) {
+            throw e;
+        }
+    },
+
+    // 📖 Lấy danh sách top 10 sách đánh giá cao nhất
+    async getTopRatedBooks(): Promise<BookListItem[]> {
+        try {
+            const response = await fetch(`${API_URL}/api/books/top-rated`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
                 },
             });
 
-            const result = response.data;
+            const result: ApiResponse<BookListItem[]> = await response.json();
 
-            if (!result.success || !result.data) {
-                throw new Error(result.message || "Không thể lấy danh sách sách");
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Không thể lấy danh sách top sách");
             }
 
-            return result.data;
-        } catch (error: any) {
-            if (error.response?.data?.message) {
-                throw new Error(error.response.data.message);
-            }
-            if (error.code === "ECONNABORTED" || error.message === "Network Error") {
+            return result.data || [];
+        } catch (error) {
+            if (error instanceof TypeError && error.message === "Failed to fetch") {
                 throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
             }
             throw error;
         }
     },
 
-    /**
-     * Lấy chi tiết một cuốn sách
-     * GET /api/public/books/{id}
-     */
+    // 📖 Lấy chi tiết 1 cuốn sách theo ID
     async getBookById(id: number): Promise<Book> {
         try {
-            const response = await axios.get<ApiResponse<Book>>(`/api/public/books/${id}`);
+            const response = await fetch(`${API_URL}/api/books/${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
 
-            const result = response.data;
+            const result: ApiResponse<Book> = await response.json();
 
-            if (!result.success || !result.data) {
+            if (!response.ok || !result.success) {
                 throw new Error(result.message || "Không tìm thấy sách");
             }
 
-            return result.data;
-        } catch (error: any) {
-            if (error.response?.data?.message) {
-                throw new Error(error.response.data.message);
+            if (!result.data) {
+                throw new Error("Không tìm thấy sách");
             }
-            if (error.code === "ECONNABORTED" || error.message === "Network Error") {
+
+            return result.data;
+        } catch (error) {
+            if (error instanceof TypeError && error.message === "Failed to fetch") {
                 throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
             }
             throw error;
         }
     },
 
-    /**
-     * Lấy sách thịnh hành (mới nhất)
-     * GET /api/public/books/trending
-     */
-    async getTrendingBooks(limit: number = 8): Promise<BookPageResponse> {
+    // 📖 Lấy danh sách sách cho Admin Inventory (có phân trang)
+    async getAdminBookInventory(
+        page: number = 0,
+        size: number = 10,
+        keyword?: string,
+        category?: string,
+    ): Promise<import("@/types/book").PageResponse<BookListItem>> {
         try {
-            const response = await axios.get<ApiResponse<BookPageResponse>>("/api/public/books/trending", {
-                params: { limit },
+            const queryParams = new URLSearchParams({
+                page: page.toString(),
+                size: size.toString(),
+            });
+            if (keyword) queryParams.append("keyword", keyword);
+            if (category && category !== "All") queryParams.append("categoryId", category);
+
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
+            const response = await fetch(`${baseUrl}/api/admin/books?${queryParams.toString()}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
             });
 
-            const result = response.data;
-
-            if (!result.success || !result.data) {
-                throw new Error(result.message || "Không thể lấy sách thịnh hành");
+            if (!response.ok) {
+                throw new Error("Không thể lấy danh sách kho sách");
             }
 
-            return result.data;
+            const result: import("@/types/book").PageResponse<BookListItem> = await response.json();
+            return result;
+        } catch (error) {
+            if (error instanceof TypeError && error.message === "Failed to fetch") {
+                throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
+            }
+            throw error;
+        }
+    },
+
+    // 📖 Cập nhật thông tin sách
+    async updateBook(id: number, data: import("@/types/book").BookUpdateRequest): Promise<Book> {
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
+            const response = await fetch(`${baseUrl}/api/admin/books/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            const result: ApiResponse<Book> | Book = await response.json();
+
+            if (!response.ok) {
+                throw new Error("Không thể cập nhật sách");
+            }
+
+            if ((result as Book).id) {
+                return result as Book;
+            }
+
+            return (result as ApiResponse<Book>).data as Book;
+        } catch (error) {
+            if (error instanceof TypeError && error.message === "Failed to fetch") {
+                throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
+            }
+            throw error;
+        }
+    },
+
+    // 📖 Tạo sách mới
+    async createBook(data: import("@/types/book").BookCreateRequest): Promise<Book> {
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
+            const response = await fetch(`${baseUrl}/api/admin/books`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            let result: any;
+            try {
+                result = await response.json();
+            } catch (e) {
+                throw new Error("Lỗi phản hồi từ máy chủ");
+            }
+
+            if (!response.ok) {
+                const msg = result?.message || result?.error || "Không thể tạo sách mới (Lỗi máy chủ)";
+                throw new Error(msg);
+            }
+
+            if (result.id) {
+                return result as Book;
+            }
+
+            return result.data as Book;
         } catch (error: any) {
-            if (error.response?.data?.message) {
-                throw new Error(error.response.data.message);
-            }
-            if (error.code === "ECONNABORTED" || error.message === "Network Error") {
+            if (error instanceof TypeError && error.message === "Failed to fetch") {
                 throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
             }
             throw error;

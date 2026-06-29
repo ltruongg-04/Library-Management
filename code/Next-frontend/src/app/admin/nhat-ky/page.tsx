@@ -2,7 +2,6 @@
 
 import { type ElementType, type ReactNode, useState } from "react";
 import {
-    Bell,
     Bot,
     CalendarDays,
     CheckCircle2,
@@ -13,14 +12,13 @@ import {
     Eye,
     MoreVertical,
     SearchCheck,
-    Settings,
     ShieldX,
     User,
     UserX,
     XCircle,
     Zap,
 } from "lucide-react";
-import Link from "next/link";
+import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
 
 const TEXT = UI_TEXT.ADMIN_AUDIT_LOGS;
@@ -280,18 +278,6 @@ const resultConfig: Record<
     },
 };
 
-function IconButton({ label, icon: Icon }: { label: string; icon: ElementType }) {
-    return (
-        <button
-            type="button"
-            aria-label={label}
-            className="focus-ring grid h-10 w-10 place-items-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
-        >
-            <Icon size={21} strokeWidth={1.8} />
-        </button>
-    );
-}
-
 function FilterControl({ label, icon: Icon, children }: { label: string; icon: ElementType; children: ReactNode }) {
     return (
         <label className="flex min-w-[220px] flex-1 flex-col gap-xs">
@@ -510,67 +496,52 @@ export default function AuditLogsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-surface text-on-surface">
-            <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-lg border-b border-outline-variant/30 bg-surface/90 px-lg shadow-sm backdrop-blur-md">
-                <div className="flex min-w-0 items-center gap-sm text-title-md">
-                    <Link href="/admin" className="shrink-0 font-bold text-primary transition-colors hover:text-primary-container">
-                        {TEXT.TOPBAR_TITLE}
-                    </Link>
-                    <ChevronDown size={22} strokeWidth={1.8} className="-rotate-90 text-on-surface-variant" aria-hidden="true" />
-                    <span className="truncate font-medium text-on-surface-variant">{TEXT.BREADCRUMB_LABEL}</span>
+        <div className="flex min-h-screen w-full flex-col bg-surface">
+            <div className="px-8 pb-2 pt-8">
+                <AdminBreadcrumb pageName={TEXT.BREADCRUMB_LABEL} />
+            </div>
+            <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6">
+                <div>
+                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
+                        <Bot size={24} className="text-primary-600" />
+                        {TEXT.PAGE_TITLE}
+                        {selectedLog ? (
+                            <>
+                                <ChevronDown size={28} strokeWidth={1.8} className="-rotate-90 text-on-surface-variant" aria-hidden="true" />
+                                <span className="text-on-surface-variant">{TEXT.DETAIL_TITLE}</span>
+                            </>
+                        ) : null}
+                    </h1>
+                    <p className="mt-1 text-[14px] text-on-surface-variant">{TEXT.PAGE_DESCRIPTION}</p>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-sm">
-                    <IconButton label={TEXT.TOPBAR_NOTIFICATIONS} icon={Bell} />
-                    <IconButton label={TEXT.TOPBAR_SETTINGS} icon={Settings} />
-                    <div className="hidden h-6 w-px bg-outline-variant/60 sm:block" />
-                    <div className="grid h-8 w-8 place-items-center rounded-full border border-outline-variant/50 bg-primary-container text-[11px] font-semibold text-on-primary">
-                        QT
-                    </div>
-                </div>
-            </header>
-
-            <main className="mx-auto flex min-h-[calc(100vh-64px)] w-full max-w-[1600px] flex-col px-md py-lg lg:px-lg lg:py-xl">
-                <div className="mb-lg flex flex-col justify-between gap-md md:flex-row md:items-end">
-                    <div className="max-w-3xl">
-                        <h1 className="flex flex-wrap items-center gap-sm text-[32px] font-semibold leading-10 tracking-normal text-on-surface">
-                            <span>{TEXT.PAGE_TITLE}</span>
-                            {selectedLog ? (
-                                <>
-                                    <ChevronDown size={28} strokeWidth={1.8} className="-rotate-90 text-on-surface-variant" aria-hidden="true" />
-                                    <span className="text-on-surface-variant">{TEXT.DETAIL_TITLE}</span>
-                                </>
-                            ) : null}
-                        </h1>
-                        <p className="mt-sm text-body-md text-on-surface-variant">{TEXT.PAGE_DESCRIPTION}</p>
-                    </div>
-
-                    <div className="flex shrink-0 flex-col gap-sm sm:flex-row sm:items-center">
-                        <label className="relative">
-                            <span className="sr-only">{TEXT.EXPORT_FORMAT_LABEL}</span>
-                            <select
-                                value={exportFormat}
-                                onChange={(event) => setExportFormat(event.target.value as ExportFormat)}
-                                className="h-11 appearance-none rounded-lg border border-outline-variant/50 bg-surface-bright py-sm pl-md pr-9 text-body-sm font-medium text-on-surface shadow-sm outline-none transition-shadow focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary"
-                                aria-label={TEXT.EXPORT_FORMAT_LABEL}
-                            >
-                                <option value="txt">{TEXT.EXPORT_FORMAT_TXT}</option>
-                                <option value="csv">{TEXT.EXPORT_FORMAT_CSV}</option>
-                                <option value="json">{TEXT.EXPORT_FORMAT_JSON}</option>
-                            </select>
-                            <ChevronDown size={17} strokeWidth={1.9} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline" />
-                        </label>
-                        <button
-                            type="button"
-                            onClick={handleExportRecords}
-                            className="focus-ring inline-flex h-11 items-center justify-center gap-sm rounded-lg bg-primary px-lg text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
+                <div className="flex shrink-0 flex-col gap-sm sm:flex-row sm:items-center">
+                    <label className="relative">
+                        <span className="sr-only">{TEXT.EXPORT_FORMAT_LABEL}</span>
+                        <select
+                            value={exportFormat}
+                            onChange={(event) => setExportFormat(event.target.value as ExportFormat)}
+                            className="h-11 appearance-none rounded-lg border border-outline-variant/50 bg-surface-bright py-sm pl-md pr-9 text-body-sm font-medium text-on-surface shadow-sm outline-none transition-shadow focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary"
+                            aria-label={TEXT.EXPORT_FORMAT_LABEL}
                         >
-                            <Download size={20} strokeWidth={1.9} />
-                            {TEXT.EXPORT_RECORD}
-                        </button>
-                    </div>
+                            <option value="txt">{TEXT.EXPORT_FORMAT_TXT}</option>
+                            <option value="csv">{TEXT.EXPORT_FORMAT_CSV}</option>
+                            <option value="json">{TEXT.EXPORT_FORMAT_JSON}</option>
+                        </select>
+                        <ChevronDown size={17} strokeWidth={1.9} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline" />
+                    </label>
+                    <button
+                        type="button"
+                        onClick={handleExportRecords}
+                        className="focus-ring inline-flex h-11 items-center justify-center gap-sm rounded-lg bg-primary px-lg text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
+                    >
+                        <Download size={20} strokeWidth={1.9} />
+                        {TEXT.EXPORT_RECORD}
+                    </button>
                 </div>
+            </div>
 
+            <main className="flex-1 overflow-auto p-8">
                 <section className="level-1-shadow mb-lg flex flex-wrap items-end gap-md rounded-lg border border-outline-variant/20 bg-surface-container-lowest p-md">
                     <FilterControl label={TEXT.FILTERS.DATE_RANGE} icon={CalendarDays}>
                         <SelectControl
@@ -771,9 +742,8 @@ export default function AuditLogsPage() {
                                         aria-label={`${TEXT.TABLE.PAGE_LABEL} ${item}`}
                                         aria-current={item === currentPage ? "page" : undefined}
                                         onClick={() => setCurrentPage(item)}
-                                        className={`h-8 min-w-8 rounded px-sm text-body-sm font-medium transition-colors ${
-                                            item === currentPage ? "bg-primary-container text-on-primary" : "text-on-surface-variant hover:bg-surface-container"
-                                        }`}
+                                        className={`h-8 min-w-8 rounded px-sm text-body-sm font-medium transition-colors ${item === currentPage ? "bg-primary-container text-on-primary" : "text-on-surface-variant hover:bg-surface-container"
+                                            }`}
                                     >
                                         {item}
                                     </button>
