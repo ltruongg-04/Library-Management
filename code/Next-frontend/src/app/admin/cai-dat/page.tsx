@@ -14,13 +14,14 @@ import {
     Info,
     Landmark,
     Save,
+    Settings,
     Sparkles,
     ToggleRight,
     WalletCards,
 } from "lucide-react";
-import Link from "next/link";
 import { Toggle } from "@/components/base/Toggle";
 import { SuccessModal } from "@/components/base/success-modal";
+import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
 
 const SETTINGS = UI_TEXT.ADMIN_SETTINGS;
@@ -431,22 +432,23 @@ export default function CaiDatPage() {
     };
 
     return (
-        <div className="min-h-screen bg-surface pb-28 text-on-surface">
-            <main className="mx-auto max-w-[1440px] px-lg py-xl">
-                <div className="mb-md flex items-center gap-sm text-title-md">
-                    <Link href="/admin" className="font-bold text-primary transition-colors hover:text-primary-container">
-                        {SETTINGS.TOPBAR_TITLE}
-                    </Link>
-                    <ChevronDown size={22} strokeWidth={1.8} className="-rotate-90 text-on-surface-variant" aria-hidden="true" />
-                    <span className="font-medium text-on-surface-variant">{UI_TEXT.ADMIN.SIDEBAR.NAV_SETTINGS}</span>
-                </div>
+        <div className="flex min-h-screen w-full flex-col bg-surface pb-28 text-on-surface">
+            <div className="px-8 pb-2 pt-8">
+                <AdminBreadcrumb pageName={UI_TEXT.ADMIN.SIDEBAR.NAV_SETTINGS} />
+            </div>
 
-                <div className="mb-xl max-w-3xl">
-                    <h2 className="text-[32px] font-semibold leading-10 text-on-surface">{SETTINGS.PAGE_TITLE}</h2>
-                    <p className="mt-sm text-body-md text-on-surface-variant">{SETTINGS.PAGE_DESCRIPTION}</p>
+            <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6">
+                <div>
+                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
+                        <Settings size={24} className="text-primary-600" />
+                        {SETTINGS.PAGE_TITLE}
+                    </h1>
+                    <p className="mt-1 text-[14px] text-on-surface-variant">{SETTINGS.PAGE_DESCRIPTION}</p>
                 </div>
+            </div>
 
-                <div className="grid grid-cols-1 items-start gap-lg xl:grid-cols-12 xl:gap-xl">
+            <main className="flex-1 overflow-auto p-8">
+                <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-start gap-lg xl:grid-cols-12 xl:gap-xl">
                     <div className="xl:col-span-7">
                         <SectionCard icon={BookOpen} title={SETTINGS.BORROWING.TITLE}>
                             <div className="grid grid-cols-1 gap-lg md:grid-cols-2">

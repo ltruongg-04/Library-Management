@@ -406,3 +406,76 @@ export const ADMIN_BORROW_MANAGEMENT = {
         PLACEHOLDER_DUE_DATE: "dd/mm/yyyy",
     },
 };
+
+export const ADMIN_AUTHOR_MANAGEMENT = {
+    HEADER: {
+        TITLE: "Quản lý Tác giả",
+        DESCRIPTION: "Thêm, sửa, xoá và quản lý các tác giả sách trong hệ thống.",
+        CREATE_BTN: "Thêm tác giả mới",
+    },
+    TABLE: {
+        BTN_RETRY: "Thử lại",
+        EMPTY_STATE: "Chưa có tác giả nào.",
+        COL_NAME: "Tên tác giả",
+        COL_BIO: "Tiểu sử",
+        COL_ACTIONS: "Thao tác",
+        NO_BIO: "Không có tiểu sử",
+    },
+    MODAL: {
+        TITLE_EDIT: "Chỉnh sửa tác giả",
+        TITLE_ADD: "Thêm tác giả mới",
+        LABEL_NAME: "Tên tác giả *",
+        LABEL_BIO: "Tiểu sử",
+        BTN_CANCEL: "Hủy bỏ",
+        BTN_SAVE: "Lưu",
+    },
+};
+
+export const ADMIN_CATEGORY_MANAGEMENT = {
+    HEADER: {
+        TITLE: "Quản lý Thể loại",
+        DESCRIPTION: "Thêm, sửa, xoá và quản lý các thể loại sách trong hệ thống.",
+        CREATE_BTN: "Thêm thể loại mới",
+    },
+    TABLE: {
+        BTN_RETRY: "Thử lại",
+        EMPTY_STATE: "Chưa có thể loại nào.",
+        COL_NAME: "Tên thể loại",
+        COL_DESC: "Mô tả",
+        COL_ACTIONS: "Thao tác",
+        NO_DESC: "Không có mô tả",
+    },
+    MODAL: {
+        TITLE_EDIT: "Chỉnh sửa thể loại",
+        TITLE_ADD: "Thêm thể loại mới",
+        LABEL_NAME: "Tên thể loại *",
+        LABEL_DESC: "Mô tả",
+        BTN_CANCEL: "Hủy bỏ",
+        BTN_SAVE: "Lưu",
+        DELETE_TITLE: "Xác nhận xoá thể loại",
+        DELETE_DESC:
+            "Bạn có chắc chắn muốn xoá thể loại này? Các sách thuộc thể loại này sẽ không còn hiển thị thể loại này nữa. Hành động này không thể hoàn tác.",
+        DELETE_BTN_CANCEL: "Hủy",
+    },
+};
+
+export const ADMIN_INVENTORY_MANAGEMENT = {
+    FILTERS: {
+        CATEGORY_ALL: "Thể loại: Tất cả",
+    },
+    TABLE: {
+        NOT_UPDATED: "Chưa cập nhật",
+        NA: "N/A",
+        BTN_COPIES: "Chi tiết các cuốn",
+        BTN_EDIT: "Sửa thông tin",
+        BTN_DELETE: "Xóa",
+        COL_COVER: "Ảnh bìa",
+        COL_TITLE: "Tiêu đề & Tác giả",
+        COL_ISBN: "ISBN-13",
+        COL_CATEGORY: "Thể loại",
+        COL_STOCK: "Tồn kho",
+        COL_LOCATION: "Vị trí",
+        COL_ACTIONS: "Thao tác",
+        EMPTY_STATE: "Không tìm thấy sách nào phù hợp với bộ lọc.",
+    },
+};

@@ -43,12 +43,18 @@ export default function UserManagementPage() {
     ];
 
     return (
-        <div className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col gap-lg p-md md:p-xl">
-            <AdminBreadcrumb pageName={UI_TEXT.ADMIN.SIDEBAR.NAV_MEMBERS} />
+        <div className="flex min-h-screen w-full flex-col bg-surface">
+            <div className="px-8 pb-2 pt-8">
+                <AdminBreadcrumb pageName={UI_TEXT.ADMIN.SIDEBAR.NAV_MEMBERS} />
+            </div>
+
             <UserManagementHeader onCreate={() => setOpen(true)} />
-            <UserFilters />
-            <UserTable users={users} />
-            <UserModal open={open} onClose={() => setOpen(false)} />
+
+            <main className="flex flex-1 flex-col gap-lg overflow-auto p-8">
+                <UserFilters />
+                <UserTable users={users} />
+                <UserModal open={open} onClose={() => setOpen(false)} />
+            </main>
         </div>
     );
 }
