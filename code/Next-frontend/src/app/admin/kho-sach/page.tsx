@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { ScanLine, Sparkles } from "lucide-react";
+import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import AddBookModal from "@/components/features/admin/inventory/AddBookModal";
 import BookFilters from "@/components/features/admin/inventory/BookFilters";
 import BookTable from "@/components/features/admin/inventory/BookTable";
@@ -11,12 +12,19 @@ export default function KhoSachPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     return (
-        <div className="mx-auto max-w-7xl space-y-8 p-8">
+        <div className="flex min-h-screen w-full flex-col bg-surface">
+            <div className="px-8 pb-2 pt-8">
+                <AdminBreadcrumb pageName={ADMIN.SIDEBAR.NAV_BOOKS} />
+            </div>
+
             {/* Header Section */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="max-w-2xl">
-                    <h1 className="text-3xl font-bold tracking-tight text-primary-900">{ADMIN.SIDEBAR.NAV_BOOKS}</h1>
-                    <p className="mt-2 text-[15px] leading-relaxed text-on-surface-variant">{ADMIN_PAGES.INVENTORY.PAGE_DESC}</p>
+            <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6">
+                <div>
+                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
+                        <ScanLine size={24} className="text-primary-600" />
+                        {ADMIN.SIDEBAR.NAV_BOOKS}
+                    </h1>
+                    <p className="mt-1 text-[14px] text-on-surface-variant">{ADMIN_PAGES.INVENTORY.PAGE_DESC}</p>
                 </div>
 
                 {/* Action Buttons */}
@@ -35,9 +43,10 @@ export default function KhoSachPage() {
                 </div>
             </div>
 
-            <div className="flex flex-col">
+            {/* Content Section */}
+            <div className="flex flex-1 flex-col space-y-6 p-8">
                 {/* Filters and Search */}
-                <Suspense fallback={<div className="mb-6 h-14 animate-pulse rounded-xl bg-surface-container-high"></div>}>
+                <Suspense fallback={<div className="h-14 animate-pulse rounded-xl bg-surface-container-high"></div>}>
                     <BookFilters />
                 </Suspense>
 
@@ -52,8 +61,6 @@ export default function KhoSachPage() {
                     isOpen={isAddModalOpen}
                     onClose={() => setIsAddModalOpen(false)}
                     onSuccess={() => {
-                        // Dùng window.location.reload() hoặc cập nhật global state nếu có,
-                        // ở đây tạm reload trang để reset lại dữ liệu bảng
                         window.location.reload();
                     }}
                 />

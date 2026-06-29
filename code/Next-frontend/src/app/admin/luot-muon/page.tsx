@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { ClipboardList, Plus } from "lucide-react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import BorrowFilters from "@/components/features/luot-muon/BorrowFilters";
 import BorrowModal from "@/components/features/luot-muon/BorrowModal";
@@ -122,13 +122,19 @@ export default function LuotMuonPage() {
     });
 
     return (
-        <div className="flex min-h-screen flex-col gap-lg p-md md:p-xl">
-            <AdminBreadcrumb pageName={UI_TEXT.ADMIN.SIDEBAR.NAV_BORROWS} />
+        <div className="flex min-h-screen w-full flex-col bg-surface text-on-surface">
+            <div className="px-8 pb-2 pt-8">
+                <AdminBreadcrumb pageName={UI_TEXT.ADMIN.SIDEBAR.NAV_BORROWS} />
+            </div>
+
             {/* Header */}
-            <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+            <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6">
                 <div>
-                    <h2 className="font-headline-lg text-headline-lg text-on-background">{T.TITLE}</h2>
-                    <p className="mt-1 text-body-md text-on-surface-variant">{T.DESCRIPTION}</p>
+                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
+                        <ClipboardList size={24} className="text-primary-600" />
+                        {T.TITLE}
+                    </h1>
+                    <p className="mt-1 text-[14px] text-on-surface-variant">{T.DESCRIPTION}</p>
                 </div>
                 <button
                     onClick={() => setOpenModal(true)}
@@ -139,14 +145,15 @@ export default function LuotMuonPage() {
                 </button>
             </div>
 
-            {/* Filters */}
-            <BorrowFilters search={search} onSearchChange={setSearch} status={status} onStatusChange={setStatus} onApplyDates={handleApplyDates} />
+            <main className="flex flex-1 flex-col gap-lg overflow-auto p-8">
+                {/* Filters */}
+                <BorrowFilters search={search} onSearchChange={setSearch} status={status} onStatusChange={setStatus} onApplyDates={handleApplyDates} />
 
-            {/* Table */}
-            <BorrowTable records={filteredRecords} onStatusUpdate={handleStatusUpdate} />
+                {/* Table */}
+                <BorrowTable records={filteredRecords} onStatusUpdate={handleStatusUpdate} />
 
-            {/* Modal */}
-            <BorrowModal open={openModal} onClose={() => setOpenModal(false)} onSubmit={handleCreateRecord} />
+                <BorrowModal open={openModal} onClose={() => setOpenModal(false)} onSubmit={handleCreateRecord} />
+            </main>
         </div>
     );
 }
