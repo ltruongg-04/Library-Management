@@ -60,6 +60,8 @@ const MOCK_RECORDS: BorrowRecord[] = [
     },
 ];
 
+
+
 export default function LuotMuonPage() {
     const [openModal, setOpenModal] = useState(false);
     const [records, setRecords] = useState<BorrowRecord[]>(MOCK_RECORDS);

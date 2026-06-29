@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import BookCover from "@/components/features/book-detail/BookCover";
 import BookInfo from "@/components/features/book-detail/BookInfo";
@@ -75,25 +77,48 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
         <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
             {/* Breadcrumb */}
             <Breadcrumb items={breadcrumbItems} />
+            return (
+            <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
+                {/* Breadcrumb */}
+                <Breadcrumb items={breadcrumbItems} />
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-12 lg:gap-12">
-                {/* Left Column: Book Cover & Actions */}
-                <div className="col-span-1 md:col-span-4 lg:col-span-3">
-                    <BookCover book={bookDetail} />
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-12 lg:gap-12">
+                    {/* Left Column: Book Cover & Actions */}
+                    <div className="col-span-1 md:col-span-4 lg:col-span-3">
+                        <BookCover book={bookDetail} />
+                    </div>
+                    {/* Main Content Grid */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-12 lg:gap-12">
+                        {/* Left Column: Book Cover & Actions */}
+                        <div className="col-span-1 md:col-span-4 lg:col-span-3">
+                            <BookCover book={bookDetail} />
+                        </div>
+
+                        {/* Middle Column: Metadata & Details */}
+                        <div className="col-span-1 md:col-span-8 lg:col-span-6">
+                            <BookInfo book={bookDetail} />
+                        </div>
+                        {/* Middle Column: Metadata & Details */}
+                        <div className="col-span-1 md:col-span-8 lg:col-span-6">
+                            <BookInfo book={bookDetail} />
+                        </div>
+
+                        {/* Right Column: AI Chatbot */}
+                        <div className="col-span-1 md:col-span-12 lg:col-span-3">
+                            <AIChatbot bookTitle={book.title} />
+                        </div>
+                    </div>
+                    {/* Right Column: AI Chatbot */}
+                    <div className="col-span-1 md:col-span-12 lg:col-span-3">
+                        <AIChatbot bookTitle={book.title} />
+                    </div>
                 </div>
 
-                {/* Middle Column: Metadata & Details */}
-                <div className="col-span-1 md:col-span-8 lg:col-span-6">
-                    <BookInfo book={bookDetail} />
-                </div>
-
-                {/* Right Column: AI Chatbot */}
-                <div className="col-span-1 md:col-span-12 lg:col-span-3">
-                    <AIChatbot bookTitle={book.title} />
-                </div>
+                {/* Related Books Section */}
+                {relatedBooks.length > 0 && <RelatedBooks books={relatedBooks} />}
             </div>
-
+            );
             {/* Related Books Section */}
             {relatedBooks.length > 0 && <RelatedBooks books={relatedBooks} />}
         </div>

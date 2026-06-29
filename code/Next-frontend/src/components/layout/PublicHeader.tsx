@@ -113,9 +113,8 @@ export function PublicHeader() {
                 <div className="flex items-center gap-6">
                     <Link
                         href="/"
-                        className={`font-sans font-bold text-primary-700 transition-colors duration-200 dark:text-white ${
-                            isSettingsRoute ? "text-[24px]" : "text-[32px] tracking-tight"
-                        }`}
+                        className={`font-sans font-bold text-primary-700 transition-colors duration-200 dark:text-white ${isSettingsRoute ? "text-[24px]" : "text-[32px] tracking-tight"
+                            }`}
                     >
                         {UI_TEXT.PROFILE.LAYOUT.BRAND}
                     </Link>
@@ -130,11 +129,10 @@ export function PublicHeader() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`flex h-full flex-col justify-center text-[20px] font-semibold transition-all duration-200 active:scale-95 ${
-                                        isActive
+                                    className={`flex h-full flex-col justify-center text-[20px] font-semibold transition-all duration-200 active:scale-95 ${isActive
                                             ? "border-b-2 border-primary-700 text-primary-700 dark:border-primary-100 dark:text-white"
                                             : "text-ink-500 hover:text-primary-700 dark:text-white dark:hover:text-primary-100"
-                                    }`}
+                                        }`}
                                 >
                                     {link.label}
                                 </Link>

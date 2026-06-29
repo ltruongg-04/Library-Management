@@ -11,7 +11,6 @@ import {
     CreditCard,
     DatabaseBackup,
     Globe2,
-    Info,
     Landmark,
     Save,
     Settings,
@@ -205,9 +204,8 @@ function PolicyField({ label, value, suffix, onChange }: { label: string; value:
                     type="number"
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
-                    className={`h-10 w-full rounded-lg border-none bg-surface-bright py-sm pl-md text-body-md text-on-surface transition-shadow focus:ring-1 focus:ring-primary ${
-                        suffix ? "pr-14" : "pr-md"
-                    }`}
+                    className={`h-10 w-full rounded-lg border-none bg-surface-bright py-sm pl-md text-body-md text-on-surface transition-shadow focus:ring-1 focus:ring-primary ${suffix ? "pr-14" : "pr-md"
+                        }`}
                 />
                 {suffix ? (
                     <span className="pointer-events-none absolute right-1 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md bg-surface-bright text-body-sm text-on-surface-variant">
@@ -280,9 +278,8 @@ function GatewayRow({
                 </div>
                 <div className="flex shrink-0 items-center gap-sm sm:justify-end">
                     <span
-                        className={`inline-flex items-center gap-xs rounded-full px-3 py-1 text-[12px] font-semibold ${
-                            active ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-warning-100 text-warning-800"
-                        }`}
+                        className={`inline-flex items-center gap-xs rounded-full px-3 py-1 text-[12px] font-semibold ${active ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-warning-100 text-warning-800"
+                            }`}
                     >
                         <span className={`h-2 w-2 rounded-full ${active ? "bg-secondary" : "bg-warning-600"}`} />
                         {active ? SETTINGS.PAYMENTS.VERIFIED : SETTINGS.PAYMENTS.NEEDS_CONNECTION}
@@ -296,11 +293,10 @@ function GatewayRow({
                 </span>
                 <button
                     type="button"
-                    className={`focus-ring h-9 rounded-lg px-md text-body-sm font-semibold transition-colors ${
-                        active
-                            ? "border border-secondary bg-transparent text-secondary hover:bg-secondary/10"
-                            : "bg-primary text-on-primary shadow-sm hover:bg-primary-container"
-                    }`}
+                    className={`focus-ring h-9 rounded-lg px-md text-body-sm font-semibold transition-colors ${active
+                        ? "border border-secondary bg-transparent text-secondary hover:bg-secondary/10"
+                        : "bg-primary text-on-primary shadow-sm hover:bg-primary-container"
+                        }`}
                 >
                     {active ? SETTINGS.PAYMENTS.MANAGE_CONNECTION : SETTINGS.PAYMENTS.CONNECT_GATEWAY}
                 </button>
@@ -539,33 +535,41 @@ export default function CaiDatPage() {
             </main>
 
             {hasChanges && (
-                <footer className="fixed bottom-0 left-sidebar-width right-0 z-40 flex flex-col gap-md border-t border-outline-variant/30 bg-surface/90 px-lg py-md shadow-[0_-4px_12px_rgba(0,0,0,0.05)] backdrop-blur-md md:flex-row md:items-center md:justify-between">
-                    <p className="flex items-center gap-xs text-body-sm text-on-surface-variant">
-                        <Info size={16} strokeWidth={1.8} />
-                        {SETTINGS.ACTION_BAR.WARNING}
-                    </p>
-                    <div className="flex flex-col gap-sm sm:flex-row">
-                        <button
-                            type="button"
-                            onClick={() => setShowDiscardModal(true)}
-                            className="focus-ring h-11 rounded-lg border border-secondary bg-transparent px-lg text-body-md font-medium text-secondary transition-colors hover:bg-secondary/10"
-                        >
-                            {SETTINGS.ACTION_BAR.DISCARD}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleSave}
-                            className="focus-ring inline-flex h-11 items-center justify-center gap-sm rounded-lg bg-primary px-lg text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
-                        >
-                            <Save size={18} strokeWidth={2} />
-                            {SETTINGS.ACTION_BAR.SAVE}
-                        </button>
+                <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-surface-container-high bg-white px-8 py-4 shadow-lg">
+                    <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-md">
+                        <p className="text-body-sm text-on-surface-variant">{SETTINGS.ACTION_BAR.WARNING}</p>
+                        <div className="flex gap-sm">
+                            <button
+                                type="button"
+                                onClick={() => setShowDiscardModal(true)}
+                                className="focus-ring h-10 rounded-lg border border-outline px-md text-body-md font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low"
+                            >
+                                {SETTINGS.ACTION_BAR.DISCARD}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                className="focus-ring flex h-10 items-center gap-sm rounded-lg bg-primary px-md text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
+                            >
+                                <Save size={16} />
+                                {SETTINGS.ACTION_BAR.SAVE}
+                            </button>
+                        </div>
                     </div>
-                </footer>
+                </div>
             )}
 
-            <SuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} message={SETTINGS.ACTION_BAR.SUCCESS} />
-            <ConfirmDiscardModal isOpen={showDiscardModal} onClose={() => setShowDiscardModal(false)} onConfirm={confirmDiscard} />
+            <SuccessModal
+                isOpen={showSuccessModal}
+                message={SETTINGS.ACTION_BAR.SUCCESS}
+                onClose={() => setShowSuccessModal(false)}
+            />
+
+            <ConfirmDiscardModal
+                isOpen={showDiscardModal}
+                onClose={() => setShowDiscardModal(false)}
+                onConfirm={confirmDiscard}
+            />
         </div>
     );
 }
