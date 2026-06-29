@@ -24,7 +24,7 @@ export default function LoanDetailPage() {
                             className="inline-flex items-center transition-colors hover:text-primary dark:text-slate-400 dark:hover:text-primary-300"
                             href="/my-books"
                         >
-                            {UI_TEXT.PUBLIC_LAYOUT.MY_BOOKS}
+                            {UI_TEXT.PUBLIC_LAYOUT.MY_HISTORY}
                         </Link>
                     </li>
                     <li>
