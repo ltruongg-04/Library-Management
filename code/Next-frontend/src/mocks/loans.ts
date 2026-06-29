@@ -8,7 +8,7 @@ export const MOCK_LOANS = [
         actualReturnDate: null as string | null,
         deposit: "250.000đ",
         status: "borrowing" as const,
-        imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuDsfOcBpJJgQyJoSUCYejX7lohGTGUFjq7ZkL_tD7HdiMvYPfWkgXqdTHAvBuX0mKVSIASXedLUTe9Lz7wQ5omHp3_pRpFb6l-y-9FaV6Nz029PFWA7DMbdPKE2rMkn1jXs4gSZt6qUyIYI8Ct9JMzha-tzBvHJfODPtWxWPBLsAkQsJhGB6qRRHbbOi4CIfsEZHY3DBRvlmIdtICflVqffE44Fg4H79A5iO4m6OQ9hxKIp7litWF3Rpbwqz55cVhAfCn6U2aTfOH4S",
+        imgSrc: "",
     },
     {
         id: "BRW-9043",
@@ -20,7 +20,7 @@ export const MOCK_LOANS = [
         deposit: "180.000đ",
         lateFee: "45.000đ",
         status: "overdue" as const,
-        imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuAGwJPhPhWyh7tY-XMu0j8JBcP_19pPjVxWfDmaiE_eVafrSvKIX1xgGlg_qO_HMyIAggdr4WVxRsKy0HHMpJ7HAIydRHpnUtUiWbvvz8iSCdxaqmDUGZdQ1bMki9GXbLHgfzKoumR8sd552JpANAMD0hq40eTbEayNk3jSUFtodQxoU97fXMX5gu-XxQwsuGNmcx31cOiopHerjM5yOVr2MiZIOMHIcQflyzJ72zgl6we1EmSlBJUA3LRtPx39U-6Ki4OC6mi2_gug",
+        imgSrc: "",
     },
     {
         id: "BRW-9044",
