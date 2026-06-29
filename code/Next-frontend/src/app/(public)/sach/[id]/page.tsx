@@ -1,13 +1,11 @@
 "use client";
 
-"use client";
-
-import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
+import { MaterialIcon } from "@/components/base/material-icon";
+import AIChatbot from "@/components/features/book-detail/AIChatbot";
 import BookCover from "@/components/features/book-detail/BookCover";
 import BookInfo from "@/components/features/book-detail/BookInfo";
-import AIChatbot from "@/components/features/book-detail/AIChatbot";
+import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import RelatedBooks from "@/components/features/book-detail/RelatedBooks";
-import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useBookDetail, useTrendingBooks } from "@/hooks/useBooks";
 import { bookToBookDetail } from "@/types/book";
@@ -45,10 +43,8 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
             <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
                 <div className="flex flex-col items-center justify-center py-24 text-center">
                     <MaterialIcon name="error_outline" className="mb-4 text-[64px] text-red-400" />
-                    <h2 className="mb-2 text-[24px] font-semibold text-on-surface dark:text-white">
-                        {UI_TEXT.COMMON.ERROR_LOAD_BOOK_DETAIL}
-                    </h2>
-                    <p className="text-on-surface-variant dark:text-white/70">{error || "Sách không tồn tại"}</p>
+                    <h2 className="mb-2 text-[24px] font-semibold text-on-surface dark:text-white">{UI_TEXT.COMMON.ERROR_LOAD_BOOK_DETAIL}</h2>
+                    <p className="text-on-surface-variant dark:text-white/70">{error || UI_TEXT.COMMON.BOOK_NOT_FOUND}</p>
                 </div>
             </div>
         );
@@ -68,8 +64,8 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
         }));
 
     const breadcrumbItems = [
-        { label: "Catalog", href: "/" },
-        { label: book.categories?.[0]?.name || "Sách", href: "/sach" },
+        { label: UI_TEXT.COMMON.CATALOG, href: "/" },
+        { label: book.categories?.[0]?.name || UI_TEXT.COMMON.BOOK_LABEL, href: "/sach" },
         { label: book.title },
     ];
 
@@ -77,48 +73,25 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
         <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
             {/* Breadcrumb */}
             <Breadcrumb items={breadcrumbItems} />
-            return (
-            <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
-                {/* Breadcrumb */}
-                <Breadcrumb items={breadcrumbItems} />
 
-                {/* Main Content Grid */}
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-12 lg:gap-12">
-                    {/* Left Column: Book Cover & Actions */}
-                    <div className="col-span-1 md:col-span-4 lg:col-span-3">
-                        <BookCover book={bookDetail} />
-                    </div>
-                    {/* Main Content Grid */}
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-12 lg:gap-12">
-                        {/* Left Column: Book Cover & Actions */}
-                        <div className="col-span-1 md:col-span-4 lg:col-span-3">
-                            <BookCover book={bookDetail} />
-                        </div>
-
-                        {/* Middle Column: Metadata & Details */}
-                        <div className="col-span-1 md:col-span-8 lg:col-span-6">
-                            <BookInfo book={bookDetail} />
-                        </div>
-                        {/* Middle Column: Metadata & Details */}
-                        <div className="col-span-1 md:col-span-8 lg:col-span-6">
-                            <BookInfo book={bookDetail} />
-                        </div>
-
-                        {/* Right Column: AI Chatbot */}
-                        <div className="col-span-1 md:col-span-12 lg:col-span-3">
-                            <AIChatbot bookTitle={book.title} />
-                        </div>
-                    </div>
-                    {/* Right Column: AI Chatbot */}
-                    <div className="col-span-1 md:col-span-12 lg:col-span-3">
-                        <AIChatbot bookTitle={book.title} />
-                    </div>
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-12 lg:gap-12">
+                {/* Left Column: Book Cover & Actions */}
+                <div className="col-span-1 md:col-span-4 lg:col-span-3">
+                    <BookCover book={bookDetail} />
                 </div>
 
-                {/* Related Books Section */}
-                {relatedBooks.length > 0 && <RelatedBooks books={relatedBooks} />}
+                {/* Middle Column: Metadata & Details */}
+                <div className="col-span-1 md:col-span-8 lg:col-span-6">
+                    <BookInfo book={bookDetail} />
+                </div>
+
+                {/* Right Column: AI Chatbot */}
+                <div className="col-span-1 md:col-span-12 lg:col-span-3">
+                    <AIChatbot bookTitle={book.title} />
+                </div>
             </div>
-            );
+
             {/* Related Books Section */}
             {relatedBooks.length > 0 && <RelatedBooks books={relatedBooks} />}
         </div>

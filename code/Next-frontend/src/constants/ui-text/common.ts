@@ -13,6 +13,9 @@ export const COMMON = {
         SUCCESS: "Thành công!",
         CLOSE: "Đóng",
     },
+    CATALOG: "Danh mục",
+    BOOK_LABEL: "Sách",
+    BOOK_NOT_FOUND: "Không tìm thấy sách",
 };
 
 export const MAINTENANCE = {
