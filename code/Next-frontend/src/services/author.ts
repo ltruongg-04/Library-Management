@@ -1,41 +1,23 @@
 import type { Author, AuthorRequest } from '@/types/author';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8081';
+import axiosInstance from '@/lib/axios';
 
 export const authorService = {
   getAllAuthors: async (): Promise<Author[]> => {
-    const response = await fetch(`${API_URL}/api/admin/authors`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (!response.ok) throw new Error('Failed to fetch authors');
-    return response.json();
+    const response = await axiosInstance.get(`/api/admin/authors`);
+    return response.data;
   },
 
   createAuthor: async (data: AuthorRequest): Promise<Author> => {
-    const response = await fetch(`${API_URL}/api/admin/authors`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) throw new Error('Failed to create author');
-    return response.json();
+    const response = await axiosInstance.post(`/api/admin/authors`, data);
+    return response.data;
   },
 
   updateAuthor: async (id: number, data: AuthorRequest): Promise<Author> => {
-    const response = await fetch(`${API_URL}/api/admin/authors/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) throw new Error('Failed to update author');
-    return response.json();
+    const response = await axiosInstance.put(`/api/admin/authors/${id}`, data);
+    return response.data;
   },
 
   deleteAuthor: async (id: number): Promise<void> => {
-    const response = await fetch(`${API_URL}/api/admin/authors/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error('Failed to delete author');
+    await axiosInstance.delete(`/api/admin/authors/${id}`);
   }
 };

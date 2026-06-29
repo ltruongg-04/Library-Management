@@ -5,6 +5,7 @@ import library.dto.response.AuthorResponse;
 import library.entity.AuthorEntity;
 import library.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,7 @@ public class AuthorService {
     }
 
     @Transactional
-    public AuthorResponse updateAuthor(Integer id, AuthorRequest request) {
+    public AuthorResponse updateAuthor(@NonNull Integer id, AuthorRequest request) {
         AuthorEntity author = authorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tác giả"));
 
@@ -53,7 +54,7 @@ public class AuthorService {
     }
 
     @Transactional
-    public void deleteAuthor(Integer id) {
+    public void deleteAuthor(@NonNull Integer id) {
         if (!authorRepository.existsById(id)) {
             throw new RuntimeException("Không tìm thấy tác giả");
         }
