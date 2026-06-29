@@ -27,13 +27,13 @@ export const bookService = {
             if (params?.page !== undefined) queryParams.append("page", params.page.toString());
             if (params?.size !== undefined) queryParams.append("size", params.size.toString());
 
-            const response = await axiosInstance.get(`/api/books?${queryParams.toString()}`);
+            const response = await axiosInstance.get(`/api/books?${queryParams.toString()}`, { signal });
             const result = response.data;
-            
+
             if (!result.success) {
                 throw new Error(result.message || "Không thể lấy danh sách sách");
             }
-            
+
             return result.data;
         } catch (e) {
             throw e;
