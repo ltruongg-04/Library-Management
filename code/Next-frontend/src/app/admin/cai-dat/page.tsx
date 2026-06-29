@@ -11,16 +11,16 @@ import {
     CreditCard,
     DatabaseBackup,
     Globe2,
-    Info,
     Landmark,
     Save,
+    Settings,
     Sparkles,
     ToggleRight,
     WalletCards,
 } from "lucide-react";
-import Link from "next/link";
 import { Toggle } from "@/components/base/Toggle";
 import { SuccessModal } from "@/components/base/success-modal";
+import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
 
 const SETTINGS = UI_TEXT.ADMIN_SETTINGS;
@@ -204,9 +204,8 @@ function PolicyField({ label, value, suffix, onChange }: { label: string; value:
                     type="number"
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
-                    className={`h-10 w-full rounded-lg border-none bg-surface-bright py-sm pl-md text-body-md text-on-surface transition-shadow focus:ring-1 focus:ring-primary ${
-                        suffix ? "pr-14" : "pr-md"
-                    }`}
+                    className={`h-10 w-full rounded-lg border-none bg-surface-bright py-sm pl-md text-body-md text-on-surface transition-shadow focus:ring-1 focus:ring-primary ${suffix ? "pr-14" : "pr-md"
+                        }`}
                 />
                 {suffix ? (
                     <span className="pointer-events-none absolute right-1 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md bg-surface-bright text-body-sm text-on-surface-variant">
@@ -279,9 +278,8 @@ function GatewayRow({
                 </div>
                 <div className="flex shrink-0 items-center gap-sm sm:justify-end">
                     <span
-                        className={`inline-flex items-center gap-xs rounded-full px-3 py-1 text-[12px] font-semibold ${
-                            active ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-warning-100 text-warning-800"
-                        }`}
+                        className={`inline-flex items-center gap-xs rounded-full px-3 py-1 text-[12px] font-semibold ${active ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-warning-100 text-warning-800"
+                            }`}
                     >
                         <span className={`h-2 w-2 rounded-full ${active ? "bg-secondary" : "bg-warning-600"}`} />
                         {active ? SETTINGS.PAYMENTS.VERIFIED : SETTINGS.PAYMENTS.NEEDS_CONNECTION}
@@ -295,11 +293,10 @@ function GatewayRow({
                 </span>
                 <button
                     type="button"
-                    className={`focus-ring h-9 rounded-lg px-md text-body-sm font-semibold transition-colors ${
-                        active
-                            ? "border border-secondary bg-transparent text-secondary hover:bg-secondary/10"
-                            : "bg-primary text-on-primary shadow-sm hover:bg-primary-container"
-                    }`}
+                    className={`focus-ring h-9 rounded-lg px-md text-body-sm font-semibold transition-colors ${active
+                        ? "border border-secondary bg-transparent text-secondary hover:bg-secondary/10"
+                        : "bg-primary text-on-primary shadow-sm hover:bg-primary-container"
+                        }`}
                 >
                     {active ? SETTINGS.PAYMENTS.MANAGE_CONNECTION : SETTINGS.PAYMENTS.CONNECT_GATEWAY}
                 </button>
@@ -431,22 +428,23 @@ export default function CaiDatPage() {
     };
 
     return (
-        <div className="min-h-screen bg-surface pb-28 text-on-surface">
-            <main className="mx-auto max-w-[1440px] px-lg py-xl">
-                <div className="mb-md flex items-center gap-sm text-title-md">
-                    <Link href="/admin" className="font-bold text-primary transition-colors hover:text-primary-container">
-                        {SETTINGS.TOPBAR_TITLE}
-                    </Link>
-                    <ChevronDown size={22} strokeWidth={1.8} className="-rotate-90 text-on-surface-variant" aria-hidden="true" />
-                    <span className="font-medium text-on-surface-variant">{UI_TEXT.ADMIN.SIDEBAR.NAV_SETTINGS}</span>
-                </div>
+        <div className="flex min-h-screen w-full flex-col bg-surface pb-28 text-on-surface">
+            <div className="px-8 pb-2 pt-8">
+                <AdminBreadcrumb pageName={UI_TEXT.ADMIN.SIDEBAR.NAV_SETTINGS} />
+            </div>
 
-                <div className="mb-xl max-w-3xl">
-                    <h2 className="text-[32px] font-semibold leading-10 text-on-surface">{SETTINGS.PAGE_TITLE}</h2>
-                    <p className="mt-sm text-body-md text-on-surface-variant">{SETTINGS.PAGE_DESCRIPTION}</p>
+            <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6">
+                <div>
+                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
+                        <Settings size={24} className="text-primary-600" />
+                        {SETTINGS.PAGE_TITLE}
+                    </h1>
+                    <p className="mt-1 text-[14px] text-on-surface-variant">{SETTINGS.PAGE_DESCRIPTION}</p>
                 </div>
+            </div>
 
-                <div className="grid grid-cols-1 items-start gap-lg xl:grid-cols-12 xl:gap-xl">
+            <main className="flex-1 overflow-auto p-8">
+                <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-start gap-lg xl:grid-cols-12 xl:gap-xl">
                     <div className="xl:col-span-7">
                         <SectionCard icon={BookOpen} title={SETTINGS.BORROWING.TITLE}>
                             <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
@@ -537,33 +535,41 @@ export default function CaiDatPage() {
             </main>
 
             {hasChanges && (
-                <footer className="fixed bottom-0 left-sidebar-width right-0 z-40 flex flex-col gap-md border-t border-outline-variant/30 bg-surface/90 px-lg py-md shadow-[0_-4px_12px_rgba(0,0,0,0.05)] backdrop-blur-md md:flex-row md:items-center md:justify-between">
-                    <p className="flex items-center gap-xs text-body-sm text-on-surface-variant">
-                        <Info size={16} strokeWidth={1.8} />
-                        {SETTINGS.ACTION_BAR.WARNING}
-                    </p>
-                    <div className="flex flex-col gap-sm sm:flex-row">
-                        <button
-                            type="button"
-                            onClick={() => setShowDiscardModal(true)}
-                            className="focus-ring h-11 rounded-lg border border-secondary bg-transparent px-lg text-body-md font-medium text-secondary transition-colors hover:bg-secondary/10"
-                        >
-                            {SETTINGS.ACTION_BAR.DISCARD}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleSave}
-                            className="focus-ring inline-flex h-11 items-center justify-center gap-sm rounded-lg bg-primary px-lg text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
-                        >
-                            <Save size={18} strokeWidth={2} />
-                            {SETTINGS.ACTION_BAR.SAVE}
-                        </button>
+                <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-surface-container-high bg-white px-8 py-4 shadow-lg">
+                    <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-md">
+                        <p className="text-body-sm text-on-surface-variant">{SETTINGS.ACTION_BAR.WARNING}</p>
+                        <div className="flex gap-sm">
+                            <button
+                                type="button"
+                                onClick={() => setShowDiscardModal(true)}
+                                className="focus-ring h-10 rounded-lg border border-outline px-md text-body-md font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low"
+                            >
+                                {SETTINGS.ACTION_BAR.DISCARD}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                className="focus-ring flex h-10 items-center gap-sm rounded-lg bg-primary px-md text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
+                            >
+                                <Save size={16} />
+                                {SETTINGS.ACTION_BAR.SAVE}
+                            </button>
+                        </div>
                     </div>
-                </footer>
+                </div>
             )}
 
-            <SuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} message={SETTINGS.ACTION_BAR.SUCCESS} />
-            <ConfirmDiscardModal isOpen={showDiscardModal} onClose={() => setShowDiscardModal(false)} onConfirm={confirmDiscard} />
+            <SuccessModal
+                isOpen={showSuccessModal}
+                message={SETTINGS.ACTION_BAR.SUCCESS}
+                onClose={() => setShowSuccessModal(false)}
+            />
+
+            <ConfirmDiscardModal
+                isOpen={showDiscardModal}
+                onClose={() => setShowDiscardModal(false)}
+                onConfirm={confirmDiscard}
+            />
         </div>
     );
 }

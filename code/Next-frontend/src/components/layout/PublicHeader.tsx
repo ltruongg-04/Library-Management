@@ -12,6 +12,7 @@ import { useAuth } from "@/providers/auth";
 
 const NAV_LINKS = [
     { href: "/", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.HOME },
+    { href: "/sach", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.BOOK },
     { href: "/gioi-thieu", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.ABOUT },
     { href: "/lien-he", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.CONTACT },
 ];
@@ -25,7 +26,8 @@ export function PublicHeader() {
     const menuRef = useRef<HTMLDivElement>(null);
     const notificationRef = useRef<HTMLDivElement>(null);
     const notificationState = useNotifications();
-    const isSettingsRoute = pathname.startsWith("/settings");
+
+    const isSettingsRoute = pathname?.startsWith("/settings");
 
     useEffect(() => {
         const savedTheme = localStorage.getItem("theme");
@@ -111,9 +113,8 @@ export function PublicHeader() {
                 <div className="flex items-center gap-6">
                     <Link
                         href="/"
-                        className={`font-sans font-bold text-primary-700 transition-colors duration-200 dark:text-white ${
-                            isSettingsRoute ? "text-[24px]" : "text-[32px] tracking-tight"
-                        }`}
+                        className={`font-sans font-bold text-primary-700 transition-colors duration-200 dark:text-white ${isSettingsRoute ? "text-[24px]" : "text-[32px] tracking-tight"
+                            }`}
                     >
                         {UI_TEXT.PROFILE.LAYOUT.BRAND}
                     </Link>
@@ -128,11 +129,10 @@ export function PublicHeader() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`flex h-full flex-col justify-center text-[20px] font-semibold transition-all duration-200 active:scale-95 ${
-                                        isActive
+                                    className={`flex h-full flex-col justify-center text-[20px] font-semibold transition-all duration-200 active:scale-95 ${isActive
                                             ? "border-b-2 border-primary-700 text-primary-700 dark:border-primary-100 dark:text-white"
                                             : "text-ink-500 hover:text-primary-700 dark:text-white dark:hover:text-primary-100"
-                                    }`}
+                                        }`}
                                 >
                                     {link.label}
                                 </Link>
@@ -181,7 +181,7 @@ export function PublicHeader() {
                                     type="button"
                                     id="user-avatar-btn"
                                     onClick={() => setIsMenuOpen((value) => !value)}
-                                    className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-primary-300 transition-all duration-200 hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-primary-600"
+                                    className="dark:border-primary-600 flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-primary-300 transition-all duration-200 hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                                     aria-label={UI_TEXT.PUBLIC_LAYOUT.ARIA.USER_MENU}
                                     aria-expanded={isMenuOpen}
                                 >

@@ -159,11 +159,13 @@ public class UserServiceImpl implements UserService {
 
         UserEntity user = refreshTokenEntity.getUser();
         String newToken = jwtUtil.generateToken(user);
-        String newRefreshToken = createRefreshToken(user);
+
+        // Giữ nguyên Refresh Token cũ, không xoá và tạo lại để tránh lỗi Race Condition
+        // và lỗi bất đồng bộ Session giữa Client/Server trong NextAuth
 
         return TokenRefreshResponse.builder()
                 .token(newToken)
-                .refreshToken(newRefreshToken)
+                .refreshToken(token) // Trả về lại token cũ
                 .build();
     }
 

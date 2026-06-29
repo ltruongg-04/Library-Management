@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: ${PORT:8081}
 
 spring:
   config:
@@ -20,6 +20,10 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         jdbc.time_zone: Asia/Ho_Chi_Minh
     show-sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
 
 app:
   jwt:
