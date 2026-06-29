@@ -1,18 +1,6 @@
 "use client";
 
-import {
-    ArrowLeftRight,
-    BarChart3,
-    BookOpen,
-    CircleHelp,
-    History,
-    LayoutDashboard,
-    LogOut,
-    Settings,
-    ShieldCheck,
-    UserCog,
-    Users,
-} from "lucide-react";
+import { ArrowLeftRight, BarChart3, BookOpen, CircleHelp, History, LayoutDashboard, LogOut, Settings, ShieldCheck, UserCog, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -37,13 +25,20 @@ export default function Sidebar() {
 
     return (
         <aside className="fixed left-0 top-0 z-50 flex h-screen w-sidebar-width flex-col overflow-y-auto bg-primary text-on-primary shadow-md">
-            <div className="flex flex-col gap-sm px-lg pb-lg pt-10">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
+            <div className="flex items-center gap-md border-b border-on-primary/10 px-lg py-lg">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-container text-primary-fixed-dim">
                     <UserCog size={24} strokeWidth={1.8} />
                 </div>
-                <div>
-                    <h1 className="text-headline-lg-mobile font-bold tracking-normal text-on-primary">{SIDEBAR.BRAND_TITLE}</h1>
+                <div className="min-w-0">
+                    <h1 className="truncate text-title-md font-bold tracking-normal text-on-primary">{SIDEBAR.BRAND_TITLE}</h1>
                     <p className="text-body-sm text-primary-fixed-dim">{SIDEBAR.BRAND_SUBTITLE}</p>
+                </div>
+            </div>
+
+            <div className="px-lg py-md">
+                <div className="flex items-center gap-sm rounded border border-primary-fixed-dim/20 bg-primary-container/30 p-3 text-primary-fixed-dim">
+                    <span className="h-2 w-2 rounded-full bg-secondary-container" />
+                    <span className="font-label-caps text-label-caps">{SIDEBAR.SYSTEM_STATUS}</span>
                 </div>
             </div>
 
@@ -71,12 +66,7 @@ export default function Sidebar() {
                 </ul>
             </nav>
 
-            <div className="mt-auto flex flex-col gap-md p-lg">
-                <div className="flex items-center gap-sm rounded-lg border border-primary-fixed-dim/20 bg-primary-container/20 p-md text-primary-fixed-dim">
-                    <ShieldCheck size={16} strokeWidth={2} />
-                    <span className="text-body-sm">{SIDEBAR.SYSTEM_STATUS}</span>
-                </div>
-
+            <div className="mt-auto border-t border-on-primary/10 p-lg">
                 <div className="flex flex-col gap-xs">
                     <button className="focus-ring flex items-center gap-md rounded-lg px-md py-sm text-left text-body-sm text-on-primary/70 transition-colors hover:text-on-primary">
                         <CircleHelp size={20} strokeWidth={1.8} />
