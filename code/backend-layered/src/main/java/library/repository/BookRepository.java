@@ -16,8 +16,11 @@ public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     List<BookEntity> findTop10ByOrderByRatingDesc();
 
     @Query("SELECT DISTINCT b FROM BookEntity b LEFT JOIN b.categories c LEFT JOIN b.authors a WHERE " +
-           "(:keyword IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+           "(:keyword IS NULL OR :keyword = '' OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
            "(:categoryId IS NULL OR c.id = :categoryId)")
+    @org.springframework.data.jpa.repository.QueryHints({
+        @jakarta.persistence.QueryHint(name = "org.hibernate.fetchSize", value = "50")
+    })
     Page<BookEntity> findForAdminInventory(
             @Param("keyword") String keyword,
             @Param("categoryId") Integer categoryId,

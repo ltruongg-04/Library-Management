@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const loginWithGoogle = useCallback(async () => {
         setIsLoading(true);
         try {
-            await signIn("google", { callbackUrl: "/" });
+            await signIn("google", { callbackUrl: "/auth-callback" });
         } catch (error) {
             console.error("Google login error:", error);
             setIsLoading(false);

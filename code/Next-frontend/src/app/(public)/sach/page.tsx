@@ -51,12 +51,12 @@ export default function BookListPage() {
         });
     }, []);
 
-    const handleCategoryChange = (categoryId: string | number) => {
+    const handleCategoryChange = (categoryId: string | number, categoryName: string) => {
         setSelectedCategory(categoryId);
         if (categoryId === "all") {
             setCategory("");
         } else {
-            setCategory(categoryId.toString());
+            setCategory(categoryName);
         }
     };
 
@@ -114,7 +114,7 @@ export default function BookListPage() {
                             {categories.map((category) => (
                                 <li key={category.id}>
                                     <button
-                                        onClick={() => handleCategoryChange(category.id)}
+                                        onClick={() => handleCategoryChange(category.id, category.name)}
                                         className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-left font-sans text-[16px] transition-colors duration-200 ${selectedCategory === category.id
                                                 ? "bg-primary-700/10 font-medium text-primary-700 dark:bg-primary-700/30 dark:text-primary-300"
                                                 : "text-on-surface-variant hover:bg-surface-container-low dark:text-white/80 dark:hover:bg-slate-800"

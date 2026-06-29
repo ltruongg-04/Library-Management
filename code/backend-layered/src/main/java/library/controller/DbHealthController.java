@@ -18,8 +18,11 @@ public class DbHealthController {
 
     @GetMapping("/db-health")
     public String health() {
-        try (Connection ignored = dataSource.getConnection()) {
-            return "Kết nối Database thành công!";
+        try (Connection conn = dataSource.getConnection()) {
+            if (conn.isValid(2)) {
+                return "Kết nối Database thành công!";
+            }
+            return "Kết nối Database thất bại: Kết nối không hợp lệ.";
         } catch (SQLException e) {
             return "Kết nối Database thất bại: " + e.getMessage();
         }
