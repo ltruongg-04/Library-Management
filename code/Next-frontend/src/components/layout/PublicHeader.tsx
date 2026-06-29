@@ -186,7 +186,7 @@ export function PublicHeader() {
                                                 onClick={() => setIsMenuOpen(false)}
                                                 className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                                                     isSettingsRoute
-                                                        ? "dark:text-primary-400 bg-ink-50 font-medium text-primary-700 dark:bg-slate-700"
+                                                        ? "bg-ink-50 font-medium text-primary-700 dark:bg-slate-700 dark:text-white"
                                                         : "text-ink-700 hover:bg-ink-50 dark:text-slate-200 dark:hover:bg-slate-700"
                                                 }`}
                                             >
@@ -194,16 +194,28 @@ export function PublicHeader() {
                                                 {UI_TEXT.PUBLIC_LAYOUT.MY_ACCOUNT}
                                             </Link>
                                             <Link
-                                                href="/my-books"
+                                                href="/sach-cua-toi"
                                                 onClick={() => setIsMenuOpen(false)}
                                                 className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
-                                                    pathname?.startsWith("/my-books")
-                                                        ? "dark:text-primary-400 bg-ink-50 font-medium text-primary-700 dark:bg-slate-700"
+                                                    pathname?.startsWith("/sach-cua-toi")
+                                                        ? "bg-ink-50 font-medium text-primary-700 dark:bg-slate-700 dark:text-white"
                                                         : "text-ink-700 hover:bg-ink-50 dark:text-slate-200 dark:hover:bg-slate-700"
                                                 }`}
                                             >
                                                 <MaterialIcon name="book" className="text-[18px]" />
-                                                {UI_TEXT.PUBLIC_LAYOUT.MY_BOOKS}
+                                                {UI_TEXT.PUBLIC_LAYOUT.MY_BOOKS_PAGE}
+                                            </Link>
+                                            <Link
+                                                href="/lich-su"
+                                                onClick={() => setIsMenuOpen(false)}
+                                                className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                                                    pathname?.startsWith("/lich-su")
+                                                        ? "bg-ink-50 font-medium text-primary-700 dark:bg-slate-700 dark:text-white"
+                                                        : "text-ink-700 hover:bg-ink-50 dark:text-slate-200 dark:hover:bg-slate-700"
+                                                }`}
+                                            >
+                                                <MaterialIcon name="book" className="text-[18px]" />
+                                                {UI_TEXT.PUBLIC_LAYOUT.MY_HISTORY}
                                             </Link>
                                         </div>
 
