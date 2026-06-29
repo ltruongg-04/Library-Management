@@ -10,4 +10,6 @@ import java.util.List;
 public interface BookCopyRepository extends JpaRepository<BookCopyEntity, Integer> {
     List<BookCopyEntity> findByBookId(Integer bookId);
     boolean existsByBarcode(String barcode);
+    java.util.Optional<BookCopyEntity> findByBarcode(String barcode);
+    BookCopyEntity findFirstByBookIdAndStatus(Integer bookId, library.entity.BookCopyStatus status);
 }

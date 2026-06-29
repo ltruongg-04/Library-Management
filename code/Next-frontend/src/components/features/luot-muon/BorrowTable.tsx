@@ -68,14 +68,23 @@ function StatusBadge({ status, overdayCount }: { status: BorrowStatus; overdayCo
     }
 }
 
-function ActionButtons({ status, onStatusUpdate }: { status: BorrowStatus; onStatusUpdate: (newStatus: BorrowStatus) => void }) {
+function ActionButtons({ id, status, onStatusUpdate, onViewDetail }: { id: string; status: BorrowStatus; onStatusUpdate: (newStatus: BorrowStatus) => void; onViewDetail?: (id: string) => void; }) {
     return (
-        <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="flex justify-end gap-1 transition-opacity">
             {/* View detail — available for all */}
-            <button className="rounded p-1.5 text-secondary transition-colors hover:bg-secondary-fixed/50" title={T.BTN_VIEW}>
+            <button onClick={() => onViewDetail?.(id)} className="rounded p-1.5 text-secondary transition-colors hover:bg-secondary-fixed/50" title={T.BTN_VIEW}>
                 <Eye size={20} />
             </button>
             {/* Context-specific action */}
+            {status === "pending" && (
+                <button
+                    onClick={() => onStatusUpdate("ready")}
+                    className="rounded p-1.5 text-primary transition-colors hover:bg-primary-fixed/50"
+                    title="Duyệt đơn (Chuyển sang Chờ lấy)"
+                >
+                    <CheckCircle size={20} />
+                </button>
+            )}
             {status === "borrowed" && (
                 <button
                     onClick={() => onStatusUpdate("returned")}
@@ -109,7 +118,7 @@ const AVATAR_COLORS: Record<string, string> = {
     primary: "bg-primary-container/20 text-primary",
 };
 
-export default function BorrowTable({ records, onStatusUpdate }: { records: BorrowRecord[]; onStatusUpdate?: (id: string, newStatus: BorrowStatus) => void }) {
+export default function BorrowTable({ records, onStatusUpdate, onViewDetail }: { records: BorrowRecord[]; onStatusUpdate?: (id: string, newStatus: BorrowStatus) => void; onViewDetail?: (id: string) => void; }) {
     return (
         <div className="level-1-shadow flex flex-1 flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest">
             <div className="overflow-x-auto">
@@ -117,12 +126,12 @@ export default function BorrowTable({ records, onStatusUpdate }: { records: Borr
                     {/* Header */}
                     <thead className="border-b border-outline-variant/30 bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant">
                         <tr>
-                            <th className="px-6 py-4 font-medium">{T.COL_MEMBER}</th>
-                            <th className="px-6 py-4 font-medium">{T.COL_BOOK}</th>
-                            <th className="px-6 py-4 font-medium">{T.COL_BORROW_DATE}</th>
-                            <th className="px-6 py-4 font-medium">{T.COL_DUE_DATE}</th>
-                            <th className="px-6 py-4 font-medium">{T.COL_STATUS}</th>
-                            <th className="px-6 py-4 text-right font-medium">{T.COL_ACTIONS}</th>
+                            <th className="px-6 py-4 font-medium w-[250px] min-w-[250px]">{T.COL_MEMBER}</th>
+                            <th className="px-6 py-4 font-medium w-[300px] min-w-[300px]">{T.COL_BOOK}</th>
+                            <th className="px-6 py-4 font-medium w-[150px] min-w-[150px]">{T.COL_BORROW_DATE}</th>
+                            <th className="px-6 py-4 font-medium w-[150px] min-w-[150px]">{T.COL_DUE_DATE}</th>
+                            <th className="px-6 py-4 font-medium w-[150px] min-w-[150px]">{T.COL_STATUS}</th>
+                            <th className="px-6 py-4 text-right font-medium w-[120px] min-w-[120px]">{T.COL_ACTIONS}</th>
                         </tr>
                     </thead>
 
@@ -209,7 +218,7 @@ export default function BorrowTable({ records, onStatusUpdate }: { records: Borr
 
                                 {/* Actions */}
                                 <td className="px-6 py-4 text-right">
-                                    <ActionButtons status={rec.status} onStatusUpdate={(s) => onStatusUpdate?.(rec.id, s)} />
+                                    <ActionButtons id={rec.id} status={rec.status} onStatusUpdate={(s) => onStatusUpdate?.(rec.id, s)} onViewDetail={onViewDetail} />
                                 </td>
                             </tr>
                         ))}
