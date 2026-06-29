@@ -127,7 +127,7 @@ const LoanCard = ({ loan }: { loan: (typeof MOCK_LOANS)[number] }) => {
                         {loan.status === "overdue" ? (
                             <div className="mt-4 flex justify-end gap-2">
                                 <Link
-                                    href={`/my-books/${loan.id}`}
+                                    href={`/lich-su/${loan.id}`}
                                     className="mr-4 mt-md flex items-center justify-end gap-xs text-body-sm font-medium text-primary decoration-2 hover:underline dark:text-primary-300"
                                 >
                                     {MY_BOOKS_PAGE.CARD.VIEW_DETAIL}
