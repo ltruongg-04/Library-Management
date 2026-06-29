@@ -1,191 +1,191 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Plus, Edit2, Trash2, Loader2, Tags } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Edit2, Loader2, Plus, Tags, Trash2 } from "lucide-react";
+import { ADMIN_CATEGORY_MANAGEMENT } from "@/constants/ui-text/admin";
 import { categoryService } from "@/services/category";
 import type { Category } from "@/types/category";
 import CategoryModal from "./CategoryModal";
 
 export default function CategoryTable() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
-  const fetchCategories = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await categoryService.getAllCategories();
-      setCategories(data);
-    } catch (err: any) {
-      setError(err.message || "Lỗi khi tải danh sách thể loại");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const fetchCategories = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await categoryService.getAllCategories();
+            setCategories(data);
+        } catch (err: any) {
+            setError(err.message || "Lỗi khi tải danh sách thể loại");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
 
-  const handleAdd = () => {
-    setEditingCategory(null);
-    setIsModalOpen(true);
-  };
+    const handleAdd = () => {
+        setEditingCategory(null);
+        setIsModalOpen(true);
+    };
 
-  const handleEdit = (category: Category) => {
-    setEditingCategory(category);
-    setIsModalOpen(true);
-  };
+    const handleEdit = (category: Category) => {
+        setEditingCategory(category);
+        setIsModalOpen(true);
+    };
 
-  const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDeleteClick = (id: number) => {
-    setDeleteCategoryId(id);
-  };
+    const textUI = ADMIN_CATEGORY_MANAGEMENT;
+    const deleteUI = textUI.MODAL;
 
-  const confirmDelete = async () => {
-    if (deleteCategoryId === null) return;
-    
-    try {
-      setIsDeleting(true);
-      await categoryService.deleteCategory(deleteCategoryId);
-      fetchCategories();
-      setDeleteCategoryId(null);
-    } catch (err: any) {
-      alert(err.message || "Lỗi khi xoá thể loại");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+    const handleDeleteClick = (id: number) => {
+        setDeleteCategoryId(id);
+    };
 
-  return (
-    <div className="flex flex-col h-full bg-surface">
-      {/* Header */}
-      <div className="flex items-center justify-between px-8 py-6 border-b border-surface-container-high bg-white">
-        <div>
-          <h1 className="text-2xl font-serif font-bold text-ink-950 flex items-center gap-2">
-            <Tags size={24} className="text-primary-600" />
-            Quản lý Thể loại
-          </h1>
-          <p className="text-[14px] text-on-surface-variant mt-1">
-            Thêm, sửa, xoá và quản lý các thể loại sách trong hệ thống.
-          </p>
-        </div>
-        <button
-          onClick={handleAdd}
-          className="flex items-center gap-2 rounded-lg bg-primary-700 px-4 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-500 focus-ring shadow-sm"
-        >
-          <Plus size={18} strokeWidth={2.5} />
-          Thêm thể loại mới
-        </button>
-      </div>
+    const confirmDelete = async () => {
+        if (deleteCategoryId === null) return;
 
-      {/* Content */}
-      <div className="flex-1 p-8 overflow-auto">
-        {loading ? (
-          <div className="flex h-64 flex-col items-center justify-center gap-3 text-outline">
-            <Loader2 size={32} className="animate-spin text-primary-500" />
-            <p>Đang tải danh sách thể loại...</p>
-          </div>
-        ) : error ? (
-          <div className="flex h-64 flex-col items-center justify-center gap-3 text-error">
-            <p>{error}</p>
-            <button onClick={fetchCategories} className="px-4 py-2 bg-surface-container-high rounded-lg text-on-surface hover:bg-surface-container-highest">Thử lại</button>
-          </div>
-        ) : categories.length === 0 ? (
-          <div className="flex h-64 flex-col items-center justify-center gap-3 text-outline">
-            <Tags size={48} className="text-surface-container-highest" />
-            <p>Chưa có thể loại nào.</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl border border-surface-container-high overflow-hidden shadow-sm">
-            <table className="w-full text-left text-[14px]">
-              <thead className="bg-surface-container-lowest border-b border-surface-container-high">
-                <tr>
-                  <th className="px-6 py-4 font-semibold text-on-surface-variant w-16 text-center">STT</th>
-                  <th className="px-6 py-4 font-semibold text-on-surface-variant w-1/3">Tên thể loại</th>
-                  <th className="px-6 py-4 font-semibold text-on-surface-variant w-1/2">Mô tả</th>
-                  <th className="px-6 py-4 font-semibold text-on-surface-variant text-right">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-surface-container-high">
-                {categories.map((category, index) => (
-                  <tr key={category.id} className="hover:bg-surface-container-lowest/50 transition-colors">
-                    <td className="px-6 py-4 text-center text-on-surface-variant">{index + 1}</td>
-                    <td className="px-6 py-4 font-medium text-ink-950">{category.name}</td>
-                    <td className="px-6 py-4 text-on-surface-variant">
-                      {category.description || <span className="italic text-outline-variant">Không có mô tả</span>}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleEdit(category)}
-                          className="p-2 rounded-lg text-primary-600 hover:bg-primary-50 transition-colors focus-ring"
-                          title="Sửa"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(category.id)}
-                          className="p-2 rounded-lg text-error hover:bg-error-50 transition-colors focus-ring"
-                          title="Xoá"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+        try {
+            setIsDeleting(true);
+            await categoryService.deleteCategory(deleteCategoryId);
+            fetchCategories();
+            setDeleteCategoryId(null);
+        } catch (err: any) {
+            alert(err.message || "Lỗi khi xoá thể loại");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
-      <CategoryModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        category={editingCategory}
-        onSuccess={fetchCategories}
-      />
-
-      {/* Delete Confirmation Modal */}
-      {deleteCategoryId !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-xl">
-            <div className="p-6">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-error-50 text-error mb-4">
-                <Trash2 size={24} />
-              </div>
-              <h3 className="text-center text-lg font-semibold text-ink-950">Xác nhận xoá thể loại</h3>
-              <p className="mt-2 text-center text-sm text-on-surface-variant">
-                Bạn có chắc chắn muốn xoá thể loại này? Các sách thuộc thể loại này sẽ không còn hiển thị thể loại này nữa. Hành động này không thể hoàn tác.
-              </p>
+    return (
+        <div className="flex h-full flex-col bg-surface">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-surface-container-high bg-white px-8 py-6">
+                <div>
+                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
+                        <Tags size={24} className="text-primary-600" />
+                        {textUI.HEADER.TITLE}
+                    </h1>
+                    <p className="mt-1 text-[14px] text-on-surface-variant">{textUI.HEADER.DESCRIPTION}</p>
+                </div>
+                <button
+                    onClick={handleAdd}
+                    className="focus-ring flex items-center gap-2 rounded-lg bg-primary-700 px-4 py-2.5 text-[14px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-500"
+                >
+                    <Plus size={18} strokeWidth={2.5} />
+                    {textUI.HEADER.CREATE_BTN}
+                </button>
             </div>
-            <div className="flex items-center justify-end gap-3 bg-surface-container-lowest px-6 py-4 border-t border-surface-container-high">
-              <button
-                onClick={() => setDeleteCategoryId(null)}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors"
-                disabled={isDeleting}
-              >
-                Hủy
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="flex items-center justify-center gap-2 rounded-lg bg-error px-4 py-2 text-sm font-semibold text-white hover:bg-error-600 transition-colors w-[130px]"
-                disabled={isDeleting}
-              >
-                {isDeleting ? <Loader2 size={16} className="animate-spin" /> : "Xóa thể loại"}
-              </button>
+
+            {/* Content */}
+            <div className="flex-1 overflow-auto p-8">
+                {loading ? (
+                    <div className="flex h-64 flex-col items-center justify-center gap-3 text-outline">
+                        <Loader2 size={32} className="animate-spin text-primary-500" />
+                        <p>Đang tải danh sách thể loại...</p>
+                    </div>
+                ) : error ? (
+                    <div className="flex h-64 flex-col items-center justify-center gap-3 text-error">
+                        <p>{error}</p>
+                        <button
+                            onClick={fetchCategories}
+                            className="rounded-lg bg-surface-container-high px-4 py-2 text-on-surface hover:bg-surface-container-highest"
+                        >
+                            {textUI.TABLE.BTN_RETRY}
+                        </button>
+                    </div>
+                ) : categories.length === 0 ? (
+                    <div className="flex h-64 flex-col items-center justify-center gap-3 text-outline">
+                        <Tags size={48} className="text-surface-container-highest" />
+                        <p>{textUI.TABLE.EMPTY_STATE}</p>
+                    </div>
+                ) : (
+                    <div className="overflow-hidden rounded-xl border border-surface-container-high bg-white shadow-sm">
+                        <table className="w-full text-left text-[14px]">
+                            <thead className="border-b border-surface-container-high bg-surface-container-lowest">
+                                <tr>
+                                    <th className="w-16 px-6 py-4 text-center font-semibold text-on-surface-variant">STT</th>
+                                    <th className="w-1/3 px-6 py-4 font-semibold text-on-surface-variant">{textUI.TABLE.COL_NAME}</th>
+                                    <th className="w-1/2 px-6 py-4 font-semibold text-on-surface-variant">{textUI.TABLE.COL_DESC}</th>
+                                    <th className="px-6 py-4 text-right font-semibold text-on-surface-variant">{textUI.TABLE.COL_ACTIONS}</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-surface-container-high">
+                                {categories.map((category, index) => (
+                                    <tr key={category.id} className="transition-colors hover:bg-surface-container-lowest/50">
+                                        <td className="px-6 py-4 text-center text-on-surface-variant">{index + 1}</td>
+                                        <td className="px-6 py-4 font-medium text-ink-950">{category.name}</td>
+                                        <td className="px-6 py-4 text-on-surface-variant">
+                                            {category.description || <span className="italic text-outline-variant">{textUI.TABLE.NO_DESC}</span>}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleEdit(category)}
+                                                    className="text-primary-600 focus-ring rounded-lg p-2 transition-colors hover:bg-primary-50"
+                                                    title="Sửa"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteClick(category.id)}
+                                                    className="focus-ring rounded-lg p-2 text-error transition-colors hover:bg-error-50"
+                                                    title="Xoá"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
-          </div>
+
+            <CategoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} category={editingCategory} onSuccess={fetchCategories} />
+
+            {/* Delete Confirmation Modal */}
+            {deleteCategoryId !== null && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/40 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-xl">
+                        <div className="p-6">
+                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-error-50 text-error">
+                                <Trash2 size={24} />
+                            </div>
+                            <h3 className="text-center text-lg font-semibold text-ink-950">{deleteUI.DELETE_TITLE}</h3>
+                            <p className="mt-2 text-center text-sm text-on-surface-variant">{deleteUI.DELETE_DESC}</p>
+                        </div>
+                        <div className="flex items-center justify-end gap-3 border-t border-surface-container-high bg-surface-container-lowest px-6 py-4">
+                            <button
+                                onClick={() => setDeleteCategoryId(null)}
+                                className="rounded-lg px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high"
+                                disabled={isDeleting}
+                            >
+                                {deleteUI.DELETE_BTN_CANCEL}
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="flex w-[130px] items-center justify-center gap-2 rounded-lg bg-error px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-error-600"
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? <Loader2 size={16} className="animate-spin" /> : "Xóa thể loại"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
