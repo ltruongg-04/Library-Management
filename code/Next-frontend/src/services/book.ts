@@ -19,25 +19,22 @@ export const bookService = {
             const queryParams = new URLSearchParams();
             if (params?.keyword) queryParams.append("keyword", params.keyword);
 
-            // Note: params.category now contains categoryId instead of category name, handled in page.tsx
+            // Note: params.category contains category name for the public API
             if (params?.category && params.category !== "Tất cả" && params.category !== "all") {
-                queryParams.append("categoryId", params.category);
+                queryParams.append("category", params.category);
             }
 
             if (params?.page !== undefined) queryParams.append("page", params.page.toString());
             if (params?.size !== undefined) queryParams.append("size", params.size.toString());
 
-            const response = await axiosInstance.get(`/api/admin/books?${queryParams.toString()}`, { signal });
+            const response = await axiosInstance.get(`/api/books?${queryParams.toString()}`);
             const result = response.data;
-            // Backend returns Page<BookListResponse> directly without ApiResponse wrapper for this endpoint
-            return {
-                content: result.content,
-                page: result.number,
-                size: result.size,
-                totalElements: result.totalElements,
-                totalPages: result.totalPages,
-                last: result.last,
-            };
+            
+            if (!result.success) {
+                throw new Error(result.message || "Không thể lấy danh sách sách");
+            }
+            
+            return result.data;
         } catch (e) {
             throw e;
         }
@@ -45,23 +42,12 @@ export const bookService = {
 
     async getTrendingBooks(limit: number = 8): Promise<import("@/types/book").BookPageResponse> {
         try {
-            // Backend endpoint is /api/books/top-rated
-            const response = await axiosInstance.get(`/api/books/top-rated`);
+            const response = await axiosInstance.get(`/api/books/trending?limit=${limit}`);
             const result = response.data;
 
-            if (!result.success) throw new Error(result.message || "Lỗi");
+            if (!result.success) throw new Error(result.message || "Lỗi tải sách thịnh hành");
 
-            const books = result.data || [];
-            const limitedBooks = books.slice(0, limit);
-
-            return {
-                content: limitedBooks as any,
-                page: 0,
-                size: limit,
-                totalElements: limitedBooks.length,
-                totalPages: 1,
-                last: true,
-            };
+            return result.data;
         } catch (e) {
             throw e;
         }
