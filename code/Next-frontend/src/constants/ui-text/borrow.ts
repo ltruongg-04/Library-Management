@@ -35,4 +35,12 @@ export const BORROW = {
         DESCRIPTION: "Thủ thư AI của chúng tôi làm việc 24/7 để giải đáp thắc mắc về địa điểm lấy sách và gia hạn.",
         BUTTON: "Mở Chat Thư viện",
     },
+    SUCCESS_PAGE: {
+        TITLE: "Gửi yêu cầu mượn thành công!",
+        REQUEST_ID: "Mã yêu cầu",
+        PENDING_APPROVAL: "Yêu cầu mượn sách của bạn đang chờ đội ngũ quản lý phê duyệt. Một email xác nhận đã được gửi đến hộp thư của bạn.",
+        VIEW_LOANS: "Xem sách đang mượn",
+        CONTINUE_BROWSING: "Tiếp tục tìm sách",
+        HOW_LONG: "Quá trình phê duyệt mất bao lâu?",
+    },
 };
