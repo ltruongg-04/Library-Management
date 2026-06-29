@@ -3,8 +3,10 @@ import axiosInstance from '@/lib/axios';
 
 export const authorService = {
   getAllAuthors: async (): Promise<Author[]> => {
-    const response = await axiosInstance.get(`/api/admin/authors`);
-    return response.data;
+    const response = await axiosInstance.get(`/api/authors`);
+    const result = response.data;
+    if (!result.success) throw new Error(result.message || "Lỗi tải tác giả");
+    return result.data;
   },
 
   createAuthor: async (data: AuthorRequest): Promise<Author> => {

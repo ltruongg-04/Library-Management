@@ -3,8 +3,10 @@ import axiosInstance from '@/lib/axios';
 
 export const categoryService = {
   getAllCategories: async (): Promise<Category[]> => {
-    const response = await axiosInstance.get(`/api/admin/categories`);
-    return response.data;
+    const response = await axiosInstance.get(`/api/categories`);
+    const result = response.data;
+    if (!result.success) throw new Error(result.message || "Lỗi tải danh mục");
+    return result.data;
   },
 
   createCategory: async (data: CategoryRequest): Promise<Category> => {
