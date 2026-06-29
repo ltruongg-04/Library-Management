@@ -1,5 +1,6 @@
 import { ADMIN, ADMIN_AUDIT_LOGS, ADMIN_BORROW_MANAGEMENT, ADMIN_LAYOUT, ADMIN_PAGES, ADMIN_SETTINGS, ADMIN_USER_MANAGEMENT } from "./admin";
 import { AUTH } from "./auth";
+import { BORROW } from "./borrow";
 import { COMMON, MAINTENANCE } from "./common";
 import { NOTIFICATIONS } from "./notifications";
 import { ABOUT, BOOK_DETAIL, BOOK_LIST, CONTACT, HOME, PUBLIC_LAYOUT } from "./public";
@@ -16,6 +17,7 @@ export const UI_TEXT = {
     HOME,
     ABOUT,
     CONTACT,
+    BORROW,
     ADMIN_LAYOUT,
     ADMIN_PAGES,
     ADMIN_SETTINGS,

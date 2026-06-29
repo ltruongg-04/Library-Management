@@ -16,6 +16,8 @@ export const COMMON = {
     CATALOG: "Danh mục",
     BOOK_LABEL: "Sách",
     BOOK_NOT_FOUND: "Không tìm thấy sách",
+    BACK_TO_HOME: "Trở lại trang chủ",
+    LOADING_INFO: "Đang tải thông tin...",
 };
 
 export const MAINTENANCE = {

@@ -1,6 +1,6 @@
 // 📚 API Service cho Books
-import type { Book, BookListItem } from "@/types/book";
 import axiosInstance from "@/lib/axios";
+import type { Book, BookListItem } from "@/types/book";
 
 // Response type từ backend
 interface ApiResponse<T> {
@@ -11,13 +11,10 @@ interface ApiResponse<T> {
 }
 
 // Gọi qua Next.js proxy route (relative URL) để tránh CORS
-const API_URL = "";
 
 export const bookService = {
     async getBooks(params?: import("@/types/book").BookSearchParams, signal?: AbortSignal): Promise<import("@/types/book").BookPageResponse> {
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
-
             // Call the admin paginated endpoint for server-side search and filtering
             const queryParams = new URLSearchParams();
             if (params?.keyword) queryParams.append("keyword", params.keyword);
@@ -30,7 +27,7 @@ export const bookService = {
             if (params?.page !== undefined) queryParams.append("page", params.page.toString());
             if (params?.size !== undefined) queryParams.append("size", params.size.toString());
 
-            const response = await axiosInstance.get(`/api/admin/books?${queryParams.toString()}`);
+            const response = await axiosInstance.get(`/api/admin/books?${queryParams.toString()}`, { signal });
             const result = response.data;
             // Backend returns Page<BookListResponse> directly without ApiResponse wrapper for this endpoint
             return {
@@ -39,7 +36,7 @@ export const bookService = {
                 size: result.size,
                 totalElements: result.totalElements,
                 totalPages: result.totalPages,
-                last: result.last
+                last: result.last,
             };
         } catch (e) {
             throw e;
@@ -63,7 +60,7 @@ export const bookService = {
                 size: limit,
                 totalElements: limitedBooks.length,
                 totalPages: 1,
-                last: true
+                last: true,
             };
         } catch (e) {
             throw e;
