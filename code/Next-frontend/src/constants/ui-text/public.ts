@@ -1,6 +1,7 @@
 export const PUBLIC_LAYOUT = {
     MY_ACCOUNT: "Tài khoản của tôi",
-    MY_BOOKS: "Sách của tôi",
+    MY_BOOKS_PAGE: "Sách của tôi",
+    MY_HISTORY: "Lịch sử mượn sách",
     LOGOUT: "Đăng xuất",
     LOGIN: "Đăng nhập",
     ARIA: {
