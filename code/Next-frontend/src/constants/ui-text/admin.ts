@@ -67,7 +67,7 @@ export const ADMIN = {
             NO_AUTHOR_FOUND: "Không tìm thấy tác giả",
             SELECT_CATEGORY_PLACEHOLDER: "Chọn hoặc nhập thể loại mới...",
             CREATE_CATEGORY: "Tạo thể loại",
-            NO_CATEGORY_FOUND: "Không tìm thấy thể loại"
+            NO_CATEGORY_FOUND: "Không tìm thấy thể loại",
         },
         EDIT_BOOK: {
             TITLE: "Chỉnh sửa sách",
@@ -90,15 +90,42 @@ export const ADMIN = {
             NO_AUTHOR_FOUND: "Không tìm thấy tác giả",
             SELECT_CATEGORY_PLACEHOLDER: "Chọn hoặc nhập thể loại mới...",
             CREATE_CATEGORY: "Tạo thể loại",
-            NO_CATEGORY_FOUND: "Không tìm thấy thể loại"
+            NO_CATEGORY_FOUND: "Không tìm thấy thể loại",
         },
         DELETE_AUTHOR: {
             TITLE: "Xác nhận xoá tác giả",
-            DESCRIPTION: "Bạn có chắc chắn muốn xoá tác giả này? Các sách thuộc tác giả này sẽ không còn hiển thị tác giả này nữa. Hành động này không thể hoàn tác.",
+            DESCRIPTION:
+                "Bạn có chắc chắn muốn xoá tác giả này? Các sách thuộc tác giả này sẽ không còn hiển thị tác giả này nữa. Hành động này không thể hoàn tác.",
             CANCEL: "Hủy",
-            CONFIRM: "Xóa tác giả"
-        }
-    }
+            CONFIRM: "Xóa tác giả",
+        },
+        BOOK_COPIES: {
+            TITLE: "Quản lý các cuốn sách (Bản sao)",
+            BOOK_TITLE: "Đầu sách:",
+            TOTAL: "Tổng cộng:",
+            COPIES_UNIT: "cuốn",
+            ADD_COPY: "Thêm cuốn",
+            EMPTY_STATE: "Chưa có cuốn sách (bản sao) nào cho đầu sách này.",
+            IMPORT_NOW: "Nhập kho ngay",
+            COL_BARCODE: "Mã Vạch (Barcode)",
+            COL_STATUS: "Trạng Thái",
+            COL_CONDITION_NOTE: "Ghi chú tình trạng",
+            COL_ACTIONS: "Thao tác",
+            NO_NOTE: "Không có",
+            STATUS_AVAILABLE: "Sẵn sàng",
+            STATUS_BORROWED: "Đang mượn",
+            STATUS_LOST: "Bị mất",
+            STATUS_DAMAGED: "Hư hỏng",
+            STATUS_MAINTENANCE: "Bảo trì",
+            ERROR_FETCH: "Lỗi khi tải danh sách bản sao",
+            ERROR_ADD: "Lỗi khi thêm bản sao",
+            ERROR_UPDATE: "Lỗi khi cập nhật trạng thái",
+            CONFIRM_DELETE: "Bạn có chắc chắn muốn xoá bản sao này? Hành động này không thể hoàn tác.",
+            ERROR_DELETE: "Lỗi khi xoá bản sao",
+            LOADING_DATA: "Đang tải dữ liệu...",
+            TOOLTIP_DELETE: "Xoá bản sao này",
+        },
+    },
 };
 
 export const ADMIN_LAYOUT = {
@@ -137,6 +164,8 @@ export const ADMIN_PAGES = {
     INVENTORY: {
         TITLE: "Kho sách",
         DESC: "Đây là trang kho sách. Bạn có thể thêm nội dung quản lý sách ở đây.",
+        PAGE_DESC: "Quản lý các mục trong danh mục, giám sát tình trạng có sẵn và tận dụng tính năng quét AI để nhập liệu nhanh chóng.",
+        AI_OCR_BTN: "AI OCR",
     },
     SETTINGS: {
         TITLE: "Cài đặt",
