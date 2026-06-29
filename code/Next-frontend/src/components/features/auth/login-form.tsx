@@ -44,9 +44,9 @@ export function LoginForm() {
             await login(email, password);
             const session = await getSession();
             if (session?.user?.role === "ADMIN") {
-                router.push("/admin");
+                router.replace("/admin");
             } else {
-                router.push("/");
+                router.replace("/");
             }
         } catch (error: any) {
             setErrors({ email: error.message || UI_TEXT.AUTH.LOGIN.ERROR_MSG });
