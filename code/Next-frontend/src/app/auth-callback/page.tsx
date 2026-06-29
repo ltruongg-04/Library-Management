@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { isAdminRole } from "@/utils/role";
 
 export default function AuthCallbackPage() {
     const { data: session, status } = useSession();
@@ -11,7 +12,7 @@ export default function AuthCallbackPage() {
 
     useEffect(() => {
         if (status === "authenticated") {
-            if (session?.user?.role === "ADMIN") {
+            if (isAdminRole(session?.user?.role)) {
                 router.replace("/admin");
             } else {
                 router.replace("/");
