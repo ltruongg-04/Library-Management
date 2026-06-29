@@ -11,6 +11,7 @@ import { AppleIcon } from "@/components/icons/apple-icon";
 import { GoogleIcon } from "@/components/icons/google-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useAuth } from "@/providers/auth";
+import { isAdminRole } from "@/utils/role";
 
 export function LoginForm() {
     const { login, loginWithGoogle } = useAuth();
@@ -43,10 +44,10 @@ export function LoginForm() {
         try {
             await login(email, password);
             const session = await getSession();
-            if (session?.user?.role === "ADMIN") {
-                router.push("/admin");
+            if (isAdminRole(session?.user?.role)) {
+                router.replace("/admin");
             } else {
-                router.push("/");
+                router.replace("/");
             }
         } catch (error: any) {
             setErrors({ email: error.message || UI_TEXT.AUTH.LOGIN.ERROR_MSG });

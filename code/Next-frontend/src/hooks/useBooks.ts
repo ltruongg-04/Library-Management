@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Book, BookPageResponse, BookSearchParams } from "@/types/book";
 import { bookService } from "@/services/book";
 
@@ -29,11 +29,13 @@ export function useBooks(initialParams?: BookSearchParams) {
     });
 
     const [params, setParams] = useState<BookSearchParams>(initialParams || {});
+    // AbortController để hủy thực sự request HTTP cũ khi có request mới
+    const abortControllerRef = useRef<AbortController | null>(null);
 
-    const fetchBooks = useCallback(async (searchParams: BookSearchParams) => {
+    const fetchBooks = useCallback(async (searchParams: BookSearchParams, signal?: AbortSignal) => {
         setState((prev) => ({ ...prev, loading: true, error: null }));
         try {
-            const data: BookPageResponse = await bookService.getBooks(searchParams);
+            const data: BookPageResponse = await bookService.getBooks(searchParams, signal);
             setState({
                 books: data.content,
                 loading: false,
@@ -44,6 +46,8 @@ export function useBooks(initialParams?: BookSearchParams) {
                 isLast: data.last,
             });
         } catch (err: any) {
+            // Bỏ qua lỗi do abort (request bị hủy có chủ đích)
+            if (err.name === 'AbortError') return;
             setState((prev) => ({
                 ...prev,
                 loading: false,
@@ -53,42 +57,50 @@ export function useBooks(initialParams?: BookSearchParams) {
     }, []);
 
     useEffect(() => {
-        fetchBooks(params);
+        // Hủy request cũ nếu còn đang chạy
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+        fetchBooks(params, controller.signal);
+
+        return () => {
+            controller.abort();
+        };
     }, [params, fetchBooks]);
 
-    const setPage = (page: number) => {
-        setParams((prev) => ({ ...prev, page }));
-    };
+    // ✅ Debounce keyword riêng — không để page/category bị delay
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const setPage = (page: number) => setParams((prev) => ({ ...prev, page }));
 
     const setKeyword = (keyword: string) => {
-        setParams((prev) => ({ ...prev, keyword, page: 0 }));
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        // Khi xóa hết → fetch ngay lập tức, không chờ debounce
+        if (!keyword) {
+            setParams((prev) => ({ ...prev, keyword: undefined, page: 0 }));
+            return;
+        }
+        debounceRef.current = setTimeout(() => {
+            setParams((prev) => ({ ...prev, keyword, page: 0 }));
+        }, 400);
     };
 
-    const setCategory = (category: string) => {
+    const setCategory = (category: string) =>
         setParams((prev) => ({ ...prev, category: category || undefined, page: 0 }));
-    };
 
-    const setSortBy = (sortBy: BookSearchParams["sortBy"]) => {
+    const setSortBy = (sortBy: BookSearchParams["sortBy"]) =>
         setParams((prev) => ({ ...prev, sortBy, page: 0 }));
-    };
 
     const clearFilters = () => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
         setParams({ page: 0, size: params.size });
     };
 
-    const refresh = () => {
-        fetchBooks(params);
-    };
+    const refresh = () => fetchBooks(params);
 
-    return {
-        ...state,
-        setPage,
-        setKeyword,
-        setCategory,
-        setSortBy,
-        clearFilters,
-        refresh,
-    };
+    return { ...state, setPage, setKeyword, setCategory, setSortBy, clearFilters, refresh };
 }
 
 /**

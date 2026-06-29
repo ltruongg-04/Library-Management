@@ -113,33 +113,33 @@ export function PublicHeader() {
                 <div className="flex items-center gap-6">
                     <Link
                         href="/"
-                        className={`font-sans font-bold text-primary-700 transition-colors duration-200 dark:text-white ${isSettingsRoute ? "text-[24px]" : "text-[32px] tracking-tight"
-                            }`}
+                        className={`font-sans font-bold text-primary-700 transition-colors duration-200 dark:text-white ${
+                            isSettingsRoute ? "text-[24px]" : "text-[32px] tracking-tight"
+                        }`}
                     >
                         {UI_TEXT.PROFILE.LAYOUT.BRAND}
                     </Link>
                 </div>
 
-                {!isSettingsRoute && (
-                    <nav className="hidden h-full gap-6 md:flex">
-                        {NAV_LINKS.map((link) => {
-                            const isActive = pathname === link.href;
+                <nav className="hidden h-full gap-6 md:flex">
+                    {NAV_LINKS.map((link) => {
+                        const isActive = pathname === link.href;
 
-                            return (
-                                <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    className={`flex h-full flex-col justify-center text-[20px] font-semibold transition-all duration-200 active:scale-95 ${isActive
-                                            ? "border-b-2 border-primary-700 text-primary-700 dark:border-primary-100 dark:text-white"
-                                            : "text-ink-500 hover:text-primary-700 dark:text-white dark:hover:text-primary-100"
-                                        }`}
-                                >
-                                    {link.label}
-                                </Link>
-                            );
-                        })}
-                    </nav>
-                )}
+                        return (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className={`flex h-full flex-col justify-center text-[20px] font-semibold transition-all duration-200 active:scale-95 ${
+                                    isActive
+                                        ? "border-b-2 border-primary-700 text-primary-700 dark:border-primary-100 dark:text-white"
+                                        : "text-ink-500 hover:text-primary-700 dark:text-white dark:hover:text-primary-100"
+                                }`}
+                            >
+                                {link.label}
+                            </Link>
+                        );
+                    })}
+                </nav>
 
                 <div className="flex items-center gap-4">
                     <button
@@ -151,28 +151,7 @@ export function PublicHeader() {
                         <MaterialIcon name={isDarkMode ? "light_mode" : "dark_mode"} />
                     </button>
 
-                    {isSettingsRoute ? (
-                        <>
-                            {isAuthenticated && user ? (
-                                renderNotificationButton()
-                            ) : (
-                                <button
-                                    type="button"
-                                    className="flex h-10 w-10 items-center justify-center rounded-full text-ink-500 transition-colors hover:bg-ink-100 dark:text-white dark:hover:bg-slate-800"
-                                    aria-label={UI_TEXT.PUBLIC_LAYOUT.ARIA.NOTIFICATIONS}
-                                >
-                                    <MaterialIcon name="notifications" />
-                                </button>
-                            )}
-                            <Link
-                                href="/settings/profile"
-                                className="flex h-10 w-10 items-center justify-center rounded-full text-ink-500 transition-colors hover:bg-ink-100 dark:text-white dark:hover:bg-slate-800"
-                                aria-label={UI_TEXT.PUBLIC_LAYOUT.ARIA.PROFILE}
-                            >
-                                <MaterialIcon name="account_circle" />
-                            </Link>
-                        </>
-                    ) : isAuthenticated && user ? (
+                    {isAuthenticated && user ? (
                         <>
                             {renderNotificationButton()}
 
@@ -205,7 +184,11 @@ export function PublicHeader() {
                                             <Link
                                                 href="/settings/profile"
                                                 onClick={() => setIsMenuOpen(false)}
-                                                className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 transition-colors hover:bg-ink-50 dark:text-slate-200 dark:hover:bg-slate-700"
+                                                className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                                                    isSettingsRoute
+                                                        ? "dark:text-primary-400 bg-ink-50 font-medium text-primary-700 dark:bg-slate-700"
+                                                        : "text-ink-700 hover:bg-ink-50 dark:text-slate-200 dark:hover:bg-slate-700"
+                                                }`}
                                             >
                                                 <MaterialIcon name="manage_accounts" className="text-[18px]" />
                                                 {UI_TEXT.PUBLIC_LAYOUT.MY_ACCOUNT}
@@ -213,7 +196,11 @@ export function PublicHeader() {
                                             <Link
                                                 href="/my-books"
                                                 onClick={() => setIsMenuOpen(false)}
-                                                className="flex items-center gap-3 px-4 py-2 text-sm text-ink-700 transition-colors hover:bg-ink-50 dark:text-slate-200 dark:hover:bg-slate-700"
+                                                className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                                                    pathname?.startsWith("/my-books")
+                                                        ? "dark:text-primary-400 bg-ink-50 font-medium text-primary-700 dark:bg-slate-700"
+                                                        : "text-ink-700 hover:bg-ink-50 dark:text-slate-200 dark:hover:bg-slate-700"
+                                                }`}
                                             >
                                                 <MaterialIcon name="book" className="text-[18px]" />
                                                 {UI_TEXT.PUBLIC_LAYOUT.MY_BOOKS}
