@@ -147,3 +147,49 @@ export const ADMIN_SETTINGS = {
         CONFIRM_DISCARD: "Hủy thay đổi",
     },
 };
+
+export const ADMIN_USER_MANAGEMENT = {
+    HEADER: {
+        TITLE: "Users",
+        DESCRIPTION: "Manage library access, roles, and user accounts.",
+        CREATE_BTN: "+ Create User",
+    },
+    FILTERS: {
+        SEARCH_PLACEHOLDER: "Search by name, email, or ID...",
+        ROLES: {
+            ALL: "All Roles",
+            ADMIN: "Admin",
+            LIBRARIAN: "Librarian",
+            CUSTOMER: "Customer",
+        },
+        STATUS: {
+            ALL: "All Status",
+            ACTIVE: "Active",
+            LOCKED: "Locked",
+            INACTIVE: "Inactive",
+        },
+        RELOAD: "🔄 Reload",
+    },
+    TABLE: {
+        COL_USER: "User",
+        COL_EMAIL: "Email",
+        COL_ROLE: "Role",
+        COL_STATUS: "Status",
+        COL_LAST_LOGIN: "Last Login",
+        COL_ACTIONS: "Actions",
+        BTN_EDIT: "Edit",
+        BTN_LOCK: "Lock",
+        BTN_UNLOCK: "Unlock",
+    },
+    MODAL: {
+        CREATE_TITLE: "Create User",
+        EDIT_TITLE: "Edit User",
+        PLACEHOLDER_NAME: "Full Name",
+        PLACEHOLDER_EMAIL: "Email",
+        PLACEHOLDER_LAST_LOGIN: "Last Login",
+        BTN_CANCEL: "Cancel",
+        BTN_CREATE: "Create",
+        BTN_SAVE: "Save",
+        CLOSE: "✕",
+    },
+};
