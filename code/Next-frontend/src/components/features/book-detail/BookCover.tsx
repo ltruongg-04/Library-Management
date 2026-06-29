@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { BookDetail } from "@/types/book";
@@ -10,6 +11,7 @@ interface BookCoverProps {
 }
 
 export default function BookCover({ book }: BookCoverProps) {
+    const router = useRouter();
     const isAvailable = book.availableCount > 0;
     const hasCoverImage = book.coverImage && book.coverImage.length > 0;
 
@@ -48,6 +50,7 @@ export default function BookCover({ book }: BookCoverProps) {
             {/* Action Buttons */}
             <div className="mt-2 flex flex-col gap-2">
                 <button
+                    onClick={() => router.push(`/sach/${book.id}/muon`)}
                     disabled={!isAvailable}
                     className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-label-caps text-label-caps text-on-primary shadow-sm transition-colors duration-200 hover:bg-on-primary-fixed-variant active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500"
                 >
