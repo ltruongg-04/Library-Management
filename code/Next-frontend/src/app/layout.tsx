@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import type { ReactNode } from "react";
 import "../index.css";
 
 const fraunces = Fraunces({
@@ -34,7 +35,7 @@ import { Providers } from "@/providers/Providers";
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
