@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, Plus, Trash2, Edit } from "lucide-react";
+import { X, Loader2, Plus, Trash2 } from "lucide-react";
 import { bookCopyService } from "@/services/book-copy";
-import type { BookCopy, BookCopyStatus, BookCopyUpdateRequest } from "@/types/book-copy";
+import type { BookCopy, BookCopyStatus } from "@/types/book-copy";
 
 interface BookCopiesModalProps {
   bookId: number;

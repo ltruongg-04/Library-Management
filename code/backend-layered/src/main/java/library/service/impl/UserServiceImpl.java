@@ -31,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    @SuppressWarnings("null")
     private String createRefreshToken(UserEntity user) {
         // Xóa token cũ nếu có
         refreshTokenRepository.deleteByUser(user);
@@ -49,6 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new CustomBusinessException("Email đã được sử dụng", HttpStatus.CONFLICT);
@@ -111,6 +113,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public LoginResponse loginWithGoogle(GoogleLoginRequest request) {
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseGet(() -> {

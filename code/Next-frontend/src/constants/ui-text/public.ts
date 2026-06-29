@@ -3,6 +3,12 @@ export const PUBLIC_LAYOUT = {
     MY_BOOKS: "Sách của tôi",
     LOGOUT: "Đăng xuất",
     LOGIN: "Đăng nhập",
+    ARIA: {
+        TOGGLE_THEME: "Đổi chế độ màu",
+        NOTIFICATIONS: "Thông báo",
+        PROFILE: "Hồ sơ cá nhân",
+        USER_MENU: "Menu người dùng",
+    },
     NAV_LINKS: {
         HOME: "Trang chủ",
         BOOK: "Danh sách sách",

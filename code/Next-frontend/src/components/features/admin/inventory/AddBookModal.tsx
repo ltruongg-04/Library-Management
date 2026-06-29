@@ -168,8 +168,8 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                     options={authorOptions}
                     value={selectedAuthors}
                     inputValue={authorInputValue}
-                    onInputChange={(newValue) => setAuthorInputValue(newValue)}
-                    onChange={(newValue) => setSelectedAuthors(newValue as any[])}
+                    onInputChange={(newValue: any) => setAuthorInputValue(newValue)}
+                    onChange={(newValue: any) => setSelectedAuthors(newValue as any[])}
                     onBlur={() => {
                       if (authorInputValue.trim()) {
                         setSelectedAuthors([...selectedAuthors, { label: authorInputValue.trim(), value: authorInputValue.trim(), __isNew__: true }]);
@@ -177,11 +177,11 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                       }
                     }}
                     placeholder={textUI.SELECT_AUTHOR_PLACEHOLDER}
-                    formatCreateLabel={(inputValue) => `${textUI.CREATE_AUTHOR} "${inputValue}"`}
+                    formatCreateLabel={(inputValue: string) => `${textUI.CREATE_AUTHOR} "${inputValue}"`}
                     noOptionsMessage={() => textUI.NO_AUTHOR_FOUND}
                     className="text-[14px]"
                     styles={{
-                      control: (base) => ({
+                      control: (base: any) => ({
                         ...base,
                         borderRadius: '0.5rem',
                         borderColor: '#E2E8F0',
@@ -189,8 +189,8 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                         boxShadow: 'none',
                         '&:hover': { borderColor: '#16a34a' }
                       }),
-                      option: (base) => ({ ...base, fontSize: '13px' }),
-                      multiValue: (base) => ({ ...base, backgroundColor: '#f1f5f9', borderRadius: '4px' })
+                      option: (base: any) => ({ ...base, fontSize: '13px' }),
+                      multiValue: (base: any) => ({ ...base, backgroundColor: '#f1f5f9', borderRadius: '4px' })
                     }}
                   />
                 </div>
@@ -212,8 +212,8 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                     options={categoryOptions}
                     value={selectedCategories}
                     inputValue={categoryInputValue}
-                    onInputChange={(newValue) => setCategoryInputValue(newValue)}
-                    onChange={(newValue) => setSelectedCategories(newValue as any[])}
+                    onInputChange={(newValue: any) => setCategoryInputValue(newValue)}
+                    onChange={(newValue: any) => setSelectedCategories(newValue as any[])}
                     onBlur={() => {
                       if (categoryInputValue.trim()) {
                         setSelectedCategories([...selectedCategories, { label: categoryInputValue.trim(), value: categoryInputValue.trim(), __isNew__: true }]);
@@ -221,11 +221,11 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                       }
                     }}
                     placeholder={textUI.SELECT_CATEGORY_PLACEHOLDER}
-                    formatCreateLabel={(inputValue) => `${textUI.CREATE_CATEGORY} "${inputValue}"`}
+                    formatCreateLabel={(inputValue: string) => `${textUI.CREATE_CATEGORY} "${inputValue}"`}
                     noOptionsMessage={() => textUI.NO_CATEGORY_FOUND}
                     className="text-[14px]"
                     styles={{
-                      control: (base) => ({
+                      control: (base: any) => ({
                         ...base,
                         borderRadius: '0.5rem',
                         borderColor: '#E2E8F0',
@@ -233,8 +233,8 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                         boxShadow: 'none',
                         '&:hover': { borderColor: '#16a34a' }
                       }),
-                      option: (base) => ({ ...base, fontSize: '13px' }),
-                      multiValue: (base) => ({ ...base, backgroundColor: '#f1f5f9', borderRadius: '4px' })
+                      option: (base: any) => ({ ...base, fontSize: '13px' }),
+                      multiValue: (base: any) => ({ ...base, backgroundColor: '#f1f5f9', borderRadius: '4px' })
                     }}
                   />
                 </div>

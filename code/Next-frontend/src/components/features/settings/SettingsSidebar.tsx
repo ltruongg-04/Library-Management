@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { User, Shield, Bell, Bot } from 'lucide-react';
+import { Bell, Bot, ShieldCheck, User } from 'lucide-react';
 import { UI_TEXT } from '@/constants/ui-text';
 
 export function SettingsSidebar() {
@@ -11,18 +11,18 @@ export function SettingsSidebar() {
 
     const navItems = [
         { name: UI_TEXT.SETTINGS_SIDEBAR.MENU.PERSONAL_INFO, href: '/settings/profile', icon: User },
-        { name: UI_TEXT.SETTINGS_SIDEBAR.MENU.SECURITY, href: '/settings/security', icon: Shield },
+        { name: UI_TEXT.SETTINGS_SIDEBAR.MENU.SECURITY, href: '/settings/security', icon: ShieldCheck },
         { name: UI_TEXT.SETTINGS_SIDEBAR.MENU.NOTIFICATIONS, href: '/settings/notifications', icon: Bell },
         { name: UI_TEXT.SETTINGS_SIDEBAR.MENU.AI_CONFIG, href: '/settings/ai', icon: Bot },
     ];
 
     return (
-        <aside className="fixed left-0 top-16 h-[calc(100vh-64px)] w-sidebar-width bg-white dark:bg-slate-950 text-ink-950 dark:text-white z-40 hidden md:flex flex-col border-r border-ink-100 dark:border-slate-800 transition-colors duration-200">
-            <div className="flex flex-col h-full py-xl">
-                <div className="px-lg mb-md">
-                    <h3 className="font-title-md text-title-md font-semibold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_SIDEBAR.HEADING}</h3>
+        <aside className="hidden w-sidebar-width shrink-0 bg-surface-container-low text-on-surface transition-colors duration-200 dark:bg-black dark:text-white md:flex">
+            <div className="flex w-full flex-col px-6 py-14">
+                <div className="mb-8">
+                    <h3 className="text-title-md font-semibold text-on-surface dark:text-white">{UI_TEXT.SETTINGS_SIDEBAR.HEADING}</h3>
                 </div>
-                <nav className="flex-1 flex flex-col gap-xs px-md">
+                <nav className="flex flex-1 flex-col gap-sm">
                     {navItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = pathname === item.href;
@@ -31,14 +31,14 @@ export function SettingsSidebar() {
                             <Link 
                                 key={item.name}
                                 href={item.href}
-                                className={`flex items-center gap-md px-md py-sm transition-colors duration-200 ${
+                                className={`flex h-12 items-center gap-md rounded-lg px-md text-body-md transition-colors duration-200 ${
                                     isActive 
-                                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border-l-4 border-primary-700 dark:border-primary-400 rounded-r-lg'
-                                        : 'text-ink-600 dark:text-slate-300 hover:bg-ink-50 dark:hover:bg-slate-800 hover:text-ink-900 dark:hover:text-white rounded-lg'
+                                        ? 'border-l-4 border-secondary-300 bg-secondary-fixed text-primary-700 shadow-[0_4px_12px_rgba(45,188,254,0.16)] dark:border-secondary-300 dark:bg-primary-900 dark:text-secondary-50'
+                                        : 'text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
                                 }`}
                             >
-                                <Icon size={20} className={isActive ? 'text-primary-700 dark:text-primary-400' : ''} />
-                                <span className={isActive ? 'font-bold' : ''}>{item.name}</span>
+                                <Icon size={20} strokeWidth={1.8} className={isActive ? 'text-primary-700 dark:text-secondary-300' : ''} />
+                                <span className={isActive ? 'font-medium' : ''}>{item.name}</span>
                             </Link>
                         );
                     })}

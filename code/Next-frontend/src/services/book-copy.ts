@@ -1,11 +1,5 @@
 import type { BookCopy, BookCopyUpdateRequest } from '@/types/book-copy';
 
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T | null;
-  timestamp: string;
-}
 
 export const bookCopyService = {
   // Lấy danh sách bản sao của 1 đầu sách
