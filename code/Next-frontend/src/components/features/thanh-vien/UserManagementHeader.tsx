@@ -4,7 +4,6 @@ import { Plus, Users } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 
 export default function UserManagementHeader({ onCreate }: { onCreate: () => void }) {
-    // For now we use the text from ADMIN_PAGES since this is the "Thành viên" page
     const title = UI_TEXT.ADMIN_PAGES.MEMBERS.TITLE;
     const desc = UI_TEXT.ADMIN_PAGES.MEMBERS.DESC;
 

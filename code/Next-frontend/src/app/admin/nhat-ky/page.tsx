@@ -742,9 +742,8 @@ export default function AuditLogsPage() {
                                         aria-label={`${TEXT.TABLE.PAGE_LABEL} ${item}`}
                                         aria-current={item === currentPage ? "page" : undefined}
                                         onClick={() => setCurrentPage(item)}
-                                        className={`h-8 min-w-8 rounded px-sm text-body-sm font-medium transition-colors ${
-                                            item === currentPage ? "bg-primary-container text-on-primary" : "text-on-surface-variant hover:bg-surface-container"
-                                        }`}
+                                        className={`h-8 min-w-8 rounded px-sm text-body-sm font-medium transition-colors ${item === currentPage ? "bg-primary-container text-on-primary" : "text-on-surface-variant hover:bg-surface-container"
+                                            }`}
                                     >
                                         {item}
                                     </button>

@@ -1,6 +1,7 @@
 package library.service;
 
 import library.dto.response.BookListResponse;
+import library.dto.response.BookPageResponse;
 import library.dto.response.BookResponse;
 
 import java.util.List;
@@ -22,4 +23,8 @@ public interface BookService {
     BookResponse createBook(library.dto.request.BookCreateRequest request);
 
     BookResponse updateBook(Integer id, library.dto.request.BookUpdateRequest request);
+
+    BookPageResponse getBooks(String keyword, String category, int page, int size, String sortBy);
+
+    BookPageResponse getTrendingBooks(int limit);
 }

@@ -16,16 +16,16 @@ export const bookService = {
     async getBooks(params?: import("@/types/book").BookSearchParams, signal?: AbortSignal): Promise<import("@/types/book").BookPageResponse> {
         try {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
-            
+
             // Call the admin paginated endpoint for server-side search and filtering
             const queryParams = new URLSearchParams();
             if (params?.keyword) queryParams.append("keyword", params.keyword);
-            
+
             // Note: params.category now contains categoryId instead of category name, handled in page.tsx
             if (params?.category && params.category !== "Tất cả" && params.category !== "all") {
                 queryParams.append("categoryId", params.category);
             }
-            
+
             if (params?.page !== undefined) queryParams.append("page", params.page.toString());
             if (params?.size !== undefined) queryParams.append("size", params.size.toString());
 
@@ -37,7 +37,7 @@ export const bookService = {
 
             const result = await response.json();
             if (!response.ok) throw new Error("Lỗi");
-            
+
             // Backend returns Page<BookListResponse> directly without ApiResponse wrapper for this endpoint
             return {
                 content: result.content,
@@ -63,10 +63,10 @@ export const bookService = {
 
             const result = await response.json();
             if (!response.ok || !result.success) throw new Error(result.message || "Lỗi");
-            
+
             const books = result.data || [];
             const limitedBooks = books.slice(0, limit);
-            
+
             return {
                 content: limitedBooks as any,
                 page: 0,
