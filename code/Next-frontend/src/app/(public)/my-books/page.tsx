@@ -3,49 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { MY_BOOKS_PAGE } from "@/constants/ui-text/public";
+import { MOCK_LOANS } from "@/mocks/loans";
 
 export const metadata: Metadata = {
     title: `${MY_BOOKS_PAGE.TITLE} | Lumina Library`,
     description: "Quản lý và theo dõi lịch sử mượn sách của bạn.",
 };
-
-// Mock data - will be replaced with API data
-const MOCK_LOANS = [
-    {
-        id: "BRW-9042",
-        title: "AI & Tương lai nhân loại",
-        author: "Dr. Nguyễn Văn A",
-        borrowDate: "12/05/2024",
-        dueDate: "26/05/2024",
-        actualReturnDate: null as string | null,
-        deposit: "250.000đ",
-        status: "borrowing" as const,
-        imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuDsfOcBpJJgQyJoSUCYejX7lohGTGUFjq7ZkL_tD7HdiMvYPfWkgXqdTHAvBuX0mKVSIASXedLUTe9Lz7wQ5omHp3_pRpFb6l-y-9FaV6Nz029PFWA7DMbdPKE2rMkn1jXs4gSZt6qUyIYI8Ct9JMzha-tzBvHJfODPtWxWPBLsAkQsJhGB6qRRHbbOi4CIfsEZHY3DBRvlmIdtICflVqffE44Fg4H79A5iO4m6OQ9hxKIp7litWF3Rpbwqz55cVhAfCn6U2aTfOH4S",
-    },
-    {
-        id: "BRW-9043",
-        title: "Kỹ thuật Phân tích Dữ liệu",
-        author: "Prof. Elena Smith",
-        borrowDate: "01/05/2024",
-        dueDate: "15/05/2024",
-        actualReturnDate: null as string | null,
-        deposit: "180.000đ",
-        lateFee: "45.000đ",
-        status: "overdue" as const,
-        imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuAGwJPhPhWyh7tY-XMu0j8JBcP_19pPjVxWfDmaiE_eVafrSvKIX1xgGlg_qO_HMyIAggdr4WVxRsKy0HHMpJ7HAIydRHpnUtUiWbvvz8iSCdxaqmDUGZdQ1bMki9GXbLHgfzKoumR8sd552JpANAMD0hq40eTbEayNk3jSUFtodQxoU97fXMX5gu-XxQwsuGNmcx31cOiopHerjM5yOVr2MiZIOMHIcQflyzJ72zgl6we1EmSlBJUA3LRtPx39U-6Ki4OC6mi2_gug",
-    },
-    {
-        id: "BRW-9044",
-        title: "Lịch sử Văn minh Thế giới",
-        author: "Trần Minh Tâm",
-        borrowDate: "10/04/2024",
-        dueDate: "24/04/2024",
-        actualReturnDate: "22/04/2024",
-        depositReturn: "Đã hoàn (200.000đ)",
-        status: "returned" as const,
-        imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuCIJL9XO_994a2i10hkM-rzi-XNmAEJDwzK9Itt8Bb9u_NXic5gMtHVrUGHvsnJ8qhtvsgS-ckV5bo_xrY3y1tQXRo0zoRhOxYiAqAKFy1BkUVKCTwC1nyeVMwMHoBhzf1726LJemSi2YoUiDlP6RdWoOnTGoVycfG-xqTAnzrzvBMXVGPe5LfiXQDvdO8b1xW4KMVlXhMMe_Fn2NXRt9LDsYJw6AJl7-h0jUWIAeCAzI3XQ6mre-U8hhDnd7uaSr8-xAKi42Ud534M",
-    },
-];
 
 const DASH = "—";
 

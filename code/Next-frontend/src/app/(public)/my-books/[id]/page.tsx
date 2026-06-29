@@ -4,32 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { UI_TEXT } from "@/constants/ui-text";
-
-// Mock data - will be replaced with API data
-const MOCK_LOAN_DETAIL = {
-    borrowDate: "10 Tháng 10, 2024",
-    dueDate: "24 Tháng 10, 2024",
-    deadlineDate: "24 Tháng 10, 2024",
-    reminderDate: "23 Tháng 10, 2024",
-    borrowSuccessDate: "10 Tháng 10, 2024",
-    deposit: "500,000 đ",
-    lateFee: "+50,000 đ",
-    total: "50,000 đ",
-    books: [
-        {
-            title: "The Design of Everyday Things",
-            author: "Don Norman",
-            status: "inUse" as const,
-            imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuDZ34UtDP4BZ4LFlmUEK6QqMCVoT97NCngWj_Ey944CvsOtRQp_Y6j01z69HKjw9Dsx5Ieyr3W9OFCxm53Cz7HacNb9yEFD6x0QvJWvaL4JiDKOknm0Hj51gCZ_KrhFBuN1lLIGUT_L_eUeOR8CMPSnC2uUvLgcq7-m07mXXhXWpOcc2qgWbznnU5NO2XpgCNw0xQOx9qskprOlw0OIr0uilJu9KwzAtnYOXvDk9a_hyqKpG7BJF7NNFXIR6X51ea1jCdKN4Omh0lxg",
-        },
-        {
-            title: "Refactoring UI",
-            author: "Adam Wathan & Steve Schoger",
-            status: "returned" as const,
-            imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuAPtZA1FZieeLT3BHKTaIAUREOada93EhqHzjoNeBZaq4rEjgFVvkjpxWZJCfYx9CA3-pELxTKGWh9SRUrPFWDYsN9HKxiP58bSmXyBNc9BQR7A7DzWIwEd0gArKrtqW7FajIywJHvavHBNPwjOOqzEIM8wJGeH-xuSsOM7BDBMvuZLgy9AkHHs5p5LowdmRXAw_t6qL_uZxSRIc8Splgw4NZv9_KtXH6LxDxUlLs-qqE5jmm3X4sTH-wISJn7yPRwFRLzHuMIsTcPj",
-        },
-    ],
-};
+import { MOCK_LOAN_DETAIL } from "@/mocks/loans";
 
 export default function LoanDetailPage() {
     const params = useParams();
