@@ -1,13 +1,16 @@
 "use client";
 
-import { Bell, Search, Sparkles } from "lucide-react";
+import { Bell, LayoutDashboard, Search, Sparkles } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 
 export default function Topbar() {
     return (
-        <header className="flex items-start justify-between gap-6 px-8 pt-8">
+        <header className="flex items-center justify-between gap-6 border-y border-surface-container-high bg-white px-8 py-6">
             <div>
-                <h1 className="text-[28px] font-semibold leading-tight text-ink-950">{UI_TEXT.ADMIN_LAYOUT.TOPBAR.HEADING}</h1>
+                <h1 className="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950">
+                    <LayoutDashboard size={24} className="text-primary-600" />
+                    {UI_TEXT.ADMIN_LAYOUT.TOPBAR.HEADING}
+                </h1>
                 <p className="mt-1 text-[14.5px] text-ink-950/55">{UI_TEXT.ADMIN_LAYOUT.TOPBAR.SUBHEADING}</p>
             </div>
 

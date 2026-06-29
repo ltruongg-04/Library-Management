@@ -60,8 +60,6 @@ const MOCK_RECORDS: BorrowRecord[] = [
     },
 ];
 
-
-
 export default function LuotMuonPage() {
     const [openModal, setOpenModal] = useState(false);
     const [records, setRecords] = useState<BorrowRecord[]>(MOCK_RECORDS);
@@ -132,7 +130,7 @@ export default function LuotMuonPage() {
             {/* Header */}
             <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6">
                 <div>
-                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
+                    <h1 className="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950">
                         <ClipboardList size={24} className="text-primary-600" />
                         {T.TITLE}
                     </h1>

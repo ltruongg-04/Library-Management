@@ -127,11 +127,11 @@ export default function UserModal({ open, onClose }: { open: boolean; onClose: (
                 <div className="mt-auto flex justify-end gap-3 border-t border-outline-variant/30 bg-surface-bright p-lg">
                     <button
                         onClick={onClose}
-                        className="rounded-lg border border-outline px-5 py-2.5 font-title-md text-sm text-title-md text-on-surface transition-colors hover:bg-surface-variant"
+                        className="rounded-lg border border-outline px-5 py-2.5 text-[14px] font-semibold text-on-surface transition-colors hover:bg-surface-variant"
                     >
                         {UI_TEXT.ADMIN_USER_MANAGEMENT.MODAL.BTN_CANCEL}
                     </button>
-                    <button className="rounded-lg bg-primary px-5 py-2.5 font-title-md text-sm text-title-md text-on-primary shadow-sm transition-colors hover:bg-primary-container hover:text-on-primary-container">
+                    <button className="rounded-lg bg-primary px-5 py-2.5 text-[14px] font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-container hover:text-on-primary-container">
                         {UI_TEXT.ADMIN_USER_MANAGEMENT.MODAL.BTN_CREATE}
                     </button>
                 </div>

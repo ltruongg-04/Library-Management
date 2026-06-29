@@ -95,14 +95,12 @@ export default function UserTable({ users }: { users: User[] }) {
                                         className={`h-10 w-10 rounded-full border border-outline-variant/50 object-cover ${isLocked ? "grayscale" : ""}`}
                                     />
                                 ) : (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-container font-title-md text-title-md font-bold text-on-tertiary-container">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-container text-[14px] font-semibold text-on-tertiary-container">
                                         {u.name.substring(0, 2).toUpperCase()}
                                     </div>
                                 )}
                                 <div className="flex flex-col">
-                                    <span
-                                        className={`font-title-md text-sm text-title-md text-on-background ${isLocked ? "line-through decoration-error/50" : ""}`}
-                                    >
+                                    <span className={`text-[15px] font-semibold text-on-background ${isLocked ? "line-through decoration-error/50" : ""}`}>
                                         {u.name}
                                     </span>
                                     <span className="font-body-sm text-body-sm text-on-surface-variant sm:hidden">{u.email}</span>
@@ -170,7 +168,7 @@ export default function UserTable({ users }: { users: User[] }) {
                     >
                         <ChevronLeft size={20} />
                     </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-container font-title-md text-sm text-title-md font-semibold text-on-primary-container">
+                    <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-container text-[14px] font-semibold text-on-primary-container">
                         1
                     </button>
                     <button className="flex h-8 w-8 items-center justify-center rounded-lg font-body-sm text-body-sm text-on-surface transition-colors hover:bg-surface-variant">
