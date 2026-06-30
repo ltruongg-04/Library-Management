@@ -70,8 +70,9 @@ export const authOptions: NextAuthOptions = {
                         };
                     }
                     return null;
-                } catch (e) {
-                    return null;
+                } catch (e: any) {
+                    const message = e.response?.data?.message || "Lỗi đăng nhập";
+                    throw new Error(message);
                 }
             },
         }),
@@ -103,10 +104,10 @@ export const authOptions: NextAuthOptions = {
                             // Backend sync thất bại → giữ session Google, không có backend token
                             token.expiresAt = Number.MAX_SAFE_INTEGER;
                         }
-                    } catch (e) {
+                    } catch (e: any) {
                         console.error("Google backend sync error:", e);
-                        // Không crash session nếu backend offline — giữ Google session
-                        token.expiresAt = Number.MAX_SAFE_INTEGER;
+                        // Nếu backend trả về lỗi 403 (bị khóa) hoặc lỗi khác, ném exception để chặn đăng nhập
+                        throw new Error(e.response?.data?.message || "Tài khoản của bạn đã bị khóa hoặc có lỗi hệ thống");
                     }
                 } else if (user) {
                     // Credentials login

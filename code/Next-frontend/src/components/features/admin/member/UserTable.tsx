@@ -15,7 +15,19 @@ export type User = {
     avatarUrl?: string;
 };
 
-export default function UserTable({ users, loading, error }: { users: User[]; loading?: boolean; error?: string | null }) {
+export default function UserTable({
+    users,
+    loading,
+    error,
+    onEditUser,
+    onToggleStatus,
+}: {
+    users: User[];
+    loading?: boolean;
+    error?: string | null;
+    onEditUser?: (user: User) => void;
+    onToggleStatus?: (id: number, isActive: boolean) => Promise<void>;
+}) {
     const renderRoleBadge = (role: User["role"]) => {
         if (role === "admin") {
             return (
@@ -168,6 +180,7 @@ export default function UserTable({ users, loading, error }: { users: User[]; lo
                                 {/* Actions */}
                                 <div className="col-span-12 flex items-center justify-end gap-2 opacity-100 transition-opacity group-hover:opacity-100 sm:col-span-4 md:col-span-3 lg:col-span-1 lg:opacity-0">
                                     <button
+                                        onClick={() => onEditUser?.(u)}
                                         className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-secondary"
                                         title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_EDIT}
                                     >
@@ -175,6 +188,7 @@ export default function UserTable({ users, loading, error }: { users: User[]; lo
                                     </button>
                                     {isLocked ? (
                                         <button
+                                            onClick={() => onToggleStatus?.(u.id, true)}
                                             className="flex items-center rounded-lg p-2 text-error transition-colors hover:bg-error hover:text-on-error"
                                             title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_UNLOCK}
                                         >
@@ -182,6 +196,7 @@ export default function UserTable({ users, loading, error }: { users: User[]; lo
                                         </button>
                                     ) : (
                                         <button
+                                            onClick={() => onToggleStatus?.(u.id, false)}
                                             className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-error-container/50 hover:text-error"
                                             title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_LOCK}
                                         >

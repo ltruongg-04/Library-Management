@@ -8,7 +8,7 @@ import { MOCK_LOAN_DETAIL } from "@/mocks/loans";
 
 export default function LoanDetailPage() {
     const params = useParams();
-    const id = params.id as string;
+    const id = params?.id as string;
 
     const { LOAN_DETAIL } = UI_TEXT.BORROW;
     const loan = MOCK_LOAN_DETAIL;
