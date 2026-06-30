@@ -1,83 +1,89 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ClipboardList, Plus } from "lucide-react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import BorrowFilters from "@/components/features/luot-muon/BorrowFilters";
 import BorrowModal from "@/components/features/luot-muon/BorrowModal";
 import BorrowTable, { type BorrowRecord } from "@/components/features/luot-muon/BorrowTable";
+import BorrowDetailModal from "@/components/features/luot-muon/BorrowDetailModal";
 import { UI_TEXT } from "@/constants/ui-text";
+import { getAdminBorrowOrders, AdminBorrowResponse, updateAdminBorrowStatus } from "@/services/adminBorrow";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.HEADER;
 
-const MOCK_RECORDS: BorrowRecord[] = [
-    {
-        id: "BW-001",
-        member: {
-            name: "Nguyễn Văn Hải",
-            code: "#MB-0921",
-            avatarInitials: "NH",
-            avatarColor: "secondary",
-        },
-        book: {
-            title: "The Design of Everyday Things",
-            author: "Don Norman",
-        },
-        borrowDate: "12/10/2024",
-        dueDate: "26/10/2024",
-        status: "borrowed",
-    },
-    {
-        id: "BW-002",
-        member: {
-            name: "Trần Thị Minh",
-            code: "#MB-1102",
-        },
-        book: {
-            title: "Neuromancer",
-            author: "William Gibson",
-        },
-        borrowDate: "01/10/2024",
-        dueDate: "15/10/2024",
-        status: "overdue",
-        overdayCount: 2,
-    },
-    {
-        id: "BW-003",
-        member: {
-            name: "Lê Tuấn Khang",
-            code: "#MB-0844",
-            avatarInitials: "LK",
-            avatarColor: "tertiary",
-        },
-        book: {
-            title: "Clean Code: A Handbook",
-            author: "Robert C. Martin",
-        },
-        borrowDate: null,
-        dueDate: null,
-        status: "ready",
-    },
-];
-
 export default function LuotMuonPage() {
     const [openModal, setOpenModal] = useState(false);
-    const [records, setRecords] = useState<BorrowRecord[]>(MOCK_RECORDS);
+    const [detailModalOpen, setDetailModalOpen] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+    const [records, setRecords] = useState<BorrowRecord[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("");
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
 
-    const handleStatusUpdate = (id: string, newStatus: string) => {
-        setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus as any } : r)));
+    const fetchBorrows = async () => {
+        try {
+            setIsLoading(true);
+            const response = await getAdminBorrowOrders();
+            if (response.success && response.data) {
+                const mappedData: BorrowRecord[] = response.data.map((order) => {
+                    // Map status to UI format
+                    let statusValue = order.status.toLowerCase() as BorrowRecord["status"];
+                    if (statusValue === "pending") statusValue = "pending" as any; // Or 'ready' if UI doesn't have pending
+
+                    // Convert dates from YYYY-MM-DD to DD/MM/YYYY for UI
+                    const formatDate = (dateStr: string | null) => {
+                        if (!dateStr) return null;
+                        const [year, month, day] = dateStr.split("-");
+                        return `${day}/${month}/${year}`;
+                    };
+
+                    return {
+                        id: order.id,
+                        member: {
+                            name: order.customerName,
+                            code: order.customerCode,
+                        },
+                        book: {
+                            title: order.bookTitle,
+                            author: order.bookAuthor,
+                        },
+                        borrowDate: formatDate(order.borrowDate),
+                        dueDate: formatDate(order.dueDate),
+                        status: statusValue,
+                        overdayCount: order.overdayCount ?? undefined,
+                    };
+                });
+                setRecords(mappedData);
+            }
+        } catch (error) {
+            console.error("Error fetching borrow orders:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleCreateRecord = (newRecord: Partial<BorrowRecord>) => {
-        const fullRecord: BorrowRecord = {
-            id: `BW-${String(records.length + 1).padStart(3, "0")}`,
-            ...newRecord,
-        } as BorrowRecord;
-        setRecords([fullRecord, ...records]);
+    useEffect(() => {
+        fetchBorrows();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const handleStatusUpdate = async (id: string, newStatus: string) => {
+        try {
+            await updateAdminBorrowStatus(id, newStatus.toUpperCase());
+            // Update local state if successful
+            setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus as any } : r)));
+        } catch (error) {
+            console.error("Lỗi khi cập nhật trạng thái:", error);
+            alert("Cập nhật trạng thái thất bại. Vui lòng thử lại!");
+        }
+    };
+
+    const handleViewDetail = (id: string) => {
+        setSelectedOrderId(id);
+        setDetailModalOpen(true);
     };
 
     const handleApplyDates = (from: string, to: string) => {
@@ -150,9 +156,16 @@ export default function LuotMuonPage() {
                 <BorrowFilters search={search} onSearchChange={setSearch} status={status} onStatusChange={setStatus} onApplyDates={handleApplyDates} />
 
                 {/* Table */}
-                <BorrowTable records={filteredRecords} onStatusUpdate={handleStatusUpdate} />
+                {isLoading ? (
+                    <div className="flex h-64 items-center justify-center">
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                    </div>
+                ) : (
+                    <BorrowTable records={filteredRecords} onStatusUpdate={handleStatusUpdate} onViewDetail={handleViewDetail} />
+                )}
 
-                <BorrowModal open={openModal} onClose={() => setOpenModal(false)} onSubmit={handleCreateRecord} />
+                <BorrowModal open={openModal} onClose={() => setOpenModal(false)} onSubmitSuccess={fetchBorrows} />
+                <BorrowDetailModal isOpen={detailModalOpen} onClose={() => setDetailModalOpen(false)} orderCode={selectedOrderId} />
             </main>
         </div>
     );

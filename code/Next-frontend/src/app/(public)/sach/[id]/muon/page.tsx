@@ -10,6 +10,8 @@ import { UI_TEXT } from "@/constants/ui-text";
 import { useBookDetail } from "@/hooks/useBooks";
 import { useAuth } from "@/providers/auth";
 
+import { createBorrowRequest } from "@/services/borrow";
+
 export default function BorrowPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const { user, isAuthenticated } = useAuth();
@@ -21,6 +23,7 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
     const [paymentMethod, setPaymentMethod] = useState<string>("cash");
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isSuccess, setIsSuccess] = useState<boolean>(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     // Redirect to login if not authenticated
     useEffect(() => {
@@ -29,13 +32,31 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
         }
     }, [isAuthenticated, router, params.id]);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        if (!pickupDate || !returnDate) {
+            setSubmitError("Vui lòng chọn đầy đủ ngày đến lấy và ngày hoàn trả.");
+            return;
+        }
+
+        if (!book) return;
+
         setIsSubmitting(true);
-        // Simulate API call for now
-        setTimeout(() => {
-            setIsSubmitting(false);
+        setSubmitError(null);
+        
+        try {
+            await createBorrowRequest({
+                bookId: book.id,
+                pickupDate,
+                returnDate,
+                paymentMethod: paymentMethod.toUpperCase(),
+            });
             setIsSuccess(true);
-        }, 1500);
+        } catch (err: any) {
+            console.error("Lỗi đặt mượn sách:", err);
+            setSubmitError(err.response?.data?.message || err.message || "Đã xảy ra lỗi khi đặt mượn sách");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (loading || isAuthenticated === undefined) {
@@ -77,6 +98,14 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
 
     return (
         <main className="mx-auto w-full max-w-container-max px-6 py-12">
+            {submitError && (
+                <div className="mb-6 rounded-lg bg-error-container p-4 text-on-error-container">
+                    <div className="flex items-center gap-2">
+                        <MaterialIcon name="error" />
+                        <span className="font-semibold">{submitError}</span>
+                    </div>
+                </div>
+            )}
             <div className="flex flex-col gap-12 lg:flex-row">
                 <BorrowForm
                     book={book}

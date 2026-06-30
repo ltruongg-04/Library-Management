@@ -1,118 +1,185 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, CalendarDays, User as UserIcon, X } from "lucide-react";
+import { BookOpen, CalendarDays, User as UserIcon, X, Loader2 } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
-import { BorrowRecord } from "./BorrowTable";
+import { createAdminBorrowOrder } from "@/services/adminBorrow";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.MODAL;
 
-export default function BorrowModal({ open, onClose, onSubmit }: { open: boolean; onClose: () => void; onSubmit: (record: Partial<BorrowRecord>) => void }) {
+export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: boolean; onClose: () => void; onSubmitSuccess: () => void }) {
     const [form, setForm] = useState({
-        memberCode: "",
-        bookTitle: "",
+        phone: "",
+        fullName: "",
+        email: "",
+        bookBarcodes: "",
         dueDate: "",
     });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (open) {
-            setForm({ memberCode: "", bookTitle: "", dueDate: "" });
+            setForm({ phone: "", fullName: "", email: "", bookBarcodes: "", dueDate: "" });
+            setError(null);
+            setIsLoading(false);
         }
     }, [open]);
 
     if (!open) return null;
 
-    const handleSubmit = () => {
-        onSubmit({
-            member: {
-                name: "Người dùng mới",
-                code: form.memberCode || "#MB-9999",
-                avatarInitials: "NN",
-                avatarColor: "primary",
-            },
-            book: {
-                title: form.bookTitle || "Sách mới mượn",
-                author: "Tác giả ẩn danh",
-            },
-            dueDate: form.dueDate || "30/10/2024",
-            borrowDate: "20/10/2024",
-            status: "pending",
-        });
-        onClose();
+    const handleSubmit = async () => {
+        setError(null);
+        if (!form.phone.trim() || !form.bookBarcodes.trim() || !form.dueDate) {
+            setError("Vui lòng điền các thông tin bắt buộc (SĐT, Mã vạch, Ngày hẹn trả)");
+            return;
+        }
+
+        const barcodes = form.bookBarcodes
+            .split(",")
+            .map((b) => b.trim())
+            .filter((b) => b.length > 0);
+
+        if (barcodes.length === 0) {
+            setError("Vui lòng nhập ít nhất một mã vạch hợp lệ");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const res = await createAdminBorrowOrder({
+                phone: form.phone,
+                fullName: form.fullName,
+                email: form.email,
+                bookBarcodes: barcodes,
+                dueDate: form.dueDate,
+            });
+
+            if (res.success) {
+                onSubmitSuccess();
+                onClose();
+            } else {
+                setError(res.message || "Tạo phiếu mượn thất bại");
+            }
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Đã có lỗi xảy ra");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-background/40 px-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
             <div className="level-2-shadow flex w-full max-w-lg transform flex-col overflow-hidden rounded-2xl bg-surface-container-lowest transition-all">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-outline-variant/30 bg-surface-bright p-lg">
-                    <h3 className="font-headline-lg text-headline-lg-mobile text-on-background">{T.CREATE_TITLE}</h3>
+                <div className="flex items-center justify-between border-b border-outline-variant/30 bg-surface-bright p-6">
+                    <h3 className="text-xl font-bold text-on-background">Tạo phiếu mượn mới</h3>
                     <button
                         onClick={onClose}
-                        className="rounded-full p-1 text-on-surface-variant transition-colors hover:bg-error-container/20 hover:text-error"
+                        disabled={isLoading}
+                        className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-error-container/20 hover:text-error disabled:opacity-50"
                     >
                         <X size={24} />
                     </button>
                 </div>
 
                 {/* Form Body */}
-                <div className="flex flex-col gap-md p-lg">
+                <div className="flex flex-col gap-5 p-6">
+                    {error && (
+                        <div className="rounded border border-error/50 bg-error-container/20 p-3 text-sm text-error">
+                            {error}
+                        </div>
+                    )}
                     <div className="flex flex-col gap-1.5">
-                        <label className="font-body-sm text-body-sm font-medium text-on-surface">{T.LABEL_MEMBER_CODE}</label>
+                        <label className="text-sm font-medium text-on-surface">Số điện thoại <span className="text-error">*</span></label>
                         <div className="relative">
                             <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
                             <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                                placeholder={T.PLACEHOLDER_MEMBER_CODE}
-                                value={form.memberCode}
-                                onChange={(e) => setForm({ ...form, memberCode: e.target.value })}
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                placeholder="Nhập số điện thoại..."
+                                value={form.phone}
+                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
                                 type="text"
+                                disabled={isLoading}
                             />
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="font-body-sm text-body-sm font-medium text-on-surface">{T.LABEL_BOOK_TITLE}</label>
+                        <label className="text-sm font-medium text-on-surface">Họ và tên <span className="text-xs font-normal text-on-surface-variant">(Tuỳ chọn nếu tạo mới)</span></label>
+                        <div className="relative">
+                            <input
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 px-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                placeholder="Nhập họ và tên..."
+                                value={form.fullName}
+                                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                                type="text"
+                                disabled={isLoading}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-on-surface">Email <span className="text-xs font-normal text-on-surface-variant">(Tuỳ chọn)</span></label>
+                        <div className="relative">
+                            <input
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 px-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                placeholder="Nhập email..."
+                                value={form.email}
+                                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                type="email"
+                                disabled={isLoading}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-on-surface">Mã vạch sách <span className="text-error">*</span></label>
                         <div className="relative">
                             <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
                             <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                                placeholder={T.PLACEHOLDER_BOOK_TITLE}
-                                value={form.bookTitle}
-                                onChange={(e) => setForm({ ...form, bookTitle: e.target.value })}
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                placeholder="Ví dụ: BC001, BC002..."
+                                value={form.bookBarcodes}
+                                onChange={(e) => setForm({ ...form, bookBarcodes: e.target.value })}
                                 type="text"
+                                disabled={isLoading}
                             />
                         </div>
+                        <p className="text-xs text-on-surface-variant">Phân cách nhiều mã vạch bằng dấu phẩy (,)</p>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="font-body-sm text-body-sm font-medium text-on-surface">{T.LABEL_DUE_DATE}</label>
+                        <label className="text-sm font-medium text-on-surface">Ngày hẹn trả <span className="text-error">*</span></label>
                         <div className="relative">
                             <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
                             <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                                placeholder={T.PLACEHOLDER_DUE_DATE}
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
                                 value={form.dueDate}
                                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-                                type="text"
+                                type="date"
+                                disabled={isLoading}
                             />
                         </div>
                     </div>
                 </div>
 
                 {/* Actions Footer */}
-                <div className="mt-auto flex justify-end gap-3 border-t border-outline-variant/30 bg-surface-bright p-lg">
+                <div className="mt-auto flex justify-end gap-3 border-t border-outline-variant/30 bg-surface-bright p-6">
                     <button
                         onClick={onClose}
-                        className="rounded-lg border border-outline px-5 py-2.5 font-title-md text-sm text-title-md text-on-surface transition-colors hover:bg-surface-variant"
+                        disabled={isLoading}
+                        className="rounded-lg border border-outline px-5 py-2.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-50"
                     >
-                        {T.BTN_CANCEL}
+                        Hủy
                     </button>
                     <button
                         onClick={handleSubmit}
-                        className="rounded-lg bg-primary px-5 py-2.5 font-title-md text-sm text-title-md text-on-primary shadow-sm transition-colors hover:bg-primary-container hover:text-on-primary-container"
+                        disabled={isLoading}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-on-primary shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-70"
                     >
-                        {T.BTN_CREATE}
+                        {isLoading && <Loader2 className="animate-spin" size={16} />}
+                        Tạo phiếu mượn
                     </button>
                 </div>
             </div>
