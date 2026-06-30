@@ -108,14 +108,7 @@ export default function BorrowFilters({ search, onSearchChange, status, onStatus
                         </button>
                     )}
 
-                    {/* Apply button */}
-                    <button
-                        onClick={handleApply}
-                        className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-body-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
-                    >
-                        <Filter size={18} />
-                        {T.BTN_APPLY_FILTER}
-                    </button>
+                    
                 </div>
             </div>
         </div>

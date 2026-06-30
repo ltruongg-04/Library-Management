@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, X, AlertCircle } from "lucide-react";
 import { getSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { BaseButton } from "@/components/base/base-button";
 import { BaseInput } from "@/components/base/base-input";
 import { AppleIcon } from "@/components/icons/apple-icon";
@@ -16,12 +16,24 @@ import { isAdminRole } from "@/utils/role";
 export function LoginForm() {
     const { login, loginWithGoogle } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+    const [errors, setErrors] = useState<{ email?: string; password?: string; global?: string }>({});
+    const [lockedError, setLockedError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const error = searchParams.get("error");
+        if (error) {
+            setLockedError("Đăng nhập Google thất bại. Tài khoản của bạn có thể đã bị khóa.");
+            // clean up url without reloading page
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    }, [searchParams]);
 
     function validate() {
         const next: typeof errors = {};
@@ -50,7 +62,12 @@ export function LoginForm() {
                 router.replace("/");
             }
         } catch (error: any) {
-            setErrors({ email: error.message || UI_TEXT.AUTH.LOGIN.ERROR_MSG });
+            const errorMsg = error.message || UI_TEXT.AUTH.LOGIN.ERROR_MSG;
+            if (errorMsg.toLowerCase().includes("khóa")) {
+                setLockedError(errorMsg);
+            } else {
+                setErrors({ email: errorMsg });
+            }
         } finally {
             setIsLoading(false);
         }
@@ -66,7 +83,34 @@ export function LoginForm() {
     }
 
     return (
-        <div className="animate-slide-up w-full max-w-md">
+        <div className="animate-slide-up w-full max-w-md relative">
+            {/* Locked Error Popup */}
+            {lockedError && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-on-background/40 px-4 backdrop-blur-sm animate-in fade-in">
+                    <div className="w-full max-w-sm rounded-2xl bg-surface-container-lowest p-6 shadow-xl flex flex-col items-center text-center animate-in zoom-in-95">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-error/10 text-error mb-4">
+                            <Lock size={24} />
+                        </div>
+                        <h3 className="text-xl font-semibold text-on-surface mb-2">Tài khoản bị khóa</h3>
+                        <p className="text-sm text-on-surface-variant mb-6">{lockedError}</p>
+                        <div className="flex w-full gap-3">
+                            <button
+                                onClick={() => router.push("/")}
+                                className="flex-1 rounded-lg border border-outline-variant bg-surface-container-lowest px-4 py-2.5 font-semibold text-on-surface transition-colors hover:bg-surface-container-high"
+                            >
+                                Về trang chủ
+                            </button>
+                            <button
+                                onClick={() => setLockedError(null)}
+                                className="flex-1 rounded-lg bg-primary px-4 py-2.5 font-semibold text-on-primary transition-colors hover:bg-primary/90"
+                            >
+                                Đăng nhập lại
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Heading */}
             <div className="mb-8">
                 <h1 className="text-4xl font-semibold text-on-surface">{UI_TEXT.AUTH.LOGIN.HEADING}</h1>
@@ -75,6 +119,12 @@ export function LoginForm() {
 
             {/* Form fields */}
             <form onSubmit={handleSubmit} className="space-y-5">
+                {errors.global && (
+                    <div className="rounded-lg bg-error-container/20 p-3 text-sm font-medium text-error border border-error/30">
+                        {errors.global}
+                    </div>
+                )}
+                
                 <BaseInput
                     label={UI_TEXT.AUTH.LOGIN.EMAIL_LABEL}
                     type="email"
@@ -99,9 +149,8 @@ export function LoginForm() {
                         trailingIcon={
                             <button
                                 type="button"
-                                onClick={() => setShowPassword((v) => !v)}
-                                className="text-outline transition-colors hover:text-on-surface focus:outline-none"
-                                aria-label={showPassword ? UI_TEXT.AUTH.LOGIN.HIDE_PASSWORD_ARIA : UI_TEXT.AUTH.LOGIN.SHOW_PASSWORD_ARIA}
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="text-on-surface-variant transition-colors hover:text-primary-500"
                             >
                                 {showPassword ? <EyeOff size={16} strokeWidth={1.5} /> : <Eye size={16} strokeWidth={1.5} />}
                             </button>

@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.lang.NonNull;
 
+import library.repository.UserRepository;
+import library.entity.UserEntity;
+import org.springframework.http.HttpStatus;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -22,6 +26,7 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -41,6 +46,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             if (jwtUtil.isTokenValid(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
                 userEmail = jwtUtil.extractEmail(jwt);
+                
+                // Check if user exists and is active
+                UserEntity user = userRepository.findByEmail(userEmail).orElse(null);
+                if (user == null || !user.isActive()) {
+                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    response.getWriter().write("User account is locked or deleted");
+                    return;
+                }
+
                 Claims claims = jwtUtil.extractAllClaims(jwt);
                 
                 // Spring Security expects roles to start with ROLE_
