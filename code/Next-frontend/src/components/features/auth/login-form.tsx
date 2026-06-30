@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { getSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { BaseButton } from "@/components/base/base-button";
 import { BaseInput } from "@/components/base/base-input";
 import { AppleIcon } from "@/components/icons/apple-icon";
@@ -16,6 +16,8 @@ import { isAdminRole } from "@/utils/role";
 export function LoginForm() {
     const { login, loginWithGoogle } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const isRegistered = searchParams.get("registered") === "true";
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -49,8 +51,10 @@ export function LoginForm() {
             } else {
                 router.replace("/");
             }
-        } catch (error: any) {
-            setErrors({ email: error.message || UI_TEXT.AUTH.LOGIN.ERROR_MSG });
+        } catch (error) {
+            setErrors({
+                email: error instanceof Error ? error.message : UI_TEXT.AUTH.LOGIN.ERROR_MSG,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -72,6 +76,13 @@ export function LoginForm() {
                 <h1 className="text-4xl font-semibold text-on-surface">{UI_TEXT.AUTH.LOGIN.HEADING}</h1>
                 <p className="mt-2 text-sm text-on-surface-variant">{UI_TEXT.AUTH.LOGIN.SUBHEADING}</p>
             </div>
+
+            {isRegistered && (
+                <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                    <span>✅</span>
+                    <span>{UI_TEXT.AUTH.LOGIN.REGISTER_SUCCESS}</span>
+                </div>
+            )}
 
             {/* Form fields */}
             <form onSubmit={handleSubmit} className="space-y-5">

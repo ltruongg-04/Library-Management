@@ -13,16 +13,19 @@ import { authService } from "@/services/auth";
 
 export default function RegisterForm() {
     const router = useRouter();
+
     const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<string>("");
-    const [successMessage, setSuccessMessage] = useState<string>("");
+    const [errorMessage, setErrorMessage] = useState("");
 
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
+        reset,
+        setFocus,
     } = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
+        mode: "onChange",
         defaultValues: {
             fullName: "",
             phoneNumber: "",
@@ -32,103 +35,103 @@ export default function RegisterForm() {
         },
     });
 
-    // 🔄 Form submit handler — gọi API thực
-    const handleFormSubmit = async (data: RegisterFormData) => {
+    const onSubmit = async (data: RegisterFormData) => {
         setIsLoading(true);
         setErrorMessage("");
-        setSuccessMessage("");
 
         try {
-            // 📡 Gọi API đăng ký thực
-            const result = await authService.register({
-                fullName: data.fullName,
-                email: data.email,
+            await authService.register({
+                fullName: data.fullName.trim(),
+                email: data.email.trim().toLowerCase(),
                 password: data.password,
-                phone: data.phoneNumber || undefined,
+                phone: data.phoneNumber?.trim() || undefined,
             });
 
-            console.log("✅ Đăng ký thành công:", result);
-            setSuccessMessage(`${UI_TEXT.AUTH.REGISTER.SUCCESS_MSG} ${result.fullName}`);
-
-            // Chuyển đến trang login sau 2 giây
-            setTimeout(() => {
-                router.push("/login");
-            }, 2000);
+            reset();
+            router.replace("/login?registered=true");
         } catch (error) {
-            setErrorMessage(error instanceof Error ? error.message : UI_TEXT.AUTH.REGISTER.ERROR_MSG);
+            const message = error instanceof Error ? error.message : UI_TEXT.AUTH.REGISTER.ERROR_MSG;
+
+            setErrorMessage(message);
+
+            // focus UX: ưu tiên email (hoặc bạn có thể map theo backend error)
+            setFocus("email");
+        } finally {
+            setIsLoading(false);
         }
     };
-    console.log("ERRORS:", errors);
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-            {/* ✅ Success Alert */}
-            {successMessage && (
-                <div className="animate-fade-in flex items-start gap-3 rounded-lg border border-green-500 bg-green-50 p-4 text-green-700">
-                    <span className="flex-shrink-0 text-xl">{UI_TEXT.AUTH.REGISTER.SUCCESS_ICON}</span>
-                    <span className="text-sm">{successMessage}</span>
-                </div>
-            )}
-
-            {/* ⚠️ Error Alert */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Error */}
             {errorMessage && (
-                <div className="animate-fade-in flex items-start gap-3 rounded-lg border border-red-500 bg-red-50 p-4 text-red-700">
-                    <span className="flex-shrink-0 text-xl">{UI_TEXT.AUTH.REGISTER.ERROR_ICON}</span>
+                <div className="flex items-start gap-3 rounded-lg border border-red-500 bg-red-50 p-4 text-red-700">
+                    <span className="text-xl">{UI_TEXT.AUTH.REGISTER.ERROR_ICON}</span>
                     <span className="text-sm">{errorMessage}</span>
                 </div>
             )}
 
-            {/* 👤 Full Name Input */}
+            {/* Full Name */}
             <Input
                 label={UI_TEXT.AUTH.REGISTER.FULL_NAME_LABEL}
                 placeholder={UI_TEXT.AUTH.REGISTER.FULL_NAME_PLACEHOLDER}
                 type="text"
                 error={errors.fullName?.message}
-                {...register("fullName")}
+                {...register("fullName", {
+                    onChange: () => errorMessage && setErrorMessage(""),
+                })}
             />
 
-            {/* 📱 Phone Number Input */}
+            {/* Phone */}
             <Input
                 label={UI_TEXT.AUTH.REGISTER.PHONE_LABEL}
                 placeholder={UI_TEXT.AUTH.REGISTER.PHONE_PLACEHOLDER}
                 type="tel"
                 error={errors.phoneNumber?.message}
-                {...register("phoneNumber")}
+                {...register("phoneNumber", {
+                    onChange: () => errorMessage && setErrorMessage(""),
+                })}
             />
 
-            {/* 📧 Email Input */}
+            {/* Email */}
             <Input
                 label={UI_TEXT.AUTH.REGISTER.EMAIL_LABEL}
                 placeholder={UI_TEXT.AUTH.REGISTER.EMAIL_PLACEHOLDER}
                 type="email"
                 error={errors.email?.message}
-                {...register("email")}
+                {...register("email", {
+                    onChange: () => errorMessage && setErrorMessage(""),
+                })}
             />
 
-            {/* 🔐 Password Input */}
+            {/* Password */}
             <Input
                 label={UI_TEXT.AUTH.REGISTER.PASSWORD_LABEL}
                 placeholder={UI_TEXT.AUTH.REGISTER.PASSWORD_PLACEHOLDER}
                 type="password"
                 error={errors.password?.message}
-                {...register("password")}
+                {...register("password", {
+                    onChange: () => errorMessage && setErrorMessage(""),
+                })}
             />
 
-            {/* 🔐 Confirm Password Input */}
+            {/* Confirm Password */}
             <Input
                 label={UI_TEXT.AUTH.REGISTER.CONFIRM_PASSWORD_LABEL}
-                placeholder={UI_TEXT.AUTH.REGISTER.PASSWORD_PLACEHOLDER}
+                placeholder={UI_TEXT.AUTH.REGISTER.CONFIRM_PASSWORD_PLACEHOLDER}
                 type="password"
                 error={errors.confirmPassword?.message}
-                {...register("confirmPassword")}
+                {...register("confirmPassword", {
+                    onChange: () => errorMessage && setErrorMessage(""),
+                })}
             />
 
-            {/* 🔘 Submit Button */}
-            <Button type="submit" fullWidth isLoading={isLoading} disabled={isLoading}>
+            {/* Submit */}
+            <Button type="submit" fullWidth isLoading={isLoading} disabled={isLoading || !isValid}>
                 {isLoading ? UI_TEXT.AUTH.REGISTER.LOADING_BTN : UI_TEXT.AUTH.REGISTER.SUBMIT_BTN}
             </Button>
 
-            {/* 📝 Login Link */}
+            {/* Login link */}
             <div className="text-center text-sm text-gray-600">
                 {UI_TEXT.AUTH.REGISTER.ALREADY_HAVE_ACCOUNT}{" "}
                 <Link href="/login" className="font-medium text-primary-500 hover:text-primary-700">
