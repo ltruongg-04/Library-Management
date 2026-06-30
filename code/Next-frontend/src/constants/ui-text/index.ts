@@ -5,6 +5,7 @@ import { COMMON, MAINTENANCE } from "./common";
 import { NOTIFICATIONS } from "./notifications";
 import { ABOUT, BOOK_DETAIL, BOOK_LIST, CONTACT, HOME, PUBLIC_LAYOUT } from "./public";
 import { PROFILE, SETTINGS_HEADER, SETTINGS_NOTIFICATIONS, SETTINGS_SECURITY, SETTINGS_SIDEBAR } from "./settings";
+import { ROLES } from "./roles";
 
 export const UI_TEXT = {
     COMMON,
@@ -30,4 +31,5 @@ export const UI_TEXT = {
     SETTINGS_SIDEBAR,
     SETTINGS_NOTIFICATIONS,
     SETTINGS_SECURITY,
+    ROLES,  
 };
