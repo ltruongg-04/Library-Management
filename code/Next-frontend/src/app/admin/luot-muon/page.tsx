@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ClipboardList, Plus } from "lucide-react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
-import BorrowFilters from "@/components/features/luot-muon/BorrowFilters";
-import BorrowModal from "@/components/features/luot-muon/BorrowModal";
-import BorrowTable, { type BorrowRecord } from "@/components/features/luot-muon/BorrowTable";
-import BorrowDetailModal from "@/components/features/luot-muon/BorrowDetailModal";
+import BorrowDetailModal from "@/components/features/admin/borrow/BorrowDetailModal";
+import BorrowFilters from "@/components/features/admin/borrow/BorrowFilters";
+import BorrowModal from "@/components/features/admin/borrow/BorrowModal";
+import BorrowTable, { type BorrowRecord } from "@/components/features/admin/borrow/BorrowTable";
 import { UI_TEXT } from "@/constants/ui-text";
-import { getAdminBorrowOrders, AdminBorrowResponse, updateAdminBorrowStatus } from "@/services/adminBorrow";
+import { getAdminBorrowOrders, updateAdminBorrowStatus } from "@/services/adminBorrow";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.HEADER;
 

@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, User, Calendar, Book, DollarSign } from "lucide-react";
-import { getAdminBorrowOrderDetail, AdminBorrowOrderDetailResponse } from "@/services/adminBorrow";
+import { Book, Calendar, DollarSign, User, X } from "lucide-react";
+import { UI_TEXT } from "@/constants/ui-text";
+import { AdminBorrowOrderDetailResponse, getAdminBorrowOrderDetail } from "@/services/adminBorrow";
+
+const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.DETAIL_MODAL;
 
 interface BorrowDetailModalProps {
     isOpen: boolean;
@@ -78,8 +81,13 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-outline-variant/30 px-6 py-4">
                     <div>
-                        <h2 className="text-xl font-bold text-on-surface">Chi tiết lượt mượn</h2>
-                        {orderCode && <p className="mt-1 text-sm text-on-surface-variant">Mã phiếu: {orderCode}</p>}
+                        <h2 className="text-xl font-bold text-on-surface">{T.TITLE}</h2>
+                        {orderCode && (
+                            <p className="mt-1 text-sm text-on-surface-variant">
+                                {T.ORDER_CODE}
+                                {orderCode}
+                            </p>
+                        )}
                     </div>
                     <button
                         onClick={onClose}
@@ -105,12 +113,19 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                                 <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low/50 p-4">
                                     <div className="mb-3 flex items-center gap-2 font-medium text-on-surface">
                                         <User size={18} className="text-primary" />
-                                        Thông tin người mượn
+                                        {T.SECTION_MEMBER}
                                     </div>
                                     <div className="space-y-2 text-sm">
-                                        <p><span className="text-on-surface-variant">Họ tên:</span> <span className="font-medium">{detail.customerName}</span></p>
-                                        <p><span className="text-on-surface-variant">Mã thẻ/SĐT:</span> <span>{detail.customerCode}</span></p>
-                                        <p><span className="text-on-surface-variant">Số điện thoại:</span> <span>{detail.customerPhone}</span></p>
+                                        <p>
+                                            <span className="text-on-surface-variant">{T.MEMBER_NAME}</span>{" "}
+                                            <span className="font-medium">{detail.customerName}</span>
+                                        </p>
+                                        <p>
+                                            <span className="text-on-surface-variant">{T.MEMBER_CODE}</span> <span>{detail.customerCode}</span>
+                                        </p>
+                                        <p>
+                                            <span className="text-on-surface-variant">{T.MEMBER_PHONE}</span> <span>{detail.customerPhone}</span>
+                                        </p>
                                     </div>
                                 </div>
 
@@ -118,30 +133,37 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                                 <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low/50 p-4">
                                     <div className="mb-3 flex items-center gap-2 font-medium text-on-surface">
                                         <Calendar size={18} className="text-secondary" />
-                                        Thông tin mượn trả
+                                        {T.SECTION_BORROW_INFO}
                                     </div>
                                     <div className="space-y-2 text-sm">
-                                        <p><span className="text-on-surface-variant">Ngày tạo:</span> <span>{formatDate(detail.borrowDate)}</span></p>
-                                        <p><span className="text-on-surface-variant">Ngày hẹn trả:</span> <span>{formatDate(detail.dueDate)}</span></p>
-                                        <p><span className="text-on-surface-variant">Trạng thái:</span> <span className="font-medium uppercase">{TRANSLATE_ORDER_STATUS[detail.status] || detail.status}</span></p>
+                                        <p>
+                                            <span className="text-on-surface-variant">{T.CREATED_AT}</span> <span>{formatDate(detail.borrowDate)}</span>
+                                        </p>
+                                        <p>
+                                            <span className="text-on-surface-variant">{T.DUE_DATE}</span> <span>{formatDate(detail.dueDate)}</span>
+                                        </p>
+                                        <p>
+                                            <span className="text-on-surface-variant">{T.STATUS}</span>{" "}
+                                            <span className="font-medium uppercase">{TRANSLATE_ORDER_STATUS[detail.status] || detail.status}</span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Books Table */}
-                            <div className="rounded-xl border border-outline-variant/30 overflow-hidden">
-                                <div className="bg-surface-container-low px-4 py-3 flex items-center gap-2 font-medium text-on-surface border-b border-outline-variant/30">
+                            <div className="overflow-hidden rounded-xl border border-outline-variant/30">
+                                <div className="flex items-center gap-2 border-b border-outline-variant/30 bg-surface-container-low px-4 py-3 font-medium text-on-surface">
                                     <Book size={18} className="text-tertiary" />
-                                    Danh sách sách mượn
+                                    {T.SECTION_BOOKS}
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left text-sm">
-                                        <thead className="bg-surface-container-lowest text-on-surface-variant font-medium">
+                                        <thead className="bg-surface-container-lowest font-medium text-on-surface-variant">
                                             <tr>
-                                                <th className="px-4 py-3">Tên sách</th>
-                                                <th className="px-4 py-3">Tác giả</th>
-                                                <th className="px-4 py-3">Mã vạch</th>
-                                                <th className="px-4 py-3">Trạng thái</th>
+                                                <th className="px-4 py-3">{T.BOOK_TITLE}</th>
+                                                <th className="px-4 py-3">{T.BOOK_AUTHOR}</th>
+                                                <th className="px-4 py-3">{T.BOOK_BARCODE}</th>
+                                                <th className="px-4 py-3">{T.BOOK_STATUS}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-outline-variant/20 bg-surface-container-lowest">
@@ -150,12 +172,16 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                                                     <td className="px-4 py-3 font-medium text-on-surface">{item.bookTitle}</td>
                                                     <td className="px-4 py-3 text-on-surface-variant">{item.bookAuthor}</td>
                                                     <td className="px-4 py-3">{item.barcode}</td>
-                                                    <td className="px-4 py-3 uppercase text-xs font-medium text-on-surface-variant">{TRANSLATE_BOOK_STATUS[item.status] || item.status}</td>
+                                                    <td className="px-4 py-3 text-xs font-medium uppercase text-on-surface-variant">
+                                                        {TRANSLATE_BOOK_STATUS[item.status] || item.status}
+                                                    </td>
                                                 </tr>
                                             ))}
                                             {detail.items.length === 0 && (
                                                 <tr>
-                                                    <td colSpan={4} className="px-4 py-6 text-center text-on-surface-variant">Không có dữ liệu sách</td>
+                                                    <td colSpan={4} className="px-4 py-6 text-center text-on-surface-variant">
+                                                        {T.NO_BOOKS}
+                                                    </td>
                                                 </tr>
                                             )}
                                         </tbody>
@@ -167,28 +193,27 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                             <div className="rounded-xl border border-outline-variant/30 bg-surface-container-low/50 p-4">
                                 <div className="mb-3 flex items-center gap-2 font-medium text-on-surface">
                                     <DollarSign size={18} className="text-error" />
-                                    Chi phí
+                                    {T.SECTION_FEE}
                                 </div>
                                 <div className="flex flex-col gap-2 text-sm">
                                     <div className="flex justify-between">
-                                        <span className="text-on-surface-variant">Tiền thuê:</span>
+                                        <span className="text-on-surface-variant">{T.FEE_RENT}</span>
                                         <span>{formatMoney(detail.subtotalFee)}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-on-surface-variant">Giảm giá:</span>
+                                        <span className="text-on-surface-variant">{T.FEE_DISCOUNT}</span>
                                         <span>-{formatMoney(detail.discountAmount)}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-on-surface-variant">Tiền cọc:</span>
+                                        <span className="text-on-surface-variant">{T.FEE_DEPOSIT}</span>
                                         <span>{formatMoney(detail.totalDeposit)}</span>
                                     </div>
-                                    <div className="mt-2 border-t border-outline-variant/30 pt-2 flex justify-between font-bold text-base">
-                                        <span className="text-on-surface">Tổng cộng:</span>
+                                    <div className="mt-2 flex justify-between border-t border-outline-variant/30 pt-2 text-base font-bold">
+                                        <span className="text-on-surface">{T.FEE_TOTAL}</span>
                                         <span className="text-primary">{formatMoney(detail.totalFee + detail.totalDeposit)}</span>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     ) : null}
                 </div>

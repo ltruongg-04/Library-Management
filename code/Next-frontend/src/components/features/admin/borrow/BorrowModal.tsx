@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, CalendarDays, User as UserIcon, X, Loader2 } from "lucide-react";
+import { BookOpen, CalendarDays, Loader2, User as UserIcon, X } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 import { createAdminBorrowOrder } from "@/services/adminBorrow";
 
@@ -73,7 +73,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
             <div className="level-2-shadow flex w-full max-w-lg transform flex-col overflow-hidden rounded-2xl bg-surface-container-lowest transition-all">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-outline-variant/30 bg-surface-bright p-6">
-                    <h3 className="text-xl font-bold text-on-background">Tạo phiếu mượn mới</h3>
+                    <h3 className="text-xl font-bold text-on-background">{T.CREATE_TITLE}</h3>
                     <button
                         onClick={onClose}
                         disabled={isLoading}
@@ -85,13 +85,11 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
 
                 {/* Form Body */}
                 <div className="flex flex-col gap-5 p-6">
-                    {error && (
-                        <div className="rounded border border-error/50 bg-error-container/20 p-3 text-sm text-error">
-                            {error}
-                        </div>
-                    )}
+                    {error && <div className="rounded border border-error/50 bg-error-container/20 p-3 text-sm text-error">{error}</div>}
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">Số điện thoại <span className="text-error">*</span></label>
+                        <label className="text-sm font-medium text-on-surface">
+                            {T.LABEL_PHONE} <span className="text-error">*</span>
+                        </label>
                         <div className="relative">
                             <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
                             <input
@@ -106,10 +104,12 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">Họ và tên <span className="text-xs font-normal text-on-surface-variant">(Tuỳ chọn nếu tạo mới)</span></label>
+                        <label className="text-sm font-medium text-on-surface">
+                            {T.LABEL_FULL_NAME} <span className="text-xs font-normal text-on-surface-variant">{T.HINT_OPTIONAL_CREATE}</span>
+                        </label>
                         <div className="relative">
                             <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 px-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-2.5 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
                                 placeholder="Nhập họ và tên..."
                                 value={form.fullName}
                                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
@@ -120,10 +120,12 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">Email <span className="text-xs font-normal text-on-surface-variant">(Tuỳ chọn)</span></label>
+                        <label className="text-sm font-medium text-on-surface">
+                            {T.LABEL_EMAIL} <span className="text-xs font-normal text-on-surface-variant">{T.HINT_OPTIONAL}</span>
+                        </label>
                         <div className="relative">
                             <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 px-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-2.5 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
                                 placeholder="Nhập email..."
                                 value={form.email}
                                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -134,7 +136,9 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">Mã vạch sách <span className="text-error">*</span></label>
+                        <label className="text-sm font-medium text-on-surface">
+                            {T.LABEL_BOOK_BARCODE} <span className="text-error">*</span>
+                        </label>
                         <div className="relative">
                             <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
                             <input
@@ -146,11 +150,13 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                                 disabled={isLoading}
                             />
                         </div>
-                        <p className="text-xs text-on-surface-variant">Phân cách nhiều mã vạch bằng dấu phẩy (,)</p>
+                        <p className="text-xs text-on-surface-variant">{T.HINT_MULTIPLE_BARCODE}</p>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">Ngày hẹn trả <span className="text-error">*</span></label>
+                        <label className="text-sm font-medium text-on-surface">
+                            {T.LABEL_DUE_DATE} <span className="text-error">*</span>
+                        </label>
                         <div className="relative">
                             <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
                             <input
@@ -171,7 +177,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                         disabled={isLoading}
                         className="rounded-lg border border-outline px-5 py-2.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-50"
                     >
-                        Hủy
+                        {T.BTN_CANCEL}
                     </button>
                     <button
                         onClick={handleSubmit}
@@ -179,7 +185,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                         className="flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-on-primary shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-70"
                     >
                         {isLoading && <Loader2 className="animate-spin" size={16} />}
-                        Tạo phiếu mượn
+                        {T.BTN_CREATE}
                     </button>
                 </div>
             </div>

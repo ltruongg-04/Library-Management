@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
-import UserFilters from "@/components/features/thanh-vien/UserFilters";
-import UserManagementHeader from "@/components/features/thanh-vien/UserManagementHeader";
-import UserModal from "@/components/features/thanh-vien/UserModal";
-import UserTable from "@/components/features/thanh-vien/UserTable";
+import UserFilters from "@/components/features/admin/member/UserFilters";
+import UserManagementHeader from "@/components/features/admin/member/UserManagementHeader";
+import UserModal from "@/components/features/admin/member/UserModal";
+import UserTable from "@/components/features/admin/member/UserTable";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { User } from "@/types/user";
 
