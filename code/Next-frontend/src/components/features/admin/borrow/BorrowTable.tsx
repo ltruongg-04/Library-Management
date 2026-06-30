@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle, ChevronLeft, ChevronRight, Eye, Mail, PackageCheck } from "lucide-react";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE;
@@ -136,10 +137,14 @@ export default function BorrowTable({
     records,
     onStatusUpdate,
     onViewDetail,
+    loading,
+    error,
 }: {
     records: BorrowRecord[];
     onStatusUpdate?: (id: string, newStatus: BorrowStatus) => void;
     onViewDetail?: (id: string) => void;
+    loading?: boolean;
+    error?: string | null;
 }) {
     return (
         <div className="level-1-shadow flex flex-1 flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest">
@@ -159,96 +164,119 @@ export default function BorrowTable({
 
                     {/* Body */}
                     <tbody className="divide-y divide-outline-variant/20">
-                        {records.map((rec) => (
-                            <tr key={rec.id} className="group transition-colors hover:bg-surface-container-low/50">
-                                {/* Member */}
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        {rec.member.avatarUrl ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                                src={rec.member.avatarUrl}
-                                                alt={rec.member.name}
-                                                className="h-8 w-8 rounded-full border border-outline-variant/30 object-cover"
-                                            />
-                                        ) : (
-                                            <div
-                                                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
-                                                    AVATAR_COLORS[rec.member.avatarColor ?? "secondary"]
-                                                }`}
-                                            >
-                                                {rec.member.avatarInitials}
-                                            </div>
-                                        )}
-                                        <div>
-                                            <p className="font-medium text-on-background">{rec.member.name}</p>
-                                            <p className="font-label-caps text-xs text-on-surface-variant">{rec.member.code}</p>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                {/* Book */}
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="relative h-14 w-10 flex-shrink-0 overflow-hidden rounded bg-surface-variant shadow-sm">
-                                            {rec.book.coverUrl ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img src={rec.book.coverUrl} alt={rec.book.title} className="h-full w-full object-cover" />
-                                            ) : (
-                                                <div className="flex h-full w-full items-center justify-center text-outline-variant">
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="24"
-                                                        height="24"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="1.5"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    >
-                                                        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-                                                    </svg>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="max-w-[200px]">
-                                            <p className="truncate font-medium text-on-background">{rec.book.title}</p>
-                                            <p className="truncate text-xs text-on-surface-variant">{rec.book.author}</p>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                {/* Borrow date */}
-                                <td className={`px-6 py-4 ${rec.borrowDate ? "text-on-surface" : "italic text-on-surface-variant"}`}>
-                                    {rec.borrowDate ?? T.NO_DATE}
-                                </td>
-
-                                {/* Due date */}
-                                <td
-                                    className={`px-6 py-4 ${
-                                        rec.status === "overdue" ? "font-medium text-error" : rec.dueDate ? "text-on-surface" : "italic text-on-surface-variant"
-                                    }`}
-                                >
-                                    {rec.dueDate ?? T.NO_DATE}
-                                </td>
-
-                                {/* Status */}
-                                <td className="px-6 py-4">
-                                    <StatusBadge status={rec.status} overdayCount={rec.overdayCount} />
-                                </td>
-
-                                {/* Actions */}
-                                <td className="px-6 py-4 text-right">
-                                    <ActionButtons
-                                        id={rec.id}
-                                        status={rec.status}
-                                        onStatusUpdate={(s) => onStatusUpdate?.(rec.id, s)}
-                                        onViewDetail={onViewDetail}
-                                    />
+                        {loading ? (
+                            <TableSkeleton columns={6} rows={5} />
+                        ) : error ? (
+                            <tr>
+                                <td colSpan={6} className="px-6 py-12 text-center text-error">
+                                    <p>{error}</p>
                                 </td>
                             </tr>
-                        ))}
+                        ) : records.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="px-6 py-12 text-center text-outline-variant">
+                                    <div className="flex flex-col items-center justify-center gap-2">
+                                        <PackageCheck size={32} className="text-outline-variant" />
+                                        <p>{T.EMPTY_STATE}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : (
+                            records.map((rec) => (
+                                <tr key={rec.id} className="group transition-colors hover:bg-surface-container-low/50">
+                                    {/* Member */}
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            {rec.member.avatarUrl ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={rec.member.avatarUrl}
+                                                    alt={rec.member.name}
+                                                    className="h-8 w-8 rounded-full border border-outline-variant/30 object-cover"
+                                                />
+                                            ) : (
+                                                <div
+                                                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
+                                                        AVATAR_COLORS[rec.member.avatarColor ?? "secondary"]
+                                                    }`}
+                                                >
+                                                    {rec.member.avatarInitials}
+                                                </div>
+                                            )}
+                                            <div>
+                                                <p className="font-medium text-on-background">{rec.member.name}</p>
+                                                <p className="font-label-caps text-xs text-on-surface-variant">{rec.member.code}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    {/* Book */}
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="relative h-14 w-10 flex-shrink-0 overflow-hidden rounded bg-surface-variant shadow-sm">
+                                                {rec.book.coverUrl ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img src={rec.book.coverUrl} alt={rec.book.title} className="h-full w-full object-cover" />
+                                                ) : (
+                                                    <div className="flex h-full w-full items-center justify-center text-outline-variant">
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            width="24"
+                                                            height="24"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="1.5"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                        >
+                                                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="max-w-[200px]">
+                                                <p className="truncate font-medium text-on-background">{rec.book.title}</p>
+                                                <p className="truncate text-xs text-on-surface-variant">{rec.book.author}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    {/* Borrow date */}
+                                    <td className={`px-6 py-4 ${rec.borrowDate ? "text-on-surface" : "italic text-on-surface-variant"}`}>
+                                        {rec.borrowDate ?? T.NO_DATE}
+                                    </td>
+
+                                    {/* Due date */}
+                                    <td
+                                        className={`px-6 py-4 ${
+                                            rec.status === "overdue"
+                                                ? "font-medium text-error"
+                                                : rec.dueDate
+                                                  ? "text-on-surface"
+                                                  : "italic text-on-surface-variant"
+                                        }`}
+                                    >
+                                        {rec.dueDate ?? T.NO_DATE}
+                                    </td>
+
+                                    {/* Status */}
+                                    <td className="px-6 py-4">
+                                        <StatusBadge status={rec.status} overdayCount={rec.overdayCount} />
+                                    </td>
+
+                                    {/* Actions */}
+                                    <td className="px-6 py-4 text-right">
+                                        <ActionButtons
+                                            id={rec.id}
+                                            status={rec.status}
+                                            onStatusUpdate={(s) => onStatusUpdate?.(rec.id, s)}
+                                            onViewDetail={onViewDetail}
+                                        />
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>

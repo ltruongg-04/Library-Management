@@ -37,6 +37,7 @@ export const ADMIN_BORROW_MANAGEMENT = {
         STATUS_RETURNED: "Đã trả",
         STATUS_PENDING: "Chờ duyệt",
         NO_DATE: "—",
+        EMPTY_STATE: "Không có dữ liệu lượt mượn",
     },
     MODAL: {
         CREATE_TITLE: "Tạo phiếu mượn mới",

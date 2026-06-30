@@ -6,6 +6,7 @@ import BookCover from "@/components/features/book-detail/BookCover";
 import BookInfo from "@/components/features/book-detail/BookInfo";
 import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import RelatedBooks from "@/components/features/book-detail/RelatedBooks";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useBookDetail, useTrendingBooks } from "@/hooks/useBooks";
 import { bookToBookDetail } from "@/types/book";
@@ -21,16 +22,16 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
         return (
             <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
                 <div className="py-4">
-                    <div className="h-4 w-48 animate-pulse rounded bg-surface-container-low dark:bg-slate-800"></div>
+                    <Skeleton className="h-4 w-48" />
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-12 lg:gap-12">
                     <div className="col-span-1 md:col-span-4 lg:col-span-3">
-                        <div className="aspect-[2/3] w-full animate-pulse rounded-lg bg-surface-container-low dark:bg-slate-800"></div>
+                        <Skeleton className="aspect-[2/3] w-full rounded-lg" />
                     </div>
                     <div className="col-span-1 space-y-4 md:col-span-8 lg:col-span-6">
-                        <div className="h-8 w-3/4 animate-pulse rounded bg-surface-container-low dark:bg-slate-800"></div>
-                        <div className="h-5 w-1/2 animate-pulse rounded bg-surface-container-low dark:bg-slate-800"></div>
-                        <div className="h-24 w-full animate-pulse rounded bg-surface-container-low dark:bg-slate-800"></div>
+                        <Skeleton className="h-8 w-3/4" />
+                        <Skeleton className="h-5 w-1/2" />
+                        <Skeleton className="h-24 w-full" />
                     </div>
                 </div>
             </div>

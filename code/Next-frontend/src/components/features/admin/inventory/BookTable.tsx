@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Book, ChevronLeft, ChevronRight, Library, Loader2, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Book, ChevronLeft, ChevronRight, Library, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { ADMIN_INVENTORY_MANAGEMENT } from "@/constants/ui-text/admin";
 import { bookService } from "@/services/book";
 import type { BookListItem, PageResponse } from "@/types/book";
@@ -178,6 +179,7 @@ export default function BookTable() {
     const [isCopiesModalOpen, setIsCopiesModalOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
+        const startTime = Date.now();
         try {
             setLoading(true);
             setError(null);
@@ -185,6 +187,10 @@ export default function BookTable() {
             const result = await bookService.getAdminBookInventory(page, 10, keyword, category);
             setData(result);
         } catch (err: any) {
+            const elapsed = Date.now() - startTime;
+            if (elapsed < 5000) {
+                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
+            }
             setError(err.message || "Lỗi khi tải dữ liệu");
         } finally {
             setLoading(false);
@@ -238,14 +244,7 @@ export default function BookTable() {
                         </thead>
                         <tbody className="divide-y divide-surface-container-high text-on-surface">
                             {loading ? (
-                                <tr>
-                                    <td colSpan={7} className="px-6 py-12 text-center text-outline">
-                                        <div className="flex flex-col items-center justify-center gap-2">
-                                            <Loader2 size={24} className="animate-spin text-primary-500" />
-                                            <p>Đang tải dữ liệu...</p>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <TableSkeleton columns={7} rows={5} />
                             ) : error ? (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center text-error">

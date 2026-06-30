@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Edit2, Feather, Loader2, Plus, Trash2 } from "lucide-react";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { ADMIN, ADMIN_AUTHOR_MANAGEMENT } from "@/constants/ui-text/admin";
 import { authorService } from "@/services/author";
 import type { Author } from "@/types/author";
@@ -16,13 +17,18 @@ export default function AuthorTable() {
     const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
 
     const fetchAuthors = useCallback(async () => {
+        const startTime = Date.now();
         try {
             setLoading(true);
             setError(null);
             const data = await authorService.getAllAuthors();
             setAuthors(data);
         } catch (err: any) {
-            setError(err.message || "Lỗi khi tải danh sách thể loại");
+            const elapsed = Date.now() - startTime;
+            if (elapsed < 5000) {
+                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
+            }
+            setError(err.message || "Lỗi khi tải danh sách tác giả");
         } finally {
             setLoading(false);
         }
@@ -89,39 +95,37 @@ export default function AuthorTable() {
 
             {/* Content */}
             <div className="flex-1 overflow-auto p-8">
-                {loading ? (
-                    <div className="flex h-64 flex-col items-center justify-center gap-3 text-outline">
-                        <Loader2 size={32} className="animate-spin text-primary-500" />
-                        <p>Đang tải danh sách tác giả...</p>
-                    </div>
-                ) : error ? (
-                    <div className="flex h-64 flex-col items-center justify-center gap-3 text-error">
-                        <p>{error}</p>
-                        <button
-                            onClick={fetchAuthors}
-                            className="rounded-lg bg-surface-container-high px-4 py-2 text-on-surface hover:bg-surface-container-highest"
-                        >
-                            {textUI.TABLE.BTN_RETRY}
-                        </button>
-                    </div>
-                ) : authors.length === 0 ? (
-                    <div className="flex h-64 flex-col items-center justify-center gap-3 text-outline">
-                        <Feather size={48} className="text-surface-container-highest" />
-                        <p>{textUI.TABLE.EMPTY_STATE}</p>
-                    </div>
-                ) : (
-                    <div className="overflow-hidden rounded-xl border border-surface-container-high bg-white shadow-sm">
-                        <table className="w-full text-left text-[14px]">
-                            <thead className="border-b border-surface-container-high bg-surface-container-lowest">
+                <div className="overflow-hidden rounded-xl border border-surface-container-high bg-white shadow-sm">
+                    <table className="w-full text-left text-[14px]">
+                        <thead className="border-b border-surface-container-high bg-surface-container-lowest">
+                            <tr>
+                                <th className="w-16 px-6 py-4 text-center font-semibold text-on-surface-variant">ID</th>
+                                <th className="w-1/3 px-6 py-4 font-semibold text-on-surface-variant">{textUI.TABLE.COL_NAME}</th>
+                                <th className="w-1/2 px-6 py-4 font-semibold text-on-surface-variant">{textUI.TABLE.COL_BIO}</th>
+                                <th className="px-6 py-4 text-right font-semibold text-on-surface-variant">{textUI.TABLE.COL_ACTIONS}</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-surface-container-high">
+                            {loading ? (
+                                <TableSkeleton columns={4} rows={5} />
+                            ) : error ? (
                                 <tr>
-                                    <th className="w-16 px-6 py-4 text-center font-semibold text-on-surface-variant">ID</th>
-                                    <th className="w-1/3 px-6 py-4 font-semibold text-on-surface-variant">{textUI.TABLE.COL_NAME}</th>
-                                    <th className="w-1/2 px-6 py-4 font-semibold text-on-surface-variant">{textUI.TABLE.COL_BIO}</th>
-                                    <th className="px-6 py-4 text-right font-semibold text-on-surface-variant">{textUI.TABLE.COL_ACTIONS}</th>
+                                    <td colSpan={4} className="px-6 py-12 text-center text-error">
+                                        <p>{error}</p>
+                                        <button onClick={fetchAuthors} className="text-primary-600 mt-2 hover:underline">
+                                            {textUI.TABLE.BTN_RETRY}
+                                        </button>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-surface-container-high">
-                                {authors.map((author) => (
+                            ) : authors.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} className="px-6 py-12 text-center text-outline">
+                                        <Feather size={48} className="mx-auto mb-3 text-surface-container-highest" />
+                                        <p>{textUI.TABLE.EMPTY_STATE}</p>
+                                    </td>
+                                </tr>
+                            ) : (
+                                authors.map((author) => (
                                     <tr key={author.id} className="transition-colors hover:bg-surface-container-lowest/50">
                                         <td className="px-6 py-4 text-center text-on-surface-variant">{author.id}</td>
                                         <td className="px-6 py-4 font-medium text-ink-950">{author.name}</td>
@@ -147,11 +151,11 @@ export default function AuthorTable() {
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <AuthorModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} author={editingAuthor} onSuccess={fetchAuthors} />
