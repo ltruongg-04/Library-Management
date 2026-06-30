@@ -38,7 +38,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                 .email(user.getEmail())
                 .role(roleStr)
                 .status(user.isActive() ? "active" : "locked")
-                .lastLogin(user.getUpdatedAt() != null ? user.getUpdatedAt().format(formatter) : "Chưa đăng nhập")
+                .lastLogin(user.getLastLogin() != null ? user.getLastLogin().format(formatter) : "Chưa đăng nhập")
                 .build();
         }).collect(Collectors.toList());
     }
