@@ -96,6 +96,9 @@ public class UserServiceImpl implements UserService {
             throw new CustomBusinessException("Tài khoản đã bị khóa", HttpStatus.FORBIDDEN);
         }
 
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
+
         String token = jwtUtil.generateToken(user);
         String refreshToken = createRefreshToken(user);
 
@@ -130,6 +133,9 @@ public class UserServiceImpl implements UserService {
         if (!user.isActive()) {
             throw new CustomBusinessException("Tài khoản đã bị khóa", HttpStatus.FORBIDDEN);
         }
+
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
 
         String token = jwtUtil.generateToken(user);
         String refreshToken = createRefreshToken(user);
