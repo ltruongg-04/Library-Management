@@ -17,7 +17,7 @@ export type User = {
 export default function UserTable({
     users,
     onEditUser,
-    onToggleStatus
+    onToggleStatus,
 }: {
     users: User[];
     onEditUser?: (user: User) => void;
