@@ -214,7 +214,7 @@ export function PublicHeader() {
                                                         : "text-ink-700 hover:bg-ink-50 dark:text-slate-200 dark:hover:bg-slate-700"
                                                 }`}
                                             >
-                                                <MaterialIcon name="book" className="text-[18px]" />
+                                                <MaterialIcon name="history" className="text-[18px]" />
                                                 {UI_TEXT.PUBLIC_LAYOUT.MY_HISTORY}
                                             </Link>
                                         </div>
