@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Book, Calendar, DollarSign, User, X } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
 import { AdminBorrowOrderDetailResponse, getAdminBorrowOrderDetail } from "@/services/adminBorrow";
 
@@ -29,6 +30,7 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
     }, [isOpen, orderCode]);
 
     const fetchDetail = async () => {
+        const startTime = Date.now();
         setIsLoading(true);
         setError(null);
         try {
@@ -36,9 +38,17 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
             if (res.success && res.data) {
                 setDetail(res.data);
             } else {
+                const elapsed = Date.now() - startTime;
+                if (elapsed < 5000) {
+                    await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
+                }
                 setError(res.message || "Failed to load details");
             }
         } catch (err) {
+            const elapsed = Date.now() - startTime;
+            if (elapsed < 5000) {
+                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
+            }
             setError("Đã có lỗi xảy ra khi tải chi tiết");
         } finally {
             setIsLoading(false);
@@ -100,8 +110,16 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto p-6">
                     {isLoading ? (
-                        <div className="flex h-40 items-center justify-center">
-                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                        <div className="flex flex-col gap-6">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <Skeleton className="h-[140px] rounded-xl" />
+                                <Skeleton className="h-[140px] rounded-xl" />
+                            </div>
+                            <div className="mt-4">
+                                <Skeleton className="mb-4 h-6 w-1/3" />
+                                <Skeleton className="h-16 w-full rounded-xl" />
+                                <Skeleton className="mt-2 h-16 w-full rounded-xl" />
+                            </div>
                         </div>
                     ) : error ? (
                         <div className="flex h-40 items-center justify-center text-error">{error}</div>

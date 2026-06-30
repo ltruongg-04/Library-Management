@@ -6,10 +6,10 @@ import { MaterialIcon } from "@/components/base/material-icon";
 import BorrowForm from "@/components/features/borrow/BorrowForm";
 import BorrowSuccess from "@/components/features/borrow/BorrowSuccess";
 import LoanSummary from "@/components/features/borrow/LoanSummary";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useBookDetail } from "@/hooks/useBooks";
 import { useAuth } from "@/providers/auth";
-
 import { createBorrowRequest } from "@/services/borrow";
 
 export default function BorrowPage({ params }: { params: { id: string } }) {
@@ -42,7 +42,7 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
 
         setIsSubmitting(true);
         setSubmitError(null);
-        
+
         try {
             await createBorrowRequest({
                 bookId: book.id,
@@ -61,12 +61,22 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
 
     if (loading || isAuthenticated === undefined) {
         return (
-            <div className="mx-auto flex w-full max-w-container-max items-center justify-center px-4 py-24 md:px-6">
-                <div className="flex flex-col items-center justify-center space-y-4">
-                    <MaterialIcon name="sync" className="animate-spin text-4xl text-primary-700" />
-                    <p className="text-on-surface-variant">{UI_TEXT.COMMON.LOADING_INFO}</p>
+            <main className="mx-auto w-full max-w-container-max px-6 py-12">
+                <div className="flex flex-col gap-12 lg:flex-row">
+                    {/* Form Skeleton */}
+                    <div className="flex-1 space-y-8">
+                        <Skeleton className="h-8 w-48" />
+                        <div className="space-y-4">
+                            <Skeleton className="h-24 w-full" />
+                            <Skeleton className="h-24 w-full" />
+                        </div>
+                    </div>
+                    {/* Summary Skeleton */}
+                    <div className="w-full lg:w-[280px]">
+                        <Skeleton className="h-[400px] w-full rounded-xl" />
+                    </div>
                 </div>
-            </div>
+            </main>
         );
     }
 

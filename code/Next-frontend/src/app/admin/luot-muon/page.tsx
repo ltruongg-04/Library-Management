@@ -18,14 +18,17 @@ export default function LuotMuonPage() {
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     const [records, setRecords] = useState<BorrowRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("");
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
 
     const fetchBorrows = async () => {
+        const startTime = Date.now();
         try {
             setIsLoading(true);
+            setError(null);
             const response = await getAdminBorrowOrders();
             if (response.success && response.data) {
                 const mappedData: BorrowRecord[] = response.data.map((order) => {
@@ -58,8 +61,13 @@ export default function LuotMuonPage() {
                 });
                 setRecords(mappedData);
             }
-        } catch (error) {
+        } catch (error: any) {
+            const elapsed = Date.now() - startTime;
+            if (elapsed < 5000) {
+                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
+            }
             console.error("Error fetching borrow orders:", error);
+            setError(error.message || "Lỗi khi tải dữ liệu lượt mượn");
         } finally {
             setIsLoading(false);
         }
@@ -156,13 +164,7 @@ export default function LuotMuonPage() {
                 <BorrowFilters search={search} onSearchChange={setSearch} status={status} onStatusChange={setStatus} onApplyDates={handleApplyDates} />
 
                 {/* Table */}
-                {isLoading ? (
-                    <div className="flex h-64 items-center justify-center">
-                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                    </div>
-                ) : (
-                    <BorrowTable records={filteredRecords} onStatusUpdate={handleStatusUpdate} onViewDetail={handleViewDetail} />
-                )}
+                <BorrowTable records={filteredRecords} onStatusUpdate={handleStatusUpdate} onViewDetail={handleViewDetail} loading={isLoading} error={error} />
 
                 <BorrowModal open={openModal} onClose={() => setOpenModal(false)} onSubmitSuccess={fetchBorrows} />
                 <BorrowDetailModal isOpen={detailModalOpen} onClose={() => setDetailModalOpen(false)} orderCode={selectedOrderId} />

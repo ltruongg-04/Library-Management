@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MaterialIcon } from "@/components/base/material-icon";
 import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useBooks } from "@/hooks/useBooks";
 
@@ -151,12 +152,12 @@ export default function BookListPage() {
                     {loading && (
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                             {Array.from({ length: 6 }).map((_, i) => (
-                                <div key={i} className="level-1-shadow animate-pulse overflow-hidden rounded-xl bg-surface-container-lowest dark:bg-slate-900">
-                                    <div className="h-56 bg-surface-container-low dark:bg-slate-800"></div>
+                                <div key={i} className="level-1-shadow flex flex-col overflow-hidden rounded-xl bg-surface-container-lowest dark:bg-slate-900">
+                                    <Skeleton className="h-56 w-full rounded-none" />
                                     <div className="space-y-3 p-5">
-                                        <div className="h-5 w-3/4 rounded bg-surface-container-low dark:bg-slate-800"></div>
-                                        <div className="h-4 w-1/2 rounded bg-surface-container-low dark:bg-slate-800"></div>
-                                        <div className="h-4 w-1/3 rounded bg-surface-container-low dark:bg-slate-800"></div>
+                                        <Skeleton className="h-5 w-3/4" />
+                                        <Skeleton className="h-4 w-1/2" />
+                                        <Skeleton className="h-4 w-1/3" />
                                     </div>
                                 </div>
                             ))}
