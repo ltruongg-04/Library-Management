@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Book, BookPageResponse, BookSearchParams } from "@/types/book";
 import { bookService } from "@/services/book";
+import type { Book, BookPageResponse, BookSearchParams } from "@/types/book";
 
 interface UseBooksState {
     books: Book[];
@@ -33,6 +33,7 @@ export function useBooks(initialParams?: BookSearchParams) {
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const fetchBooks = useCallback(async (searchParams: BookSearchParams, signal?: AbortSignal) => {
+        const startTime = Date.now();
         setState((prev) => ({ ...prev, loading: true, error: null }));
         try {
             const data: BookPageResponse = await bookService.getBooks(searchParams, signal);
@@ -47,7 +48,11 @@ export function useBooks(initialParams?: BookSearchParams) {
             });
         } catch (err: any) {
             // Bỏ qua lỗi do abort (request bị hủy có chủ đích)
-            if (err.name === 'AbortError') return;
+            if (err.name === "AbortError") return;
+            const elapsed = Date.now() - startTime;
+            if (elapsed < 5000) {
+                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
+            }
             setState((prev) => ({
                 ...prev,
                 loading: false,
@@ -87,11 +92,9 @@ export function useBooks(initialParams?: BookSearchParams) {
         }, 400);
     };
 
-    const setCategory = (category: string) =>
-        setParams((prev) => ({ ...prev, category: category || undefined, page: 0 }));
+    const setCategory = (category: string) => setParams((prev) => ({ ...prev, category: category || undefined, page: 0 }));
 
-    const setSortBy = (sortBy: BookSearchParams["sortBy"]) =>
-        setParams((prev) => ({ ...prev, sortBy, page: 0 }));
+    const setSortBy = (sortBy: BookSearchParams["sortBy"]) => setParams((prev) => ({ ...prev, sortBy, page: 0 }));
 
     const clearFilters = () => {
         if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -117,6 +120,7 @@ export function useBookDetail(id: number | null) {
         let cancelled = false;
 
         async function fetchBook() {
+            const startTime = Date.now();
             setLoading(true);
             setError(null);
             try {
@@ -127,8 +131,14 @@ export function useBookDetail(id: number | null) {
                 }
             } catch (err: any) {
                 if (!cancelled) {
-                    setError(err.message || "Không thể tải chi tiết sách");
-                    setLoading(false);
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 5000) {
+                        await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
+                    }
+                    if (!cancelled) {
+                        setError(err.message || "Không thể tải chi tiết sách");
+                        setLoading(false);
+                    }
                 }
             }
         }
@@ -155,6 +165,7 @@ export function useTrendingBooks(limit: number = 8) {
         let cancelled = false;
 
         async function fetchTrending() {
+            const startTime = Date.now();
             setLoading(true);
             setError(null);
             try {
@@ -165,8 +176,14 @@ export function useTrendingBooks(limit: number = 8) {
                 }
             } catch (err: any) {
                 if (!cancelled) {
-                    setError(err.message || "Không thể tải sách thịnh hành");
-                    setLoading(false);
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 5000) {
+                        await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
+                    }
+                    if (!cancelled) {
+                        setError(err.message || "Không thể tải sách thịnh hành");
+                        setLoading(false);
+                    }
                 }
             }
         }
