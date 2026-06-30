@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarDays, Filter, Search } from "lucide-react";
+import { CalendarDays, Search } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.FILTERS;
@@ -26,10 +26,6 @@ interface BorrowFiltersProps {
 export default function BorrowFilters({ search, onSearchChange, status, onStatusChange, onApplyDates }: BorrowFiltersProps) {
     const [localDateFrom, setLocalDateFrom] = useState("");
     const [localDateTo, setLocalDateTo] = useState("");
-
-    const handleApply = () => {
-        onApplyDates(localDateFrom, localDateTo);
-    };
 
     return (
         <div className="level-1-shadow flex flex-col items-center gap-4 rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-md lg:flex-row">
@@ -107,15 +103,6 @@ export default function BorrowFilters({ search, onSearchChange, status, onStatus
                             {T.BTN_CLEAR_FILTER}
                         </button>
                     )}
-
-                    {/* Apply button */}
-                    <button
-                        onClick={handleApply}
-                        className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-body-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
-                    >
-                        <Filter size={18} />
-                        {T.BTN_APPLY_FILTER}
-                    </button>
                 </div>
             </div>
         </div>

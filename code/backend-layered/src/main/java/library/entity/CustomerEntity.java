@@ -26,7 +26,7 @@ public class CustomerEntity extends BaseEntity {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "address", nullable = false, length = 500)
+    @Column(name = "address", length = 500)
     private String address;
 
     @Column(name = "identity_card", unique = true, length = 20)
@@ -35,4 +35,6 @@ public class CustomerEntity extends BaseEntity {
     @Column(name = "library_card_no", unique = true, length = 50)
     private String libraryCardNo;
 
+    @Column(name = "membership_tier_id")
+    private Integer membershipTierId;
 }

@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import CreateRoleButton from "@/components/features/roles/CreateRoleButton";
 import PermissionPanel from "@/components/features/roles/PermissionPanel";
 import RoleList from "@/components/features/roles/RoleList";
 import SecurityPolicy from "@/components/features/roles/SecurityPolicy";
-
 import { UI_TEXT } from "@/constants/ui-text";
 import { Role } from "@/types/role";
 
@@ -26,22 +24,19 @@ export default function RolesPage() {
                         {
                             id: "add-book",
                             name: "Add New Books",
-                            description:
-                                "Allow user to input new entries into the main catalog.",
+                            description: "Allow user to input new entries into the main catalog.",
                             enabled: true,
                         },
                         {
                             id: "edit-book",
                             name: "Edit Book Metadata",
-                            description:
-                                "Allow user to modify titles, authors and classification data.",
+                            description: "Allow user to modify titles, authors and classification data.",
                             enabled: true,
                         },
                         {
                             id: "delete-book",
                             name: "Delete Books",
-                            description:
-                                "Allow user to permanently remove items from the catalog.",
+                            description: "Allow user to permanently remove items from the catalog.",
                             enabled: true,
                         },
                     ],
@@ -54,15 +49,13 @@ export default function RolesPage() {
                         {
                             id: "approve",
                             name: "Approve Borrows",
-                            description:
-                                "Manually override or approve restricted borrowing requests.",
+                            description: "Manually override or approve restricted borrowing requests.",
                             enabled: true,
                         },
                         {
                             id: "fine",
                             name: "Waive Fines",
-                            description:
-                                "Authorize the removal of late fees from customer accounts.",
+                            description: "Authorize the removal of late fees from customer accounts.",
                             enabled: true,
                         },
                     ],
@@ -83,22 +76,19 @@ export default function RolesPage() {
                         {
                             id: "add-book",
                             name: "Add New Books",
-                            description:
-                                "Allow user to input new entries into the main catalog.",
+                            description: "Allow user to input new entries into the main catalog.",
                             enabled: true,
                         },
                         {
                             id: "edit-book",
                             name: "Edit Book Metadata",
-                            description:
-                                "Allow user to modify titles, authors and classification data.",
+                            description: "Allow user to modify titles, authors and classification data.",
                             enabled: true,
                         },
                         {
                             id: "delete-book",
                             name: "Delete Books",
-                            description:
-                                "Allow user to permanently remove items from the catalog.",
+                            description: "Allow user to permanently remove items from the catalog.",
                             enabled: false,
                         },
                     ],
@@ -111,15 +101,13 @@ export default function RolesPage() {
                         {
                             id: "approve",
                             name: "Approve Borrows",
-                            description:
-                                "Manually override or approve restricted borrowing requests.",
+                            description: "Manually override or approve restricted borrowing requests.",
                             enabled: true,
                         },
                         {
                             id: "fine",
                             name: "Waive Fines",
-                            description:
-                                "Authorize the removal of late fees from customer accounts.",
+                            description: "Authorize the removal of late fees from customer accounts.",
                             enabled: false,
                         },
                     ],
@@ -144,13 +132,9 @@ export default function RolesPage() {
 
     const [selectedRoleId, setSelectedRoleId] = useState("librarian");
 
-    const selectedRole =
-        roles.find((role) => role.id === selectedRoleId) ?? roles[0];
+    const selectedRole = roles.find((role) => role.id === selectedRoleId) ?? roles[0];
 
-    const handleTogglePermission = (
-        moduleId: string,
-        permissionId: string
-    ) => {
+    const handleTogglePermission = (moduleId: string, permissionId: string) => {
         setRoles((prev) =>
             prev.map((role) => {
                 if (role.id !== selectedRoleId) {
@@ -179,29 +163,23 @@ export default function RolesPage() {
                         };
                     }),
                 };
-            })
+            }),
         );
     };
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-surface">
             <div className="px-8 pb-2 pt-8">
-                <AdminBreadcrumb
-                    pageName={UI_TEXT.ADMIN.SIDEBAR.NAV_ROLES}
-                />
+                <AdminBreadcrumb pageName={UI_TEXT.ADMIN.SIDEBAR.NAV_ROLES} />
             </div>
 
             {/* Header */}
 
             <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6">
                 <div>
-                    <h1 className ="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950">
-                        {UI_TEXT.ROLES.PAGE_TITLE}
-                    </h1>
+                    <h1 className="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950">{UI_TEXT.ROLES.PAGE_TITLE}</h1>
 
-                    <p className="mt-1 text-[14px] text-on-surface-variant">
-                        {UI_TEXT.ROLES.PAGE_DESCRIPTION}
-                    </p>
+                    <p className="mt-1 text-[14px] text-on-surface-variant">{UI_TEXT.ROLES.PAGE_DESCRIPTION}</p>
                 </div>
 
                 <CreateRoleButton />
@@ -210,20 +188,13 @@ export default function RolesPage() {
             <main className="flex flex-1 flex-col gap-6 overflow-auto p-8">
                 <div className="grid gap-6 lg:grid-cols-12">
                     <div className="space-y-6 lg:col-span-4">
-                        <RoleList
-                            roles={roles}
-                            selectedRole={selectedRole}
-                            onSelect={(role) => setSelectedRoleId(role.id)}
-                        />
+                        <RoleList roles={roles} selectedRole={selectedRole} onSelect={(role) => setSelectedRoleId(role.id)} />
 
                         <SecurityPolicy />
                     </div>
 
                     <div className="lg:col-span-8">
-                        <PermissionPanel
-                            role={selectedRole}
-                            onTogglePermission={handleTogglePermission}
-                        />
+                        <PermissionPanel role={selectedRole} onTogglePermission={handleTogglePermission} />
                     </div>
                 </div>
             </main>

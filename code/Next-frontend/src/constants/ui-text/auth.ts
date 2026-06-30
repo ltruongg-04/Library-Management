@@ -23,6 +23,11 @@ export const AUTH = {
         },
         ERROR_MSG: "Đăng nhập thất bại. Vui lòng thử lại.",
     },
+    LOCKED_STATE: {
+        HEADING: "Tài khoản bị khóa",
+        BACK_TO_HOME: "Về trang chủ",
+        LOGIN_AGAIN: "Đăng nhập lại",
+    },
     REGISTER: {
         HEADING: "Tạo tài khoản",
         FULL_NAME_LABEL: "Họ và tên",

@@ -53,36 +53,31 @@ export const ROLES = {
         ADD_BOOK: {
             TITLE: "Thêm sách mới",
 
-            DESCRIPTION:
-                "Cho phép thêm sách mới vào danh mục của thư viện.",
+            DESCRIPTION: "Cho phép thêm sách mới vào danh mục của thư viện.",
         },
 
         EDIT_BOOK: {
             TITLE: "Chỉnh sửa thông tin sách",
 
-            DESCRIPTION:
-                "Cho phép chỉnh sửa tiêu đề, tác giả và các thông tin phân loại của sách.",
+            DESCRIPTION: "Cho phép chỉnh sửa tiêu đề, tác giả và các thông tin phân loại của sách.",
         },
 
         DELETE_BOOK: {
             TITLE: "Xóa sách",
 
-            DESCRIPTION:
-                "Cho phép xóa vĩnh viễn sách khỏi danh mục.",
+            DESCRIPTION: "Cho phép xóa vĩnh viễn sách khỏi danh mục.",
         },
 
         APPROVE_BORROWS: {
             TITLE: "Phê duyệt yêu cầu mượn",
 
-            DESCRIPTION:
-                "Cho phép phê duyệt hoặc ghi đè các yêu cầu mượn sách đặc biệt.",
+            DESCRIPTION: "Cho phép phê duyệt hoặc ghi đè các yêu cầu mượn sách đặc biệt.",
         },
 
         WAIVE_FINES: {
             TITLE: "Miễn phí phạt",
 
-            DESCRIPTION:
-                "Cho phép xóa hoặc miễn các khoản phí phạt trễ hạn cho độc giả.",
+            DESCRIPTION: "Cho phép xóa hoặc miễn các khoản phí phạt trễ hạn cho độc giả.",
         },
     },
 

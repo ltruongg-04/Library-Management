@@ -36,6 +36,7 @@ public class UserEntity extends BaseEntity {
 
     public enum Role {
         USER,
+        LIBRARIAN,
         ADMIN
     }
 }
