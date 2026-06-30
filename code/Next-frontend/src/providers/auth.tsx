@@ -60,7 +60,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 });
 
                 if (result?.error) {
-                    throw new Error("Email hoặc mật khẩu không đúng");
+                    // NextAuth defaults to "CredentialsSignin" if not specified.
+                    // If we threw a custom error from authorize(), it might be in result.error
+                    if (result.error === "CredentialsSignin") {
+                        throw new Error("Email hoặc mật khẩu không đúng");
+                    }
+                    throw new Error(result.error);
                 }
 
                 return user!;

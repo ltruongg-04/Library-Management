@@ -14,7 +14,15 @@ export type User = {
     avatarUrl?: string;
 };
 
-export default function UserTable({ users }: { users: User[] }) {
+export default function UserTable({
+    users,
+    onEditUser,
+    onToggleStatus
+}: {
+    users: User[];
+    onEditUser?: (user: User) => void;
+    onToggleStatus?: (id: number, isActive: boolean) => void;
+}) {
     const renderRoleBadge = (role: User["role"]) => {
         if (role === "admin") {
             return (
@@ -134,6 +142,7 @@ export default function UserTable({ users }: { users: User[] }) {
                                 <button
                                     className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-secondary"
                                     title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_EDIT}
+                                    onClick={() => onEditUser?.(u)}
                                 >
                                     <Edit2 size={20} />
                                 </button>
@@ -141,6 +150,7 @@ export default function UserTable({ users }: { users: User[] }) {
                                     <button
                                         className="flex items-center rounded-lg p-2 text-error transition-colors hover:bg-error hover:text-on-error"
                                         title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_UNLOCK}
+                                        onClick={() => onToggleStatus?.(u.id, true)}
                                     >
                                         <Unlock size={20} />
                                     </button>
@@ -148,6 +158,7 @@ export default function UserTable({ users }: { users: User[] }) {
                                     <button
                                         className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-error-container/50 hover:text-error"
                                         title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_LOCK}
+                                        onClick={() => onToggleStatus?.(u.id, false)}
                                     >
                                         <Lock size={20} />
                                     </button>
