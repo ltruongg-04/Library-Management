@@ -1,6 +1,7 @@
 export const PUBLIC_LAYOUT = {
     MY_ACCOUNT: "Tài khoản của tôi",
-    MY_BOOKS: "Sách của tôi",
+    MY_BOOKS_PAGE: "Sách của tôi",
+    MY_HISTORY: "Lịch sử mượn sách",
     LOGOUT: "Đăng xuất",
     LOGIN: "Đăng nhập",
     ARIA: {
@@ -175,5 +176,42 @@ export const BOOK_DETAIL = {
     AI_CHATBOT: {
         TITLE: "Lumina AI",
         SUBTITLE: "Book Summary & Reading Path",
+    },
+};
+
+export const MY_BOOKS_PAGE = {
+    TITLE: "Lịch sử mượn sách",
+    BREADCRUMB_ACCOUNT: "Tài khoản",
+    STATUS_OVERDUE: "Quá hạn (3 ngày)",
+    RENEW_NOW: "Gia hạn ngay",
+    FILTER: {
+        STATUS_LABEL: "Trạng thái",
+        STATUS_ALL: "Tất cả trạng thái",
+        STATUS_BORROWING: "Đang mượn",
+        STATUS_RETURNED: "Đã trả",
+        STATUS_OVERDUE: "Quá hạn",
+        STATUS_PENDING: "Chờ phê duyệt",
+        STATUS_CANCELLED: "Đã hủy",
+        DATE_RANGE_LABEL: "Khoảng thời gian",
+        DATE_TO: "đến",
+        APPLY_BUTTON: "Áp dụng bộ lọc",
+    },
+    CARD: {
+        AUTHOR_PREFIX: "Tác giả:",
+        BORROW_DATE: "Ngày mượn",
+        DUE_DATE: "Hạn trả dự kiến",
+        ACTUAL_RETURN_DATE: "Ngày trả thực tế",
+        DEPOSIT: "Tiền đặt cọc",
+        LATE_FEE_LABEL: "Tiền phạt phát sinh",
+        DEPOSIT_RETURN: "Hoàn trả cọc",
+        VIEW_DETAIL: "Xem chi tiết",
+        VIEW_RECEIPT: "Xem biên lai",
+        STATUS_BORROWING: "Đang mượn",
+        STATUS_RETURNED: "Đã trả",
+    },
+    EMPTY_STATE: {
+        HEADING: "Bạn chưa có lịch sử mượn sách",
+        DESC: "Hãy bắt đầu hành trình khám phá kho tri thức khổng lồ của Lumina Library ngay hôm nay.",
+        BROWSE_BUTTON: "Duyệt kho sách ngay",
     },
 };

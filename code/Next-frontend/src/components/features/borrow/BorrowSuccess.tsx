@@ -91,7 +91,7 @@ export default function BorrowSuccess({ book, requestId = "#BRW-9042" }: BorrowS
                     {/* Action Buttons */}
                     <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link
-                            href="/my-books"
+                            href="/lich-su"
                             className="hover:bg-primary-800 w-full rounded-lg bg-primary-700 px-8 py-3 text-center font-title-md text-title-md text-white shadow-md transition-all active:scale-95 sm:w-auto"
                         >
                             {SUCCESS_PAGE.VIEW_LOANS}

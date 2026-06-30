@@ -1,10 +1,10 @@
 "use client";
 
 import {
-    ArrowLeftRight,
     BarChart3,
     BookOpen,
     CircleHelp,
+    ClipboardList,
     Feather,
     History,
     LayoutDashboard,
@@ -30,7 +30,7 @@ const NAV_ITEMS = [
     { label: SIDEBAR.NAV_BOOKS, icon: BookOpen, href: "/admin/kho-sach" },
     { label: SIDEBAR.NAV_CATEGORIES, icon: Tags, href: "/admin/the-loai" },
     { label: SIDEBAR.NAV_AUTHORS, icon: Feather, href: "/admin/tac-gia" },
-    { label: SIDEBAR.NAV_BORROWS, icon: ArrowLeftRight, href: "/admin/luot-muon" },
+    { label: SIDEBAR.NAV_BORROWS, icon: ClipboardList, href: "/admin/luot-muon" },
     { label: SIDEBAR.NAV_MEMBERS, icon: Users, href: "/admin/thanh-vien" },
     { label: SIDEBAR.NAV_ROLES, icon: ShieldCheck, href: "/admin/vai-tro" },
     { label: SIDEBAR.NAV_SETTINGS, icon: Settings, href: "/admin/cai-dat" },
@@ -45,8 +45,9 @@ export default function Sidebar() {
 
     return (
         <aside
-            className={`fixed left-0 top-0 z-50 flex h-screen flex-col bg-primary text-on-primary shadow-md transition-all duration-300 ${collapsed ? "w-[68px]" : "w-sidebar-width"
-                }`}
+            className={`fixed left-0 top-0 z-50 flex h-screen flex-col bg-primary text-on-primary shadow-md transition-all duration-300 ${
+                collapsed ? "w-[68px]" : "w-sidebar-width"
+            }`}
         >
             {/* Toggle Button */}
             <div className={`flex w-full px-md pt-md ${collapsed ? "justify-center px-xs" : "justify-start"}`}>
@@ -83,13 +84,15 @@ export default function Sidebar() {
                                 <Link
                                     href={item.href}
                                     title={collapsed ? item.label : undefined}
-                                    className={`focus-ring flex min-h-12 items-center gap-md rounded-lg transition-colors ${collapsed ? "justify-center px-sm py-sm" : "px-lg py-sm"
-                                        } ${isActive
+                                    className={`focus-ring flex min-h-12 items-center gap-md rounded-lg transition-colors ${
+                                        collapsed ? "justify-center px-sm py-sm" : "px-lg py-sm"
+                                    } ${
+                                        isActive
                                             ? collapsed
                                                 ? "bg-primary-container text-on-primary-container"
                                                 : "ml-0 mr-sm rounded-l-none border-l-4 border-secondary-fixed bg-primary-container font-medium text-on-primary-container"
                                             : "text-on-primary/70 hover:bg-primary-container/20 hover:text-on-primary " + (collapsed ? "" : "mx-sm")
-                                        }`}
+                                    }`}
                                     aria-current={isActive ? "page" : undefined}
                                 >
                                     <item.icon size={22} strokeWidth={1.8} className="flex-shrink-0" />
@@ -113,8 +116,9 @@ export default function Sidebar() {
                 <div className="flex flex-col gap-xs">
                     <button
                         title={collapsed ? SIDEBAR.SUPPORT : undefined}
-                        className={`focus-ring flex items-center gap-md rounded-lg py-sm text-left text-body-sm text-on-primary/70 transition-colors hover:text-on-primary ${collapsed ? "justify-center px-sm" : "px-md"
-                            }`}
+                        className={`focus-ring flex items-center gap-md rounded-lg py-sm text-left text-body-sm text-on-primary/70 transition-colors hover:text-on-primary ${
+                            collapsed ? "justify-center px-sm" : "px-md"
+                        }`}
                     >
                         <CircleHelp size={20} strokeWidth={1.8} className="flex-shrink-0" />
                         {!collapsed && SIDEBAR.SUPPORT}
@@ -122,8 +126,9 @@ export default function Sidebar() {
                     <button
                         onClick={() => logout()}
                         title={collapsed ? SIDEBAR.LOGOUT : undefined}
-                        className={`focus-ring flex items-center gap-md rounded-lg py-sm text-left text-body-sm text-on-primary/70 transition-colors hover:text-on-primary ${collapsed ? "justify-center px-sm" : "px-md"
-                            }`}
+                        className={`focus-ring flex items-center gap-md rounded-lg py-sm text-left text-body-sm text-on-primary/70 transition-colors hover:text-on-primary ${
+                            collapsed ? "justify-center px-sm" : "px-md"
+                        }`}
                     >
                         <LogOut size={20} strokeWidth={1.8} className="flex-shrink-0" />
                         {!collapsed && SIDEBAR.LOGOUT}

@@ -72,7 +72,7 @@ export default function CategoryTable() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-surface-container-high bg-white px-8 py-6">
                 <div>
-                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
+                    <h1 className="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950">
                         <Tags size={24} className="text-primary-600" />
                         {textUI.HEADER.TITLE}
                     </h1>

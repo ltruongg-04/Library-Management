@@ -11,7 +11,7 @@ export default function VaiTroPage() {
 
             <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6">
                 <div>
-                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
+                    <h1 className="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950">
                         <ShieldCheck size={24} className="text-primary-600" />
                         {UI_TEXT.ADMIN_PAGES.ROLES.TITLE}
                     </h1>

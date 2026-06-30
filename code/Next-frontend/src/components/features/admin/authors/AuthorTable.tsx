@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Edit2, Loader2, Plus, Trash2, Users } from "lucide-react";
+import { Edit2, Feather, Loader2, Plus, Trash2 } from "lucide-react";
 import { ADMIN, ADMIN_AUTHOR_MANAGEMENT } from "@/constants/ui-text/admin";
 import { authorService } from "@/services/author";
 import type { Author } from "@/types/author";
@@ -72,8 +72,8 @@ export default function AuthorTable() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-surface-container-high bg-white px-8 py-6">
                 <div>
-                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold text-ink-950">
-                        <Users size={24} className="text-primary-600" />
+                    <h1 className="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950">
+                        <Feather size={24} className="text-primary-600" />
                         {textUI.HEADER.TITLE}
                     </h1>
                     <p className="mt-1 text-[14px] text-on-surface-variant">{textUI.HEADER.DESCRIPTION}</p>
@@ -106,7 +106,7 @@ export default function AuthorTable() {
                     </div>
                 ) : authors.length === 0 ? (
                     <div className="flex h-64 flex-col items-center justify-center gap-3 text-outline">
-                        <Users size={48} className="text-surface-container-highest" />
+                        <Feather size={48} className="text-surface-container-highest" />
                         <p>{textUI.TABLE.EMPTY_STATE}</p>
                     </div>
                 ) : (
