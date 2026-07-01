@@ -59,3 +59,21 @@ export const MOCK_LOAN_DETAIL = {
         },
     ],
 };
+
+export const MOCK_RENEW_DATA = {
+    book: {
+        title: "Kỹ thuật Phân tích Dữ liệu",
+        author: "Prof. Elena Smith",
+        borrowDate: "01/05/2024",
+        dueDate: "15/05/2024",
+        actualReturnDate: null as string | null,
+        overdueDays: 3,
+        imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuAGwJPhPhWyh7tY-XMu0j8JBcP_19pPjVxWfDmaiE_eVafrSvKIX1xgGlg_qO_HMyIAggdr4WVxRsKy0HHMpJ7HAIydRHpnUtUiWbvvz8iSCdxaqmDUGZdQ1bMki9GXbLHgfzKoumR8sd552JpANAMD0hq40eTbEayNk3jSUFtodQxoU97fXMX5gu-XxQwsuGNmcx31cOiopHerjM5yOVr2MiZIOMHIcQflyzJ72zgl6we1EmSlBJUA3LRtPx39U-6Ki4OC6mi2_gug",
+    },
+    currentLateFee: 45000,
+    initialDeposit: 100000,
+    renewalOptions: [
+        { days: 7, fee: 10000 },
+        { days: 14, fee: 20000 },
+    ],
+};

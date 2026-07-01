@@ -17,8 +17,8 @@ export default function ThongKePage() {
     const trendData = buildTrendData(normalizedMonthRange);
     const isCurrentMonthRange =
         monthRange.startYear === CURRENT_MONTH_RANGE.startYear &&
-        monthRange.startMonth === CURRENT_MONTH_RANGE.startMonth &&
         monthRange.endYear === CURRENT_MONTH_RANGE.endYear &&
+        monthRange.startMonth === CURRENT_MONTH_RANGE.startMonth &&
         monthRange.endMonth === CURRENT_MONTH_RANGE.endMonth;
     const exportData: AnalyticsExportData = {
         periodLabel: `${formatMonthPickerValue(normalizedMonthRange.startYear, normalizedMonthRange.startMonth)} - ${formatMonthPickerValue(

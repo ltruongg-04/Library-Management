@@ -17,6 +17,8 @@ export function LoginForm() {
     const { login, loginWithGoogle } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
+    const isRegistered = searchParams.get("registered") === "true";
+
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -116,6 +118,13 @@ export function LoginForm() {
                 <h1 className="text-4xl font-semibold text-on-surface">{UI_TEXT.AUTH.LOGIN.HEADING}</h1>
                 <p className="mt-2 text-sm text-on-surface-variant">{UI_TEXT.AUTH.LOGIN.SUBHEADING}</p>
             </div>
+
+            {isRegistered && (
+                <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                    <span>✅</span>
+                    <span>{UI_TEXT.AUTH.LOGIN.REGISTER_SUCCESS}</span>
+                </div>
+            )}
 
             {/* Form fields */}
             <form onSubmit={handleSubmit} className="space-y-5">
