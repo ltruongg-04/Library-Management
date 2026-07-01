@@ -1,12 +1,16 @@
 package library.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import library.common.exception.CustomBusinessException;
+import library.common.utils.VnPayUtil;
 import library.dto.borrow.BorrowRequestDto;
 import library.dto.borrow.BorrowResponseDto;
 import library.entity.*;
 import library.repository.*;
 import library.service.BorrowOrderService;
+import library.service.VnPayService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +22,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BorrowOrderServiceImpl implements BorrowOrderService {
 
     private final BorrowOrderRepository borrowOrderRepository;
@@ -27,10 +32,11 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
     private final CustomerRepository customerRepository;
     private final BookRepository bookRepository;
     private final BookCopyRepository bookCopyRepository;
+    private final VnPayService vnPayService;
 
     @Override
     @Transactional
-    public BorrowResponseDto createBorrowOrder(Integer userId, BorrowRequestDto request) {
+    public BorrowResponseDto createBorrowOrder(Integer userId, BorrowRequestDto request, HttpServletRequest httpRequest) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
 
@@ -111,7 +117,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
         
         payment = paymentRepository.save(payment);
 
-        return BorrowResponseDto.builder()
+        // Build response
+        BorrowResponseDto.BorrowResponseDtoBuilder responseBuilder = BorrowResponseDto.builder()
                 .id(borrowOrder.getId())
                 .orderCode(borrowOrder.getOrderCode())
                 .pickupDate(borrowOrder.getPickupDate())
@@ -119,7 +126,21 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
                 .status(borrowOrder.getStatus())
                 .totalDeposit(borrowOrder.getTotalDeposit())
                 .paymentMethod(payment.getPaymentMethod())
-                .paymentStatus(payment.getPaymentStatus())
-                .build();
+                .paymentStatus(payment.getPaymentStatus());
+
+        // Generate VNPay payment URL if payment method is VNPAY
+        if (request.getPaymentMethod() == PaymentMethod.VNPAY) {
+            String ipAddress = VnPayUtil.getIpAddress(httpRequest);
+            String paymentUrl = vnPayService.createPaymentUrl(
+                    borrowOrder.getId(),
+                    borrowOrder.getOrderCode(),
+                    depositPrice,
+                    ipAddress
+            );
+            responseBuilder.paymentUrl(paymentUrl);
+            log.info("VNPay payment URL generated for orderCode={}", orderCode);
+        }
+
+        return responseBuilder.build();
     }
 }

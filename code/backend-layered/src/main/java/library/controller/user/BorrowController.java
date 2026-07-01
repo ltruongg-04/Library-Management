@@ -1,5 +1,6 @@
 package library.controller.user;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import library.common.base.ApiResponse;
 import library.common.exception.CustomBusinessException;
@@ -24,7 +25,9 @@ public class BorrowController {
     private final UserRepository userRepository;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<BorrowResponseDto>> createBorrowOrder(@Valid @RequestBody BorrowRequestDto request) {
+    public ResponseEntity<ApiResponse<BorrowResponseDto>> createBorrowOrder(
+            @Valid @RequestBody BorrowRequestDto request,
+            HttpServletRequest httpRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
@@ -34,7 +37,7 @@ public class BorrowController {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
 
-        BorrowResponseDto response = borrowOrderService.createBorrowOrder(user.getId(), request);
+        BorrowResponseDto response = borrowOrderService.createBorrowOrder(user.getId(), request, httpRequest);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
