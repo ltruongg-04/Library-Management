@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { RENEW_PAGE } from "@/constants/ui-text/public";
 import { MOCK_RENEW_DATA } from "@/mocks/loans";
@@ -13,7 +12,6 @@ const formatCurrency = (amount: number) => {
 };
 
 export default function RenewBookPage() {
-    const params = useParams();
     const data = MOCK_RENEW_DATA;
     const { book, currentLateFee, initialDeposit, renewalOptions } = data;
 
