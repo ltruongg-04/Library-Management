@@ -8,3 +8,4 @@ export * from "./admin/borrow-management";
 export * from "./admin/author-management";
 export * from "./admin/category-management";
 export * from "./admin/inventory-management";
+export * from "./admin/analytics";
