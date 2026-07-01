@@ -34,7 +34,7 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
 
     const handleSubmit = async () => {
         if (!pickupDate || !returnDate) {
-            setSubmitError("Vui lòng chọn đầy đủ ngày đến lấy và ngày hoàn trả.");
+            setSubmitError(UI_TEXT.BORROW.FORM.ERRORS.MISSING_DATES);
             return;
         }
 
@@ -44,16 +44,24 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
         setSubmitError(null);
 
         try {
-            await createBorrowRequest({
+            const response = await createBorrowRequest({
                 bookId: book.id,
                 pickupDate,
                 returnDate,
                 paymentMethod: paymentMethod.toUpperCase(),
             });
+
+            // If VNPay payment URL is returned, redirect to VNPay gateway
+            if (response.data?.paymentUrl) {
+                window.location.href = response.data.paymentUrl;
+                return;
+            }
+
+            // For CASH or other methods, show success page
             setIsSuccess(true);
         } catch (err: any) {
             console.error("Lỗi đặt mượn sách:", err);
-            setSubmitError(err.response?.data?.message || err.message || "Đã xảy ra lỗi khi đặt mượn sách");
+            setSubmitError(err.response?.data?.message || err.message || UI_TEXT.BORROW.FORM.ERRORS.SUBMIT_FAILED);
         } finally {
             setIsSubmitting(false);
         }

@@ -10,6 +10,10 @@ export const BORROW = {
         CASH: "Tiền mặt khi nhận",
         MOMO: "Ví MoMo",
         VNPAY: "Ví VNPay",
+        ERRORS: {
+            MISSING_DATES: "Vui lòng chọn đầy đủ ngày đến lấy và ngày hoàn trả.",
+            SUBMIT_FAILED: "Đã xảy ra lỗi khi đặt mượn sách",
+        },
     },
     POLICY: {
         TITLE: "Chính sách mượn sách:",
@@ -67,5 +71,23 @@ export const BORROW = {
         DEADLINE: "Hạn chót trả sách",
         REMINDER_SENT: "Gửi thông báo nhắc nhở",
         BORROW_SUCCESS: "Mượn sách thành công",
+    },
+    VNPAY_RESULT: {
+        SUCCESS: {
+            TITLE: "Thanh toán thành công!",
+            DESCRIPTION: "Tiền đặt cọc đã được thanh toán qua VNPay. Yêu cầu mượn sách của bạn đang chờ phê duyệt.",
+            ORDER_CODE: "Mã đơn mượn",
+            VIEW_LOANS: "Xem lịch sử mượn",
+            CONTINUE_BROWSING: "Tiếp tục tìm sách",
+        },
+        FAILED: {
+            TITLE: "Thanh toán thất bại",
+            DESCRIPTION: "Giao dịch VNPay không thành công. Đơn mượn sách đã được hủy tự động. Bạn có thể thử lại.",
+            ORDER_CODE: "Mã đơn mượn",
+            TRY_AGAIN: "Thử lại",
+            BACK_TO_HOME: "Về trang chủ",
+        },
+        LOADING: "Đang xử lý kết quả thanh toán...",
+        BRAND: "VNPay",
     },
 };
