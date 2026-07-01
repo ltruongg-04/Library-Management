@@ -38,6 +38,7 @@ export const BOOK_DETAIL = {
     MATCH_SCORE_SUFFIX: "% Match",
     BORROW_NOW: "Borrow Now",
     ADD_WISHLIST: "Add to Wishlist",
+    REMOVE_WISHLIST: "Remove from Wishlist",
     AI_CHATBOT: {
         TITLE: "Lumina AI",
         SUBTITLE: "Book Summary & Reading Path",
