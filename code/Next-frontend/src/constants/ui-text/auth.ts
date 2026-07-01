@@ -23,6 +23,7 @@ export const AUTH = {
         },
         ERROR_MSG: "Đăng nhập thất bại. Vui lòng thử lại.",
         REGISTER_SUCCESS: "Đăng ký thành công! Vui lòng đăng nhập.",
+        SUCCESS_ICON: "✅",
     },
     LOCKED_STATE: {
         HEADING: "Tài khoản bị khóa",

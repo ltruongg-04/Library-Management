@@ -54,7 +54,7 @@ export default function RelatedBooks({ books }: RelatedBooksProps) {
                             {book.title}
                         </h4>
                         <p className="mb-1 line-clamp-1 font-body-sm text-[12px] text-on-surface-variant transition-colors duration-200 dark:text-slate-400">
-                            {book.authors?.map(a => a.name).join(", ") || "Đang cập nhật"}
+                            {book.authors?.map((a) => a.name).join(", ") || "Đang cập nhật"}
                         </p>
                     </Link>
                 ))}

@@ -16,6 +16,7 @@ export interface BorrowResponse {
     totalDeposit: number;
     paymentMethod: string;
     paymentStatus: string;
+    paymentUrl?: string;
 }
 
 interface ApiResponse<T> {

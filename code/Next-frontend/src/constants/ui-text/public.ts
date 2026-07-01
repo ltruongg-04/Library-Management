@@ -288,4 +288,39 @@ export const MY_BOOKS_PAGE = {
         DESC: "Hãy bắt đầu hành trình khám phá kho tri thức khổng lồ của Lumina Library ngay hôm nay.",
         BROWSE_BUTTON: "Duyệt kho sách ngay",
     },
+    FILTER_EMPTY_STATE: {
+        HEADING: "Không tìm thấy kết quả",
+        DESC: "Vui lòng thử thay đổi điều kiện lọc.",
+    },
+};
+
+export const RENEW_PAGE = {
+    TITLE: "Gia hạn sách",
+    BREADCRUMB_ACCOUNT: "Tài khoản",
+    BREADCRUMB_HISTORY: "Lịch sử mượn sách",
+    BREADCRUMB_RENEW: "Gia hạn sách",
+    OVERDUE_BADGE_PREFIX: "Quá hạn",
+    OVERDUE_DAYS_SUFFIX: "ngày",
+    AUTHOR_PREFIX: "Tác giả:",
+    BORROW_DATE: "NGÀY MƯỢN",
+    DUE_DATE: "HẠN TRẢ DỰ KIẾN",
+    ACTUAL_RETURN_DATE: "NGÀY TRẢ THỰC TẾ",
+    ACTUAL_RETURN_DASH: "—",
+    DETAIL: {
+        HEADING: "Chi tiết gia hạn",
+        CURRENT_LATE_FEE: "Phí phạt hiện tại:",
+        INITIAL_DEPOSIT: "Tiền đặt cọc ban đầu:",
+    },
+    DURATION: {
+        HEADING: "Chọn thời gian gia hạn",
+        DAYS_SUFFIX: "ngày",
+        FEE_PREFIX: "+",
+        FEE_SUFFIX: "đ",
+    },
+    SUMMARY: {
+        TOTAL_NEW_COST: "Tổng chi phí mới:",
+        INITIAL_DEPOSIT_LABEL: "Tiền đặt cọc ban đầu:",
+        TOTAL_LABEL: "Tổng chi phí mới:",
+    },
+    CONFIRM_BUTTON: "Xác nhận gia hạn",
 };

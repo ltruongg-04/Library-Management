@@ -18,7 +18,6 @@ export function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const isRegistered = searchParams.get("registered") === "true";
-
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -63,13 +62,10 @@ export function LoginForm() {
             } else {
                 router.replace("/");
             }
-        } catch (error: any) {
-            const errorMsg = error.message || UI_TEXT.AUTH.LOGIN.ERROR_MSG;
-            if (errorMsg.toLowerCase().includes("khóa")) {
-                setLockedError(errorMsg);
-            } else {
-                setErrors({ email: errorMsg });
-            }
+        } catch (error) {
+            setErrors({
+                email: error instanceof Error ? error.message : UI_TEXT.AUTH.LOGIN.ERROR_MSG,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -120,8 +116,8 @@ export function LoginForm() {
             </div>
 
             {isRegistered && (
-                <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-                    <span>✅</span>
+                <div className="mb-6 flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                    <span>{UI_TEXT.AUTH.LOGIN.SUCCESS_ICON}</span>
                     <span>{UI_TEXT.AUTH.LOGIN.REGISTER_SUCCESS}</span>
                 </div>
             )}

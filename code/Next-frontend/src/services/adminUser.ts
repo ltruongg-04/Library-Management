@@ -15,7 +15,7 @@ export const getAdminUsers = async (): Promise<ApiResponse<User[]>> => {
 
 export const updateAdminUserStatus = async (id: number, active: boolean): Promise<ApiResponse<void>> => {
     const response = await axiosInstance.put<ApiResponse<void>>(`/api/admin/users/${id}/status`, null, {
-        params: { active }
+        params: { active },
     });
     return response.data;
 };

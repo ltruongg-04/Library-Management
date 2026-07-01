@@ -25,5 +25,6 @@ public class BorrowResponseDto {
     private BigDecimal totalDeposit;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;
+    private String paymentUrl;
 
 }
