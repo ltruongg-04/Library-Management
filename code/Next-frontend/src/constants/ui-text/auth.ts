@@ -25,6 +25,11 @@ export const AUTH = {
         REGISTER_SUCCESS: "Đăng ký thành công! Vui lòng đăng nhập.",
         SUCCESS_ICON: "✅",
     },
+    LOCKED_STATE: {
+        HEADING: "Tài khoản bị khóa",
+        BACK_TO_HOME: "Về trang chủ",
+        LOGIN_AGAIN: "Đăng nhập lại",
+    },
     REGISTER: {
         HEADING: "Tạo tài khoản",
         FULL_NAME_LABEL: "Họ và tên",

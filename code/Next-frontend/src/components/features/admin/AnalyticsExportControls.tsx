@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, Download } from "lucide-react";
+import { ANALYTICS_TEXT } from "@/constants/admin/analytics";
 
 type AnalyticsExportFormat = "csv" | "json";
 type AnalyticsSummaryRecord = {
@@ -62,13 +63,7 @@ type BrowserSavePicker = {
     }) => Promise<BrowserFileHandle>;
 };
 
-const TEXT = {
-    EXPORT_FORMAT_LABEL: "Định dạng file xuất",
-    EXPORT_RECORD: "Xuất bản ghi",
-    EXPORT_FORMAT_CSV: "CSV",
-    EXPORT_FORMAT_JSON: "JSON",
-    EXPORT_FILENAME: "thong-ke-thu-vien.csv",
-};
+const TEXT = ANALYTICS_TEXT.EXPORT;
 
 const exportFileConfig: Record<AnalyticsExportFormat, { extension: string; mimeType: string; description: string }> = {
     csv: {
@@ -120,16 +115,17 @@ function createExportContent(format: AnalyticsExportFormat, data: AnalyticsExpor
         return JSON.stringify(payload, null, 2);
     }
 
+    const H = ANALYTICS_TEXT.EXPORT.CSV_HEADERS;
     return [
-        createCsvSection("Khoảng thời gian", ["Giá trị"], [[data.periodLabel]]),
+        createCsvSection(H.PERIOD_TITLE, [H.PERIOD_VAL], [[data.periodLabel]]),
         createCsvSection(
-            "Tổng hợp thống kê",
-            ["Chỉ số", "Giá trị", "Ghi chú"],
-            data.summary.map((record) => [record.label, record.value, record.trend ? `Tăng ${record.trend}` : ""]),
+            H.SUMMARY_TITLE,
+            [H.SUMMARY_METRIC, H.SUMMARY_VAL, H.SUMMARY_NOTE],
+            data.summary.map((record) => [record.label, record.value, record.trend ? `${H.SUMMARY_UP}${record.trend}` : ""]),
         ),
         createCsvSection(
-            "Biểu đồ xu hướng mượn sách",
-            ["Thời gian", "Đã mượn", "Đã trả", "Quá hạn"],
+            H.TREND_TITLE,
+            [H.TREND_TIME, H.TREND_BORROWED, H.TREND_RETURNED, H.TREND_OVERDUE],
             data.trend.labels.map((label, index) => [
                 label,
                 String(data.trend.borrowed[index]),
@@ -138,28 +134,28 @@ function createExportContent(format: AnalyticsExportFormat, data: AnalyticsExpor
             ]),
         ),
         createCsvSection(
-            "Biểu đồ trạng thái thư viện",
-            ["Trạng thái", "Tỷ lệ"],
+            H.STATUS_TITLE,
+            [H.STATUS_STATE, H.STATUS_RATE],
             [
-                ["Có sẵn", `${data.libraryStatus.available}%`],
-                ["Đang mượn", `${data.libraryStatus.borrowing}%`],
-                ["Đã đặt", `${data.libraryStatus.reserved}%`],
-                ["Bảo trì", `${data.libraryStatus.maintenance}%`],
+                [H.STATUS_AVAILABLE, `${data.libraryStatus.available}%`],
+                [H.STATUS_BORROWING, `${data.libraryStatus.borrowing}%`],
+                [H.STATUS_RESERVED, `${data.libraryStatus.reserved}%`],
+                [H.STATUS_MAINTENANCE, `${data.libraryStatus.maintenance}%`],
             ],
         ),
         createCsvSection(
-            "Thể loại nổi bật",
-            ["Thể loại", "Tỷ lệ"],
+            H.CAT_TITLE,
+            [H.CAT_NAME, H.CAT_RATE],
             data.categories.map((category) => [category.label, `${category.value}%`]),
         ),
         createCsvSection(
-            "Sách được mượn nhiều",
-            ["Tựa sách", "Tác giả", "Lượt mượn", "Trạng thái"],
+            H.BOOK_TITLE,
+            [H.BOOK_NAME, H.BOOK_AUTHOR, H.BOOK_BORROWS, H.BOOK_STATUS],
             data.borrowedBooks.map((book) => [book.title, book.author, String(book.borrows), book.status]),
         ),
         createCsvSection(
-            "Hoạt động gần đây",
-            ["Hoạt động", "Chi tiết", "Thời gian"],
+            H.ACT_TITLE,
+            [H.ACT_NAME, H.ACT_DETAIL, H.ACT_TIME],
             data.recentActivities.map((activity) => [activity.title, activity.detail, activity.time]),
         ),
     ].join("\r\n\r\n");
@@ -178,7 +174,7 @@ export default function AnalyticsExportControls({ data }: { data: AnalyticsExpor
         const exportConfig = exportFileConfig[exportFormat];
         const content = createExportContent(exportFormat, data);
         const blob = createExportBlob(content, exportFormat, exportConfig.mimeType);
-        const fileName = TEXT.EXPORT_FILENAME.replace(/\.[^.]+$/, `.${exportConfig.extension}`);
+        const fileName = TEXT.FILENAME.replace(/\.[^.]+$/, `.${exportConfig.extension}`);
         const savePicker = (window as Window & BrowserSavePicker).showSaveFilePicker;
 
         if (savePicker) {
@@ -219,15 +215,15 @@ export default function AnalyticsExportControls({ data }: { data: AnalyticsExpor
     return (
         <div className="flex shrink-0 flex-col gap-sm sm:flex-row sm:items-center">
             <label className="relative">
-                <span className="sr-only">{TEXT.EXPORT_FORMAT_LABEL}</span>
+                <span className="sr-only">{TEXT.FORMAT_LABEL}</span>
                 <select
                     value={exportFormat}
                     onChange={(event) => setExportFormat(event.target.value as AnalyticsExportFormat)}
                     className="h-11 appearance-none rounded-lg border border-outline-variant/50 bg-surface-bright py-sm pl-md pr-9 text-body-sm font-medium text-on-surface shadow-sm outline-none transition-shadow focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary"
-                    aria-label={TEXT.EXPORT_FORMAT_LABEL}
+                    aria-label={TEXT.FORMAT_LABEL}
                 >
-                    <option value="csv">{TEXT.EXPORT_FORMAT_CSV}</option>
-                    <option value="json">{TEXT.EXPORT_FORMAT_JSON}</option>
+                    <option value="csv">{TEXT.FORMAT_CSV}</option>
+                    <option value="json">{TEXT.FORMAT_JSON}</option>
                 </select>
                 <ChevronDown size={17} strokeWidth={1.9} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline" />
             </label>
@@ -237,7 +233,7 @@ export default function AnalyticsExportControls({ data }: { data: AnalyticsExpor
                 className="focus-ring inline-flex h-11 items-center justify-center gap-sm rounded-lg bg-primary px-lg text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
             >
                 <Download size={20} strokeWidth={1.9} />
-                {TEXT.EXPORT_RECORD}
+                {TEXT.RECORD_BTN}
             </button>
         </div>
     );

@@ -34,8 +34,12 @@ public class UserEntity extends BaseEntity {
     @Builder.Default
     private boolean active = true;
 
+    @Column(name = "last_login")
+    private java.time.LocalDateTime lastLogin;
+
     public enum Role {
         USER,
+        LIBRARIAN,
         ADMIN
     }
 }

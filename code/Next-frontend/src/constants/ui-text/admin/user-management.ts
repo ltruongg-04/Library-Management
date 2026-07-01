@@ -43,5 +43,9 @@ export const ADMIN_USER_MANAGEMENT = {
         BTN_CREATE: "Create",
         BTN_SAVE: "Save",
         CLOSE: "✕",
+        HINT_EMAIL_EDIT: "Không thể thay đổi email sau khi đăng ký.",
+        LABEL_PASSWORD: "Mật khẩu khởi tạo",
+        HINT_ROLE_ADMIN_EDIT: "Không thể thay đổi vai trò của tài khoản Admin.",
+        HINT_ROLE_ADMIN_CREATE: "Không thể cấp quyền Admin cho tài khoản mới.",
     },
 };
