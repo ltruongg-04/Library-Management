@@ -1,6 +1,4 @@
-import type { MonthRangeSelection } from "@/types/admin-analytics";
-
-export const ANALYTICS_TEXT = {
+export const ADMIN_ANALYTICS = {
     TREND_TITLE: "Xu hướng mượn sách",
     TREND_BORROWED: "Đã mượn",
     TREND_RETURNED: "Đã trả",
@@ -49,28 +47,62 @@ export const ANALYTICS_TEXT = {
     SUMMARY_LABEL: "Tổng hợp thống kê",
     TREND_ARIA: "Xu hướng mượn sách từ tháng 1 đến tháng 6",
     STATUS_ARIA: "Biểu đồ công suất thư viện",
+    MONTH_OPTIONS: {
+        M1: "Th1",
+        M2: "Th2",
+        M3: "Th3",
+        M4: "Th4",
+        M5: "Th5",
+        M6: "Th6",
+        M7: "Th7",
+        M8: "Th8",
+        M9: "Th9",
+        M10: "Th10",
+        M11: "Th11",
+        M12: "Th12",
+    },
+    MONTH_FORMAT: {
+        PREFIX: "Tháng ",
+        YEAR_SEPARATOR: " năm ",
+    },
+    EXPORT: {
+        FORMAT_LABEL: "Định dạng file xuất",
+        RECORD_BTN: "Xuất bản ghi",
+        FORMAT_CSV: "CSV",
+        FORMAT_JSON: "JSON",
+        FILENAME: "thong-ke-thu-vien.csv",
+        CSV_HEADERS: {
+            PERIOD_TITLE: "Khoảng thời gian",
+            PERIOD_VAL: "Giá trị",
+            SUMMARY_TITLE: "Tổng hợp thống kê",
+            SUMMARY_METRIC: "Chỉ số",
+            SUMMARY_VAL: "Giá trị",
+            SUMMARY_NOTE: "Ghi chú",
+            SUMMARY_UP: "Tăng ",
+            TREND_TITLE: "Biểu đồ xu hướng mượn sách",
+            TREND_TIME: "Thời gian",
+            TREND_BORROWED: "Đã mượn",
+            TREND_RETURNED: "Đã trả",
+            TREND_OVERDUE: "Quá hạn",
+            STATUS_TITLE: "Biểu đồ trạng thái thư viện",
+            STATUS_STATE: "Trạng thái",
+            STATUS_RATE: "Tỷ lệ",
+            STATUS_AVAILABLE: "Có sẵn",
+            STATUS_BORROWING: "Đang mượn",
+            STATUS_RESERVED: "Đã đặt",
+            STATUS_MAINTENANCE: "Bảo trì",
+            CAT_TITLE: "Thể loại nổi bật",
+            CAT_NAME: "Thể loại",
+            CAT_RATE: "Tỷ lệ",
+            BOOK_TITLE: "Sách được mượn nhiều",
+            BOOK_NAME: "Tựa sách",
+            BOOK_AUTHOR: "Tác giả",
+            BOOK_BORROWS: "Lượt mượn",
+            BOOK_STATUS: "Trạng thái",
+            ACT_TITLE: "Hoạt động gần đây",
+            ACT_NAME: "Hoạt động",
+            ACT_DETAIL: "Chi tiết",
+            ACT_TIME: "Thời gian",
+        },
+    },
 };
-
-export const CURRENT_MONTH_RANGE: MonthRangeSelection = {
-    startYear: 2026,
-    startMonth: 5,
-    endYear: 2026,
-    endMonth: 6,
-};
-
-export const MONTH_PICKER_OPTIONS = [
-    { value: 1, label: "Th1" },
-    { value: 2, label: "Th2" },
-    { value: 3, label: "Th3" },
-    { value: 4, label: "Th4" },
-    { value: 5, label: "Th5" },
-    { value: 6, label: "Th6" },
-    { value: 7, label: "Th7" },
-    { value: 8, label: "Th8" },
-    { value: 9, label: "Th9" },
-    { value: 10, label: "Th10" },
-    { value: 11, label: "Th11" },
-    { value: 12, label: "Th12" },
-] as const;
-
-export const YEAR_PICKER_OPTIONS = [2022, 2023, 2024, 2025, 2026] as const;

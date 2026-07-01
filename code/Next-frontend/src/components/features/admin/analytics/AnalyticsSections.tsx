@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Sparkles, TrendingUp } from "lucide-react";
-import { ANALYTICS_TEXT } from "@/constants/adminAnalytics";
+import { ANALYTICS_TEXT } from "@/constants/admin/analytics";
 import type { ActivityData, BorrowedBookData, CategoryData, InsightsData, LibraryStatusData, StatCardData, TrendData } from "@/types/admin-analytics";
 
 function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {

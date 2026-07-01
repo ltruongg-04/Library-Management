@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CalendarDays, X } from "lucide-react";
-import { ANALYTICS_TEXT, CURRENT_MONTH_RANGE, MONTH_PICKER_OPTIONS, YEAR_PICKER_OPTIONS } from "@/constants/adminAnalytics";
+import { ANALYTICS_TEXT, CURRENT_MONTH_RANGE, MONTH_PICKER_OPTIONS, YEAR_PICKER_OPTIONS } from "@/constants/admin/analytics";
 import type { MonthRangeSelection, TimeRange, TrendData } from "@/types/admin-analytics";
 
 export function monthToAbsoluteIndex(year: number, month: number) {
@@ -36,7 +36,7 @@ export function timeRangeFromMonthSelection(selection: MonthRangeSelection): Tim
 
 export function formatMonthPickerValue(year: number, month: number) {
     const monthLabel = MONTH_PICKER_OPTIONS.find((option) => option.value === month)?.label ?? `Th${month}`;
-    return `${monthLabel.replace("Th", "Tháng ")} năm ${year}`;
+    return `${monthLabel.replace("Th", ANALYTICS_TEXT.MONTH_FORMAT.PREFIX)}${ANALYTICS_TEXT.MONTH_FORMAT.YEAR_SEPARATOR}${year}`;
 }
 
 function MonthInputControl({

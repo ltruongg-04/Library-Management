@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { BarChart3 } from "lucide-react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import AnalyticsExportControls, { type AnalyticsExportData } from "@/components/features/admin/AnalyticsExportControls";
-import { ANALYTICS_TEXT, CURRENT_MONTH_RANGE } from "@/constants/adminAnalytics";
+import { ANALYTICS_TEXT, CURRENT_MONTH_RANGE } from "@/constants/admin/analytics";
 import { analyticsDataByRange } from "@/mocks/adminAnalytics";
 import type { MonthRangeSelection } from "@/types/admin-analytics";
 import { MonthRangeControls, buildTrendData, formatMonthPickerValue, normalizeMonthRange, timeRangeFromMonthSelection } from "./AnalyticsMonthControls";

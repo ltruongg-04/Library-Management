@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { BookOpen, Clock3, CreditCard, Globe2, Landmark, Save, Settings, ToggleRight, WalletCards } from "lucide-react";
@@ -15,7 +15,7 @@ import {
     languageOptions,
     readSavedSettings,
     timezoneOptions,
-} from "@/constants/adminSettings";
+} from "@/constants/admin/settings";
 import { UI_TEXT } from "@/constants/ui-text";
 
 export default function CaiDatPage() {
