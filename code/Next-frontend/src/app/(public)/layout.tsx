@@ -1,8 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { PublicHeader } from "@/components/layout/PublicHeader";
-import type { ReactNode } from "react";
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
     return (
@@ -11,7 +11,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             <PublicHeader />
 
             {/* Main Content */}
-            <main className="flex-grow pt-[80px]">{children}</main>
+            <main className="flex-grow pt-16">{children}</main>
 
             <PublicFooter />
         </div>
