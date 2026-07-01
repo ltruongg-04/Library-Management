@@ -3,7 +3,7 @@ import { AUTH } from "./auth";
 import { BORROW } from "./borrow";
 import { COMMON, MAINTENANCE } from "./common";
 import { NOTIFICATIONS } from "./notifications";
-import { ABOUT, BOOK_DETAIL, BOOK_LIST, CONTACT, HOME, PUBLIC_LAYOUT } from "./public";
+import { ABOUT, BOOK_DETAIL, BOOK_LIST, CONTACT, HOME, MY_BOOKS_PAGE, PUBLIC_LAYOUT, RENEW_PAGE } from "./public";
 import { ROLES } from "./roles";
 import { PROFILE, SETTINGS_HEADER, SETTINGS_NOTIFICATIONS, SETTINGS_SECURITY, SETTINGS_SIDEBAR } from "./settings";
 
@@ -18,6 +18,8 @@ export const UI_TEXT = {
     HOME,
     ABOUT,
     CONTACT,
+    MY_BOOKS_PAGE,
+    RENEW_PAGE,
     BORROW,
     ADMIN_LAYOUT,
     ADMIN_PAGES,
