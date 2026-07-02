@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { LoanCard } from "@/components/features/history/LoanCard";
 import { LoanFilter } from "@/components/features/history/LoanFilter";
@@ -8,6 +9,7 @@ import { MY_BOOKS_PAGE } from "@/constants/ui-text/public";
 import { MOCK_LOANS } from "@/mocks/loans";
 
 export default function MyBooksPage() {
+    const [loans, setLoans] = useState(MOCK_LOANS);
     const [statusFilter, setStatusFilter] = useState(MY_BOOKS_PAGE.FILTER.STATUS_ALL);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -26,12 +28,17 @@ export default function MyBooksPage() {
         });
     };
 
+    const handleCancel = (id: string) => {
+        setLoans((prev) => prev.map((loan) => (loan.id === id ? { ...loan, status: "cancelled" } : loan)));
+        toast.success("Đã huỷ đặt giữ chỗ thành công!");
+    };
+
     const parseDate = (dateStr: string) => {
         const [day, month, year] = dateStr.split("/");
         return new Date(Number(year), Number(month) - 1, Number(day));
     };
 
-    const filteredLoans = MOCK_LOANS.filter((loan) => {
+    const filteredLoans = loans.filter((loan) => {
         // Status filter
         let statusMatch = true;
         if (appliedFilter.status !== MY_BOOKS_PAGE.FILTER.STATUS_ALL) {
@@ -96,7 +103,7 @@ export default function MyBooksPage() {
             {filteredLoans.length > 0 ? (
                 <div className="space-y-md" id="loan-list-container">
                     {filteredLoans.map((loan) => (
-                        <LoanCard key={loan.id} loan={loan} />
+                        <LoanCard key={loan.id} loan={loan} onCancel={() => handleCancel(loan.id)} />
                     ))}
                 </div>
             ) : (

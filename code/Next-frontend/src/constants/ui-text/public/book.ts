@@ -37,6 +37,9 @@ export const BOOK_DETAIL = {
     TAGS_CATEGORIES: "Tags & Categories",
     MATCH_SCORE_SUFFIX: "% Match",
     BORROW_NOW: "Borrow Now",
+    RESERVE_NOW: "Đặt giữ chỗ",
+    RESERVE_SUCCESS: "Đặt giữ chỗ thành công. Bạn đang ở vị trí thứ {position} trong hàng đợi.",
+    RESERVE_ERROR: "Có lỗi xảy ra khi đặt giữ chỗ",
     ADD_WISHLIST: "Add to Wishlist",
     REMOVE_WISHLIST: "Remove from Wishlist",
     AI_CHATBOT: {
