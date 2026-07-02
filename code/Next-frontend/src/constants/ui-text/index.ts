@@ -11,7 +11,9 @@ import {
 } from "./admin";
 import { AUTH } from "./auth";
 import { COMMON, MAINTENANCE } from "./common";
-import { ABOUT, BOOK_DETAIL, BOOK_LIST, BORROW, CONTACT, HOME, MY_BOOKS_PAGE, NOTIFICATIONS, PUBLIC_LAYOUT, RENEW_PAGE } from "./public";
+import { ABOUT, BOOK_DETAIL, BOOK_LIST, BOOK_VISIT, CONTACT, HOME, MY_BOOKS_PAGE, PUBLIC_LAYOUT, RENEW_PAGE } from "./public";
+import { BORROW } from "./public/borrow";
+import { NOTIFICATIONS } from "./public/notifications";
 import { PROFILE, SETTINGS_HEADER, SETTINGS_NOTIFICATIONS, SETTINGS_SECURITY, SETTINGS_SIDEBAR } from "./settings";
 
 export const UI_TEXT = {
@@ -22,6 +24,7 @@ export const UI_TEXT = {
     PUBLIC_LAYOUT,
     BOOK_LIST,
     BOOK_DETAIL,
+    BOOK_VISIT,
     HOME,
     ABOUT,
     CONTACT,
