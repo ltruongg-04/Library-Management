@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, Plus, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
 import { ADMIN } from "@/constants/ui-text/admin";
 import { bookCopyService } from "@/services/book-copy";
 import type { BookCopy, BookCopyStatus } from "@/types/book-copy";
@@ -60,7 +61,7 @@ export default function BookCopiesModal({ bookId, bookTitle, isOpen, onClose, on
             setAddQuantity(1);
             onSuccess(); // Triggers table refresh to update quantity
         } catch (err: any) {
-            alert(err.message || textUI.ERROR_ADD);
+            toast.error(err.message || textUI.ERROR_ADD);
             setLoading(false);
         }
     };
@@ -72,7 +73,7 @@ export default function BookCopiesModal({ bookId, bookTitle, isOpen, onClose, on
             await fetchCopies();
             onSuccess(); // Status change might affect availableQuantity
         } catch (err: any) {
-            alert(err.message || textUI.ERROR_UPDATE);
+            toast.error(err.message || textUI.ERROR_UPDATE);
             setLoading(false);
         }
     };
@@ -86,7 +87,7 @@ export default function BookCopiesModal({ bookId, bookTitle, isOpen, onClose, on
             await fetchCopies();
             onSuccess(); // Triggers table refresh to update quantity
         } catch (err: any) {
-            alert(err.message || textUI.ERROR_DELETE);
+            toast.error(err.message || textUI.ERROR_DELETE);
             setLoading(false);
         }
     };

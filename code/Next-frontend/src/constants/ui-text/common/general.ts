@@ -18,4 +18,7 @@ export const COMMON = {
     BOOK_NOT_FOUND: "Không tìm thấy sách",
     BACK_TO_HOME: "Trở lại trang chủ",
     LOADING_INFO: "Đang tải thông tin...",
+    SUCCESS_ADDED_WISHLIST: "Đã thêm vào danh sách yêu thích",
+    SUCCESS_REMOVED_WISHLIST: "Đã xóa khỏi danh sách yêu thích",
+    ERROR_OCCURRED: "Đã có lỗi xảy ra",
 };
