@@ -12,7 +12,7 @@ const CoverPlaceholder = () => (
     </div>
 );
 
-export const LoanCard = ({ loan }: { loan: (typeof MOCK_LOANS)[number] }) => {
+export const LoanCard = ({ loan, onCancel }: { loan: (typeof MOCK_LOANS)[number]; onCancel?: () => void }) => {
     return (
         <div
             className={`group rounded-xl border bg-surface-container-lowest p-lg shadow-sm transition-shadow hover:shadow-md dark:bg-slate-900 ${
@@ -35,7 +35,9 @@ export const LoanCard = ({ loan }: { loan: (typeof MOCK_LOANS)[number] }) => {
                                         ? "bg-secondary-container/20 text-secondary dark:bg-slate-800 dark:text-secondary-300"
                                         : loan.status === "overdue"
                                           ? "bg-error-container/30 text-error dark:bg-slate-800 dark:text-error-300"
-                                          : "bg-surface-container-high text-on-surface-variant dark:bg-slate-800 dark:text-slate-200"
+                                          : loan.status === "pending"
+                                            ? "bg-primary-container/30 text-primary dark:bg-slate-800 dark:text-primary-300"
+                                            : "bg-surface-container-high text-on-surface-variant dark:bg-slate-800 dark:text-slate-200"
                                 }`}
                             >
                                 <span
@@ -44,14 +46,20 @@ export const LoanCard = ({ loan }: { loan: (typeof MOCK_LOANS)[number] }) => {
                                             ? "bg-secondary dark:bg-secondary-300"
                                             : loan.status === "overdue"
                                               ? "bg-error dark:bg-error-300"
-                                              : "bg-outline dark:bg-slate-400"
+                                              : loan.status === "pending"
+                                                ? "bg-primary dark:bg-primary-300"
+                                                : "bg-outline dark:bg-slate-400"
                                     }`}
                                 ></span>
                                 {loan.status === "borrowing"
                                     ? MY_BOOKS_PAGE.CARD.STATUS_BORROWING
                                     : loan.status === "overdue"
                                       ? MY_BOOKS_PAGE.STATUS_OVERDUE
-                                      : MY_BOOKS_PAGE.CARD.STATUS_RETURNED}
+                                      : loan.status === "pending"
+                                        ? "Đang giữ chỗ"
+                                        : loan.status === "cancelled"
+                                          ? "Đã huỷ"
+                                          : MY_BOOKS_PAGE.CARD.STATUS_RETURNED}
                             </span>
                         </div>
                         <p className="text-body-sm text-on-surface-variant dark:text-slate-400">
@@ -103,10 +111,12 @@ export const LoanCard = ({ loan }: { loan: (typeof MOCK_LOANS)[number] }) => {
                                 <p className="text-body-md font-bold text-error dark:text-error-300">{(loan as any).lateFee}</p>
                             </div>
                         )}
-                        {loan.status === "borrowing" && (
+                        {(loan.status === "borrowing" || loan.status === "pending" || loan.status === "cancelled") && (
                             <div>
                                 <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{MY_BOOKS_PAGE.CARD.DEPOSIT}</p>
-                                <p className="text-body-md font-bold dark:text-white">{(loan as any).deposit}</p>
+                                <p className={`text-body-md font-bold ${loan.status === "cancelled" ? "text-outline line-through" : "dark:text-white"}`}>
+                                    {(loan as any).deposit}
+                                </p>
                             </div>
                         )}
                         {loan.status === "returned" && (
@@ -131,6 +141,21 @@ export const LoanCard = ({ loan }: { loan: (typeof MOCK_LOANS)[number] }) => {
                                     className="mt-md rounded-lg bg-error px-md py-2 font-body-md text-body-sm text-on-error transition-all hover:opacity-90"
                                 >
                                     {MY_BOOKS_PAGE.RENEW_NOW}
+                                </Link>
+                            </div>
+                        ) : loan.status === "pending" ? (
+                            <div className="mt-4 flex items-center justify-end gap-2">
+                                <button
+                                    onClick={onCancel}
+                                    className="group mr-4 mt-md flex items-center justify-end gap-xs text-body-sm font-medium text-error decoration-2 dark:text-error-300"
+                                >
+                                    <span className="group-hover:underline">{UI_TEXT.MY_BOOKS_PAGE.CARD.CANCEL_RESERVATION}</span>
+                                </button>
+                                <Link
+                                    href={`/lich-su/${loan.id}`}
+                                    className="mt-md rounded-lg bg-primary px-md py-2 font-body-md text-body-sm text-on-primary transition-all hover:opacity-90"
+                                >
+                                    {UI_TEXT.MY_BOOKS_PAGE.CARD.VIEW_DETAIL}
                                 </Link>
                             </div>
                         ) : (

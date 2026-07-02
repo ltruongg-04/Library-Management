@@ -10,6 +10,12 @@ export const FAVORITE = {
     MATCH_SUFFIX: "% Match",
     VIEW_DETAIL: "Xem chi tiết",
     LOAD_MORE: "Hiển thị thêm",
+    CLEAR_SEARCH: "Xóa tìm kiếm",
+    ALL_CATEGORIES: "Tất cả thể loại",
+    SORT_DEFAULT: "Sắp xếp mặc định",
+    SORT_ASC: "Sắp xếp A-Z",
+    SORT_DESC: "Sắp xếp Z-A",
+    UNCATEGORIZED: "Chưa phân loại",
     EMPTY_STATE: {
         HEADING: "Danh sách yêu thích của bạn đang trống",
         DESC: "Hãy khám phá thư viện và thêm những cuốn sách bạn yêu thích vào danh sách này để dễ dàng theo dõi.",

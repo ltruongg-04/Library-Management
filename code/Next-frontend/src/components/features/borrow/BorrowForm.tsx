@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { Book } from "@/types/book";
@@ -32,17 +31,8 @@ export default function BorrowForm({ book, pickupDate, setPickupDate, returnDate
         : minPickupDate;
 
     return (
-        <div className="flex-grow space-y-6">
-            <div className="mb-6">
-                <Link href={`/sach/${book.id}`} className="mb-4 flex items-center gap-1 text-primary-700 hover:underline dark:text-primary-300">
-                    <MaterialIcon name="arrow_back" />
-                    <span className="font-title-md text-title-md">{BORROW.BACK_TO_CATALOG}</span>
-                </Link>
-                <h1 className="font-display-lg text-display-lg text-primary-700 dark:text-primary-300">{BORROW.TITLE}</h1>
-                <p className="mt-2 font-body-md text-on-surface-variant dark:text-slate-300">{BORROW.SUBTITLE}</p>
-            </div>
-
-            <form className="space-y-6 rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-slate-700 dark:bg-slate-900">
+        <div className="flex h-full flex-col">
+            <form className="flex h-full flex-col space-y-6 rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-slate-700 dark:bg-slate-900">
                 {/* Book Information (Read Only) */}
                 <div className="space-y-1">
                     <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">{BORROW.FORM.SELECTED_TITLE}</label>

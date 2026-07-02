@@ -1,5 +1,16 @@
 export const MOCK_LOANS = [
     {
+        id: "RES-9045",
+        title: "Sapiens: Lược sử loài người",
+        author: "Yuval Noah Harari",
+        borrowDate: "02/07/2026",
+        dueDate: "09/07/2026",
+        actualReturnDate: null as string | null,
+        deposit: "200.000đ",
+        status: "pending" as const,
+        imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuDsfOcBpJJgQyJoSUCYejX7lohGTGUFjq7ZkL_tD7HdiMvYPfWkgXqdTHAvBuX0mKVSIASXedLUTe9Lz7wQ5omHp3_pRpFb6l-y-9FaV6Nz029PFWA7DMbdPKE2rMkn1jXs4gSZt6qUyIYI8Ct9JMzha-tzBvHJfODPtWxWPBLsAkQsJhGB6qRRHbbOi4CIfsEZHY3DBRvlmIdtICflVqffE44Fg4H79A5iO4m6OQ9hxKIp7litWF3Rpbwqz55cVhAfCn6U2aTfOH4S",
+    },
+    {
         id: "BRW-9042",
         title: "AI & Tương lai nhân loại",
         author: "Dr. Nguyễn Văn A",
