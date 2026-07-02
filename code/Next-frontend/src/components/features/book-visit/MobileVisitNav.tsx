@@ -1,4 +1,4 @@
-import { BookOpen, CalendarDays, MapPin } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { UI_TEXT } from "@/constants/ui-text";
 
@@ -7,14 +7,10 @@ type MobileVisitNavProps = {
 };
 
 export function MobileVisitNav({ currentPath }: MobileVisitNavProps) {
-    const items = [
-        { name: UI_TEXT.BOOK_VISIT.SIDEBAR.MENU.BOOK_VISIT, href: currentPath || "/", icon: CalendarDays },
-        { name: UI_TEXT.BOOK_VISIT.SIDEBAR.MENU.RESOURCES, href: "/sach", icon: BookOpen },
-        { name: UI_TEXT.BOOK_VISIT.SIDEBAR.MENU.CONTACT, href: "/lien-he", icon: MapPin },
-    ];
+    const items = [{ name: UI_TEXT.BOOK_VISIT.SIDEBAR.MENU.BOOK_VISIT, href: currentPath || "/", icon: CalendarDays }];
 
     return (
-        <nav className="mb-6 grid grid-cols-3 gap-2 md:hidden">
+        <nav className="mb-6 grid grid-cols-1 gap-2 md:hidden">
             {items.map((item, index) => {
                 const Icon = item.icon;
                 const isActive = index === 0;

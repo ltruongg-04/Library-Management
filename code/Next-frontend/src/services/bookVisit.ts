@@ -8,7 +8,7 @@ export async function submitBookVisit(payload: BookVisitSubmitPayload): Promise<
             body: JSON.stringify(payload),
         });
 
-        if (response.status === 503) return "warning";
+        if (response.status >= 500) return "warning";
 
         return response.ok ? "success" : "error";
     } catch {

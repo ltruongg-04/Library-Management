@@ -1,14 +1,16 @@
 type BuildBookVisitEmailHtmlParams = {
     fullName: string;
     bookTitle: string;
+    confirmationCode: string;
     visitDate: string;
     visitTime: string;
     phone?: string;
 };
 
-export function buildBookVisitEmailHtml({ fullName, bookTitle, visitDate, visitTime, phone }: BuildBookVisitEmailHtmlParams) {
+export function buildBookVisitEmailHtml({ fullName, bookTitle, confirmationCode, visitDate, visitTime, phone }: BuildBookVisitEmailHtmlParams) {
     const safeFullName = escapeHtml(fullName);
     const safeBookTitle = escapeHtml(bookTitle);
+    const safeConfirmationCode = escapeHtml(confirmationCode);
     const safeVisitDate = escapeHtml(visitDate);
     const safeVisitTime = escapeHtml(visitTime);
     const safePhone = escapeHtml(phone || "");
@@ -20,6 +22,7 @@ export function buildBookVisitEmailHtml({ fullName, bookTitle, visitDate, visitT
             <p>Lịch đọc sách tại thư viện của bạn đã được ghi nhận.</p>
             <table style="border-collapse: collapse; margin-top: 16px;">
                 <tr><td style="padding: 6px 12px; font-weight: 600;">Sách</td><td style="padding: 6px 12px;">${safeBookTitle}</td></tr>
+                <tr><td style="padding: 6px 12px; font-weight: 600;">Mã xác nhận</td><td style="padding: 6px 12px; font-weight: 700; color: #15157d;">${safeConfirmationCode}</td></tr>
                 <tr><td style="padding: 6px 12px; font-weight: 600;">Ngày đến</td><td style="padding: 6px 12px;">${safeVisitDate}</td></tr>
                 <tr><td style="padding: 6px 12px; font-weight: 600;">Giờ đến</td><td style="padding: 6px 12px;">${safeVisitTime}</td></tr>
                 ${safePhone ? `<tr><td style="padding: 6px 12px; font-weight: 600;">Số điện thoại</td><td style="padding: 6px 12px;">${safePhone}</td></tr>` : ""}

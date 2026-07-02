@@ -1,4 +1,4 @@
-import { BookOpen, CalendarDays, Clock3, LogIn, MapPin } from "lucide-react";
+import { CalendarDays, LogIn } from "lucide-react";
 import Link from "next/link";
 import { UI_TEXT } from "@/constants/ui-text";
 
@@ -8,12 +8,7 @@ type BookVisitSidebarProps = {
 };
 
 export function BookVisitSidebar({ currentPath, isAuthenticated }: BookVisitSidebarProps) {
-    const navItems = [
-        { name: UI_TEXT.BOOK_VISIT.SIDEBAR.MENU.BOOK_VISIT, href: currentPath || "/", icon: CalendarDays, active: true },
-        { name: UI_TEXT.BOOK_VISIT.SIDEBAR.MENU.RESOURCES, href: "/sach", icon: BookOpen, active: false },
-        { name: UI_TEXT.BOOK_VISIT.SIDEBAR.MENU.HOURS, href: "/lien-he", icon: Clock3, active: false },
-        { name: UI_TEXT.BOOK_VISIT.SIDEBAR.MENU.CONTACT, href: "/lien-he", icon: MapPin, active: false },
-    ];
+    const navItems = [{ name: UI_TEXT.BOOK_VISIT.SIDEBAR.MENU.BOOK_VISIT, href: currentPath || "/", icon: CalendarDays, active: true }];
 
     return (
         <aside className="hidden w-sidebar-width shrink-0 bg-surface-container-low text-on-surface transition-colors duration-200 dark:bg-black dark:text-white md:flex">
