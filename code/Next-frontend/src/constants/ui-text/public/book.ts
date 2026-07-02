@@ -1,0 +1,45 @@
+export const BOOK_LIST = {
+    BREADCRUMB_HOME: "Trang chủ",
+    BREADCRUMB_LIST: "Danh sách sách",
+    HERO_HEADING: "Khám phá Tri thức",
+    HERO_SUBHEADING: "Tìm kiếm, khám phá và đắm chìm trong thế giới sách đa dạng của chúng tôi. Hàng ngàn đầu sách đang chờ bạn.",
+    SEARCH_PLACEHOLDER: "Tìm kiếm theo tên sách, tác giả...",
+    SIDEBAR_CATEGORY: "Danh mục",
+    SIDEBAR_FILTER: "Lọc theo",
+    SORT_LABEL: "Sắp xếp",
+    SORT_OPTIONS: {
+        NEWEST: "Mới nhất",
+        TOP_RATED: "Đánh giá cao nhất",
+        POPULAR: "Phổ biến nhất",
+    },
+    RESULTS_COUNT_PRE: "Hiển thị",
+    RESULTS_COUNT_POST: "kết quả",
+    RESULTS_FOR: "cho",
+    IMAGE_ALT: "Bìa sách:",
+    NO_RESULTS_HEADING: "Không tìm thấy sách nào",
+    NO_RESULTS_DESC: "Hãy thử thay đổi tiêu chí tìm kiếm hoặc danh mục để xem thêm kết quả.",
+    CLEAR_FILTER_BTN: "Xóa bộ lọc",
+    CATEGORIES: {
+        ALL: "Tất cả",
+        SCIENCE: "Khoa học & Công nghệ",
+        FICTION: "Tiểu thuyết",
+        HISTORY: "Lịch sử",
+        DESIGN: "Thiết kế & Nghệ thuật",
+        BUSINESS: "Kinh doanh",
+    },
+};
+
+export const BOOK_DETAIL = {
+    RELATED_BOOKS_HEADING: "Related Titles",
+    VIEW_ALL: "View all",
+    REVIEWS: "Reviews",
+    BY: "By",
+    TAGS_CATEGORIES: "Tags & Categories",
+    MATCH_SCORE_SUFFIX: "% Match",
+    BORROW_NOW: "Borrow Now",
+    ADD_WISHLIST: "Add to Wishlist",
+    AI_CHATBOT: {
+        TITLE: "Lumina AI",
+        SUBTITLE: "Book Summary & Reading Path",
+    },
+};

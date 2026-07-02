@@ -1,0 +1,32 @@
+export const HOME = {
+    HERO_HEADING: "TÌM KIẾM TRI THỨC CÙNG AI",
+    HERO_SUBHEADING: "Tìm kiếm những cuốn sách yêu thích của bạn dễ dàng hơn với công nghệ AI.",
+    SEARCH_PLACEHOLDER: "Tìm kiếm sách...",
+    SEARCH_BTN: "Tìm kiếm với AI",
+    CURATED_HEADING: "Dành cho bạn",
+    CURATED_SUBHEADING: "Đề xuất dựa trên sở thích đọc sách của bạn.",
+    MATCH_SUFFIX: "% phù hợp.",
+    EXPLORE_COLLECTION: "Khám phá bộ sưu tập",
+    TRENDING_HEADING: "Đang thịnh hành",
+    TRENDING_SUBHEADING: "Xu hướng hiện tại.",
+    VIEW_ALL: "Xem tất cả",
+    CATEGORIES: {
+        SCIENCE: "Khoa học",
+        NOVEL: "Tiểu thuyết",
+        HISTORY: "Lịch sử",
+        DESIGN: "Thiết kế",
+    },
+    BADGES: {
+        TRENDING_1: "#1 Thịnh hành",
+    },
+    CURATED_SECTION: {
+        DEEP_DIVE: "Deep Dive",
+        PHILOSOPHY_AI: "The Philosophy of Artificial Intelligence",
+        PHILOSOPHY_AI_DESC: "A comprehensive collection exploring the ethical and societal implications of thinking machines.",
+        HARD_SCIFI: "Hard Sci-Fi Essentials",
+        HARD_SCIFI_DESC: "Highly technical speculative fiction based on your recent searches.",
+        BOOKS_12: "12 Books",
+        WORLD_BUILDING: "World Building Masterclass",
+        WORLD_BUILDING_DESC: "Because you read 'Dune' and 'Foundation'.",
+    },
+};
