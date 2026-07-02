@@ -42,6 +42,7 @@ export const BOOK_DETAIL = {
     RESERVE_ERROR: "Có lỗi xảy ra khi đặt giữ chỗ",
     ADD_WISHLIST: "Add to Wishlist",
     REMOVE_WISHLIST: "Remove from Wishlist",
+    READ_AT_LIBRARY: "Đọc sách tại thư viện",
     AI_CHATBOT: {
         TITLE: "Lumina AI",
         SUBTITLE: "Book Summary & Reading Path",

@@ -7,3 +7,4 @@ export * from "./my-books";
 export * from "./borrow";
 export * from "./notifications";
 export * from "./favorite";
+export * from "./book-visit";

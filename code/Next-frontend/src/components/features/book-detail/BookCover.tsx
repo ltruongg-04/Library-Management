@@ -186,6 +186,14 @@ export default function BookCover({ book }: BookCoverProps) {
                     <MaterialIcon name={isFavorite ? "bookmark_added" : "bookmark_add"} />
                     {isFavorite ? UI_TEXT.BOOK_DETAIL.REMOVE_WISHLIST : UI_TEXT.BOOK_DETAIL.ADD_WISHLIST}
                 </button>
+                <button
+                    type="button"
+                    onClick={() => router.push(`/sach/${book.id}/doc-tai-thu-vien`)}
+                    className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-secondary bg-transparent px-4 py-2 font-label-caps text-label-caps text-secondary transition-colors duration-200 hover:bg-secondary/10 active:scale-95 dark:border-white dark:text-white dark:hover:bg-white/10"
+                >
+                    <MaterialIcon name="local_library" />
+                    {UI_TEXT.BOOK_DETAIL.READ_AT_LIBRARY}
+                </button>
             </div>
         </div>
     );
