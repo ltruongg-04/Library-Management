@@ -1,4 +1,31 @@
-export const MOCK_LOANS = [
+export type LoanStatus = "pending" | "borrowing" | "overdue" | "returned" | "cancelled";
+
+export type Loan = {
+    id: string;
+    title: string;
+    author: string;
+    borrowDate: string;
+    dueDate: string;
+    actualReturnDate: string | null;
+    deposit: string;
+    status: LoanStatus;
+    imgSrc: string;
+    lateFee?: string;
+    depositReturn?: string;
+};
+
+export const MOCK_LOANS: Loan[] = [
+    {
+        id: "RES-9045",
+        title: "Sapiens: Lược sử loài người",
+        author: "Yuval Noah Harari",
+        borrowDate: "02/07/2026",
+        dueDate: "09/07/2026",
+        actualReturnDate: null as string | null,
+        deposit: "200.000đ",
+        status: "pending" as const,
+        imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuDsfOcBpJJgQyJoSUCYejX7lohGTGUFjq7ZkL_tD7HdiMvYPfWkgXqdTHAvBuX0mKVSIASXedLUTe9Lz7wQ5omHp3_pRpFb6l-y-9FaV6Nz029PFWA7DMbdPKE2rMkn1jXs4gSZt6qUyIYI8Ct9JMzha-tzBvHJfODPtWxWPBLsAkQsJhGB6qRRHbbOi4CIfsEZHY3DBRvlmIdtICflVqffE44Fg4H79A5iO4m6OQ9hxKIp7litWF3Rpbwqz55cVhAfCn6U2aTfOH4S",
+    },
     {
         id: "BRW-9042",
         title: "AI & Tương lai nhân loại",
@@ -29,6 +56,7 @@ export const MOCK_LOANS = [
         borrowDate: "10/04/2024",
         dueDate: "24/04/2024",
         actualReturnDate: "22/04/2024",
+        deposit: "200.000đ",
         depositReturn: "Đã hoàn (200.000đ)",
         status: "returned" as const,
         imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuCIJL9XO_994a2i10hkM-rzi-XNmAEJDwzK9Itt8Bb9u_NXic5gMtHVrUGHvsnJ8qhtvsgS-ckV5bo_xrY3y1tQXRo0zoRhOxYiAqAKFy1BkUVKCTwC1nyeVMwMHoBhzf1726LJemSi2YoUiDlP6RdWoOnTGoVycfG-xqTAnzrzvBMXVGPe5LfiXQDvdO8b1xW4KMVlXhMMe_Fn2NXRt9LDsYJw6AJl7-h0jUWIAeCAzI3XQ6mre-U8hhDnd7uaSr8-xAKi42Ud534M",
