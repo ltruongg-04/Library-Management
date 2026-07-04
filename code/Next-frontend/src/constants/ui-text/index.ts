@@ -12,9 +12,7 @@ import {
 } from "./admin";
 import { AUTH } from "./auth";
 import { COMMON, MAINTENANCE } from "./common";
-import { ABOUT, BOOK_DETAIL, BOOK_LIST, BOOK_VISIT, CONTACT, HOME, MY_BOOKS_PAGE, PUBLIC_LAYOUT, RENEW_PAGE } from "./public";
-import { BORROW } from "./public/borrow";
-import { NOTIFICATIONS } from "./public/notifications";
+import { ABOUT, BOOK_DETAIL, BOOK_LIST, BOOK_VISIT, BORROW, CONTACT, FAVORITE, HOME, MY_BOOKS_PAGE, NOTIFICATIONS, PUBLIC_LAYOUT, RENEW_PAGE } from "./public";
 import { PROFILE, SETTINGS_HEADER, SETTINGS_NOTIFICATIONS, SETTINGS_SECURITY, SETTINGS_SIDEBAR } from "./settings";
 
 export const UI_TEXT = {
@@ -29,6 +27,7 @@ export const UI_TEXT = {
     HOME,
     ABOUT,
     CONTACT,
+    FAVORITE,
     MY_BOOKS_PAGE,
     RENEW_PAGE,
     BORROW,

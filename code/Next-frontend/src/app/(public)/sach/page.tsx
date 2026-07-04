@@ -9,16 +9,26 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useBooks } from "@/hooks/useBooks";
 
-// Removed static CATEGORIES constant
-const CATEGORY_STYLES: Record<string, string> = {
-    "Khoa học & Công nghệ": "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
-    "Tiểu thuyết": "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
-    "Lịch sử": "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
-    "Thiết kế & Nghệ thuật": "text-tertiary-500 bg-tertiary-500/10 dark:text-white dark:bg-tertiary-500/40",
-    "Kinh doanh": "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
-};
+// Dynamic category palette based on hash
+const CATEGORY_PALETTE = [
+    "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
+    "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
+    "text-tertiary-500 bg-tertiary-500/10 dark:text-white dark:bg-tertiary-500/40",
+    "text-error bg-error/10 dark:text-white dark:bg-error/40",
+    "text-green-600 bg-green-600/10 dark:text-white dark:bg-green-600/40",
+    "text-blue-500 bg-blue-500/10 dark:text-white dark:bg-blue-500/40",
+];
 
-const DEFAULT_CATEGORY_STYLE = "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40";
+const DEFAULT_CATEGORY_STYLE = CATEGORY_PALETTE[0];
+
+const getCategoryStyle = (categoryName?: string) => {
+    if (!categoryName) return DEFAULT_CATEGORY_STYLE;
+    let hash = 0;
+    for (let i = 0; i < categoryName.length; i++) {
+        hash = categoryName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return CATEGORY_PALETTE[Math.abs(hash) % CATEGORY_PALETTE.length];
+};
 
 export default function BookListPage() {
     const { books, loading, error, page, totalPages, totalElements, setPage, setKeyword, setCategory, clearFilters } = useBooks({ size: 12 });
@@ -216,7 +226,7 @@ export default function BookListPage() {
                                         </p>
                                         <div className="mt-auto flex items-center justify-between">
                                             <span
-                                                className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES[book.categories?.[0]?.name] || DEFAULT_CATEGORY_STYLE} max-w-[120px] truncate rounded px-2 py-1`}
+                                                className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${getCategoryStyle(book.categories?.[0]?.name)} max-w-[120px] truncate rounded px-2 py-1`}
                                                 title={book.categories?.[0]?.name}
                                             >
                                                 {book.categories?.[0]?.name || "—"}

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Edit2, Feather, Loader2, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { ADMIN, ADMIN_AUTHOR_MANAGEMENT } from "@/constants/ui-text/admin";
 import { authorService } from "@/services/author";
@@ -67,7 +68,7 @@ export default function AuthorTable() {
             fetchAuthors();
             setDeleteAuthorId(null);
         } catch (err: any) {
-            alert(err.message || "Lỗi khi xoá tác giả");
+            toast.error(err.message || "Lỗi khi xoá tác giả");
         } finally {
             setIsDeleting(false);
         }

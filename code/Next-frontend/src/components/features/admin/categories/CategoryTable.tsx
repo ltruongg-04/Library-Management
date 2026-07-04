@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Edit2, Loader2, Plus, Tags, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { ADMIN_CATEGORY_MANAGEMENT } from "@/constants/ui-text/admin";
 import { categoryService } from "@/services/category";
@@ -67,7 +68,7 @@ export default function CategoryTable() {
             fetchCategories();
             setDeleteCategoryId(null);
         } catch (err: any) {
-            alert(err.message || "Lỗi khi xoá thể loại");
+            toast.error(err.message || "Lỗi khi xoá thể loại");
         } finally {
             setIsDeleting(false);
         }

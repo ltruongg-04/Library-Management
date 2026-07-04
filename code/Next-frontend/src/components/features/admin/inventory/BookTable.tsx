@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Book, ChevronLeft, ChevronRight, Library, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { ADMIN_INVENTORY_MANAGEMENT } from "@/constants/ui-text/admin";
 import { bookService } from "@/services/book";
@@ -139,7 +140,7 @@ const TableRow = ({ book, onEdit, onManageCopies }: TableRowProps) => {
                                 <button
                                     onClick={() => {
                                         setIsMenuOpen(false);
-                                        alert("Chức năng xóa sách đang phát triển");
+                                        toast.info("Chức năng xóa sách đang phát triển");
                                     }}
                                     className="group flex w-full items-center gap-2 px-4 py-2 text-sm text-error transition-colors hover:bg-error-50"
                                 >
