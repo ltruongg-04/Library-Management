@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import UserFilters from "@/components/features/admin/member/UserFilters";
 import UserManagementHeader from "@/components/features/admin/member/UserManagementHeader";
@@ -46,7 +47,7 @@ export default function UserManagementPage() {
             fetchUsers();
         } catch (error) {
             console.error("Failed to update status:", error);
-            alert("Cập nhật trạng thái thất bại. Vui lòng thử lại!");
+            toast.error("Cập nhật trạng thái thất bại. Vui lòng thử lại!");
         }
     };
 

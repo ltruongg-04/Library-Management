@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ClipboardList, Plus } from "lucide-react";
+import { toast } from "sonner";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import BorrowDetailModal from "@/components/features/admin/borrow/BorrowDetailModal";
 import BorrowFilters from "@/components/features/admin/borrow/BorrowFilters";
@@ -85,7 +86,7 @@ export default function LuotMuonPage() {
             setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus as any } : r)));
         } catch (error) {
             console.error("Lỗi khi cập nhật trạng thái:", error);
-            alert("Cập nhật trạng thái thất bại. Vui lòng thử lại!");
+            toast.error("Cập nhật trạng thái thất bại. Vui lòng thử lại!");
         }
     };
 

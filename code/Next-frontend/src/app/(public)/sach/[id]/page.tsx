@@ -83,18 +83,16 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                 </div>
 
                 {/* Middle Column: Metadata & Details */}
-                <div className="col-span-1 md:col-span-8 lg:col-span-6">
+                <div className="col-span-1 md:col-span-8 lg:col-span-9">
                     <BookInfo book={bookDetail} />
-                </div>
-
-                {/* Right Column: AI Chatbot */}
-                <div className="col-span-1 md:col-span-12 lg:col-span-3">
-                    <AIChatbot bookTitle={book.title} />
                 </div>
             </div>
 
             {/* Related Books Section */}
             {relatedBooks.length > 0 && <RelatedBooks books={relatedBooks} />}
+
+            {/* AI Chatbot Floating Widget */}
+            <AIChatbot bookTitle={book.title} />
         </div>
     );
 }
