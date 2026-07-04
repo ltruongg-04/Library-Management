@@ -31,8 +31,8 @@ public class VnPayServiceImpl implements VnPayService {
     private final VnPayConfig vnPayConfig;
 
     @Override
-    public String createPaymentUrl(Integer borrowOrderId, String orderCode, BigDecimal amount, String ipAddress) {
-        log.info("Creating VNPay payment URL for borrowOrderId={}, orderCode={}, amount={}", borrowOrderId, orderCode, amount);
+    public String createPaymentUrl(String txnRef, String orderInfo, BigDecimal amount, String ipAddress) {
+        log.info("Creating VNPay payment URL for txnRef={}, amount={}", txnRef, amount);
 
         // VNPay requires amount in VND * 100 (no decimals)
         long vnpAmount = amount.longValue() * VND_MULTIPLIER;
@@ -49,8 +49,8 @@ public class VnPayServiceImpl implements VnPayService {
         vnpParams.put("vnp_TmnCode", vnPayConfig.getTmnCode());
         vnpParams.put("vnp_Amount", String.valueOf(vnpAmount));
         vnpParams.put("vnp_CurrCode", "VND");
-        vnpParams.put("vnp_TxnRef", orderCode);
-        vnpParams.put("vnp_OrderInfo", "Thanh toan dat coc muon sach " + orderCode);
+        vnpParams.put("vnp_TxnRef", txnRef);
+        vnpParams.put("vnp_OrderInfo", orderInfo);
         vnpParams.put("vnp_OrderType", vnPayConfig.getOrderType());
         vnpParams.put("vnp_Locale", "vn");
         vnpParams.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
@@ -62,7 +62,7 @@ public class VnPayServiceImpl implements VnPayService {
         String queryString = VnPayUtil.buildQueryString(vnpParams, vnPayConfig.getHashSecret());
         String paymentUrl = vnPayConfig.getPayUrl() + "?" + queryString;
 
-        log.info("VNPay payment URL created successfully for orderCode={}", orderCode);
+        log.info("VNPay payment URL created successfully for txnRef={}", txnRef);
         return paymentUrl;
     }
 

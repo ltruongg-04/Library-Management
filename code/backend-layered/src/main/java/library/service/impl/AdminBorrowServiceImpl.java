@@ -24,11 +24,18 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     private final BorrowOrderDetailRepository borrowOrderDetailRepository;
     private final library.repository.CustomerRepository customerRepository;
     private final library.repository.BookCopyRepository bookCopyRepository;
+    private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
+    private final library.repository.PaymentRepository paymentRepository;
 
     @Override
     @Transactional(readOnly = true)
     public List<AdminBorrowOrderDto> getAllBorrowOrders() {
         List<BorrowOrderEntity> orders = borrowOrderRepository.findAll();
+        orders.sort((o1, o2) -> {
+            if (o1.getCreatedAt() == null) return 1;
+            if (o2.getCreatedAt() == null) return -1;
+            return o2.getCreatedAt().compareTo(o1.getCreatedAt());
+        });
 
         return orders.stream().map(order -> {
             List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
@@ -96,6 +103,23 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
             order.setBorrowDate(LocalDate.now()); // Confirm pickup
         }
 
+        if (newStatus == BorrowOrderStatus.RETURNED) {
+            order.setActualReturnDate(LocalDate.now()); // Confirm return date
+            
+            // Solidify penalty if overdue
+            if (order.getDueDate() != null && LocalDate.now().isAfter(order.getDueDate())) {
+                long overdueDays = java.time.temporal.ChronoUnit.DAYS.between(order.getDueDate(), LocalDate.now());
+                if (overdueDays > 0) {
+                    java.math.BigDecimal penaltyPerDay = new java.math.BigDecimal("10000");
+                    java.math.BigDecimal overdueFee = penaltyPerDay.multiply(new java.math.BigDecimal(overdueDays));
+                    
+                    java.math.BigDecimal currentTotalFee = order.getTotalFee() != null ? order.getTotalFee() : (order.getSubtotalFee() != null ? order.getSubtotalFee() : java.math.BigDecimal.ZERO);
+                    
+                    order.setTotalFee(currentTotalFee.add(overdueFee));
+                }
+            }
+        }
+
         if (newStatus == BorrowOrderStatus.RETURNED || newStatus == BorrowOrderStatus.CANCELLED) {
             List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
             for (BorrowOrderDetailEntity detail : details) {
@@ -153,6 +177,22 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                     .build();
         }).collect(Collectors.toList());
 
+        java.math.BigDecimal totalPaidOnline = java.math.BigDecimal.ZERO;
+        List<library.entity.PaymentEntity> successfulPayments = paymentRepository.findByBorrowOrderIdAndPaymentStatus(order.getId(), library.entity.PaymentStatus.SUCCESS);
+        for (library.entity.PaymentEntity p : successfulPayments) {
+            // We only deduct RENTAL_FEE (which includes old rental + fines) from the total fee
+            // (DEPOSIT is handled separately in totalDeposit)
+            if (p.getPaymentType() == library.entity.PaymentType.RENTAL_FEE || p.getPaymentType() == library.entity.PaymentType.FINE) {
+                totalPaidOnline = totalPaidOnline.add(p.getAmount());
+            }
+        }
+
+        java.math.BigDecimal currentTotal = order.getTotalFee() != null ? order.getTotalFee() : (order.getSubtotalFee() != null ? order.getSubtotalFee() : java.math.BigDecimal.ZERO);
+        java.math.BigDecimal actualAmountToPay = currentTotal.subtract(totalPaidOnline);
+        if (actualAmountToPay.compareTo(java.math.BigDecimal.ZERO) < 0) {
+            actualAmountToPay = java.math.BigDecimal.ZERO;
+        }
+
         return library.dto.admin.AdminBorrowOrderDetailDto.builder()
                 .orderCode(order.getOrderCode())
                 .borrowDate(order.getBorrowDate())
@@ -163,6 +203,8 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                 .discountAmount(order.getDiscountAmount())
                 .totalFee(order.getTotalFee())
                 .totalDeposit(order.getTotalDeposit())
+                .totalPaidOnline(totalPaidOnline)
+                .actualAmountToPay(actualAmountToPay)
                 .customerName(order.getCustomer() != null ? order.getCustomer().getFullName() : "Unknown")
                 .customerCode(order.getCustomer() != null
                         ? (order.getCustomer().getLibraryCardNo() != null ? order.getCustomer().getLibraryCardNo()
@@ -276,5 +318,66 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                 .status(savedOrder.getStatus())
                 .overdayCount(null)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void processRenewal(String orderCode, library.dto.admin.AdminRenewalRequestDto request) {
+        BorrowOrderEntity order = borrowOrderRepository.findByOrderCode(orderCode)
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Borrow order not found",
+                        org.springframework.http.HttpStatus.NOT_FOUND));
+
+        // Bỏ check PENDING_RENEWAL ở đây, chỉ cần có BorrowExtensionEntity trạng thái PENDING là đủ để duyệt gia hạn.
+
+        library.entity.BorrowExtensionEntity extension = borrowExtensionRepository
+                .findFirstByBorrowOrderIdAndStatusOrderByRequestedAtDesc(order.getId(), library.entity.BorrowExtensionStatus.PENDING)
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy yêu cầu gia hạn đang chờ xử lý",
+                        org.springframework.http.HttpStatus.NOT_FOUND));
+
+        if (request.isApproved()) {
+            extension.setStatus(library.entity.BorrowExtensionStatus.APPROVED);
+            
+            // Calculate penalty if they were overdue when requested
+            LocalDate requestedDate = extension.getRequestedAt().toLocalDate();
+            LocalDate oldDueDate = order.getDueDate();
+            if (oldDueDate != null && requestedDate.isAfter(oldDueDate)) {
+                long overdueDays = java.time.temporal.ChronoUnit.DAYS.between(oldDueDate, requestedDate);
+                if (overdueDays > 0) {
+                    java.math.BigDecimal penaltyPerDay = new java.math.BigDecimal("10000");
+                    java.math.BigDecimal overdueFee = penaltyPerDay.multiply(new java.math.BigDecimal(overdueDays));
+                    
+                    java.math.BigDecimal currentTotalFee = order.getTotalFee() != null ? order.getTotalFee() : (order.getSubtotalFee() != null ? order.getSubtotalFee() : java.math.BigDecimal.ZERO);
+                    order.setTotalFee(currentTotalFee.add(overdueFee));
+                }
+            }
+            
+            // Calculate extension fee
+            LocalDate baseDate = oldDueDate;
+            if (baseDate == null || baseDate.isBefore(requestedDate)) {
+                baseDate = requestedDate;
+            }
+            long extensionDays = java.time.temporal.ChronoUnit.DAYS.between(baseDate, extension.getRequestedDueDate());
+            if (extensionDays > 0) {
+                java.math.BigDecimal extensionFee = new java.math.BigDecimal("5000").multiply(new java.math.BigDecimal(extensionDays));
+                java.math.BigDecimal currentSubtotal = order.getSubtotalFee() != null ? order.getSubtotalFee() : java.math.BigDecimal.ZERO;
+                java.math.BigDecimal currentTotalFee = order.getTotalFee() != null ? order.getTotalFee() : java.math.BigDecimal.ZERO;
+                order.setSubtotalFee(currentSubtotal.add(extensionFee));
+                order.setTotalFee(currentTotalFee.add(extensionFee));
+            }
+
+            order.setDueDate(extension.getRequestedDueDate());
+            order.setStatus(BorrowOrderStatus.BORROWED);
+        } else {
+            extension.setStatus(library.entity.BorrowExtensionStatus.REJECTED);
+            // Revert status
+            if (order.getDueDate() != null && order.getDueDate().isBefore(LocalDate.now())) {
+                order.setStatus(BorrowOrderStatus.OVERDUE);
+            } else {
+                order.setStatus(BorrowOrderStatus.BORROWED);
+            }
+        }
+
+        borrowExtensionRepository.save(extension);
+        borrowOrderRepository.save(order);
     }
 }

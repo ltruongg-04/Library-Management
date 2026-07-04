@@ -26,7 +26,7 @@ export const getAdminBorrowOrders = async (): Promise<ApiResponse<AdminBorrowRes
 
 export const updateAdminBorrowStatus = async (orderCode: string, status: string): Promise<ApiResponse<void>> => {
     const response = await axiosInstance.put<ApiResponse<void>>(`/api/admin/borrows/${orderCode}/status`, null, {
-        params: { status }
+        params: { status },
     });
     return response.data;
 };
@@ -72,5 +72,10 @@ export interface AdminCreateBorrowOrderRequest {
 
 export const createAdminBorrowOrder = async (request: AdminCreateBorrowOrderRequest): Promise<ApiResponse<AdminBorrowResponse>> => {
     const response = await axiosInstance.post<ApiResponse<AdminBorrowResponse>>("/api/admin/borrows", request);
+    return response.data;
+};
+
+export const processRenewal = async (orderCode: string, approved: boolean): Promise<ApiResponse<void>> => {
+    const response = await axiosInstance.put<ApiResponse<void>>(`/api/admin/borrows/${orderCode}/renew`, { approved });
     return response.data;
 };

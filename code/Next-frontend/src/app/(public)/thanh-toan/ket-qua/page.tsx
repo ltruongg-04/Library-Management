@@ -9,10 +9,14 @@ function VnPayResultContent() {
     const searchParams = useSearchParams();
     const status = searchParams?.get("status") === "success" ? "success" : "failed";
     const orderCode = searchParams?.get("orderCode") || null;
+    const amount = searchParams?.get("amount") || null;
+    const txnNo = searchParams?.get("txnNo") || null;
+    const payDate = searchParams?.get("payDate") || null;
+    const orderInfo = searchParams?.get("orderInfo") || null;
 
     return (
         <main className="mx-auto flex w-full max-w-container-max justify-center px-6 py-12">
-            <VnPayResult status={status} orderCode={orderCode} />
+            <VnPayResult status={status} orderCode={orderCode} amount={amount} txnNo={txnNo} payDate={payDate} orderInfo={orderInfo} />
         </main>
     );
 }

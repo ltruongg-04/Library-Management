@@ -15,7 +15,7 @@ function MyBooksContent() {
     const searchParams = useSearchParams();
     const { isAuthenticated } = useAuth();
 
-    const initialLimit = parseInt(searchParams.get("limit") || "12", 10);
+    const initialLimit = parseInt(searchParams?.get("limit") || "12", 10);
     const [limit, setLimit] = useState(initialLimit);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -33,7 +33,7 @@ function MyBooksContent() {
         const newLimit = limit + 12;
         setLimit(newLimit);
 
-        const params = new URLSearchParams(searchParams.toString());
+        const params = new URLSearchParams(searchParams?.toString() || "");
         params.set("limit", newLimit.toString());
         router.replace(`?${params.toString()}`, { scroll: false });
     };

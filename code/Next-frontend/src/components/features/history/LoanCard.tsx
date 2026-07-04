@@ -22,11 +22,6 @@ const formatDate = (dateStr: string | null): string => {
     }
 };
 
-const formatDeposit = (amount: number | null | undefined): string => {
-    if (amount == null) return DASH;
-    return `${amount.toLocaleString("vi-VN")}đ`;
-};
-
 const mapStatus = (status: string): string => {
     const map: Record<string, string> = {
         PENDING: "pending",
@@ -64,9 +59,15 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                                         ? "bg-secondary-container/20 text-secondary dark:bg-slate-800 dark:text-secondary-300"
                                         : displayStatus === "overdue"
                                           ? "bg-error-container/30 text-error dark:bg-slate-800 dark:text-error-300"
-                                          : displayStatus === "pending"
+                                          : loan.status === "pending"
                                             ? "bg-primary-container/30 text-primary dark:bg-slate-800 dark:text-primary-300"
-                                            : "bg-surface-container-high text-on-surface-variant dark:bg-slate-800 dark:text-slate-200"
+                                            : loan.status === "pending_renewal"
+                                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                              : loan.status === "ready"
+                                                ? "bg-tertiary-container/30 text-tertiary dark:bg-slate-800 dark:text-tertiary-300"
+                                                : loan.status === "cancelled"
+                                                  ? "bg-surface-container-high text-on-surface-variant dark:bg-slate-800 dark:text-slate-400"
+                                                  : "bg-surface-container-high text-on-surface-variant dark:bg-slate-800 dark:text-slate-200"
                                 }`}
                             >
                                 <span
@@ -75,20 +76,30 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                                             ? "bg-secondary dark:bg-secondary-300"
                                             : displayStatus === "overdue"
                                               ? "bg-error dark:bg-error-300"
-                                              : displayStatus === "pending"
+                                              : loan.status === "pending"
                                                 ? "bg-primary dark:bg-primary-300"
-                                                : "bg-outline dark:bg-slate-400"
+                                                : loan.status === "pending_renewal"
+                                                  ? "bg-amber-500 dark:bg-amber-400"
+                                                  : loan.status === "ready"
+                                                    ? "bg-tertiary dark:bg-tertiary-300"
+                                                    : loan.status === "cancelled"
+                                                      ? "bg-outline dark:bg-slate-500"
+                                                      : "bg-outline dark:bg-slate-400"
                                     }`}
                                 ></span>
-                                {displayStatus === "borrowing"
+                                {loan.status === "borrowed"
                                     ? MY_BOOKS_PAGE.CARD.STATUS_BORROWING
                                     : displayStatus === "overdue"
                                       ? MY_BOOKS_PAGE.STATUS_OVERDUE
-                                      : displayStatus === "pending"
-                                        ? "Đang giữ chỗ"
-                                        : displayStatus === "cancelled"
-                                          ? "Đã huỷ"
-                                          : MY_BOOKS_PAGE.CARD.STATUS_RETURNED}
+                                      : loan.status === "pending"
+                                        ? MY_BOOKS_PAGE.CARD.STATUS_PENDING
+                                        : loan.status === "pending_renewal"
+                                          ? MY_BOOKS_PAGE.CARD.STATUS_PENDING_RENEWAL
+                                          : loan.status === "ready"
+                                            ? MY_BOOKS_PAGE.CARD.STATUS_READY
+                                            : loan.status === "cancelled"
+                                              ? MY_BOOKS_PAGE.CARD.STATUS_CANCELLED
+                                              : MY_BOOKS_PAGE.CARD.STATUS_RETURNED}
                             </span>
                         </div>
                         <p className="text-body-sm text-on-surface-variant dark:text-slate-400">
@@ -130,36 +141,47 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                         </div>
                     </div>
                     <div className="mt-md flex flex-col justify-between border-t border-outline-variant/30 pt-md dark:border-slate-700 md:mt-0 md:border-l md:border-t-0 md:pl-lg md:pt-0 md:text-right">
-                        {displayStatus === "overdue" && (
-                            <div className="space-y-xs">
-                                <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{MY_BOOKS_PAGE.CARD.DEPOSIT}</p>
-                                <p className="text-body-sm text-on-surface-variant line-through dark:text-slate-400">{formatDeposit(loan.totalDeposit)}</p>
-                                <p className="mt-2 font-label-caps text-label-caps uppercase text-error dark:text-error-300">
-                                    {MY_BOOKS_PAGE.CARD.LATE_FEE_LABEL}
-                                </p>
-                                <p className="text-body-md font-bold text-error dark:text-error-300">{MY_BOOKS_PAGE.STATUS_OVERDUE}</p>
-                            </div>
-                        )}
-                        {(displayStatus === "borrowing" || displayStatus === "pending" || displayStatus === "cancelled") && (
-                            <div>
-                                <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{MY_BOOKS_PAGE.CARD.DEPOSIT}</p>
-                                <p className={`text-body-md font-bold ${displayStatus === "cancelled" ? "text-outline line-through" : "dark:text-white"}`}>
-                                    {formatDeposit(loan.totalDeposit)}
-                                </p>
-                            </div>
-                        )}
-                        {displayStatus === "returned" && (
-                            <div>
-                                <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">
-                                    {MY_BOOKS_PAGE.CARD.DEPOSIT_RETURN}
-                                </p>
-                                <p className="text-body-md font-bold text-on-surface-variant dark:text-slate-300">
-                                    {`Đã hoàn (${formatDeposit(loan.totalDeposit)})`}
-                                </p>
-                            </div>
-                        )}
+                        {(() => {
+                            const isEverOverdue = loan.status === "overdue";
+                            const formattedDeposit = loan.totalDeposit != null ? `${loan.totalDeposit.toLocaleString("vi-VN")} đ` : DASH;
 
-                        {displayStatus === "overdue" ? (
+                            if (isEverOverdue) {
+                                return (
+                                    <div className="space-y-xs">
+                                        <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">
+                                            {MY_BOOKS_PAGE.CARD.DEPOSIT} {MY_BOOKS_PAGE.CARD.DEPOSIT_FORFEITED}
+                                        </p>
+                                        <p className="text-body-sm text-error line-through dark:text-error-300">{formattedDeposit}</p>
+                                    </div>
+                                );
+                            } else if (
+                                loan.status === "borrowed" ||
+                                loan.status === "pending_renewal" ||
+                                loan.status === "pending" ||
+                                loan.status === "ready"
+                            ) {
+                                return (
+                                    <div>
+                                        <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">
+                                            {MY_BOOKS_PAGE.CARD.DEPOSIT}
+                                        </p>
+                                        <p className="text-body-md font-bold dark:text-white">{formattedDeposit}</p>
+                                    </div>
+                                );
+                            } else if (loan.status === "returned") {
+                                return (
+                                    <div>
+                                        <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">
+                                            {MY_BOOKS_PAGE.CARD.DEPOSIT_RETURN}
+                                        </p>
+                                        <p className="text-body-md font-bold text-on-surface-variant dark:text-slate-300">{formattedDeposit}</p>
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })()}
+
+                        {loan.status === "overdue" || loan.status === "borrowed" ? (
                             <div className="mt-4 flex justify-end gap-2">
                                 <Link
                                     href={`/lich-su/${loan.orderCode}`}
@@ -169,7 +191,7 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                                 </Link>
                                 <Link
                                     href={`/lich-su/${loan.orderCode}/gia-han`}
-                                    className="mt-md rounded-lg bg-error px-md py-2 font-body-md text-body-sm text-on-error transition-all hover:opacity-90"
+                                    className={`mt-md flex items-center justify-center rounded-lg px-md py-2 font-body-md text-body-sm transition-all hover:opacity-90 ${loan.status === "overdue" ? "bg-error text-on-error" : "dark:bg-secondary-400 bg-secondary text-on-secondary dark:text-slate-900"}`}
                                 >
                                     {MY_BOOKS_PAGE.RENEW_NOW}
                                 </Link>

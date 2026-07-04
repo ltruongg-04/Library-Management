@@ -1,7 +1,7 @@
 export const MY_BOOKS_PAGE = {
     TITLE: "Lịch sử mượn sách",
     BREADCRUMB_ACCOUNT: "Tài khoản",
-    STATUS_OVERDUE: "Quá hạn (3 ngày)",
+    STATUS_OVERDUE: "Quá hạn",
     RENEW_NOW: "Gia hạn ngay",
     FILTER: {
         STATUS_LABEL: "Trạng thái",
@@ -10,6 +10,7 @@ export const MY_BOOKS_PAGE = {
         STATUS_RETURNED: "Đã trả",
         STATUS_OVERDUE: "Quá hạn",
         STATUS_PENDING: "Chờ phê duyệt",
+        STATUS_PENDING_RENEWAL: "Chờ duyệt gia hạn",
         STATUS_CANCELLED: "Đã hủy",
         DATE_RANGE_LABEL: "Khoảng thời gian",
         DATE_TO: "đến",
@@ -21,6 +22,7 @@ export const MY_BOOKS_PAGE = {
         DUE_DATE: "Hạn trả dự kiến",
         ACTUAL_RETURN_DATE: "Ngày trả thực tế",
         DEPOSIT: "Tiền đặt cọc",
+        DEPOSIT_FORFEITED: "(MẤT CỌC)",
         LATE_FEE_LABEL: "Tiền phạt phát sinh",
         DEPOSIT_RETURN: "Hoàn trả cọc",
         VIEW_DETAIL: "Xem chi tiết",
@@ -28,6 +30,18 @@ export const MY_BOOKS_PAGE = {
         VIEW_RECEIPT: "Xem biên lai",
         STATUS_BORROWING: "Đang mượn",
         STATUS_RETURNED: "Đã trả",
+        STATUS_PENDING: "Chờ phê duyệt",
+        STATUS_READY: "Chờ đến lấy",
+        STATUS_CANCELLED: "Đã hủy",
+        DETAIL_LOADING: "Đang tải...",
+        DETAIL_NOT_FOUND: "Không tìm thấy thông tin phiếu mượn",
+        BACK_TO_HISTORY: "Quay lại lịch sử",
+        STATUS_OVERDUE: "Quá hạn",
+        STATUS_PENDING_RENEWAL: "Chờ duyệt gia hạn",
+        LIMIT_MODAL_TITLE: "Không thể gia hạn",
+        LIMIT_MODAL_DESC_1: "Cuốn sách",
+        LIMIT_MODAL_DESC_2: "đã được gia hạn tối đa 2 lần. Bạn không thể tiếp tục gia hạn thêm. Vui lòng mang sách đến thư viện để trả đúng hạn.",
+        LIMIT_MODAL_ACKNOWLEDGE: "Đã hiểu",
     },
     EMPTY_STATE: {
         HEADING: "Bạn chưa có lịch sử mượn sách",
@@ -38,6 +52,7 @@ export const MY_BOOKS_PAGE = {
         HEADING: "Không tìm thấy kết quả",
         DESC: "Vui lòng thử thay đổi điều kiện lọc.",
     },
+    PAGINATION_PAGE: "Trang",
 };
 
 export const RENEW_PAGE = {
@@ -45,6 +60,7 @@ export const RENEW_PAGE = {
     BREADCRUMB_ACCOUNT: "Tài khoản",
     BREADCRUMB_HISTORY: "Lịch sử mượn sách",
     BREADCRUMB_RENEW: "Gia hạn sách",
+    BACK_TO_HISTORY: "Quay lại lịch sử",
     OVERDUE_BADGE_PREFIX: "Quá hạn",
     OVERDUE_DAYS_SUFFIX: "ngày",
     AUTHOR_PREFIX: "Tác giả:",
@@ -52,11 +68,11 @@ export const RENEW_PAGE = {
     DUE_DATE: "HẠN TRẢ DỰ KIẾN",
     ACTUAL_RETURN_DATE: "NGÀY TRẢ THỰC TẾ",
     ACTUAL_RETURN_DASH: "—",
-    NOT_FOUND: "Không tìm thấy đơn mượn",
     DETAIL: {
         HEADING: "Chi tiết gia hạn",
         CURRENT_LATE_FEE: "Phí phạt hiện tại:",
-        INITIAL_DEPOSIT: "Tiền đặt cọc ban đầu:",
+        RENTAL_FEE: "Phí mượn sách ban đầu:",
+        UNPAID_RENTAL_FEE: "Tiền mượn cũ (Chưa thanh toán):",
     },
     DURATION: {
         HEADING: "Chọn thời gian gia hạn",
@@ -65,9 +81,12 @@ export const RENEW_PAGE = {
         FEE_SUFFIX: "đ",
     },
     SUMMARY: {
-        TOTAL_NEW_COST: "Tổng chi phí mới:",
-        INITIAL_DEPOSIT_LABEL: "Tiền đặt cọc ban đầu:",
-        TOTAL_LABEL: "Tổng chi phí mới:",
+        TOTAL_NEW_COST: "Tổng thanh toán:",
+        RENTAL_FEE_LABEL: "Phí mượn sách:",
+        LATE_FEE_LABEL: "Phí phạt trễ hạn:",
+        RENEWAL_FEE_LABEL: "Phí gia hạn:",
+        POSTPAID_NOTE: "(Sẽ thu vào lần sau):",
+        TOTAL_LABEL: "Tổng cộng:",
     },
     CONFIRM_BUTTON: "Xác nhận gia hạn",
 };

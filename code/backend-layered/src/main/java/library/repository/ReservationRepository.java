@@ -20,6 +20,8 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
 
     boolean existsByCustomerIdAndBookIdAndStatus(Integer customerId, Integer bookId, ReservationStatus status);
 
+    boolean existsByBookIdAndStatus(Integer bookId, ReservationStatus status);
+
     long countByBookIdAndStatusAndReservationDateBefore(Integer bookId, ReservationStatus status, LocalDateTime date);
 
     Optional<ReservationEntity> findFirstByBookIdAndStatusOrderByReservationDateAsc(Integer bookId, ReservationStatus status);

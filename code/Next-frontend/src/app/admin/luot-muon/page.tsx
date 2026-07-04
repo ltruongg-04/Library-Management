@@ -9,7 +9,7 @@ import BorrowFilters from "@/components/features/admin/borrow/BorrowFilters";
 import BorrowModal from "@/components/features/admin/borrow/BorrowModal";
 import BorrowTable, { type BorrowRecord } from "@/components/features/admin/borrow/BorrowTable";
 import { UI_TEXT } from "@/constants/ui-text";
-import { getAdminBorrowOrders, updateAdminBorrowStatus } from "@/services/adminBorrow";
+import { getAdminBorrowOrders, processRenewal, updateAdminBorrowStatus } from "@/services/adminBorrow";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.HEADER;
 
@@ -90,6 +90,17 @@ export default function LuotMuonPage() {
         }
     };
 
+    const handleRenewal = async (id: string, approved: boolean) => {
+        try {
+            await processRenewal(id, approved);
+            // Refresh records to get updated dates and statuses
+            fetchBorrows();
+        } catch (error) {
+            console.error("Lỗi khi duyệt gia hạn:", error);
+            alert("Xử lý duyệt gia hạn thất bại. Vui lòng thử lại!");
+        }
+    };
+
     const handleViewDetail = (id: string) => {
         setSelectedOrderId(id);
         setDetailModalOpen(true);
@@ -165,7 +176,14 @@ export default function LuotMuonPage() {
                 <BorrowFilters search={search} onSearchChange={setSearch} status={status} onStatusChange={setStatus} onApplyDates={handleApplyDates} />
 
                 {/* Table */}
-                <BorrowTable records={filteredRecords} onStatusUpdate={handleStatusUpdate} onViewDetail={handleViewDetail} loading={isLoading} error={error} />
+                <BorrowTable
+                    records={filteredRecords}
+                    onStatusUpdate={handleStatusUpdate}
+                    onViewDetail={handleViewDetail}
+                    onRenewalUpdate={handleRenewal}
+                    loading={isLoading}
+                    error={error}
+                />
 
                 <BorrowModal open={openModal} onClose={() => setOpenModal(false)} onSubmitSuccess={fetchBorrows} />
                 <BorrowDetailModal isOpen={detailModalOpen} onClose={() => setDetailModalOpen(false)} orderCode={selectedOrderId} />

@@ -7,12 +7,28 @@ import { UI_TEXT } from "@/constants/ui-text";
 interface VnPayResultProps {
     status: "success" | "failed";
     orderCode: string | null;
+    amount?: string | null;
+    txnNo?: string | null;
+    payDate?: string | null;
+    orderInfo?: string | null;
 }
 
-export default function VnPayResult({ status, orderCode }: VnPayResultProps) {
+export default function VnPayResult({ status, orderCode, amount, txnNo, payDate, orderInfo }: VnPayResultProps) {
     const { VNPAY_RESULT } = UI_TEXT.BORROW;
     const isSuccess = status === "success";
     const texts = isSuccess ? VNPAY_RESULT.SUCCESS : VNPAY_RESULT.FAILED;
+
+    const formatCurrency = (val: string) => {
+        const num = parseInt(val, 10);
+        if (isNaN(num)) return val;
+        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(num);
+    };
+
+    const formatDate = (val: string) => {
+        // vnp_PayDate format: yyyyMMddHHmmss
+        if (!val || val.length !== 14) return val;
+        return `${val.substring(6, 8)}/${val.substring(4, 6)}/${val.substring(0, 4)} ${val.substring(8, 10)}:${val.substring(10, 12)}:${val.substring(12, 14)}`;
+    };
 
     return (
         <div className="relative flex min-h-[60vh] w-full flex-grow items-center justify-center overflow-hidden px-4 py-12">
@@ -63,6 +79,33 @@ export default function VnPayResult({ status, orderCode }: VnPayResultProps) {
                                 {texts.ORDER_CODE}:
                             </span>
                             <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">{orderCode}</span>
+                        </div>
+                    )}
+
+                    {/* Receipt Details Box */}
+                    {isSuccess && amount && (
+                        <div className="mx-auto mb-10 max-w-md rounded-xl border border-outline-variant/30 bg-surface-container-low p-6 text-left dark:border-slate-700 dark:bg-slate-800">
+                            <h3 className="mb-4 text-center font-title-md text-on-surface dark:text-white">{UI_TEXT.BORROW.VNPAY_RESULT.RECEIPT.TITLE}</h3>
+                            <div className="space-y-3 text-body-sm text-on-surface-variant dark:text-slate-300">
+                                <div className="flex justify-between border-b border-outline-variant/20 pb-2">
+                                    <span>{UI_TEXT.BORROW.VNPAY_RESULT.RECEIPT.TRANSACTION_ID}</span>
+                                    <span className="font-medium text-on-surface dark:text-white">{txnNo || "N/A"}</span>
+                                </div>
+                                <div className="flex justify-between border-b border-outline-variant/20 pb-2">
+                                    <span>{UI_TEXT.BORROW.VNPAY_RESULT.RECEIPT.TIME}</span>
+                                    <span className="font-medium text-on-surface dark:text-white">{payDate ? formatDate(payDate) : "N/A"}</span>
+                                </div>
+                                <div className="flex justify-between border-b border-outline-variant/20 pb-2">
+                                    <span>{UI_TEXT.BORROW.VNPAY_RESULT.RECEIPT.CONTENT}</span>
+                                    <span className="font-medium text-on-surface dark:text-white">
+                                        {orderInfo ? decodeURIComponent(orderInfo) : "Thanh toán thư viện"}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between pt-2 text-title-md font-bold text-primary dark:text-primary-300">
+                                    <span>{UI_TEXT.BORROW.VNPAY_RESULT.RECEIPT.AMOUNT}</span>
+                                    <span>{formatCurrency(amount)}</span>
+                                </div>
+                            </div>
                         </div>
                     )}
 

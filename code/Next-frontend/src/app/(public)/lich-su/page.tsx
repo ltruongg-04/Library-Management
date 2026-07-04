@@ -5,8 +5,9 @@ import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { LoanCard } from "@/components/features/history/LoanCard";
 import { LoanFilter } from "@/components/features/history/LoanFilter";
-import { MY_BOOKS_PAGE } from "@/constants/ui-text/public";
-import { type UserBorrowHistoryItem, userBorrowService } from "@/services/userBorrow";
+import { MY_BOOKS_PAGE } from "@/constants/ui-text/public/my-books";
+import { getBorrowHistory } from "@/services/borrow";
+import { type UserBorrowHistoryItem } from "@/services/userBorrow";
 
 export default function MyBooksPage() {
     const [loans, setLoans] = useState<UserBorrowHistoryItem[]>([]);
@@ -14,6 +15,8 @@ export default function MyBooksPage() {
     const [statusFilter, setStatusFilter] = useState(MY_BOOKS_PAGE.FILTER.STATUS_ALL);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 5;
 
     const [appliedFilter, setAppliedFilter] = useState({
         status: MY_BOOKS_PAGE.FILTER.STATUS_ALL,
@@ -24,10 +27,25 @@ export default function MyBooksPage() {
     const fetchLoans = useCallback(async () => {
         try {
             setLoading(true);
-            const result = await userBorrowService.getHistory(0, 50);
-            setLoans(result.content);
+            const response = await getBorrowHistory();
+            if (response.success && response.data) {
+                const mappedData = response.data.map((item: any) => ({
+                    id: 0,
+                    orderCode: item.id,
+                    status: item.status.toLowerCase(),
+                    borrowDate: item.borrowDate,
+                    pickupDate: item.borrowDate,
+                    dueDate: item.dueDate,
+                    totalDeposit: parseFloat((item.deposit || "0").replace(/[^0-9]/g, "")),
+                    bookTitle: item.title,
+                    bookAuthor: item.author,
+                    bookCoverImage: item.imgSrc,
+                }));
+                setLoans(mappedData);
+            } else {
+                setLoans([]);
+            }
         } catch {
-            // Nếu chưa đăng nhập hoặc chưa có customer profile, hiện danh sách trống
             setLoans([]);
         } finally {
             setLoading(false);
@@ -44,6 +62,7 @@ export default function MyBooksPage() {
             start: startDate,
             end: endDate,
         });
+        setCurrentPage(1);
     };
 
     const handleCancel = (orderCode: string) => {
@@ -53,19 +72,24 @@ export default function MyBooksPage() {
 
     const mapStatusToFilter = (status: string): string => {
         const statusMap: Record<string, string> = {
-            PENDING: "pending",
-            READY: "pending",
-            BORROWED: "borrowing",
-            RETURNED: "returned",
-            OVERDUE: "overdue",
-            CANCELLED: "cancelled",
+            pending: "pending",
+            ready: "pending",
+            borrowing: "borrowing",
+            borrowed: "borrowing",
+            returned: "returned",
+            overdue: "overdue",
+            cancelled: "cancelled",
         };
-        return statusMap[status] || status.toLowerCase();
+        return statusMap[status.toLowerCase()] || status.toLowerCase();
     };
 
     const parseDate = (dateStr: string) => {
         if (!dateStr) return null;
-        // Backend trả về ISO format: yyyy-MM-dd
+        // Backend now returns dd/MM/yyyy
+        const parts = dateStr.split("/");
+        if (parts.length === 3) {
+            return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        }
         return new Date(dateStr);
     };
 
@@ -110,6 +134,9 @@ export default function MyBooksPage() {
         return statusMatch && dateMatch;
     });
 
+    const totalPages = Math.ceil(filteredLoans.length / ITEMS_PER_PAGE);
+    const paginatedLoans = filteredLoans.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
     if (loading) {
         return (
             <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
@@ -146,9 +173,31 @@ export default function MyBooksPage() {
             {/* Content Area */}
             {filteredLoans.length > 0 ? (
                 <div className="space-y-md" id="loan-list-container">
-                    {filteredLoans.map((loan) => (
+                    {paginatedLoans.map((loan) => (
                         <LoanCard key={loan.orderCode} loan={loan} onCancel={() => handleCancel(loan.orderCode)} />
                     ))}
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-xl flex items-center justify-center gap-sm">
+                            <button
+                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+                            >
+                                <MaterialIcon name="chevron_left" />
+                            </button>
+                            <span className="font-body-md text-on-surface-variant dark:text-slate-400">
+                                {MY_BOOKS_PAGE.PAGINATION_PAGE} {currentPage} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+                            >
+                                <MaterialIcon name="chevron_right" />
+                            </button>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="mx-auto flex max-w-md flex-col items-center justify-center py-24 text-center" id="empty-state">

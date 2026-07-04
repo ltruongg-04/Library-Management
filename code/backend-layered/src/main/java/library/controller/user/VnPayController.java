@@ -39,6 +39,7 @@ public class VnPayController {
     private final BorrowOrderRepository borrowOrderRepository;
     private final BorrowOrderDetailRepository borrowOrderDetailRepository;
     private final BookCopyRepository bookCopyRepository;
+    private final library.service.AdminBorrowService adminBorrowService;
 
     @Value("${vnpay.frontend-url:http://localhost:3000}")
     private String frontendUrl;
@@ -59,18 +60,20 @@ public class VnPayController {
             return ResponseEntity.ok(Map.of("RspCode", "97", "Message", "Invalid Checksum"));
         }
 
-        String orderCode = params.get("vnp_TxnRef");
+        String txnRef = params.get("vnp_TxnRef");
         String responseCode = params.get("vnp_ResponseCode");
         String transactionNo = params.get("vnp_TransactionNo");
 
         // Find the payment record
-        PaymentEntity payment = paymentRepository.findByBorrowOrderOrderCode(orderCode)
+        PaymentEntity payment = paymentRepository.findByTransactionCode(txnRef)
                 .orElse(null);
 
         if (payment == null) {
-            log.warn("VNPay IPN: Payment not found for orderCode={}", orderCode);
+            log.warn("VNPay IPN: Payment not found for txnRef={}", txnRef);
             return ResponseEntity.ok(Map.of("RspCode", "01", "Message", "Order Not Found"));
         }
+        
+        String orderCode = payment.getBorrowOrder().getOrderCode();
 
         // Check if already processed
         if (payment.getPaymentStatus() == PaymentStatus.SUCCESS) {
@@ -81,11 +84,27 @@ public class VnPayController {
         if (RESPONSE_CODE_SUCCESS.equals(responseCode)) {
             // Payment successful
             payment.setPaymentStatus(PaymentStatus.SUCCESS);
-            payment.setTransactionCode(transactionNo);
             payment.setPaymentDate(LocalDateTime.now());
             paymentRepository.save(payment);
 
             log.info("VNPay IPN: Payment SUCCESS for orderCode={}, transactionNo={}", orderCode, transactionNo);
+
+            // Auto-approve renewal if it's a renewal fee
+            if (payment.getPaymentType() == PaymentType.RENTAL_FEE) {
+                log.info("Auto-approving renewal for orderCode={}", orderCode);
+                try {
+                    adminBorrowService.processRenewal(orderCode, new library.dto.admin.AdminRenewalRequestDto(true));
+                } catch (Exception e) {
+                    log.error("Failed to auto-approve renewal", e);
+                }
+            } else if (payment.getPaymentType() == PaymentType.DEPOSIT) {
+                log.info("Auto-approving new borrow order (DEPOSIT) for orderCode={}", orderCode);
+                try {
+                    adminBorrowService.updateBorrowStatus(orderCode, library.entity.BorrowOrderStatus.READY);
+                } catch (Exception e) {
+                    log.error("Failed to auto-approve new borrow order", e);
+                }
+            }
         } else {
             // Payment failed — auto cancel the borrow order
             handlePaymentFailure(payment, orderCode);
@@ -105,43 +124,78 @@ public class VnPayController {
         log.info("VNPay Return callback received: vnp_TxnRef={}, vnp_ResponseCode={}",
                 params.get("vnp_TxnRef"), params.get("vnp_ResponseCode"));
 
-        String orderCode = params.get("vnp_TxnRef");
+        String txnRef = params.get("vnp_TxnRef");
         String responseCode = params.get("vnp_ResponseCode");
         String transactionNo = params.get("vnp_TransactionNo");
 
         // Validate hash
         boolean isValid = vnPayService.validateCallback(params);
 
+        PaymentEntity payment = paymentRepository.findByTransactionCode(txnRef).orElse(null);
+        String orderCode = payment != null ? payment.getBorrowOrder().getOrderCode() : "UNKNOWN";
+
         String status;
         if (isValid && RESPONSE_CODE_SUCCESS.equals(responseCode)) {
             status = "success";
 
             // Also update payment status here (in case IPN hasn't arrived yet)
-            PaymentEntity payment = paymentRepository.findByBorrowOrderOrderCode(orderCode)
-                    .orElse(null);
             if (payment != null && payment.getPaymentStatus() != PaymentStatus.SUCCESS) {
                 payment.setPaymentStatus(PaymentStatus.SUCCESS);
-                payment.setTransactionCode(transactionNo);
                 payment.setPaymentDate(LocalDateTime.now());
                 paymentRepository.save(payment);
+                
+                // Trigger auto-approve logic here as fallback (crucial for localhost testing where IPN is unreachable)
+                if (payment.getPaymentType() == PaymentType.RENTAL_FEE) {
+                    log.info("Auto-approving renewal (via Return URL) for orderCode={}", orderCode);
+                    try {
+                        adminBorrowService.processRenewal(orderCode, new library.dto.admin.AdminRenewalRequestDto(true));
+                    } catch (Exception e) {
+                        log.error("Failed to auto-approve renewal", e);
+                    }
+                } else if (payment.getPaymentType() == PaymentType.DEPOSIT) {
+                    log.info("Auto-approving new borrow order (via Return URL) for orderCode={}", orderCode);
+                    try {
+                        adminBorrowService.updateBorrowStatus(orderCode, library.entity.BorrowOrderStatus.READY);
+                    } catch (Exception e) {
+                        log.error("Failed to auto-approve new borrow order", e);
+                    }
+                }
             }
         } else {
             status = "failed";
 
             // Handle payment failure — auto cancel
-            PaymentEntity payment = paymentRepository.findByBorrowOrderOrderCode(orderCode)
-                    .orElse(null);
             if (payment != null && payment.getPaymentStatus() == PaymentStatus.PENDING) {
                 handlePaymentFailure(payment, orderCode);
             }
         }
 
-        // Redirect to frontend result page
-        String redirectUrl = frontendUrl + "/thanh-toan/ket-qua?status=" + status + "&orderCode=" + orderCode;
-        log.info("VNPay Return: Redirecting to {}", redirectUrl);
+        // Redirect to frontend result page with payment details for receipt
+        StringBuilder redirectUrl = new StringBuilder(frontendUrl)
+                .append("/thanh-toan/ket-qua?status=").append(status)
+                .append("&orderCode=").append(orderCode);
+                
+        if (RESPONSE_CODE_SUCCESS.equals(responseCode)) {
+            try {
+                String amount = params.get("vnp_Amount");
+                if (amount != null) {
+                    long amountVnd = Long.parseLong(amount) / 100;
+                    redirectUrl.append("&amount=").append(amountVnd);
+                }
+                if (transactionNo != null) redirectUrl.append("&txnNo=").append(transactionNo);
+                if (params.get("vnp_PayDate") != null) redirectUrl.append("&payDate=").append(params.get("vnp_PayDate"));
+                if (params.get("vnp_OrderInfo") != null) {
+                    redirectUrl.append("&orderInfo=").append(java.net.URLEncoder.encode(params.get("vnp_OrderInfo"), java.nio.charset.StandardCharsets.UTF_8));
+                }
+            } catch (Exception e) {
+                log.warn("Failed to append payment details to redirect URL", e);
+            }
+        }
+        
+        log.info("VNPay Return: Redirecting to {}", redirectUrl.toString());
 
         return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create(redirectUrl))
+                .location(URI.create(redirectUrl.toString()))
                 .build();
     }
 
@@ -154,27 +208,37 @@ public class VnPayController {
         payment.setPaymentDate(LocalDateTime.now());
         paymentRepository.save(payment);
 
-        // Cancel the borrow order
+        // Cancel the borrow order if it's a new borrow, or reject renewal if it's a renewal
         BorrowOrderEntity borrowOrder = payment.getBorrowOrder();
-        if (borrowOrder != null && borrowOrder.getStatus() == BorrowOrderStatus.PENDING) {
-            borrowOrder.setStatus(BorrowOrderStatus.CANCELLED);
-            borrowOrderRepository.save(borrowOrder);
+        if (borrowOrder != null) {
+            if (borrowOrder.getStatus() == BorrowOrderStatus.PENDING) {
+                borrowOrder.setStatus(BorrowOrderStatus.CANCELLED);
+                borrowOrderRepository.save(borrowOrder);
 
-            // Cancel order details and release the reserved book copy
-            borrowOrder.getOrderDetails().forEach(detail -> {
-                // Cancel the detail so it doesn't show up as 'borrowing'
-                detail.setStatus(BorrowOrderDetailStatus.CANCELLED);
-                borrowOrderDetailRepository.save(detail);
+                // Cancel order details and release the reserved book copy
+                borrowOrder.getOrderDetails().forEach(detail -> {
+                    // Cancel the detail so it doesn't show up as 'borrowing'
+                    detail.setStatus(BorrowOrderDetailStatus.CANCELLED);
+                    borrowOrderDetailRepository.save(detail);
 
-                // Release book copy (set back to AVAILABLE from MAINTENANCE)
-                BookCopyEntity bookCopy = detail.getBookCopy();
-                if (bookCopy != null && bookCopy.getStatus() == BookCopyStatus.MAINTENANCE) {
-                    bookCopy.setStatus(BookCopyStatus.AVAILABLE);
-                    bookCopyRepository.save(bookCopy);
+                    // Release book copy (set back to AVAILABLE from MAINTENANCE)
+                    BookCopyEntity bookCopy = detail.getBookCopy();
+                    if (bookCopy != null && bookCopy.getStatus() == BookCopyStatus.MAINTENANCE) {
+                        bookCopy.setStatus(BookCopyStatus.AVAILABLE);
+                        bookCopyRepository.save(bookCopy);
+                    }
+                });
+
+                log.info("VNPay: Borrow order CANCELLED and book copies released for orderCode={}", orderCode);
+            } else if (borrowOrder.getStatus() == BorrowOrderStatus.PENDING_RENEWAL) {
+                // If payment for renewal failed, auto-reject the renewal request
+                try {
+                    adminBorrowService.processRenewal(orderCode, new library.dto.admin.AdminRenewalRequestDto(false));
+                    log.info("VNPay: Renewal REJECTED due to failed payment for orderCode={}", orderCode);
+                } catch (Exception e) {
+                    log.error("Failed to auto-reject renewal on payment failure for orderCode={}", orderCode, e);
                 }
-            });
-
-            log.info("VNPay: Borrow order CANCELLED and book copies released for orderCode={}", orderCode);
+            }
         }
     }
 }

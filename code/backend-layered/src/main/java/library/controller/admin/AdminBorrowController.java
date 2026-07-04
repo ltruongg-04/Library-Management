@@ -46,4 +46,12 @@ public class AdminBorrowController {
         AdminBorrowOrderDto newOrder = adminBorrowService.createBorrowOrder(request);
         return ResponseEntity.ok(ApiResponse.success("Tạo phiếu mượn thành công", newOrder));
     }
+
+    @PutMapping("/{orderCode}/renew")
+    public ResponseEntity<ApiResponse<Void>> processRenewal(
+            @PathVariable String orderCode,
+            @RequestBody library.dto.admin.AdminRenewalRequestDto request) {
+        adminBorrowService.processRenewal(orderCode, request);
+        return ResponseEntity.ok(ApiResponse.success("Xử lý yêu cầu gia hạn thành công", null));
+    }
 }

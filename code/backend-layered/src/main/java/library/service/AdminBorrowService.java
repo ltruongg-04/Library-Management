@@ -9,4 +9,5 @@ public interface AdminBorrowService {
     void updateBorrowStatus(String orderCode, BorrowOrderStatus newStatus);
     library.dto.admin.AdminBorrowOrderDetailDto getBorrowOrderDetail(String orderCode);
     library.dto.admin.AdminBorrowOrderDto createBorrowOrder(library.dto.admin.AdminCreateBorrowOrderRequest request);
+    void processRenewal(String orderCode, library.dto.admin.AdminRenewalRequestDto request);
 }

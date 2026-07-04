@@ -52,32 +52,55 @@ public class BorrowController {
                 .body(ApiResponse.success("Đặt mượn sách thành công", response));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<Page<UserBorrowHistoryDto>>> getUserBorrowHistory(
-            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
-        CustomerEntity customer = getCurrentCustomer();
-        Page<UserBorrowHistoryDto> history = borrowOrderService.getUserBorrowHistory(customer.getId(), pageable);
-        return ResponseEntity.ok(ApiResponse.success("Lấy lịch sử mượn sách thành công", history));
-    }
-
-    @GetMapping("/{orderCode}")
-    public ResponseEntity<ApiResponse<UserBorrowDetailDto>> getUserBorrowDetail(
-            @PathVariable String orderCode) {
-        CustomerEntity customer = getCurrentCustomer();
-        UserBorrowDetailDto detail = borrowOrderService.getUserBorrowDetail(customer.getId(), orderCode);
-        return ResponseEntity.ok(ApiResponse.success("Lấy chi tiết đơn mượn thành công", detail));
-    }
-
-    private CustomerEntity getCurrentCustomer() {
+    @GetMapping("/history")
+    public ResponseEntity<ApiResponse<java.util.List<library.dto.borrow.BorrowHistoryResponseDto>>> getBorrowHistory() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
+
         String email = authentication.getPrincipal().toString();
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
-        return customerRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new CustomBusinessException("Customer profile not found", HttpStatus.NOT_FOUND));
+
+        java.util.List<library.dto.borrow.BorrowHistoryResponseDto> history = borrowOrderService.getBorrowHistory(user.getId());
+
+        return ResponseEntity.ok(ApiResponse.success("Lấy lịch sử mượn sách thành công", history));
+    }
+
+    @GetMapping("/history/{orderCode}")
+    public ResponseEntity<ApiResponse<library.dto.borrow.BorrowOrderDetailResponseDto>> getBorrowOrderDetail(@PathVariable String orderCode) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
+
+        String email = authentication.getPrincipal().toString();
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+
+        library.dto.borrow.BorrowOrderDetailResponseDto detail = borrowOrderService.getBorrowOrderDetail(orderCode, user.getId());
+
+        return ResponseEntity.ok(ApiResponse.success("Lấy chi tiết phiếu mượn thành công", detail));
+    }
+
+    @PostMapping("/{orderCode}/renew")
+    public ResponseEntity<ApiResponse<library.dto.borrow.BorrowResponseDto>> renewBorrowOrder(
+            @PathVariable String orderCode,
+            @Valid @RequestBody library.dto.borrow.BorrowExtensionRequestDto request,
+            HttpServletRequest httpRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
+
+        String email = authentication.getPrincipal().toString();
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+
+        library.dto.borrow.BorrowResponseDto response = borrowOrderService.renewBorrowOrder(orderCode, user.getId(), request, httpRequest);
+
+        return ResponseEntity.ok(ApiResponse.success("Yêu cầu gia hạn đã được xử lý", response));
     }
 }
 
