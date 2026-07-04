@@ -1,8 +1,6 @@
-// 📚 API Service cho Books
 import axiosInstance from "@/lib/axios";
-import type { Book, BookListItem } from "@/types/book";
+import type { Book, BookListItem, BookPageResponse, BookSearchParams } from "@/types/book";
 
-// Response type từ backend
 interface ApiResponse<T> {
     success: boolean;
     message: string;
@@ -10,92 +8,66 @@ interface ApiResponse<T> {
     timestamp: string;
 }
 
-// Gọi qua Next.js proxy route (relative URL) để tránh CORS
+async function requestPublicBooksApi<T>(url: string, signal?: AbortSignal): Promise<T> {
+    const response = await fetch(url, {
+        signal,
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    let result: ApiResponse<T>;
+    try {
+        result = (await response.json()) as ApiResponse<T>;
+    } catch (e) {
+        if (!response.ok) {
+            throw new Error(`Hệ thống đang tạm thời gián đoạn (Lỗi ${response.status}). Vui lòng thử lại sau.`);
+        }
+        throw new Error("Lỗi kết nối hoặc định dạng dữ liệu không hợp lệ. Vui lòng thử lại sau.");
+    }
+
+    if (!response.ok || !result.success) {
+        throw new Error(result?.message || "Không thể tải dữ liệu sách");
+    }
+
+    if (!result.data) {
+        throw new Error("Không tìm thấy dữ liệu sách");
+    }
+
+    return result.data;
+}
 
 export const bookService = {
-    async getBooks(params?: import("@/types/book").BookSearchParams, signal?: AbortSignal): Promise<import("@/types/book").BookPageResponse> {
-        try {
-            // Call the admin paginated endpoint for server-side search and filtering
-            const queryParams = new URLSearchParams();
-            if (params?.keyword) queryParams.append("keyword", params.keyword);
+    async getBooks(params?: BookSearchParams, signal?: AbortSignal): Promise<BookPageResponse> {
+        const { keyword, category, authorId, publisher, page = 0, size = 12, sortBy = "newest", minRating, isAvailable } = params || {};
+        const queryParams = new URLSearchParams();
 
-            // Note: params.category contains category name for the public API
-            if (params?.category && params.category !== "Tất cả" && params.category !== "all") {
-                queryParams.append("category", params.category);
-            }
+        if (keyword) queryParams.append("keyword", keyword);
+        if (category && category !== "Tất cả" && category !== "all") queryParams.append("categoryId", category);
+        if (authorId) queryParams.append("authorId", authorId.toString());
+        if (publisher) queryParams.append("publisher", publisher);
+        if (minRating) queryParams.append("minRating", minRating.toString());
+        if (isAvailable !== undefined) queryParams.append("isAvailable", isAvailable.toString());
 
-            if (params?.page !== undefined) queryParams.append("page", params.page.toString());
-            if (params?.size !== undefined) queryParams.append("size", params.size.toString());
+        queryParams.append("page", page.toString());
+        queryParams.append("size", size.toString());
+        queryParams.append("sortBy", sortBy);
 
-            const response = await axiosInstance.get(`/api/books?${queryParams.toString()}`, { signal });
-            const result = response.data;
-
-            if (!result.success) {
-                throw new Error(result.message || "Không thể lấy danh sách sách");
-            }
-
-            return result.data;
-        } catch (e) {
-            throw e;
-        }
+        return requestPublicBooksApi<BookPageResponse>(`/api/books?${queryParams.toString()}`, signal);
     },
 
-    async getTrendingBooks(limit: number = 8): Promise<import("@/types/book").BookPageResponse> {
-        try {
-            const response = await axiosInstance.get(`/api/books/trending?limit=${limit}`);
-            const result = response.data;
-
-            if (!result.success) throw new Error(result.message || "Lỗi tải sách thịnh hành");
-
-            return result.data;
-        } catch (e) {
-            throw e;
-        }
+    async getTrendingBooks(limit: number = 8): Promise<BookPageResponse> {
+        return requestPublicBooksApi<BookPageResponse>(`/api/books/trending?limit=${limit}`);
     },
 
-    // 📖 Lấy danh sách top 10 sách đánh giá cao nhất
     async getTopRatedBooks(): Promise<BookListItem[]> {
-        try {
-            const response = await axiosInstance.get(`/api/books/top-rated`);
-            const result: ApiResponse<BookListItem[]> = response.data;
-
-            if (!result.success) {
-                throw new Error(result.message || "Không thể lấy danh sách top sách");
-            }
-
-            return result.data || [];
-        } catch (error) {
-            if (error instanceof TypeError && error.message === "Failed to fetch") {
-                throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
-            }
-            throw error;
-        }
+        return requestPublicBooksApi<BookListItem[]>("/api/books/top-rated");
     },
 
-    // 📖 Lấy chi tiết 1 cuốn sách theo ID
     async getBookById(id: number): Promise<Book> {
-        try {
-            const response = await axiosInstance.get(`/api/books/${id}`);
-            const result: ApiResponse<Book> = response.data;
-
-            if (!result.success) {
-                throw new Error(result.message || "Không tìm thấy sách");
-            }
-
-            if (!result.data) {
-                throw new Error("Không tìm thấy sách");
-            }
-
-            return result.data;
-        } catch (error) {
-            if (error instanceof TypeError && error.message === "Failed to fetch") {
-                throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
-            }
-            throw error;
-        }
+        return requestPublicBooksApi<Book>(`/api/books/${id}`);
     },
 
-    // 📖 Lấy danh sách sách cho Admin Inventory (có phân trang)
     async getAdminBookInventory(
         page: number = 0,
         size: number = 10,
@@ -120,7 +92,6 @@ export const bookService = {
         }
     },
 
-    // 📖 Cập nhật thông tin sách
     async updateBook(id: number, data: import("@/types/book").BookUpdateRequest): Promise<Book> {
         try {
             const response = await axiosInstance.put(`/api/admin/books/${id}`, data);
@@ -139,7 +110,6 @@ export const bookService = {
         }
     },
 
-    // 📖 Tạo sách mới
     async createBook(data: import("@/types/book").BookCreateRequest): Promise<Book> {
         try {
             const response = await axiosInstance.post(`/api/admin/books`, data);

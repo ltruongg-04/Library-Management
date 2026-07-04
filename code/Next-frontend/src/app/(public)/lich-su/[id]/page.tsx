@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -9,63 +9,80 @@ import { UI_TEXT } from "@/constants/ui-text";
 import { getBorrowOrderDetail } from "@/services/borrow";
 import { BorrowOrderDetailResponseDto } from "@/types/borrow";
 
+const mapStatus = (status: string): string => {
+    const map: Record<string, string> = {
+        PENDING: "pending",
+        READY: "pending",
+        BORROWED: "borrowing",
+        RETURNED: "returned",
+        OVERDUE: "overdue",
+        CANCELLED: "cancelled",
+    };
+    return map[status] || status.toLowerCase();
+};
+
 export default function LoanDetailPage() {
     const params = useParams();
     const router = useRouter();
     const id = params?.id as string;
+    const [loan, setLoan] = useState<BorrowOrderDetailResponseDto | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [showLimitModal, setShowLimitModal] = useState(false);
 
     const { MY_BOOKS_PAGE } = UI_TEXT;
     const { LOAN_DETAIL } = UI_TEXT.BORROW;
-    const [loan, setLoan] = useState<BorrowOrderDetailResponseDto | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [showLimitModal, setShowLimitModal] = useState(false);
 
-    useEffect(() => {
-        const fetchDetail = async () => {
-            try {
-                if (id) {
-                    const response = await getBorrowOrderDetail(id);
-                    if (response.success && response.data) {
-                        setLoan(response.data);
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to fetch borrow order detail", error);
-            } finally {
-                setIsLoading(false);
+    const fetchDetail = useCallback(async () => {
+        try {
+            setLoading(true);
+            const response = await getBorrowOrderDetail(id);
+            if (response.success && response.data) {
+                setLoan(response.data);
+            } else {
+                setError(response.message || "Không thể tải chi tiết đơn mượn");
             }
-        };
-        fetchDetail();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Không thể tải chi tiết đơn mượn");
+        } finally {
+            setLoading(false);
+        }
     }, [id]);
 
-    if (isLoading) {
+    useEffect(() => {
+        if (id) {
+            fetchDetail();
+        }
+    }, [id, fetchDetail]);
+
+    if (loading) {
         return (
-            <div className="mx-auto flex w-full max-w-container-max flex-grow items-center justify-center py-24">
-                <span className="text-body-md text-on-surface-variant">{MY_BOOKS_PAGE.CARD.DETAIL_LOADING}</span>
+            <div className="mx-auto w-full max-w-container-max flex-grow px-md py-xl md:px-lg">
+                <div className="flex items-center justify-center py-24">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                </div>
             </div>
         );
     }
 
-    if (!loan) {
+    if (error || !loan) {
         return (
-            <div className="mx-auto flex w-full max-w-container-max flex-grow flex-col items-center justify-center gap-4 py-24">
-                <span className="text-body-lg text-error">{MY_BOOKS_PAGE.CARD.DETAIL_NOT_FOUND}</span>
-                <Link href="/lich-su" className="text-primary hover:underline">
-                    {MY_BOOKS_PAGE.CARD.BACK_TO_HISTORY}
-                </Link>
+            <div className="mx-auto w-full max-w-container-max flex-grow px-md py-xl md:px-lg">
+                <div className="flex flex-col items-center justify-center py-24 text-center">
+                    <span className="material-symbols-outlined mb-4 text-6xl text-outline" style={{ fontVariationSettings: "'FILL' 0" }}>
+                        {"error_outline"}
+                    </span>
+                    <p className="text-body-md text-on-surface-variant dark:text-slate-400">{error || "Không tìm thấy đơn mượn"}</p>
+                    <Link href="/lich-su" className="mt-4 text-primary hover:underline dark:text-primary-300">
+                        {UI_TEXT.PUBLIC_LAYOUT.MY_HISTORY}
+                    </Link>
+                </div>
             </div>
         );
     }
 
-    // Sử dụng số tiền trực tiếp từ backend vì backend đã trừ đi các khoản thanh toán online trước đó
-    const displayLateFee = loan.lateFee;
-    const displayTotal = loan.total;
-
-    // Theo yêu cầu: nếu sách đang quá hạn hoặc từng bị quá hạn (phí phạt > 0), tiền cọc sẽ bằng 0
-    const isEverOverdue =
-        (loan.overdueDays && loan.overdueDays > 0) ||
-        (loan.lateFee && loan.lateFee !== "0 đ" && loan.lateFee !== "0 ₫" && loan.lateFee !== "+0 đ" && loan.lateFee !== "0");
-    const displayDeposit = isEverOverdue ? "0 đ" : loan.deposit;
+    const displayStatus = mapStatus(loan.status);
+    const isOverdue = displayStatus === "overdue";
 
     return (
         <div className="mx-auto w-full max-w-container-max flex-grow px-md py-xl md:px-lg">
@@ -82,8 +99,10 @@ export default function LoanDetailPage() {
                     </li>
                     <li>
                         <div className="flex items-center">
-                            <MaterialIcon name="chevron_right" className="mx-1 text-[16px] dark:text-slate-500" />
-                            <span className="ml-1 font-medium text-on-surface dark:text-white md:ml-2">{`#${id}`}</span>
+                            <span className="material-symbols-outlined mx-1 text-sm dark:text-slate-500" style={{ fontVariationSettings: "'FILL' 0" }}>
+                                {"chevron_right"}
+                            </span>
+                            <span className="ml-1 font-medium text-on-surface dark:text-white md:ml-2">{`#${loan.id}`}</span>
                         </div>
                     </li>
                 </ol>
@@ -131,7 +150,7 @@ export default function LoanDetailPage() {
                         )}
                     </div>
                     <p className="font-body-md text-body-md text-on-surface-variant dark:text-slate-400">
-                        {LOAN_DETAIL.TRANSACTION_ID} {id}
+                        {LOAN_DETAIL.TRANSACTION_ID} {loan.id}
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-sm">
@@ -159,7 +178,7 @@ export default function LoanDetailPage() {
             <div className="grid grid-cols-1 gap-xl lg:grid-cols-3">
                 {/* Left Column: Details & Books */}
                 <div className="flex flex-col gap-xl lg:col-span-2">
-                    {/* Section 1: Loan Overview (Bento Style) */}
+                    {/* Section 1: Loan Overview */}
                     <section className="rounded-xl border border-surface-container bg-surface-container-lowest p-lg shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-slate-800 dark:bg-slate-900">
                         <h2 className="mb-md border-b border-surface-container-high pb-sm font-title-md text-title-md text-on-background dark:border-slate-700 dark:text-white">
                             {LOAN_DETAIL.OVERVIEW}
@@ -209,7 +228,7 @@ export default function LoanDetailPage() {
                         </div>
                     </section>
 
-                    {/* Section 2: Borrowed Books List */}
+                    {/* Section 2: Borrowed Book */}
                     <section className="rounded-xl border border-surface-container bg-surface-container-lowest p-lg shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-slate-800 dark:bg-slate-900">
                         <h2 className="mb-md border-b border-surface-container-high pb-sm font-title-md text-title-md text-on-background dark:border-slate-700 dark:text-white">
                             {LOAN_DETAIL.BORROWED_BOOKS}
@@ -263,11 +282,9 @@ export default function LoanDetailPage() {
                         <div className="space-y-sm font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
                             <div className="flex items-center justify-between border-b border-primary/10 py-2 text-on-surface dark:text-slate-300">
                                 <span>
-                                    {LOAN_DETAIL.DEPOSIT} {isEverOverdue ? LOAN_DETAIL.DEPOSIT_FORFEITED : LOAN_DETAIL.DEPOSIT_PAID}
+                                    {LOAN_DETAIL.DEPOSIT} {isOverdue ? LOAN_DETAIL.DEPOSIT_FORFEITED : LOAN_DETAIL.DEPOSIT_PAID}
                                 </span>
-                                <span className={isEverOverdue ? "font-medium text-error line-through" : "font-medium"}>
-                                    {isEverOverdue ? loan.deposit : displayDeposit}
-                                </span>
+                                <span className={isOverdue ? "font-medium text-error line-through" : "font-medium"}>{loan.deposit}</span>
                             </div>
                             <div className="flex items-center justify-between border-b border-primary/10 py-2">
                                 <span>{LOAN_DETAIL.TOTAL_BORROW_FEE}</span>
@@ -275,7 +292,7 @@ export default function LoanDetailPage() {
                             </div>
                             <div className="flex items-center justify-between border-b border-primary/10 py-2 text-error">
                                 <span>{LOAN_DETAIL.TOTAL_LATE_FEE}</span>
-                                <span className="font-medium">{displayLateFee}</span>
+                                <span className="font-medium">{loan.lateFee}</span>
                             </div>
                             {loan.paidOnline && loan.paidOnline !== "0 đ" && (
                                 <div className="flex items-center justify-between border-b border-primary/10 py-2 text-primary dark:text-primary-300">
@@ -286,7 +303,7 @@ export default function LoanDetailPage() {
                         </div>
                         <div className="mt-md flex items-end justify-between border-t-2 border-primary/20 pt-md">
                             <span className="font-body-md text-body-md font-medium text-on-surface dark:text-white">{LOAN_DETAIL.TO_PAY}</span>
-                            <span className="font-title-md text-title-md font-bold text-error">{displayTotal}</span>
+                            <span className="font-title-md text-title-md font-bold text-error">{loan.total}</span>
                         </div>
                     </section>
 
@@ -296,9 +313,11 @@ export default function LoanDetailPage() {
                             {LOAN_DETAIL.ACTIVITY_HISTORY}
                         </h2>
                         <div className="relative mt-md space-y-6 pl-6 before:absolute before:inset-y-0 before:left-2 before:w-0.5 before:bg-surface-container-high dark:before:bg-slate-700">
-                            {/* Timeline Item 1 */}
+                            {/* Timeline: Due date */}
                             <div className="relative">
-                                <span className="absolute -left-8 flex h-4 w-4 items-center justify-center rounded-full border-2 border-error bg-surface-container-lowest dark:bg-slate-900"></span>
+                                <span
+                                    className={`absolute -left-8 flex h-4 w-4 items-center justify-center rounded-full border-2 bg-surface-container-lowest dark:bg-slate-900 ${isOverdue ? "border-error" : "border-secondary"}`}
+                                ></span>
                                 <div className="flex flex-col">
                                     <h3 className="font-body-md text-body-md font-medium text-error">{LOAN_DETAIL.DEADLINE}</h3>
                                     <time className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">{loan.deadlineDate || "—"}</time>

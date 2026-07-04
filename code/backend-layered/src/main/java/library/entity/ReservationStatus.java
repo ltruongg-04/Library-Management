@@ -2,6 +2,8 @@ package library.entity;
 
 public enum ReservationStatus {
     PENDING,
-    FULFILLED,
-    CANCELLED
+    NOTIFIED,
+    COMPLETED,
+    CANCELLED,
+    EXPIRED
 }

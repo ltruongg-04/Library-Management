@@ -18,14 +18,7 @@ export const COMMON = {
     BOOK_NOT_FOUND: "Không tìm thấy sách",
     BACK_TO_HOME: "Trở lại trang chủ",
     LOADING_INFO: "Đang tải thông tin...",
-};
-
-export const MAINTENANCE = {
-    PAGE_TITLE: "Đang bảo trì — Lumina Library",
-    PAGE_DESC: "Hệ thống đang được cập nhật thông minh. Chúng tôi sẽ sớm trở lại với trải nghiệm khám phá tốt hơn.",
-    HEADING: "Thư viện đang được cập nhật thông minh",
-    SUBHEADING:
-        "Các mô hình AI đang lập chỉ mục tri thức mới và tối ưu hoá lộ trình tìm kiếm. Chúng tôi sẽ sớm trở lại với trải nghiệm khám phá tri thức được nâng cao hơn.",
-    IMG_ALT: "Minh hoạ thư viện đang cập nhật AI",
-    CONTACT_BTN: "Liên hệ hỗ trợ",
+    SUCCESS_ADDED_WISHLIST: "Đã thêm vào danh sách yêu thích",
+    SUCCESS_REMOVED_WISHLIST: "Đã xóa khỏi danh sách yêu thích",
+    ERROR_OCCURRED: "Đã có lỗi xảy ra",
 };

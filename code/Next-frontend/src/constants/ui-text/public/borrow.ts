@@ -43,6 +43,14 @@ export const BORROW = {
         DESCRIPTION: "Thủ thư AI của chúng tôi làm việc 24/7 để giải đáp thắc mắc về địa điểm lấy sách và gia hạn.",
         BUTTON: "Mở Chat Thư viện",
     },
+    SUPPORT_CHAT: {
+        TITLE: "Lumina AI",
+        SUBTITLE: "Book Summary & Reading Path",
+        GREETING_PREFIX: "Xin chào! 👋 Mình là ",
+        ASSISTANT_NAME: "Lumina Assistant",
+        GREETING_SUFFIX: ", trợ lý ảo đồng hành cùng bạn tại thư viện. Mình có thể giúp bạn giải đáp các câu hỏi về thông tin sách, quy định thư viện hoặc quy trình mượn trả. Bạn cần hỗ trợ gì hôm nay nào?",
+        PLACEHOLDER: "Mình có thể giúp gì cho bạn hôm nay?",
+    },
     SUCCESS_PAGE: {
         TITLE: "Gửi yêu cầu mượn thành công!",
         REQUEST_ID: "Mã yêu cầu",

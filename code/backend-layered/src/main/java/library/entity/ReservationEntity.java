@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@org.hibernate.annotations.SQLDelete(sql = "UPDATE reservations SET is_deleted = true WHERE id=?")
+@org.hibernate.annotations.SQLRestriction("is_deleted = false")
 public class ReservationEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -23,11 +25,14 @@ public class ReservationEntity extends BaseEntity {
     @JoinColumn(name = "book_id", nullable = false)
     private BookEntity book;
 
-    @Column(name = "reservation_date")
+    @Column(name = "reservation_date", nullable = false)
     private LocalDateTime reservationDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20)
+    @Column(name = "status", nullable = false, length = 20)
+    private ReservationStatus status;
+
+    @Column(name = "is_deleted", nullable = false)
     @Builder.Default
-    private ReservationStatus status = ReservationStatus.PENDING;
+    private boolean isDeleted = false;
 }

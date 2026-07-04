@@ -72,43 +72,36 @@ export default function LoanSummary({ book, pickupDate, returnDate, userFullName
                                 <span className="text-xl">{BORROW.SUMMARY.CURRENCY}</span>
                             </p>
                         </div>
-                        <MaterialIcon name="verified_user" className="text-secondary-container dark:text-secondary-300" />
+                        <MaterialIcon name="verified_user" className="mb-2 text-2xl text-secondary-container dark:text-secondary-300" />
+                    </div>
+
+                    <div className="mt-auto space-y-6 pt-6">
+                        <button
+                            onClick={onSubmit}
+                            disabled={isSubmitting || isSuccess}
+                            className={`flex w-full items-center justify-center gap-2 rounded-lg py-4 font-title-md text-title-md shadow-lg transition-all active:scale-95 ${
+                                isSuccess
+                                    ? "bg-green-500 text-white"
+                                    : "bg-secondary-container text-on-secondary-container hover:brightness-110 dark:bg-secondary-300 dark:text-on-secondary-container"
+                            } disabled:cursor-not-allowed disabled:opacity-70`}
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <MaterialIcon name="sync" className="animate-spin" />
+                                    {BORROW.SUMMARY.PROCESSING}
+                                </>
+                            ) : isSuccess ? (
+                                <>
+                                    <MaterialIcon name="check" />
+                                    {BORROW.SUMMARY.SUCCESS}
+                                </>
+                            ) : (
+                                BORROW.SUMMARY.CONFIRM_BUTTON
+                            )}
+                        </button>
+                        <p className="text-center font-label-caps text-[10px] uppercase tracking-widest text-on-primary/50">{BORROW.SUMMARY.SECURED_BY}</p>
                     </div>
                 </div>
-
-                <button
-                    onClick={onSubmit}
-                    disabled={isSubmitting || isSuccess}
-                    className={`flex w-full items-center justify-center gap-2 rounded-lg py-4 font-title-md text-title-md shadow-lg transition-all active:scale-95 ${
-                        isSuccess
-                            ? "bg-green-500 text-white"
-                            : "bg-secondary-container text-on-secondary-container hover:brightness-110 dark:bg-secondary-300 dark:text-on-secondary-container"
-                    } disabled:cursor-not-allowed disabled:opacity-70`}
-                >
-                    {isSubmitting ? (
-                        <>
-                            <MaterialIcon name="sync" className="animate-spin" />
-                            {BORROW.SUMMARY.PROCESSING}
-                        </>
-                    ) : isSuccess ? (
-                        <>
-                            <MaterialIcon name="check" />
-                            {BORROW.SUMMARY.SUCCESS}
-                        </>
-                    ) : (
-                        BORROW.SUMMARY.CONFIRM_BUTTON
-                    )}
-                </button>
-                <p className="text-center font-label-caps text-[10px] uppercase tracking-widest text-on-primary/50">{BORROW.SUMMARY.SECURED_BY}</p>
-            </div>
-
-            <div className="rounded-xl border border-outline-variant/30 p-6 dark:border-slate-700">
-                <h3 className="mb-2 font-title-md text-title-md text-primary-700 dark:text-primary-300">{BORROW.SUPPORT.TITLE}</h3>
-                <p className="mb-4 font-body-sm text-on-surface-variant dark:text-slate-400">{BORROW.SUPPORT.DESCRIPTION}</p>
-                <button className="flex items-center gap-1 font-semibold text-primary-700 hover:underline dark:text-primary-300">
-                    <MaterialIcon name="chat_bubble" className="text-base" />
-                    {BORROW.SUPPORT.BUTTON}
-                </button>
             </div>
         </aside>
     );

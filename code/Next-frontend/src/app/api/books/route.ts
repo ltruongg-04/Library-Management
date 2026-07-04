@@ -1,28 +1,27 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8081';
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8081";
 
-export async function GET() {
-  try {
-    const response = await fetch(`${BACKEND_URL}/api/books`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-store',
-    });
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
 
-    const data = await response.json();
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/books?${searchParams.toString()}`, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        });
 
-    if (!response.ok) {
-      return NextResponse.json(data, { status: response.status });
+        const data = await response.json();
+
+        if (!response.ok) {
+            return NextResponse.json({ success: false, message: data.message || "Failed to fetch from backend" }, { status: response.status });
+        }
+
+        return NextResponse.json(data);
+    } catch (error) {
+        console.error("Error proxying to backend /api/books:", error);
+        return NextResponse.json({ success: false, message: "Backend is unreachable" }, { status: 503 });
     }
-
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error('Error proxying to backend /api/books:', error);
-    return NextResponse.json(
-      { success: false, message: 'Không thể kết nối đến backend server' },
-      { status: 502 }
-    );
-  }
 }

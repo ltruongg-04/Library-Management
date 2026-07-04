@@ -8,14 +8,14 @@ import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import RelatedBooks from "@/components/features/book-detail/RelatedBooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
-import { useBookDetail, useTrendingBooks } from "@/hooks/useBooks";
+import { useBookDetail, useRelatedBooks } from "@/hooks/useBooks";
 import { bookToBookDetail } from "@/types/book";
 import type { RelatedBook } from "@/types/book";
 
 export default function BookDetailPage({ params }: { params: { id: string } }) {
     const bookId = parseInt(params.id, 10);
     const { book, loading, error } = useBookDetail(isNaN(bookId) ? null : bookId);
-    const { books: trendingBooks } = useTrendingBooks(5);
+    const { books: relatedBooksData } = useRelatedBooks(bookId, book?.categories?.[0]?.id?.toString(), 4);
 
     // Loading state
     if (loading) {
@@ -45,7 +45,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                 <div className="flex flex-col items-center justify-center py-24 text-center">
                     <MaterialIcon name="error_outline" className="mb-4 text-[64px] text-red-400" />
                     <h2 className="mb-2 text-[24px] font-semibold text-on-surface dark:text-white">{UI_TEXT.COMMON.ERROR_LOAD_BOOK_DETAIL}</h2>
-                    <p className="text-on-surface-variant dark:text-white/70">{error || UI_TEXT.COMMON.BOOK_NOT_FOUND}</p>
+                    <p className="text-on-surface-variant dark:text-white/70">{UI_TEXT.COMMON.BOOK_NOT_FOUND}</p>
                 </div>
             </div>
         );
@@ -53,16 +53,13 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
 
     const bookDetail = bookToBookDetail(book);
 
-    // Map trending books thành RelatedBook[] (loại bỏ sách hiện tại)
-    const relatedBooks: RelatedBook[] = trendingBooks
-        .filter((b) => b.id !== book.id)
-        .slice(0, 4)
-        .map((b) => ({
-            id: b.id,
-            title: b.title,
-            authors: b.authors || [],
-            coverImage: b.imageUrl || "",
-        }));
+    // Map related books thành RelatedBook[]
+    const relatedBooks: RelatedBook[] = relatedBooksData.map((b) => ({
+        id: b.id,
+        title: b.title,
+        authors: b.authors || [],
+        coverImage: b.imageUrl || "",
+    }));
 
     const breadcrumbItems = [
         { label: UI_TEXT.COMMON.CATALOG, href: "/" },
@@ -83,18 +80,16 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                 </div>
 
                 {/* Middle Column: Metadata & Details */}
-                <div className="col-span-1 md:col-span-8 lg:col-span-6">
+                <div className="col-span-1 md:col-span-8 lg:col-span-9">
                     <BookInfo book={bookDetail} />
-                </div>
-
-                {/* Right Column: AI Chatbot */}
-                <div className="col-span-1 md:col-span-12 lg:col-span-3">
-                    <AIChatbot bookTitle={book.title} />
                 </div>
             </div>
 
             {/* Related Books Section */}
-            {relatedBooks.length > 0 && <RelatedBooks books={relatedBooks} />}
+            {relatedBooks.length > 0 && <RelatedBooks books={relatedBooks} categoryId={book?.categories?.[0]?.id?.toString()} />}
+
+            {/* AI Chatbot Floating Widget */}
+            <AIChatbot bookTitle={book.title} />
         </div>
     );
 }

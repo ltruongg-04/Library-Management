@@ -9,42 +9,100 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useBooks } from "@/hooks/useBooks";
 
-// Removed static CATEGORIES constant
-const CATEGORY_STYLES: Record<string, string> = {
-    "Khoa học & Công nghệ": "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
-    "Tiểu thuyết": "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
-    "Lịch sử": "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
-    "Thiết kế & Nghệ thuật": "text-tertiary-500 bg-tertiary-500/10 dark:text-white dark:bg-tertiary-500/40",
-    "Kinh doanh": "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
+// Dynamic category palette based on hash
+const CATEGORY_PALETTE = [
+    "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40",
+    "text-primary-700 bg-primary-700/10 dark:text-white dark:bg-primary-700/40",
+    "text-tertiary-500 bg-tertiary-500/10 dark:text-white dark:bg-tertiary-500/40",
+    "text-error bg-error/10 dark:text-white dark:bg-error/40",
+    "text-green-600 bg-green-600/10 dark:text-white dark:bg-green-600/40",
+    "text-blue-500 bg-blue-500/10 dark:text-white dark:bg-blue-500/40",
+];
+
+const DEFAULT_CATEGORY_STYLE = CATEGORY_PALETTE[0];
+
+const getCategoryStyle = (categoryName?: string) => {
+    if (!categoryName) return DEFAULT_CATEGORY_STYLE;
+    let hash = 0;
+    for (let i = 0; i < categoryName.length; i++) {
+        hash = categoryName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return CATEGORY_PALETTE[Math.abs(hash) % CATEGORY_PALETTE.length];
 };
 
-const DEFAULT_CATEGORY_STYLE = "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40";
-
 export default function BookListPage() {
-    const { books, loading, error, page, totalPages, totalElements, setPage, setKeyword, setCategory, clearFilters } = useBooks({ size: 12 });
+    const {
+        books,
+        loading,
+        error,
+        page,
+        totalPages,
+        totalElements,
+        setPage,
+        setKeyword,
+        setCategory,
+        setAuthorId,
+        setPublisher,
+        setMinRating,
+        setIsAvailable,
+        clearFilters,
+        setSortBy,
+        currentParams,
+    } = useBooks({ size: 12 });
 
     const [selectedCategory, setSelectedCategory] = React.useState<string | number>("all");
     const [searchInput, setSearchInput] = React.useState("");
     const [categories, setCategories] = React.useState<{ id: string | number; name: string }[]>([{ id: "all", name: UI_TEXT.BOOK_LIST.CATEGORIES.ALL }]);
+
+    // UI state for showing active text-based filters
+    const [activeAuthorName, setActiveAuthorName] = React.useState<string | null>(null);
+    const [activePublisher, setActivePublisher] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        // Init filters from URL
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const categoryQuery = params.get("category");
+            if (categoryQuery) {
+                const catId = parseInt(categoryQuery, 10) || categoryQuery;
+                setSelectedCategory(catId);
+                setCategory(categoryQuery);
+            }
+
+            const authorIdQuery = params.get("authorId");
+            const authorNameQuery = params.get("authorName");
+            if (authorIdQuery) {
+                setAuthorId(parseInt(authorIdQuery, 10));
+                if (authorNameQuery) setActiveAuthorName(authorNameQuery);
+            }
+
+            const publisherQuery = params.get("publisher");
+            if (publisherQuery) {
+                setPublisher(publisherQuery);
+                setActivePublisher(publisherQuery);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     React.useEffect(() => {
         import("@/services/category").then(({ categoryService }) => {
             categoryService
                 .getAllCategories()
                 .then((data) => {
-                    const dynamicCategories = data.map((c) => ({ id: c.id, name: c.name }));
+                    const dynamicCategories = data.map((c) => ({ id: c.id, name: c.name })).sort((a, b) => a.name.localeCompare(b.name));
                     setCategories([{ id: "all", name: UI_TEXT.BOOK_LIST.CATEGORIES.ALL }, ...dynamicCategories]);
                 })
                 .catch((err) => console.error("Failed to fetch categories:", err));
         });
     }, []);
 
-    const handleCategoryChange = (categoryId: string | number, categoryName: string) => {
+    const handleCategoryChange = (categoryId: string | number) => {
         setSelectedCategory(categoryId);
         if (categoryId === "all") {
             setCategory("");
         } else {
-            setCategory(categoryName);
+            setCategory(categoryId.toString());
         }
     };
 
@@ -56,7 +114,19 @@ export default function BookListPage() {
     const handleClearFilters = () => {
         setSelectedCategory("all");
         setSearchInput("");
+        setActiveAuthorName(null);
+        setActivePublisher(null);
         clearFilters();
+    };
+
+    const clearAuthorFilter = () => {
+        setActiveAuthorName(null);
+        setAuthorId(undefined);
+    };
+
+    const clearPublisherFilter = () => {
+        setActivePublisher(null);
+        setPublisher(undefined);
     };
 
     const breadcrumbItems = [{ label: UI_TEXT.BOOK_LIST.BREADCRUMB_HOME, href: "/" }, { label: UI_TEXT.BOOK_LIST.BREADCRUMB_LIST }];
@@ -98,23 +168,20 @@ export default function BookListPage() {
                             <MaterialIcon name="category" className="mr-2 text-primary-700 dark:text-primary-300" />
                             {UI_TEXT.BOOK_LIST.SIDEBAR_CATEGORY}
                         </h3>
-                        <ul className="space-y-2">
+                        <select
+                            className="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-on-surface focus:border-primary-700 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                            value={selectedCategory}
+                            onChange={(e) => {
+                                const id = e.target.value;
+                                handleCategoryChange(id === "all" ? "all" : Number(id));
+                            }}
+                        >
                             {categories.map((category) => (
-                                <li key={category.id}>
-                                    <button
-                                        onClick={() => handleCategoryChange(category.id, category.name)}
-                                        className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-left font-sans text-[16px] transition-colors duration-200 ${
-                                            selectedCategory === category.id
-                                                ? "bg-primary-700/10 font-medium text-primary-700 dark:bg-primary-700/30 dark:text-primary-300"
-                                                : "text-on-surface-variant hover:bg-surface-container-low dark:text-white/80 dark:hover:bg-slate-800"
-                                        }`}
-                                    >
-                                        {category.name}
-                                        {selectedCategory === category.id && <MaterialIcon name="check" className="text-sm" />}
-                                    </button>
-                                </li>
+                                <option key={category.id} value={category.id}>
+                                    {category.name}
+                                </option>
                             ))}
-                        </ul>
+                        </select>
                     </div>
 
                     <div className="level-1-shadow rounded-2xl bg-surface-container-lowest p-6 dark:bg-slate-900">
@@ -125,11 +192,53 @@ export default function BookListPage() {
                         <div className="space-y-4">
                             <div>
                                 <label className="mb-2 block text-[14px] text-on-surface-variant dark:text-white/70">{UI_TEXT.BOOK_LIST.SORT_LABEL}</label>
-                                <select className="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-on-surface focus:border-primary-700 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                                    <option>{UI_TEXT.BOOK_LIST.SORT_OPTIONS.NEWEST}</option>
-                                    <option>{UI_TEXT.BOOK_LIST.SORT_OPTIONS.TOP_RATED}</option>
-                                    <option>{UI_TEXT.BOOK_LIST.SORT_OPTIONS.POPULAR}</option>
+                                <select
+                                    className="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-on-surface focus:border-primary-700 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                    onChange={(e) => setSortBy(e.target.value as any)}
+                                    value={currentParams.sortBy || "newest"}
+                                >
+                                    <option value="newest">{UI_TEXT.BOOK_LIST.SORT_OPTIONS.NEWEST}</option>
+                                    <option value="oldest">{UI_TEXT.BOOK_LIST.SORT_OPTIONS.OLDEST}</option>
+                                    <option value="title">{UI_TEXT.BOOK_LIST.SORT_OPTIONS.TITLE}</option>
+                                    <option value="titleDesc">{UI_TEXT.BOOK_LIST.SORT_OPTIONS.TITLE_DESC}</option>
+                                    <option value="author">{UI_TEXT.BOOK_LIST.SORT_OPTIONS.AUTHOR}</option>
+                                    <option value="authorDesc">{UI_TEXT.BOOK_LIST.SORT_OPTIONS.AUTHOR_DESC}</option>
+                                    <option value="mostRead">{UI_TEXT.BOOK_LIST.SORT_OPTIONS.MOST_READ}</option>
+                                    <option value="leastRead">{UI_TEXT.BOOK_LIST.SORT_OPTIONS.LEAST_READ}</option>
                                 </select>
+                            </div>
+
+                            {/* Đánh giá */}
+                            <div>
+                                <label className="mb-2 block text-[14px] text-on-surface-variant dark:text-white/70">{UI_TEXT.BOOK_LIST.SIDEBAR_RATING}</label>
+                                <select
+                                    className="w-full rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-2 text-on-surface focus:border-primary-700 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                    value={currentParams.minRating?.toString() || ""}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMinRating(val ? Number(val) : undefined);
+                                    }}
+                                >
+                                    <option value="">{UI_TEXT.BOOK_LIST.RATING_OPTIONS.ALL}</option>
+                                    <option value="4">{UI_TEXT.BOOK_LIST.RATING_OPTIONS.UP_TO_4}</option>
+                                    <option value="3">{UI_TEXT.BOOK_LIST.RATING_OPTIONS.UP_TO_3}</option>
+                                    <option value="2">{UI_TEXT.BOOK_LIST.RATING_OPTIONS.UP_TO_2}</option>
+                                    <option value="1">{UI_TEXT.BOOK_LIST.RATING_OPTIONS.UP_TO_1}</option>
+                                </select>
+                            </div>
+
+                            {/* Tình trạng sách */}
+                            <div className="flex items-center pt-2">
+                                <input
+                                    type="checkbox"
+                                    id="isAvailableCheckbox"
+                                    className="text-primary-600 h-4 w-4 rounded border-outline-variant/30 focus:ring-primary-500"
+                                    checked={currentParams.isAvailable || false}
+                                    onChange={(e) => setIsAvailable(e.target.checked ? true : undefined)}
+                                />
+                                <label htmlFor="isAvailableCheckbox" className="ml-2 block text-[14px] text-on-surface dark:text-white">
+                                    {UI_TEXT.BOOK_LIST.AVAILABLE_ONLY}
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -147,6 +256,31 @@ export default function BookListPage() {
                             )}
                         </p>
                     </div>
+
+                    {/* Active Filters Indicators */}
+                    {(activeAuthorName || activePublisher) && (
+                        <div className="mb-6 flex flex-wrap gap-3">
+                            {activeAuthorName && (
+                                <div className="text-primary-800 flex items-center gap-2 rounded-full bg-primary-100 px-4 py-1.5 text-sm dark:bg-primary-900/40 dark:text-primary-300">
+                                    <span className="font-medium">{UI_TEXT.BOOK_LIST.AUTHOR_LABEL}</span> {activeAuthorName}
+                                    <button onClick={clearAuthorFilter} className="hover:bg-primary-200 dark:hover:bg-primary-800 ml-1 rounded-full p-0.5">
+                                        <MaterialIcon name="close" className="text-[16px]" />
+                                    </button>
+                                </div>
+                            )}
+                            {activePublisher && (
+                                <div className="bg-secondary-100 text-secondary-800 dark:bg-secondary-900/40 flex items-center gap-2 rounded-full px-4 py-1.5 text-sm dark:text-secondary-300">
+                                    <span className="font-medium">{UI_TEXT.BOOK_LIST.PUBLISHER_LABEL}</span> {activePublisher}
+                                    <button
+                                        onClick={clearPublisherFilter}
+                                        className="hover:bg-secondary-200 dark:hover:bg-secondary-800 ml-1 rounded-full p-0.5"
+                                    >
+                                        <MaterialIcon name="close" className="text-[16px]" />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Loading State */}
                     {loading && (
@@ -169,7 +303,6 @@ export default function BookListPage() {
                         <div className="level-1-shadow rounded-2xl bg-surface-container-lowest p-12 text-center dark:bg-slate-900">
                             <MaterialIcon name="error_outline" className="mb-4 text-[64px] text-red-400" />
                             <h3 className="mb-2 text-[20px] font-semibold text-on-surface dark:text-white">{UI_TEXT.COMMON.ERROR_LOAD_BOOKS}</h3>
-                            <p className="text-on-surface-variant dark:text-white/70">{error}</p>
                             <button
                                 onClick={() => clearFilters()}
                                 className="hover:bg-primary-800 mt-6 rounded-lg bg-primary-700 px-6 py-2 text-white transition-colors"
@@ -216,7 +349,7 @@ export default function BookListPage() {
                                         </p>
                                         <div className="mt-auto flex items-center justify-between">
                                             <span
-                                                className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES[book.categories?.[0]?.name] || DEFAULT_CATEGORY_STYLE} max-w-[120px] truncate rounded px-2 py-1`}
+                                                className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${getCategoryStyle(book.categories?.[0]?.name)} max-w-[120px] truncate rounded px-2 py-1`}
                                                 title={book.categories?.[0]?.name}
                                             >
                                                 {book.categories?.[0]?.name || "—"}

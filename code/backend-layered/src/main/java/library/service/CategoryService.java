@@ -23,6 +23,12 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
+    public List<CategoryResponse> getAllCategoriesWithBooks() {
+        return categoryRepository.findAllWithBooks().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public CategoryResponse createCategory(CategoryRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
