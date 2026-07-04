@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { BookDetail } from "@/types/book";
@@ -35,7 +36,20 @@ export default function BookInfo({ book }: BookInfoProps) {
 
                 {/* Author */}
                 <p className="mb-4 font-title-md text-title-md text-on-surface-variant transition-colors duration-200 dark:text-white">
-                    {UI_TEXT.BOOK_DETAIL.BY} {book.author || "Unknown"}
+                    {UI_TEXT.BOOK_DETAIL.BY}{" "}
+                    {book.authorsList && book.authorsList.length > 0
+                        ? book.authorsList.map((a, i) => (
+                              <span key={a.id}>
+                                  <Link
+                                      href={`/sach?authorId=${a.id}&authorName=${encodeURIComponent(a.name)}`}
+                                      className="hover:text-primary-700 hover:underline dark:hover:text-primary-300"
+                                  >
+                                      {a.name}
+                                  </Link>
+                                  {i < book.authorsList!.length - 1 ? ", " : ""}
+                              </span>
+                          ))
+                        : book.author || "Unknown"}
                 </p>
 
                 {/* Description */}
@@ -46,7 +60,11 @@ export default function BookInfo({ book }: BookInfoProps) {
 
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 gap-4 border-y border-outline-variant/30 py-4 dark:border-slate-700 md:grid-cols-4">
-                <MetadataItem label="Publisher" value={book.publisher || "N/A"} />
+                <MetadataItem
+                    label="Publisher"
+                    value={book.publisher || "N/A"}
+                    href={book.publisher ? `/sach?publisher=${encodeURIComponent(book.publisher)}` : undefined}
+                />
                 <MetadataItem label="Published" value={book.publishedDate ? new Date(book.publishedDate).getFullYear().toString() : "N/A"} />
                 <MetadataItem label="Pages" value={book.pages ? String(book.pages) : "N/A"} />
                 <MetadataItem label="ISBN" value={book.isbn || "N/A"} />
@@ -72,12 +90,17 @@ export default function BookInfo({ book }: BookInfoProps) {
     );
 }
 
-function MetadataItem({ label, value }: { label: string; value: string }) {
+function MetadataItem({ label, value, href }: { label: string; value: string; href?: string }) {
     return (
         <div className="flex flex-col">
             <span className="mb-1 font-label-caps text-label-caps text-on-surface-variant transition-colors duration-200 dark:text-white">{label}</span>
-            <span className="font-body-sm text-body-sm text-on-surface transition-colors duration-200 dark:text-white">{value}</span>
+            {href ? (
+                <Link href={href} className="font-body-sm text-body-sm text-primary-700 transition-colors duration-200 hover:underline dark:text-primary-300">
+                    {value}
+                </Link>
+            ) : (
+                <span className="font-body-sm text-body-sm text-on-surface transition-colors duration-200 dark:text-white">{value}</span>
+            )}
         </div>
     );
 }
-

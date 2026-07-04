@@ -31,16 +31,32 @@ public interface BookRepository extends JpaRepository<BookEntity, Integer> {
             "OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<BookEntity> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    // Lọc theo category name
-    @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.categories c WHERE LOWER(c.name) = LOWER(:category)")
-    Page<BookEntity> findByCategory(@Param("category") String category, Pageable pageable);
+    // Lọc theo category id
+    @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.categories c WHERE c.id = :categoryId")
+    Page<BookEntity> findByCategoryId(@Param("categoryId") Integer categoryId, Pageable pageable);
 
     // Tìm kiếm + lọc category
-    @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.categories c LEFT JOIN b.authors a WHERE LOWER(c.name) = LOWER(:category) " +
+    @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.categories c LEFT JOIN b.authors a WHERE c.id = :categoryId " +
             "AND (LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")
-    Page<BookEntity> searchByKeywordAndCategory(
+    Page<BookEntity> searchByKeywordAndCategoryId(
             @Param("keyword") String keyword,
-            @Param("category") String category,
+            @Param("categoryId") Integer categoryId,
+            Pageable pageable);
+
+    @Query("SELECT DISTINCT b FROM BookEntity b LEFT JOIN b.categories c LEFT JOIN b.authors a WHERE " +
+           "(:keyword IS NULL OR :keyword = '' OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+           "(:categoryId IS NULL OR c.id = :categoryId) AND " +
+           "(:authorId IS NULL OR a.id = :authorId) AND " +
+           "(:publisher IS NULL OR :publisher = '' OR b.publisher = :publisher) AND " +
+           "(:minRating IS NULL OR b.rating >= :minRating) AND " +
+           "(:isAvailable IS NULL OR :isAvailable = false OR b.availableQuantity > 0)")
+    Page<BookEntity> findWithFilters(
+            @Param("keyword") String keyword,
+            @Param("categoryId") Integer categoryId,
+            @Param("authorId") Integer authorId,
+            @Param("publisher") String publisher,
+            @Param("minRating") Double minRating,
+            @Param("isAvailable") Boolean isAvailable,
             Pageable pageable);
 }

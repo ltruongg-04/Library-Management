@@ -65,9 +65,13 @@ export interface BookPageResponse {
 export interface BookSearchParams {
     keyword?: string;
     category?: string;
+    authorId?: number;
+    publisher?: string;
     page?: number;
     size?: number;
-    sortBy?: "newest" | "title" | "author";
+    sortBy?: "newest" | "oldest" | "title" | "titleDesc" | "author" | "authorDesc" | "mostRead" | "leastRead";
+    minRating?: number;
+    isAvailable?: boolean;
 }
 
 export interface BookDetail {
@@ -88,6 +92,7 @@ export interface BookDetail {
     depositPrice?: number;
     categories: string[];
     aiMatchScore?: number;
+    authorsList?: { id: number; name: string }[];
 }
 
 export interface BookUpdateRequest {
@@ -131,7 +136,7 @@ export function bookToBookDetail(book: Book): BookDetail {
     return {
         id: book.id,
         title: book.title,
-        author: book.authors?.map(a => a.name).join(", ") || "",
+        author: book.authors?.map((a) => a.name).join(", ") || "",
         publisher: book.publisher || "",
         publishedDate: book.publicationDate || "",
         pages: book.pages || 0,
@@ -144,6 +149,7 @@ export function bookToBookDetail(book: Book): BookDetail {
         totalCount: book.quantity || 0,
         shelfLocation: book.shelfLocation,
         depositPrice: book.depositPrice,
-        categories: book.categories?.map(c => c.name) || [],
+        categories: book.categories?.map((c) => c.name) || [],
+        authorsList: book.authors || [],
     };
 }

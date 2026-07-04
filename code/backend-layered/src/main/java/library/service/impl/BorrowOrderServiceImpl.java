@@ -5,12 +5,16 @@ import library.common.exception.CustomBusinessException;
 import library.common.utils.VnPayUtil;
 import library.dto.borrow.BorrowRequestDto;
 import library.dto.borrow.BorrowResponseDto;
+import library.dto.borrow.UserBorrowDetailDto;
+import library.dto.borrow.UserBorrowHistoryDto;
 import library.entity.*;
 import library.repository.*;
 import library.service.BorrowOrderService;
 import library.service.VnPayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -143,4 +148,96 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
 
         return responseBuilder.build();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserBorrowHistoryDto> getUserBorrowHistory(Integer customerId, Pageable pageable) {
+        Page<BorrowOrderEntity> orders = borrowOrderRepository
+                .findByCustomerIdOrderByCreatedAtDesc(customerId, pageable);
+
+        return orders.map(this::toHistoryDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserBorrowDetailDto getUserBorrowDetail(Integer customerId, String orderCode) {
+        BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerId(orderCode, customerId)
+                .orElseThrow(() -> new CustomBusinessException("Borrow order not found", HttpStatus.NOT_FOUND));
+
+        BorrowOrderDetailEntity detail = order.getOrderDetails().isEmpty()
+                ? null : order.getOrderDetails().get(0);
+
+        UserBorrowDetailDto.UserBorrowDetailDtoBuilder builder = UserBorrowDetailDto.builder()
+                .id(order.getId())
+                .orderCode(order.getOrderCode())
+                .status(resolveOrderStatus(order))
+                .borrowDate(order.getBorrowDate())
+                .pickupDate(order.getPickupDate())
+                .dueDate(order.getDueDate())
+                .totalDeposit(order.getTotalDeposit())
+                .totalFee(order.getTotalFee());
+
+        if (detail != null) {
+            BookCopyEntity bookCopy = detail.getBookCopy();
+            BookEntity book = bookCopy.getBook();
+            String authorNames = book.getAuthors().stream()
+                    .map(a -> a.getName())
+                    .collect(Collectors.joining(", "));
+
+            builder.bookTitle(book.getTitle())
+                    .bookAuthor(authorNames.isEmpty() ? book.getAuthor() : authorNames)
+                    .bookCoverImage(book.getImageUrl())
+                    .bookDetailStatus(detail.getStatus().name());
+        }
+
+        // Tính phí trễ hạn nếu quá hạn
+        if (order.getDueDate() != null && LocalDate.now().isAfter(order.getDueDate())
+                && !"RETURNED".equals(order.getStatus().name()) && !"CANCELLED".equals(order.getStatus().name())) {
+            long overdueDays = java.time.temporal.ChronoUnit.DAYS.between(order.getDueDate(), LocalDate.now());
+            BigDecimal lateFee = BigDecimal.valueOf(overdueDays * 5000);
+            builder.lateFee(lateFee);
+        } else {
+            builder.lateFee(BigDecimal.ZERO);
+        }
+
+        return builder.build();
+    }
+
+    private UserBorrowHistoryDto toHistoryDto(BorrowOrderEntity order) {
+        UserBorrowHistoryDto.UserBorrowHistoryDtoBuilder builder = UserBorrowHistoryDto.builder()
+                .id(order.getId())
+                .orderCode(order.getOrderCode())
+                .status(resolveOrderStatus(order))
+                .borrowDate(order.getBorrowDate())
+                .pickupDate(order.getPickupDate())
+                .dueDate(order.getDueDate())
+                .totalDeposit(order.getTotalDeposit());
+
+        // Lấy thông tin cuốn sách từ order detail đầu tiên (vì mỗi đơn chỉ có 1 cuốn)
+        if (!order.getOrderDetails().isEmpty()) {
+            BorrowOrderDetailEntity detail = order.getOrderDetails().get(0);
+            BookCopyEntity bookCopy = detail.getBookCopy();
+            BookEntity book = bookCopy.getBook();
+            String authorNames = book.getAuthors().stream()
+                    .map(a -> a.getName())
+                    .collect(Collectors.joining(", "));
+
+            builder.bookTitle(book.getTitle())
+                    .bookAuthor(authorNames.isEmpty() ? book.getAuthor() : authorNames)
+                    .bookCoverImage(book.getImageUrl());
+        }
+
+        return builder.build();
+    }
+
+    private String resolveOrderStatus(BorrowOrderEntity order) {
+        // Tự động xác định OVERDUE dựa trên ngày hết hạn
+        if (order.getStatus() == BorrowOrderStatus.BORROWED
+                && order.getDueDate() != null
+                && LocalDate.now().isAfter(order.getDueDate())) {
+            return "OVERDUE";
+        }
+        return order.getStatus().name();
+    }
 }
+

@@ -17,4 +17,7 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Intege
     @Modifying
     @Query(value = "DELETE FROM book_categories WHERE category_id = :categoryId", nativeQuery = true)
     void deleteCategoryAssociations(@Param("categoryId") Integer categoryId);
+
+    @Query("SELECT DISTINCT c FROM BookEntity b JOIN b.categories c WHERE b.isDeleted = false")
+    java.util.List<CategoryEntity> findAllWithBooks();
 }

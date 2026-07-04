@@ -2,9 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useTrendingBooks } from "@/hooks/useBooks";
+import { favoriteService } from "@/services/favorite";
 import type { Book } from "@/types/book";
 
 const CATEGORY_STYLES: Record<string, string> = {
@@ -18,6 +21,7 @@ const CATEGORY_STYLES: Record<string, string> = {
 const DEFAULT_CATEGORY_STYLE = "text-secondary-300 bg-secondary-300/10 dark:text-white dark:bg-secondary-300/40";
 
 function BookCard({ book, hideOnMobile, hideOnTablet }: { book: Book; hideOnMobile?: boolean; hideOnTablet?: boolean }) {
+    const router = useRouter();
     let wrapperClass =
         "bg-surface-container-lowest dark:bg-slate-900 rounded-lg level-1-shadow level-2-shadow-hover transition-all duration-300 overflow-hidden flex flex-col h-full group";
     if (hideOnTablet) {
@@ -26,43 +30,61 @@ function BookCard({ book, hideOnMobile, hideOnTablet }: { book: Book; hideOnMobi
         wrapperClass += " hidden md:flex";
     }
 
+    const handleBookmark = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        try {
+            await favoriteService.addFavorite(book.id);
+            toast.success("Thêm vào danh sách thành công!", {
+                action: {
+                    label: "Tới Sách của tôi",
+                    onClick: () => router.push("/sach-cua-toi"),
+                },
+            });
+        } catch (error: any) {
+            toast.error(error.message || "Không thể thêm vào danh sách yêu thích");
+        }
+    };
+
     return (
         <Link href={`/sach/${book.id}`} className={wrapperClass}>
             {/* Cover Image Area */}
-            <div className="relative h-48 w-full overflow-hidden bg-surface-container-low p-4 flex items-center justify-center transition-colors duration-200 dark:bg-slate-800">
+            <div className="relative flex h-48 w-full items-center justify-center overflow-hidden bg-surface-container-low p-4 transition-colors duration-200 dark:bg-slate-800">
                 {book.imageUrl ? (
                     <Image
                         src={book.imageUrl}
                         alt={`Book cover: ${book.title}`}
                         width={128}
                         height={192}
-                        className="h-full w-auto object-cover rounded shadow-sm group-hover:scale-105 transition-transform duration-500"
+                        className="h-full w-auto rounded object-cover shadow-sm transition-transform duration-500 group-hover:scale-105"
                         unoptimized
                     />
                 ) : (
-                    <div className="w-24 h-36 bg-primary-container rounded shadow-md flex items-center justify-center text-on-primary-container group-hover:scale-105 transition-transform duration-500">
+                    <div className="flex h-36 w-24 items-center justify-center rounded bg-primary-container text-on-primary-container shadow-md transition-transform duration-500 group-hover:scale-105">
                         <MaterialIcon name="menu_book" className="text-[48px]" />
                     </div>
                 )}
             </div>
 
             {/* Card Content */}
-            <div className="p-6 flex flex-col flex-grow">
-                <h3 className="font-sans text-[20px] font-semibold leading-[28px] text-on-surface dark:text-white mb-1 line-clamp-1 transition-colors duration-200">
+            <div className="flex flex-grow flex-col p-6">
+                <h3 className="mb-1 line-clamp-1 font-sans text-[20px] font-semibold leading-[28px] text-on-surface transition-colors duration-200 dark:text-white">
                     {book.title}
                 </h3>
-                <p className="font-sans text-[14px] leading-[20px] text-on-surface-variant dark:text-white mb-4 transition-colors duration-200">
+                <p className="mb-4 font-sans text-[14px] leading-[20px] text-on-surface-variant transition-colors duration-200 dark:text-white">
                     {book.authors?.map((a: any) => a.name).join(", ")}
                 </p>
-                <div className="mt-auto flex justify-between items-center">
+                <div className="mt-auto flex items-center justify-between">
                     <span
-                        className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES[book.categories?.[0]?.name] || DEFAULT_CATEGORY_STYLE} px-2 py-1 rounded max-w-[120px] truncate`}
+                        className={`font-mono text-[12px] font-medium leading-[16px] tracking-[0.05em] ${CATEGORY_STYLES[book.categories?.[0]?.name] || DEFAULT_CATEGORY_STYLE} max-w-[120px] truncate rounded px-2 py-1`}
                         title={book.categories?.[0]?.name}
                     >
                         {book.categories?.[0]?.name || "—"}
                     </span>
                     <button
-                        className="text-primary-700 dark:text-white hover:text-secondary-300 dark:hover:text-secondary-300 transition-colors"
+                        onClick={handleBookmark}
+                        className="text-primary-700 transition-colors hover:text-secondary-300 dark:text-white dark:hover:text-secondary-300"
                         aria-label={`Bookmark ${book.title}`}
                     >
                         <MaterialIcon name="bookmark_add" />
@@ -75,9 +97,9 @@ function BookCard({ book, hideOnMobile, hideOnTablet }: { book: Book; hideOnMobi
 
 function BookCardSkeleton() {
     return (
-        <div className="bg-surface-container-lowest dark:bg-slate-900 rounded-lg level-1-shadow overflow-hidden flex flex-col h-full animate-pulse">
+        <div className="level-1-shadow flex h-full animate-pulse flex-col overflow-hidden rounded-lg bg-surface-container-lowest dark:bg-slate-900">
             <div className="h-48 w-full bg-surface-container-low dark:bg-slate-800"></div>
-            <div className="p-6 flex flex-col flex-grow space-y-3">
+            <div className="flex flex-grow flex-col space-y-3 p-6">
                 <div className="h-5 w-3/4 rounded bg-surface-container-low dark:bg-slate-800"></div>
                 <div className="h-4 w-1/2 rounded bg-surface-container-low dark:bg-slate-800"></div>
                 <div className="mt-auto h-4 w-1/3 rounded bg-surface-container-low dark:bg-slate-800"></div>
@@ -90,59 +112,55 @@ export default function PopularBooks() {
     const { books, loading, error } = useTrendingBooks(4);
 
     return (
-        <section className="py-12 px-4 lg:px-6 max-w-[1440px] mx-auto">
+        <section className="mx-auto max-w-[1440px] px-4 py-12 lg:px-6">
             {/* Section Header */}
-            <div className="flex justify-between items-end mb-6">
+            <div className="mb-6 flex items-end justify-between">
                 <div>
-                    <h2 className="font-sans text-[32px] font-semibold leading-[40px] tracking-[-0.01em] text-primary-700 dark:text-white transition-colors duration-200">
+                    <h2 className="font-sans text-[32px] font-semibold leading-[40px] tracking-[-0.01em] text-primary-700 transition-colors duration-200 dark:text-white">
                         {UI_TEXT.HOME.TRENDING_HEADING}
                     </h2>
-                    <p className="font-sans text-[16px] leading-[24px] text-on-surface-variant dark:text-white transition-colors duration-200">
+                    <p className="font-sans text-[16px] leading-[24px] text-on-surface-variant transition-colors duration-200 dark:text-white">
                         {UI_TEXT.HOME.TRENDING_SUBHEADING}
                     </p>
                 </div>
                 <Link
                     href="/sach"
-                    className="text-secondary-500 dark:text-white font-semibold text-[20px] leading-[28px] hover:text-primary-700 dark:hover:text-primary-300 transition-colors flex items-center"
+                    className="flex items-center text-[20px] font-semibold leading-[28px] text-secondary-500 transition-colors hover:text-primary-700 dark:text-white dark:hover:text-primary-300"
                 >
-                    {UI_TEXT.HOME.VIEW_ALL}{" "}
-                    <MaterialIcon name="arrow_forward" className="ml-1 text-sm" />
+                    {UI_TEXT.HOME.VIEW_ALL} <MaterialIcon name="arrow_forward" className="ml-1 text-sm" />
                 </Link>
             </div>
 
             {/* Book Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {loading && (
                     <>
                         <BookCardSkeleton />
                         <BookCardSkeleton />
-                        <div className="hidden md:block"><BookCardSkeleton /></div>
-                        <div className="hidden lg:block"><BookCardSkeleton /></div>
+                        <div className="hidden md:block">
+                            <BookCardSkeleton />
+                        </div>
+                        <div className="hidden lg:block">
+                            <BookCardSkeleton />
+                        </div>
                     </>
                 )}
 
                 {!loading && error && (
-                    <div className="col-span-full text-center py-8 text-on-surface-variant dark:text-white/70">
+                    <div className="col-span-full py-8 text-center text-on-surface-variant dark:text-white/70">
                         <MaterialIcon name="error_outline" className="mb-2 text-[40px] text-red-400" />
                         <p>{UI_TEXT.COMMON.ERROR_LOAD_TRENDING}</p>
                     </div>
                 )}
 
                 {!loading && !error && books.length === 0 && (
-                    <div className="col-span-full text-center py-8 text-on-surface-variant dark:text-white/70">
+                    <div className="col-span-full py-8 text-center text-on-surface-variant dark:text-white/70">
                         <MaterialIcon name="library_books" className="mb-2 text-[40px]" />
                         <p>{UI_TEXT.COMMON.EMPTY_DATA}</p>
                     </div>
                 )}
 
-                {!loading && !error && books.map((book, index) => (
-                    <BookCard
-                        key={book.id}
-                        book={book}
-                        hideOnMobile={index >= 2}
-                        hideOnTablet={index >= 3}
-                    />
-                ))}
+                {!loading && !error && books.map((book, index) => <BookCard key={book.id} book={book} hideOnMobile={index >= 2} hideOnTablet={index >= 3} />)}
             </div>
         </section>
     );

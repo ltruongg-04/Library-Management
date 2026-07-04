@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { getFallbackBookPage } from "@/mocks/books";
 
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8081";
 const DEFAULT_TRENDING_LIMIT = 8;
@@ -19,21 +18,12 @@ export async function GET(request: Request) {
         const data = await response.json();
 
         if (!response.ok) {
-            return NextResponse.json(getFallbackResponse(limit));
+            return NextResponse.json({ success: false, message: data.message || "Failed to fetch trending books" }, { status: response.status });
         }
 
         return NextResponse.json(data);
     } catch (error) {
         console.error("Error proxying to backend /api/books/trending:", error);
-        return NextResponse.json(getFallbackResponse(limit));
+        return NextResponse.json({ success: false, message: "Backend is unreachable" }, { status: 503 });
     }
-}
-
-function getFallbackResponse(limit: number) {
-    return {
-        success: true,
-        message: "Using local fallback catalog",
-        data: getFallbackBookPage({ size: limit }),
-        timestamp: new Date().toISOString(),
-    };
 }
