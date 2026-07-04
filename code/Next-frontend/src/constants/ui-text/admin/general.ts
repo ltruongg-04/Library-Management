@@ -5,6 +5,7 @@ export const ADMIN = {
         NAV_CATEGORIES: "Thể loại",
         NAV_AUTHORS: "Tác giả",
         NAV_BORROWS: "Lượt mượn",
+        NAV_REVIEWS: "Đánh giá",
         NAV_MEMBERS: "Thành viên",
         NAV_ROLES: "Vai trò & quyền",
         NAV_STATS: "Thống kê",

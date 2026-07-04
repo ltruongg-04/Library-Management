@@ -16,10 +16,18 @@ async function requestPublicBooksApi<T>(url: string, signal?: AbortSignal): Prom
         },
     });
 
-    const result = (await response.json()) as ApiResponse<T>;
+    let result: ApiResponse<T>;
+    try {
+        result = (await response.json()) as ApiResponse<T>;
+    } catch (e) {
+        if (!response.ok) {
+            throw new Error(`Hệ thống đang tạm thời gián đoạn (Lỗi ${response.status}). Vui lòng thử lại sau.`);
+        }
+        throw new Error("Lỗi kết nối hoặc định dạng dữ liệu không hợp lệ. Vui lòng thử lại sau.");
+    }
 
     if (!response.ok || !result.success) {
-        throw new Error(result.message || "Không thể tải dữ liệu sách");
+        throw new Error(result?.message || "Không thể tải dữ liệu sách");
     }
 
     if (!result.data) {
@@ -31,16 +39,19 @@ async function requestPublicBooksApi<T>(url: string, signal?: AbortSignal): Prom
 
 export const bookService = {
     async getBooks(params?: BookSearchParams, signal?: AbortSignal): Promise<BookPageResponse> {
+        const { keyword, category, authorId, publisher, page = 0, size = 12, sortBy = "newest", minRating, isAvailable } = params || {};
         const queryParams = new URLSearchParams();
-        if (params?.keyword) queryParams.append("keyword", params.keyword);
 
-        if (params?.category && params.category !== "Tất cả" && params.category !== "all") {
-            queryParams.append("category", params.category);
-        }
+        if (keyword) queryParams.append("keyword", keyword);
+        if (category && category !== "Tất cả" && category !== "all") queryParams.append("categoryId", category);
+        if (authorId) queryParams.append("authorId", authorId.toString());
+        if (publisher) queryParams.append("publisher", publisher);
+        if (minRating) queryParams.append("minRating", minRating.toString());
+        if (isAvailable !== undefined) queryParams.append("isAvailable", isAvailable.toString());
 
-        if (params?.page !== undefined) queryParams.append("page", params.page.toString());
-        if (params?.size !== undefined) queryParams.append("size", params.size.toString());
-        if (params?.sortBy) queryParams.append("sortBy", params.sortBy);
+        queryParams.append("page", page.toString());
+        queryParams.append("size", size.toString());
+        queryParams.append("sortBy", sortBy);
 
         return requestPublicBooksApi<BookPageResponse>(`/api/books?${queryParams.toString()}`, signal);
     },

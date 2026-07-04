@@ -25,6 +25,7 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    ignore-migration-patterns: "*:missing"
 
 app:
   jwt:

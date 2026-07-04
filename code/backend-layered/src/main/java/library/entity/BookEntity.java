@@ -51,6 +51,10 @@ public class BookEntity extends BaseEntity {
     @Builder.Default
     private int availableQuantity = 0;
 
+    @org.hibernate.annotations.Formula("(SELECT COUNT(bod.id) FROM borrow_order_details bod JOIN book_copies bc ON bod.book_copy_id = bc.id WHERE bc.book_id = id)")
+    @Builder.Default
+    private int borrowCount = 0;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "book_categories",
