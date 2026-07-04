@@ -78,11 +78,10 @@ export function useBooks(initialParams?: BookSearchParams) {
     // ✅ Debounce keyword riêng — không để page/category bị delay
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const setPage = (page: number) => setParams((prev) => ({ ...prev, page }));
+    const setPage = useCallback((page: number) => setParams((prev) => ({ ...prev, page })), []);
 
-    const setKeyword = (keyword: string) => {
+    const setKeyword = useCallback((keyword: string) => {
         if (debounceRef.current) clearTimeout(debounceRef.current);
-        // Khi xóa hết → fetch ngay lập tức, không chờ debounce
         if (!keyword) {
             setParams((prev) => ({ ...prev, keyword: undefined, page: 0 }));
             return;
@@ -90,20 +89,45 @@ export function useBooks(initialParams?: BookSearchParams) {
         debounceRef.current = setTimeout(() => {
             setParams((prev) => ({ ...prev, keyword, page: 0 }));
         }, 400);
-    };
+    }, []);
 
-    const setCategory = (category: string) => setParams((prev) => ({ ...prev, category: category || undefined, page: 0 }));
+    const setCategory = useCallback((category: string) => setParams((prev) => ({ ...prev, category: category || undefined, page: 0 })), []);
 
-    const setSortBy = (sortBy: BookSearchParams["sortBy"]) => setParams((prev) => ({ ...prev, sortBy, page: 0 }));
+    const setAuthorId = useCallback((authorId?: number) => setParams((prev) => ({ ...prev, authorId, page: 0 })), []);
 
-    const clearFilters = () => {
+    const setPublisher = useCallback((publisher?: string) => setParams((prev) => ({ ...prev, publisher, page: 0 })), []);
+
+    const setSortBy = useCallback((sortBy: BookSearchParams["sortBy"]) => setParams((prev) => ({ ...prev, sortBy, page: 0 })), []);
+
+    const setMinRating = useCallback((minRating?: number) => {
+        setParams((prev) => ({ ...prev, minRating, page: 0 }));
+    }, []);
+
+    const setIsAvailable = useCallback((isAvailable?: boolean) => {
+        setParams((prev) => ({ ...prev, isAvailable, page: 0 }));
+    }, []);
+
+    const clearFilters = useCallback(() => {
         if (debounceRef.current) clearTimeout(debounceRef.current);
-        setParams({ page: 0, size: params.size });
+        setParams({ page: 0, size: 12, sortBy: "newest" });
+    }, []);
+
+    const refresh = useCallback(() => fetchBooks(params), [fetchBooks, params]);
+
+    return {
+        ...state,
+        setPage,
+        setKeyword,
+        setCategory,
+        setAuthorId,
+        setPublisher,
+        setMinRating,
+        setIsAvailable,
+        clearFilters,
+        setSortBy,
+        refresh,
+        currentParams: params,
     };
-
-    const refresh = () => fetchBooks(params);
-
-    return { ...state, setPage, setKeyword, setCategory, setSortBy, clearFilters, refresh };
 }
 
 /**
@@ -194,6 +218,51 @@ export function useTrendingBooks(limit: number = 8) {
             cancelled = true;
         };
     }, [limit]);
+
+    return { books, loading, error };
+}
+
+/**
+ * Hook để lấy sách liên quan (cùng thể loại)
+ */
+export function useRelatedBooks(bookId: number | null, categoryId?: string, limit: number = 4) {
+    const [books, setBooks] = useState<Book[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!categoryId) {
+            setLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+
+        async function fetchRelated() {
+            setLoading(true);
+            setError(null);
+            try {
+                // Fetch limit + 1 in case the current book is in the list
+                const data = await bookService.getBooks({ category: categoryId, size: limit + 1 });
+                if (!cancelled) {
+                    const filtered = data.content.filter((b) => b.id !== bookId).slice(0, limit);
+                    setBooks(filtered);
+                    setLoading(false);
+                }
+            } catch (err: any) {
+                if (!cancelled) {
+                    setError(err.message || "Không thể tải sách liên quan");
+                    setLoading(false);
+                }
+            }
+        }
+
+        fetchRelated();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [bookId, categoryId, limit]);
 
     return { books, loading, error };
 }

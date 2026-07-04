@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { LoanCard } from "@/components/features/history/LoanCard";
 import { LoanFilter } from "@/components/features/history/LoanFilter";
 import { MY_BOOKS_PAGE } from "@/constants/ui-text/public";
-import { MOCK_LOANS } from "@/mocks/loans";
+import { type UserBorrowHistoryItem, userBorrowService } from "@/services/userBorrow";
 
 export default function MyBooksPage() {
-    const [loans, setLoans] = useState(MOCK_LOANS);
+    const [loans, setLoans] = useState<UserBorrowHistoryItem[]>([]);
+    const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState(MY_BOOKS_PAGE.FILTER.STATUS_ALL);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -20,6 +21,23 @@ export default function MyBooksPage() {
         end: "",
     });
 
+    const fetchLoans = useCallback(async () => {
+        try {
+            setLoading(true);
+            const result = await userBorrowService.getHistory(0, 50);
+            setLoans(result.content);
+        } catch {
+            // Nếu chưa đăng nhập hoặc chưa có customer profile, hiện danh sách trống
+            setLoans([]);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchLoans();
+    }, [fetchLoans]);
+
     const handleApplyFilter = () => {
         setAppliedFilter({
             status: statusFilter,
@@ -28,35 +46,49 @@ export default function MyBooksPage() {
         });
     };
 
-    const handleCancel = (id: string) => {
-        setLoans((prev) => prev.map((loan) => (loan.id === id ? { ...loan, status: "cancelled" } : loan)));
+    const handleCancel = (orderCode: string) => {
+        setLoans((prev) => prev.map((loan) => (loan.orderCode === orderCode ? { ...loan, status: "CANCELLED" } : loan)));
         toast.success("Đã huỷ đặt giữ chỗ thành công!");
     };
 
+    const mapStatusToFilter = (status: string): string => {
+        const statusMap: Record<string, string> = {
+            PENDING: "pending",
+            READY: "pending",
+            BORROWED: "borrowing",
+            RETURNED: "returned",
+            OVERDUE: "overdue",
+            CANCELLED: "cancelled",
+        };
+        return statusMap[status] || status.toLowerCase();
+    };
+
     const parseDate = (dateStr: string) => {
-        const [day, month, year] = dateStr.split("/");
-        return new Date(Number(year), Number(month) - 1, Number(day));
+        if (!dateStr) return null;
+        // Backend trả về ISO format: yyyy-MM-dd
+        return new Date(dateStr);
     };
 
     const filteredLoans = loans.filter((loan) => {
         // Status filter
         let statusMatch = true;
         if (appliedFilter.status !== MY_BOOKS_PAGE.FILTER.STATUS_ALL) {
+            const mappedStatus = mapStatusToFilter(loan.status);
             switch (appliedFilter.status) {
                 case MY_BOOKS_PAGE.FILTER.STATUS_BORROWING:
-                    statusMatch = loan.status === "borrowing";
+                    statusMatch = mappedStatus === "borrowing";
                     break;
                 case MY_BOOKS_PAGE.FILTER.STATUS_RETURNED:
-                    statusMatch = loan.status === "returned";
+                    statusMatch = mappedStatus === "returned";
                     break;
                 case MY_BOOKS_PAGE.FILTER.STATUS_OVERDUE:
-                    statusMatch = loan.status === "overdue";
+                    statusMatch = mappedStatus === "overdue";
                     break;
                 case MY_BOOKS_PAGE.FILTER.STATUS_PENDING:
-                    statusMatch = loan.status === "pending";
+                    statusMatch = mappedStatus === "pending";
                     break;
                 case MY_BOOKS_PAGE.FILTER.STATUS_CANCELLED:
-                    statusMatch = loan.status === "cancelled";
+                    statusMatch = mappedStatus === "cancelled";
                     break;
             }
         }
@@ -64,17 +96,29 @@ export default function MyBooksPage() {
         // Date filter
         let dateMatch = true;
         const loanDate = parseDate(loan.borrowDate);
-        if (appliedFilter.start) {
-            const start = new Date(appliedFilter.start);
-            if (loanDate < start) dateMatch = false;
-        }
-        if (appliedFilter.end) {
-            const end = new Date(appliedFilter.end);
-            if (loanDate > end) dateMatch = false;
+        if (loanDate) {
+            if (appliedFilter.start) {
+                const start = new Date(appliedFilter.start);
+                if (loanDate < start) dateMatch = false;
+            }
+            if (appliedFilter.end) {
+                const end = new Date(appliedFilter.end);
+                if (loanDate > end) dateMatch = false;
+            }
         }
 
         return statusMatch && dateMatch;
     });
+
+    if (loading) {
+        return (
+            <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
+                <div className="flex items-center justify-center py-24">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
@@ -103,7 +147,7 @@ export default function MyBooksPage() {
             {filteredLoans.length > 0 ? (
                 <div className="space-y-md" id="loan-list-container">
                     {filteredLoans.map((loan) => (
-                        <LoanCard key={loan.id} loan={loan} onCancel={() => handleCancel(loan.id)} />
+                        <LoanCard key={loan.orderCode} loan={loan} onCancel={() => handleCancel(loan.orderCode)} />
                     ))}
                 </div>
             ) : (

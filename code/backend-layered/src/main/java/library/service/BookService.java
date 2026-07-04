@@ -24,7 +24,7 @@ public interface BookService {
 
     BookResponse updateBook(Integer id, library.dto.request.BookUpdateRequest request);
 
-    BookPageResponse getBooks(String keyword, String category, int page, int size, String sortBy);
+    BookPageResponse getBooks(String keyword, Integer categoryId, Integer authorId, String publisher, int page, int size, String sortBy, Double minRating, Boolean isAvailable);
 
     BookPageResponse getTrendingBooks(int limit);
 }

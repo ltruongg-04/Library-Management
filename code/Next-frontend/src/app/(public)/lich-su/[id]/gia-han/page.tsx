@@ -1,24 +1,88 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { RENEW_PAGE } from "@/constants/ui-text/public";
-import { MOCK_RENEW_DATA } from "@/mocks/loans";
+import { type UserBorrowDetail, userBorrowService } from "@/services/userBorrow";
+
+const RENEWAL_OPTIONS = [
+    { days: 7, fee: 10000 },
+    { days: 14, fee: 20000 },
+];
 
 const formatCurrency = (amount: number) => {
     return `${amount.toLocaleString("vi-VN")}đ`;
 };
 
+const formatDate = (dateStr: string | null): string => {
+    if (!dateStr) return "—";
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+    } catch {
+        return dateStr;
+    }
+};
+
 export default function RenewBookPage() {
-    const data = MOCK_RENEW_DATA;
-    const { book, currentLateFee, initialDeposit, renewalOptions } = data;
+    const params = useParams();
+    const id = params?.id as string;
+    const [loan, setLoan] = useState<UserBorrowDetail | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedDuration, setSelectedDuration] = useState(RENEWAL_OPTIONS[0].days);
 
-    const [selectedDuration, setSelectedDuration] = useState(renewalOptions[0].days);
+    const fetchDetail = useCallback(async () => {
+        try {
+            setLoading(true);
+            const detail = await userBorrowService.getDetail(id);
+            setLoan(detail);
+        } catch {
+            setLoan(null);
+        } finally {
+            setLoading(false);
+        }
+    }, [id]);
 
-    const selectedOption = renewalOptions.find((opt) => opt.days === selectedDuration)!;
+    useEffect(() => {
+        if (id) {
+            fetchDetail();
+        }
+    }, [id, fetchDetail]);
+
+    if (loading) {
+        return (
+            <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
+                <div className="flex items-center justify-center py-24">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!loan) {
+        return (
+            <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
+                <p className="py-24 text-center text-on-surface-variant dark:text-slate-400">{RENEW_PAGE.NOT_FOUND}</p>
+            </div>
+        );
+    }
+
+    const currentLateFee = loan.lateFee || 0;
+    const initialDeposit = loan.totalDeposit || 0;
+    const selectedOption = RENEWAL_OPTIONS.find((opt) => opt.days === selectedDuration)!;
     const totalNewCost = currentLateFee + selectedOption.fee;
+
+    // Calculate overdue days
+    let overdueDays = 0;
+    if (loan.dueDate) {
+        const dueDate = new Date(loan.dueDate);
+        const now = new Date();
+        const diff = Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (diff > 0) overdueDays = diff;
+    }
 
     return (
         <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
@@ -43,8 +107,8 @@ export default function RenewBookPage() {
                 <div className="flex flex-col gap-lg md:flex-row">
                     {/* Cover Image */}
                     <div className="relative h-36 w-24 flex-shrink-0 overflow-hidden rounded-lg border border-outline-variant/20 shadow-sm dark:border-slate-700">
-                        {book.imgSrc ? (
-                            <Image src={book.imgSrc} alt={book.title} fill className="object-cover" />
+                        {loan.bookCoverImage ? (
+                            <Image src={loan.bookCoverImage} alt={loan.bookTitle} fill className="object-cover" />
                         ) : (
                             <div className="flex h-full w-full items-center justify-center bg-surface-container-high dark:bg-slate-800">
                                 <MaterialIcon name="book" className="text-[32px] text-outline dark:text-slate-500" />
@@ -55,31 +119,31 @@ export default function RenewBookPage() {
                     {/* Book Details */}
                     <div className="flex-grow space-y-sm">
                         <div className="flex flex-wrap items-center gap-md">
-                            <h2 className="font-title-md text-title-md text-on-surface dark:text-white">{book.title}</h2>
-                            <span className="flex items-center gap-xs rounded-full bg-error-container/30 px-sm py-1 font-label-caps text-label-caps text-error dark:bg-slate-800 dark:text-error-300">
-                                <span className="h-1.5 w-1.5 rounded-full bg-error dark:bg-error-300"></span>
-                                {RENEW_PAGE.OVERDUE_BADGE_PREFIX} ({book.overdueDays} {RENEW_PAGE.OVERDUE_DAYS_SUFFIX})
-                            </span>
+                            <h2 className="font-title-md text-title-md text-on-surface dark:text-white">{loan.bookTitle}</h2>
+                            {overdueDays > 0 && (
+                                <span className="flex items-center gap-xs rounded-full bg-error-container/30 px-sm py-1 font-label-caps text-label-caps text-error dark:bg-slate-800 dark:text-error-300">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-error dark:bg-error-300"></span>
+                                    {RENEW_PAGE.OVERDUE_BADGE_PREFIX} ({overdueDays} {RENEW_PAGE.OVERDUE_DAYS_SUFFIX})
+                                </span>
+                            )}
                         </div>
                         <p className="text-body-sm text-on-surface-variant dark:text-slate-400">
-                            {RENEW_PAGE.AUTHOR_PREFIX} {book.author}
+                            {RENEW_PAGE.AUTHOR_PREFIX} {loan.bookAuthor}
                         </p>
 
                         {/* Dates Row */}
                         <div className="grid grid-cols-2 gap-lg pt-sm lg:grid-cols-3">
                             <div>
                                 <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{RENEW_PAGE.BORROW_DATE}</p>
-                                <p className="text-body-md font-medium dark:text-white">{book.borrowDate}</p>
+                                <p className="text-body-md font-medium dark:text-white">{formatDate(loan.borrowDate)}</p>
                             </div>
                             <div>
                                 <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{RENEW_PAGE.DUE_DATE}</p>
-                                <p className="text-body-md font-medium text-error dark:text-error-300">{book.dueDate}</p>
+                                <p className="text-body-md font-medium text-error dark:text-error-300">{formatDate(loan.dueDate)}</p>
                             </div>
                             <div className="hidden lg:block">
                                 <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{RENEW_PAGE.ACTUAL_RETURN_DATE}</p>
-                                <p className="text-body-md text-on-surface-variant dark:text-slate-400">
-                                    {book.actualReturnDate ?? RENEW_PAGE.ACTUAL_RETURN_DASH}
-                                </p>
+                                <p className="text-body-md text-on-surface-variant dark:text-slate-400">{RENEW_PAGE.ACTUAL_RETURN_DASH}</p>
                             </div>
                         </div>
                     </div>
@@ -110,7 +174,7 @@ export default function RenewBookPage() {
                     <div>
                         <h3 className="mb-md font-title-md text-title-md text-on-surface dark:text-white">{RENEW_PAGE.DURATION.HEADING}</h3>
                         <div className="space-y-md">
-                            {renewalOptions.map((option) => (
+                            {RENEWAL_OPTIONS.map((option) => (
                                 <label key={option.days} className="flex cursor-pointer items-center gap-md" htmlFor={`duration-${option.days}`}>
                                     <input
                                         type="radio"

@@ -52,6 +52,7 @@ export const RENEW_PAGE = {
     DUE_DATE: "HẠN TRẢ DỰ KIẾN",
     ACTUAL_RETURN_DATE: "NGÀY TRẢ THỰC TẾ",
     ACTUAL_RETURN_DASH: "—",
+    NOT_FOUND: "Không tìm thấy đơn mượn",
     DETAIL: {
         HEADING: "Chi tiết gia hạn",
         CURRENT_LATE_FEE: "Phí phạt hiện tại:",
