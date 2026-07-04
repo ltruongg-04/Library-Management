@@ -1,16 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { LoanCard } from "@/components/features/history/LoanCard";
 import { LoanFilter } from "@/components/features/history/LoanFilter";
 import { MY_BOOKS_PAGE } from "@/constants/ui-text/public";
-import { MOCK_LOANS } from "@/mocks/loans";
+import { getBorrowHistory } from "@/services/borrow";
+import { BorrowHistoryResponseDto } from "@/types/borrow";
 
 export default function MyBooksPage() {
     const [statusFilter, setStatusFilter] = useState(MY_BOOKS_PAGE.FILTER.STATUS_ALL);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [loans, setLoans] = useState<BorrowHistoryResponseDto[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        const fetchHistory = async () => {
+            try {
+                const response = await getBorrowHistory();
+                if (response.success && response.data) {
+                    setLoans(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch borrow history", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchHistory();
+    }, []);
 
     const [appliedFilter, setAppliedFilter] = useState({
         status: MY_BOOKS_PAGE.FILTER.STATUS_ALL,
@@ -24,6 +44,7 @@ export default function MyBooksPage() {
             start: startDate,
             end: endDate,
         });
+        setCurrentPage(1);
     };
 
     const parseDate = (dateStr: string) => {
@@ -31,13 +52,13 @@ export default function MyBooksPage() {
         return new Date(Number(year), Number(month) - 1, Number(day));
     };
 
-    const filteredLoans = MOCK_LOANS.filter((loan) => {
+    const filteredLoans = loans.filter((loan) => {
         // Status filter
         let statusMatch = true;
         if (appliedFilter.status !== MY_BOOKS_PAGE.FILTER.STATUS_ALL) {
             switch (appliedFilter.status) {
                 case MY_BOOKS_PAGE.FILTER.STATUS_BORROWING:
-                    statusMatch = loan.status === "borrowing";
+                    statusMatch = loan.status === "borrowed";
                     break;
                 case MY_BOOKS_PAGE.FILTER.STATUS_RETURNED:
                     statusMatch = loan.status === "returned";
@@ -69,6 +90,10 @@ export default function MyBooksPage() {
         return statusMatch && dateMatch;
     });
 
+    const ITEMS_PER_PAGE = 8;
+    const totalPages = Math.ceil(filteredLoans.length / ITEMS_PER_PAGE);
+    const paginatedLoans = filteredLoans.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
     return (
         <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
             {/* Title & Breadcrumb */}
@@ -93,11 +118,37 @@ export default function MyBooksPage() {
             />
 
             {/* Content Area */}
-            {filteredLoans.length > 0 ? (
+            {isLoading ? (
+                <div className="flex h-40 items-center justify-center">
+                    <span className="text-body-md text-on-surface-variant">Đang tải...</span>
+                </div>
+            ) : filteredLoans.length > 0 ? (
                 <div className="space-y-md" id="loan-list-container">
-                    {filteredLoans.map((loan) => (
+                    {paginatedLoans.map((loan) => (
                         <LoanCard key={loan.id} loan={loan} />
                     ))}
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-xl flex items-center justify-center gap-sm">
+                            <button
+                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+                            >
+                                <MaterialIcon name="chevron_left" />
+                            </button>
+                            <span className="font-body-md text-on-surface-variant dark:text-slate-400">
+                                {MY_BOOKS_PAGE.PAGINATION_PAGE} {currentPage} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+                            >
+                                <MaterialIcon name="chevron_right" />
+                            </button>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="mx-auto flex max-w-md flex-col items-center justify-center py-24 text-center" id="empty-state">

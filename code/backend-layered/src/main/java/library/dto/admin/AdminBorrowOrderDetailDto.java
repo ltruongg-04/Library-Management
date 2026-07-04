@@ -24,6 +24,8 @@ public class AdminBorrowOrderDetailDto {
     private BigDecimal discountAmount;
     private BigDecimal totalFee;
     private BigDecimal totalDeposit;
+    private BigDecimal totalPaidOnline;
+    private BigDecimal actualAmountToPay;
 
     private String customerName;
     private String customerCode;

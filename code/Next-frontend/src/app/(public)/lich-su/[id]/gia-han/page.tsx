@@ -1,24 +1,128 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
+import { SuccessModal } from "@/components/base/success-modal";
 import { RENEW_PAGE } from "@/constants/ui-text/public";
-import { MOCK_RENEW_DATA } from "@/mocks/loans";
+import { getBorrowOrderDetail, renewBorrowOrder } from "@/services/borrow";
+import { BorrowOrderDetailResponseDto } from "@/types/borrow";
 
 const formatCurrency = (amount: number) => {
     return `${amount.toLocaleString("vi-VN")}đ`;
 };
 
+const parseCurrency = (amountStr: string | null | undefined) => {
+    if (!amountStr) return 0;
+    return parseInt(amountStr.replace(/\D/g, ""), 10) || 0;
+};
+
+// Đơn giá gia hạn: 5.000đ/ngày (khớp với Backend)
+const EXTENSION_FEE_PER_DAY = 5000;
+const RENEWAL_OPTIONS = [
+    { days: 5, fee: EXTENSION_FEE_PER_DAY * 5 },
+    { days: 7, fee: EXTENSION_FEE_PER_DAY * 7 },
+];
+
 export default function RenewBookPage() {
-    const data = MOCK_RENEW_DATA;
-    const { book, currentLateFee, initialDeposit, renewalOptions } = data;
+    const params = useParams();
+    const router = useRouter();
+    const orderId = params?.id as string;
 
-    const [selectedDuration, setSelectedDuration] = useState(renewalOptions[0].days);
+    const [orderData, setOrderData] = useState<BorrowOrderDetailResponseDto | null>(null);
+    const [isFetching, setIsFetching] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const selectedOption = renewalOptions.find((opt) => opt.days === selectedDuration)!;
-    const totalNewCost = currentLateFee + selectedOption.fee;
+    const [selectedDuration, setSelectedDuration] = useState(RENEWAL_OPTIONS[0].days);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setIsFetching(true);
+                const res = await getBorrowOrderDetail(orderId);
+                if (res.success && res.data) {
+                    setOrderData(res.data);
+                } else {
+                    setError(res.message || "Không thể tải dữ liệu");
+                }
+            } catch (err) {
+                setError("Đã xảy ra lỗi khi tải dữ liệu");
+            } finally {
+                setIsFetching(false);
+            }
+        };
+
+        if (orderId) {
+            fetchData();
+        }
+    }, [orderId]);
+
+    if (isFetching) {
+        return (
+            <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-body-md text-on-surface-variant">Đang tải dữ liệu đơn mượn...</p>
+            </div>
+        );
+    }
+
+    if (error || !orderData || !orderData.books || orderData.books.length === 0) {
+        return (
+            <div className="flex h-[60vh] flex-col items-center justify-center text-center">
+                <MaterialIcon name="error_outline" className="mb-2 text-4xl text-error" />
+                <p className="text-body-lg text-error">{error || "Không tìm thấy thông tin đơn mượn"}</p>
+                <Link href="/lich-su" className="mt-4 text-primary hover:underline">
+                    {RENEW_PAGE.BACK_TO_HISTORY}
+                </Link>
+            </div>
+        );
+    }
+
+    const book = orderData.books[0];
+
+    // Tính phí quá hạn (chỉ để hiển thị cho rõ ràng)
+    const LATE_FEE_PER_DAY = 10000;
+    const currentLateFee = (orderData.overdueDays || 0) * LATE_FEE_PER_DAY;
+
+    const selectedOption = RENEWAL_OPTIONS.find((opt) => opt.days === selectedDuration)!;
+
+    // Tổng tiền phải trả ngay VNPay = Khoản nợ cũ (Tiền mượn cũ + Phạt quá hạn)
+    // Dữ liệu này đã được Backend trừ đi số tiền từng thanh toán online
+    const amountToPayNow = parseCurrency(orderData.total);
+
+    const handleRenew = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const res = await renewBorrowOrder(orderId, selectedDuration);
+            if (res.success) {
+                if (res.data && res.data.paymentUrl) {
+                    window.location.href = res.data.paymentUrl;
+                } else {
+                    setIsSuccessModalOpen(true);
+                }
+            } else {
+                setError(res.message || "Gia hạn thất bại");
+                alert(res.message || "Gia hạn thất bại"); // Optional: Use toast in future
+            }
+        } catch (err: any) {
+            const errMsg = err.response?.data?.message || "Đã xảy ra lỗi khi gửi yêu cầu gia hạn";
+            setError(errMsg);
+            alert(errMsg);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsSuccessModalOpen(false);
+        router.push("/lich-su");
+    };
 
     return (
         <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
@@ -56,10 +160,12 @@ export default function RenewBookPage() {
                     <div className="flex-grow space-y-sm">
                         <div className="flex flex-wrap items-center gap-md">
                             <h2 className="font-title-md text-title-md text-on-surface dark:text-white">{book.title}</h2>
-                            <span className="flex items-center gap-xs rounded-full bg-error-container/30 px-sm py-1 font-label-caps text-label-caps text-error dark:bg-slate-800 dark:text-error-300">
-                                <span className="h-1.5 w-1.5 rounded-full bg-error dark:bg-error-300"></span>
-                                {RENEW_PAGE.OVERDUE_BADGE_PREFIX} ({book.overdueDays} {RENEW_PAGE.OVERDUE_DAYS_SUFFIX})
-                            </span>
+                            {orderData.overdueDays > 0 && (
+                                <span className="flex items-center gap-xs rounded-full bg-error-container/30 px-sm py-1 font-label-caps text-label-caps text-error dark:bg-slate-800 dark:text-error-300">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-error dark:bg-error-300"></span>
+                                    {RENEW_PAGE.OVERDUE_BADGE_PREFIX} ({orderData.overdueDays} {RENEW_PAGE.OVERDUE_DAYS_SUFFIX})
+                                </span>
+                            )}
                         </div>
                         <p className="text-body-sm text-on-surface-variant dark:text-slate-400">
                             {RENEW_PAGE.AUTHOR_PREFIX} {book.author}
@@ -69,16 +175,16 @@ export default function RenewBookPage() {
                         <div className="grid grid-cols-2 gap-lg pt-sm lg:grid-cols-3">
                             <div>
                                 <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{RENEW_PAGE.BORROW_DATE}</p>
-                                <p className="text-body-md font-medium dark:text-white">{book.borrowDate}</p>
+                                <p className="text-body-md font-medium dark:text-white">{orderData.borrowDate}</p>
                             </div>
                             <div>
                                 <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{RENEW_PAGE.DUE_DATE}</p>
-                                <p className="text-body-md font-medium text-error dark:text-error-300">{book.dueDate}</p>
+                                <p className="text-body-md font-medium text-error dark:text-error-300">{orderData.dueDate}</p>
                             </div>
                             <div className="hidden lg:block">
                                 <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{RENEW_PAGE.ACTUAL_RETURN_DATE}</p>
                                 <p className="text-body-md text-on-surface-variant dark:text-slate-400">
-                                    {book.actualReturnDate ?? RENEW_PAGE.ACTUAL_RETURN_DASH}
+                                    {orderData.actualReturnDate ?? RENEW_PAGE.ACTUAL_RETURN_DASH}
                                 </p>
                             </div>
                         </div>
@@ -90,27 +196,13 @@ export default function RenewBookPage() {
             <section className="mb-xl rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-lg shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <h2 className="mb-lg font-title-md text-title-md text-on-surface dark:text-white">{RENEW_PAGE.DETAIL.HEADING}</h2>
 
-                <div className="space-y-md">
-                    {/* Current Late Fee */}
-                    <div className="flex items-center justify-between">
-                        <span className="text-body-md text-on-surface dark:text-slate-300">{RENEW_PAGE.DETAIL.CURRENT_LATE_FEE}</span>
-                        <span className="text-body-md font-medium text-error dark:text-error-300">{formatCurrency(currentLateFee)}</span>
-                    </div>
-
-                    {/* Initial Deposit */}
-                    <div className="flex items-center justify-between">
-                        <span className="text-body-md text-on-surface dark:text-slate-300">{RENEW_PAGE.DETAIL.INITIAL_DEPOSIT}</span>
-                        <span className="text-body-md font-medium text-on-surface dark:text-white">{formatCurrency(initialDeposit)}</span>
-                    </div>
-                </div>
-
                 {/* Duration Selection + Summary */}
-                <div className="mt-xl flex flex-col gap-xl lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex flex-col gap-xl lg:flex-row lg:items-start lg:justify-between">
                     {/* Radio Options */}
                     <div>
                         <h3 className="mb-md font-title-md text-title-md text-on-surface dark:text-white">{RENEW_PAGE.DURATION.HEADING}</h3>
                         <div className="space-y-md">
-                            {renewalOptions.map((option) => (
+                            {RENEWAL_OPTIONS.map((option) => (
                                 <label key={option.days} className="flex cursor-pointer items-center gap-md" htmlFor={`duration-${option.days}`}>
                                     <input
                                         type="radio"
@@ -132,23 +224,33 @@ export default function RenewBookPage() {
 
                     {/* Cost Summary Panel */}
                     <div className="w-full space-y-md rounded-xl bg-surface-container-high p-lg dark:bg-slate-800 lg:max-w-sm">
-                        {/* Total with selected fee */}
+                        {/* Total */}
                         <div className="flex items-center justify-between border-b border-outline-variant/30 pb-md dark:border-slate-700">
                             <span className="font-title-md text-body-md font-semibold text-on-surface dark:text-white">
                                 {RENEW_PAGE.SUMMARY.TOTAL_NEW_COST}
                             </span>
-                            <span className="font-title-md text-title-md font-bold text-on-surface dark:text-white">{formatCurrency(totalNewCost)}</span>
+                            <span className="font-title-md text-title-md font-bold text-primary dark:text-primary-300">{formatCurrency(amountToPayNow)}</span>
                         </div>
 
                         {/* Breakdown */}
                         <div className="space-y-sm text-body-sm">
                             <div className="flex items-center justify-between text-on-surface-variant dark:text-slate-400">
-                                <span>{RENEW_PAGE.SUMMARY.INITIAL_DEPOSIT_LABEL}</span>
-                                <span>{formatCurrency(initialDeposit)}</span>
+                                <span>{RENEW_PAGE.DETAIL.UNPAID_RENTAL_FEE}</span>
+                                <span>{formatCurrency(amountToPayNow - currentLateFee > 0 ? amountToPayNow - currentLateFee : 0)}</span>
                             </div>
-                            <div className="flex items-center justify-between border-t border-outline-variant/30 pt-sm dark:border-slate-700">
-                                <span className="font-semibold text-on-surface dark:text-white">{RENEW_PAGE.SUMMARY.TOTAL_LABEL}</span>
-                                <span className="font-semibold text-on-surface dark:text-white">{formatCurrency(totalNewCost)}</span>
+                            {currentLateFee > 0 && (
+                                <div className="flex items-center justify-between text-error dark:text-error-300">
+                                    <span>
+                                        {RENEW_PAGE.SUMMARY.LATE_FEE_LABEL} ({orderData.overdueDays} {RENEW_PAGE.OVERDUE_DAYS_SUFFIX}):
+                                    </span>
+                                    <span>{formatCurrency(currentLateFee)}</span>
+                                </div>
+                            )}
+                            <div className="dark:text-secondary-400 mt-2 flex items-center justify-between border-t border-outline-variant/30 pt-2 font-medium text-secondary">
+                                <span>
+                                    {RENEW_PAGE.SUMMARY.RENEWAL_FEE_LABEL} {RENEW_PAGE.SUMMARY.POSTPAID_NOTE}
+                                </span>
+                                <span>{formatCurrency(selectedOption.fee)}</span>
                             </div>
                         </div>
                     </div>
@@ -157,11 +259,30 @@ export default function RenewBookPage() {
 
             {/* Confirm Button */}
             <button
-                className="w-full rounded-lg bg-primary py-4 font-title-md text-title-md text-on-primary shadow-sm transition-all hover:bg-primary-container hover:text-on-primary-container active:scale-[0.99]"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-4 font-title-md text-title-md text-on-primary shadow-sm transition-all hover:bg-primary-container hover:text-on-primary-container active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
                 id="confirm-renewal-btn"
+                onClick={handleRenew}
+                disabled={isLoading}
             >
-                {RENEW_PAGE.CONFIRM_BUTTON}
+                {isLoading ? (
+                    <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        Đang xử lý...
+                    </>
+                ) : amountToPayNow > 0 ? (
+                    `Thanh toán ${formatCurrency(amountToPayNow)} & Gia hạn`
+                ) : (
+                    RENEW_PAGE.CONFIRM_BUTTON
+                )}
             </button>
+
+            {/* Success Modal */}
+            <SuccessModal
+                isOpen={isSuccessModalOpen}
+                onClose={handleCloseModal}
+                title="Gia hạn thành công"
+                message={`Yêu cầu gia hạn sách "${book.title}" thêm ${selectedDuration} ngày đã được gửi thành công.`}
+            />
         </div>
     );
 }

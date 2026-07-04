@@ -134,7 +134,15 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
                 />
-                <LoanSummary userFullName={user.fullName} isSubmitting={isSubmitting} isSuccess={isSuccess} onSubmit={handleSubmit} />
+                <LoanSummary
+                    book={book}
+                    pickupDate={pickupDate}
+                    returnDate={returnDate}
+                    userFullName={user.fullName}
+                    isSubmitting={isSubmitting}
+                    isSuccess={isSuccess}
+                    onSubmit={handleSubmit}
+                />
             </div>
         </main>
     );

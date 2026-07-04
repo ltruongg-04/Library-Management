@@ -31,6 +31,15 @@ export default function BorrowForm({ book, pickupDate, setPickupDate, returnDate
           })()
         : minPickupDate;
 
+    // Maximum return date is pickup date + 14
+    const maxReturnDate = pickupDate
+        ? (() => {
+              const date = new Date(pickupDate);
+              date.setDate(date.getDate() + 14);
+              return date.toISOString().split("T")[0];
+          })()
+        : undefined;
+
     return (
         <div className="flex-grow space-y-6">
             <div className="mb-6">
@@ -91,7 +100,19 @@ export default function BorrowForm({ book, pickupDate, setPickupDate, returnDate
                                 onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
                                 min={minPickupDate}
                                 value={pickupDate}
-                                onChange={(e) => setPickupDate(e.target.value)}
+                                onChange={(e) => {
+                                    const newDate = e.target.value;
+                                    setPickupDate(newDate);
+                                    // Reset return date if it's now invalid
+                                    if (returnDate) {
+                                        const rDateObj = new Date(returnDate);
+                                        const pDateObj = new Date(newDate);
+                                        const diffDays = (rDateObj.getTime() - pDateObj.getTime()) / (1000 * 60 * 60 * 24);
+                                        if (diffDays <= 0 || diffDays > 14) {
+                                            setReturnDate("");
+                                        }
+                                    }
+                                }}
                             />
                         </div>
                     </div>
@@ -114,6 +135,7 @@ export default function BorrowForm({ book, pickupDate, setPickupDate, returnDate
                                 type="date"
                                 onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
                                 min={minReturnDate}
+                                max={maxReturnDate}
                                 value={returnDate}
                                 onChange={(e) => setReturnDate(e.target.value)}
                             />

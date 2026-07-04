@@ -34,6 +34,9 @@ public class BorrowOrderEntity extends BaseEntity {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
+    @Column(name = "actual_return_date")
+    private LocalDate actualReturnDate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default

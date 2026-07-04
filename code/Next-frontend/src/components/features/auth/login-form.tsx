@@ -17,7 +17,7 @@ export function LoginForm() {
     const { login, loginWithGoogle } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const isRegistered = searchParams.get("registered") === "true";
+    const isRegistered = searchParams?.get("registered") === "true";
 
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);

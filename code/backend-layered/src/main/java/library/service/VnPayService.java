@@ -17,7 +17,7 @@ public interface VnPayService {
      * @param ipAddress     the client IP address
      * @return the complete VNPay payment URL for browser redirect
      */
-    String createPaymentUrl(Integer borrowOrderId, String orderCode, BigDecimal amount, String ipAddress);
+    String createPaymentUrl(String txnRef, String orderInfo, BigDecimal amount, String ipAddress);
 
     /**
      * Validates the VNPay callback parameters by verifying the HMAC-SHA512 secure hash.

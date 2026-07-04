@@ -19,4 +19,10 @@ public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, 
     long countOverdueBooks(@Param("status") BorrowOrderStatus status, @Param("date") LocalDate date);
     
     java.util.Optional<BorrowOrderEntity> findByOrderCode(String orderCode);
+
+    @Query("SELECT b FROM BorrowOrderEntity b WHERE b.customer.user.id = :userId ORDER BY b.createdAt DESC")
+    java.util.List<BorrowOrderEntity> findBorrowHistoryByUserId(@Param("userId") Integer userId);
+
+    @Query("SELECT b FROM BorrowOrderEntity b WHERE b.orderCode = :orderCode AND b.customer.user.id = :userId")
+    java.util.Optional<BorrowOrderEntity> findByOrderCodeAndCustomerUserId(@Param("orderCode") String orderCode, @Param("userId") Integer userId);
 }
