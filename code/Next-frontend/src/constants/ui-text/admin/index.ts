@@ -10,3 +10,4 @@ export * from "./category-management";
 export * from "./inventory-management";
 export * from "./analytics";
 export * from "./roles";
+export * from "./reviews";
