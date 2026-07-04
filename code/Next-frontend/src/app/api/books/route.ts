@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import type { BookSearchParams } from "@/types/book";
 
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8081";
 
