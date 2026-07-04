@@ -25,12 +25,16 @@ public class BookController {
     @GetMapping
     public ResponseEntity<ApiResponse<BookPageResponse>> getBooks(
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false, name = "category") Integer categoryId,
+            @RequestParam(required = false) Integer authorId,
+            @RequestParam(required = false) String publisher,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
-            @RequestParam(defaultValue = "newest") String sortBy) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "newest") String sortBy,
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false) Boolean isAvailable) {
 
-        BookPageResponse response = bookService.getBooks(keyword, category, page, size, sortBy);
+        BookPageResponse response = bookService.getBooks(keyword, categoryId, authorId, publisher, page, size, sortBy, minRating, isAvailable);
         return ResponseEntity.ok(ApiResponse.success("Lấy danh sách sách thành công", response));
     }
 
