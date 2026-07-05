@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useBookDetail } from "@/hooks/useBooks";
 import { useAuth } from "@/providers/auth";
-import { createBorrowRequest } from "@/services/borrow";
+import { createBorrowRequest, createGuestBorrowRequest } from "@/services/borrow";
 
 export default function BorrowPage({ params }: { params: { id: string } }) {
     const router = useRouter();
@@ -27,12 +27,12 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
     const [isSuccess, setIsSuccess] = useState<boolean>(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-    // Redirect to login if not authenticated
-    useEffect(() => {
-        if (isAuthenticated === false) {
-            router.push(`/login?callbackUrl=/sach/${params.id}/muon`);
-        }
-    }, [isAuthenticated, router, params.id]);
+    // Guest states
+    const [fullName, setFullName] = useState<string>("");
+    const [phone, setPhone] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+
+    // Allow both authenticated and unauthenticated users
 
     const handleSubmit = async () => {
         if (!pickupDate || !returnDate) {
@@ -46,12 +46,29 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
         setSubmitError(null);
 
         try {
-            const response = await createBorrowRequest({
-                bookId: book.id,
-                pickupDate,
-                returnDate,
-                paymentMethod: paymentMethod.toUpperCase(),
-            });
+            let response;
+            if (isAuthenticated) {
+                response = await createBorrowRequest({
+                    bookId: book.id,
+                    pickupDate,
+                    returnDate,
+                    paymentMethod: paymentMethod.toUpperCase(),
+                });
+            } else {
+                if (!phone || !fullName) {
+                    setSubmitError(UI_TEXT.BORROW.FORM.ERRORS.MISSING_GUEST_INFO);
+                    return;
+                }
+                response = await createGuestBorrowRequest({
+                    bookId: book.id,
+                    pickupDate,
+                    returnDate,
+                    paymentMethod: paymentMethod.toUpperCase(),
+                    fullName,
+                    phone,
+                    email,
+                });
+            }
 
             // If VNPay payment URL is returned, redirect to VNPay gateway
             if (response.data?.paymentUrl) {
@@ -107,11 +124,6 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
         );
     }
 
-    // Wait until we have a user
-    if (!user) {
-        return null;
-    }
-
     if (isSuccess) {
         return (
             <main className="mx-auto flex w-full max-w-container-max justify-center px-6 py-12">
@@ -148,12 +160,19 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
                     setReturnDate={setReturnDate}
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
+                    isGuest={!isAuthenticated}
+                    fullName={fullName}
+                    setFullName={setFullName}
+                    phone={phone}
+                    setPhone={setPhone}
+                    email={email}
+                    setEmail={setEmail}
                 />
                 <LoanSummary
                     book={book}
                     pickupDate={pickupDate}
                     returnDate={returnDate}
-                    userFullName={user.fullName}
+                    userFullName={isAuthenticated ? user?.fullName || "User" : fullName || "Khách"}
                     isSubmitting={isSubmitting}
                     isSuccess={isSuccess}
                     onSubmit={handleSubmit}

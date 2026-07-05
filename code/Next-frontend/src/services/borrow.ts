@@ -46,3 +46,19 @@ export const renewBorrowOrder = async (orderId: string, durationInDays: number):
     const response = await axiosInstance.post<ApiResponse<BorrowResponse>>(`/api/user/borrow/${orderId}/renew`, { durationInDays });
     return response.data;
 };
+
+export interface GuestBorrowRequestPayload extends BorrowRequestPayload {
+    fullName: string;
+    phone: string;
+    email?: string;
+}
+
+export const createGuestBorrowRequest = async (payload: GuestBorrowRequestPayload): Promise<ApiResponse<BorrowResponse>> => {
+    const response = await axiosInstance.post<ApiResponse<BorrowResponse>>("/api/public/borrow/guest", payload);
+    return response.data;
+};
+
+export const getGuestBorrowOrderDetail = async (orderCode: string, phone: string): Promise<ApiResponse<BorrowOrderDetailResponseDto>> => {
+    const response = await axiosInstance.get<ApiResponse<BorrowOrderDetailResponseDto>>(`/api/public/borrow/lookup?orderCode=${orderCode}&phone=${phone}`);
+    return response.data;
+};

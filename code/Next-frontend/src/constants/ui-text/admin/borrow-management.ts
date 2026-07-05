@@ -40,6 +40,7 @@ export const ADMIN_BORROW_MANAGEMENT = {
         STATUS_PENDING_RENEWAL: "Chờ duyệt gia hạn",
         NO_DATE: "—",
         EMPTY_STATE: "Không có dữ liệu lượt mượn",
+        GUEST_BADGE: "KHÁCH",
     },
     MODAL: {
         CREATE_TITLE: "Tạo phiếu mượn mới",
@@ -82,5 +83,6 @@ export const ADMIN_BORROW_MANAGEMENT = {
         FEE_DISCOUNT: "Giảm giá:",
         FEE_DEPOSIT: "Tiền cọc:",
         FEE_TOTAL: "Tổng cộng:",
+        GUEST_BADGE: "KHÁCH",
     },
 };

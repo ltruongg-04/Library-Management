@@ -59,7 +59,7 @@ export default function BookInfo({ book }: BookInfoProps) {
             </div>
 
             {/* Metadata Grid */}
-            <div className="grid grid-cols-2 gap-4 border-y border-outline-variant/30 py-4 dark:border-slate-700 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 border-y border-outline-variant/30 py-4 dark:border-slate-700 md:grid-cols-3 lg:grid-cols-6">
                 <MetadataItem
                     label="Publisher"
                     value={book.publisher || "N/A"}
@@ -68,6 +68,8 @@ export default function BookInfo({ book }: BookInfoProps) {
                 <MetadataItem label="Published" value={book.publishedDate ? new Date(book.publishedDate).getFullYear().toString() : "N/A"} />
                 <MetadataItem label="Pages" value={book.pages ? String(book.pages) : "N/A"} />
                 <MetadataItem label="ISBN" value={book.isbn || "N/A"} />
+                <MetadataItem label="Deposit" value={book.depositPrice ? `${book.depositPrice.toLocaleString("vi-VN")} đ` : "N/A"} />
+                <MetadataItem label="Rental Fee" value="5.000 đ/ngày" />
             </div>
 
             {/* Tags & Categories */}

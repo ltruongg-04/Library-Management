@@ -58,6 +58,7 @@ export default function LuotMuonPage() {
                         dueDate: formatDate(order.dueDate),
                         status: statusValue,
                         overdayCount: order.overdayCount ?? undefined,
+                        isGuest: order.isGuest,
                     };
                 });
                 setRecords(mappedData);

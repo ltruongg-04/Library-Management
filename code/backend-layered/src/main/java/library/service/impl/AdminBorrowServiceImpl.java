@@ -86,6 +86,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                     .dueDate(order.getDueDate())
                     .status(order.getStatus())
                     .overdayCount(overdayCount)
+                    .isGuest(order.getCustomer() != null && order.getCustomer().getUser() == null)
                     .build();
         }).collect(Collectors.toList());
     }
@@ -211,6 +212,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                                 : order.getCustomer().getPhone())
                         : "N/A")
                 .customerPhone(order.getCustomer() != null ? order.getCustomer().getPhone() : "N/A")
+                .isGuest(order.getCustomer() != null && order.getCustomer().getUser() == null)
                 .items(items)
                 .build();
     }

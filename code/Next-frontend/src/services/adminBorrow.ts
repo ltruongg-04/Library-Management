@@ -10,6 +10,7 @@ export interface AdminBorrowResponse {
     dueDate: string | null;
     status: string;
     overdayCount: number | null;
+    isGuest?: boolean;
 }
 
 interface ApiResponse<T> {
@@ -54,6 +55,7 @@ export interface AdminBorrowOrderDetailResponse {
     customerName: string;
     customerCode: string;
     customerPhone: string;
+    isGuest?: boolean;
     items: BorrowItemResponse[];
 }
 

@@ -13,4 +13,6 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Intege
     @org.springframework.data.jpa.repository.Query("SELECT c FROM CustomerEntity c WHERE c.libraryCardNo = :code OR c.phone = :code")
     Optional<CustomerEntity> findByLibraryCardNoOrPhone(
             @org.springframework.data.repository.query.Param("code") String code);
+
+    Optional<CustomerEntity> findByPhone(String phone);
 }

@@ -30,6 +30,7 @@ public class AdminBorrowOrderDetailDto {
     private String customerName;
     private String customerCode;
     private String customerPhone;
+    private Boolean isGuest;
 
     private List<BorrowItemDto> items;
 }

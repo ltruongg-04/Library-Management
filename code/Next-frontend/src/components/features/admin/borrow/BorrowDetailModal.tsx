@@ -134,10 +134,15 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                                         {T.SECTION_MEMBER}
                                     </div>
                                     <div className="space-y-2 text-sm">
-                                        <p>
+                                        <div className="flex items-center gap-2">
                                             <span className="text-on-surface-variant">{T.MEMBER_NAME}</span>{" "}
                                             <span className="font-medium">{detail.customerName}</span>
-                                        </p>
+                                            {detail.isGuest && (
+                                                <span className="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-semibold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+                                                    {T.GUEST_BADGE}
+                                                </span>
+                                            )}
+                                        </div>
                                         <p>
                                             <span className="text-on-surface-variant">{T.MEMBER_CODE}</span> <span>{detail.customerCode}</span>
                                         </p>

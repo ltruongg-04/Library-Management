@@ -22,4 +22,5 @@ public class AdminBorrowOrderDto {
     private LocalDate dueDate;
     private BorrowOrderStatus status;
     private Integer overdayCount;
+    private Boolean isGuest;
 }
