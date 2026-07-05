@@ -62,6 +62,13 @@ export default function BookListPage() {
         // Init filters from URL
         if (typeof window !== "undefined") {
             const params = new URLSearchParams(window.location.search);
+
+            const keywordQuery = params.get("keyword");
+            if (keywordQuery) {
+                setSearchInput(keywordQuery);
+                setKeyword(keywordQuery);
+            }
+
             const categoryQuery = params.get("category");
             if (categoryQuery) {
                 const catId = parseInt(categoryQuery, 10) || categoryQuery;
