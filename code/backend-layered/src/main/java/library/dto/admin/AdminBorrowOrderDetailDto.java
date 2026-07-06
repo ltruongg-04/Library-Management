@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminBorrowOrderDetailDto {
+    private Integer id;
     private String orderCode;
     private LocalDate borrowDate;
     private LocalDate pickupDate;
