@@ -35,6 +35,17 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
+    public void requestForgotPasswordOtp(String email) {
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        
+        // 5 minutes expiration
+        long expirationTime = System.currentTimeMillis() + 5 * 60 * 1000;
+        otpStorage.put(email, new OtpData(otp, expirationTime));
+
+        emailService.sendForgotPasswordOtpEmail(email, otp);
+    }
+
+    @Override
     public boolean validateOtp(String email, String otp) {
         OtpData data = otpStorage.get(email);
         if (data == null) {
