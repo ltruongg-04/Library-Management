@@ -1,4 +1,4 @@
-import { BookOpen, Check, Eye, EyeOff, Flag, RotateCcw, Star, Trash2 } from "lucide-react";
+import { BookOpen, Eye, EyeOff, Flag, RotateCcw, Star, Trash2 } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { Review, ReviewAccent, ReviewStatus } from "@/types/admin-review";
 
@@ -20,11 +20,7 @@ const cardStateClasses: Record<ReviewStatus, string> = {
 
 type ReviewCardProps = {
     review: Review;
-    reasonDraft: string;
-    isReasonOpen: boolean;
-    onReasonChange: (value: string) => void;
-    onToggleReason: () => void;
-    onConfirmHide: () => void;
+    onRequestHide: () => void;
     onRestore: () => void;
     onDelete: () => void;
 };
@@ -75,12 +71,8 @@ function StatusBadge({ status }: { status: ReviewStatus }) {
     );
 }
 
-export default function ReviewCard({ review, reasonDraft, isReasonOpen, onReasonChange, onToggleReason, onConfirmHide, onRestore, onDelete }: ReviewCardProps) {
+export default function ReviewCard({ review, onRequestHide, onRestore, onDelete }: ReviewCardProps) {
     const isHidden = review.status === "hidden";
-    const reasonPanelClass =
-        review.status === "reported"
-            ? "border-error/20 bg-error-container/20"
-            : "border-outline-variant/20 bg-surface-container-lowest dark:border-slate-800 dark:bg-slate-950";
 
     return (
         <article className={`relative rounded-lg border transition-colors dark:bg-slate-950 ${cardStateClasses[review.status]}`}>
@@ -130,7 +122,7 @@ export default function ReviewCard({ review, reasonDraft, isReasonOpen, onReason
                     ) : (
                         <button
                             type="button"
-                            onClick={onToggleReason}
+                            onClick={onRequestHide}
                             className="focus-ring inline-flex h-10 items-center justify-center gap-sm rounded-lg bg-primary px-md text-body-md font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-container"
                         >
                             <EyeOff size={17} strokeWidth={1.8} />
@@ -147,33 +139,6 @@ export default function ReviewCard({ review, reasonDraft, isReasonOpen, onReason
                     </button>
                 </div>
             </div>
-
-            {isReasonOpen ? (
-                <div className={`border-t p-md sm:px-lg ${reasonPanelClass}`}>
-                    <label className="flex flex-col gap-xs">
-                        <span className="text-body-sm font-semibold text-on-surface">{TEXT.HIDE_REASON_LABEL}</span>
-                        <span className="flex flex-col gap-sm sm:flex-row">
-                            <input
-                                type="text"
-                                value={reasonDraft}
-                                onChange={(event) => onReasonChange(event.target.value)}
-                                placeholder={TEXT.HIDE_REASON_PLACEHOLDER}
-                                className="h-11 min-w-0 flex-1 rounded-lg border border-outline-variant/50 bg-surface-container-lowest px-md text-body-md text-on-surface outline-none transition-shadow placeholder:text-outline focus:ring-1 focus:ring-primary"
-                            />
-                            <span className="flex gap-sm">
-                                <button
-                                    type="button"
-                                    onClick={onConfirmHide}
-                                    className="focus-ring inline-flex h-11 items-center justify-center gap-xs rounded-lg bg-primary px-md text-body-md font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-container"
-                                >
-                                    <Check size={17} strokeWidth={2} />
-                                    {TEXT.CONFIRM}
-                                </button>
-                            </span>
-                        </span>
-                    </label>
-                </div>
-            ) : null}
         </article>
     );
 }

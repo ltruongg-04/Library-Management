@@ -34,6 +34,8 @@ public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, 
     java.util.Optional<BorrowOrderEntity> findByOrderCodeAndCustomerId(String orderCode, Integer customerId);
 
     java.util.Optional<BorrowOrderEntity> findByOrderCodeAndCustomerPhone(String orderCode, String phone);
+    
+    java.util.List<BorrowOrderEntity> findByCustomerEmailOrderByCreatedAtDesc(String email);
 
     List<BorrowOrderEntity> findTop5ByOrderByCreatedAtDesc();
 }

@@ -6,8 +6,8 @@ import { MaterialIcon } from "@/components/base/material-icon";
 import { LoanCard } from "@/components/features/history/LoanCard";
 import { LoanFilter } from "@/components/features/history/LoanFilter";
 import { MY_BOOKS_PAGE } from "@/constants/ui-text/public/my-books";
-import { API_SUCCESS } from "@/constants/ui-text/shared/api";
-import { getBorrowHistory } from "@/services/borrow";
+import { API_ERRORS, API_SUCCESS } from "@/constants/ui-text/shared/api";
+import { cancelBorrowOrder, getBorrowHistory } from "@/services/borrow";
 import { type UserBorrowHistoryItem } from "@/services/userBorrow";
 
 export default function MyBooksPage() {
@@ -66,9 +66,18 @@ export default function MyBooksPage() {
         setCurrentPage(1);
     };
 
-    const handleCancel = (orderCode: string) => {
-        setLoans((prev) => prev.map((loan) => (loan.orderCode === orderCode ? { ...loan, status: "CANCELLED" } : loan)));
-        toast.success(API_SUCCESS.HOLD_CANCEL_SUCCESS);
+    const handleCancel = async (orderCode: string) => {
+        try {
+            const res = await cancelBorrowOrder(orderCode);
+            if (res.success) {
+                setLoans((prev) => prev.map((loan) => (loan.orderCode === orderCode ? { ...loan, status: "cancelled" } : loan)));
+                toast.success(API_SUCCESS.HOLD_CANCEL_SUCCESS);
+            } else {
+                toast.error(res.message || API_ERRORS.HOLD_CANCEL_FAILED);
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || API_ERRORS.HOLD_CANCEL_FAILED);
+        }
     };
 
     const mapStatusToFilter = (status: string): string => {

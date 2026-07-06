@@ -10,6 +10,7 @@ import library.dto.borrow.UserBorrowHistoryDto;
 import library.entity.*;
 import library.repository.*;
 import library.service.BorrowOrderService;
+import library.service.SystemLogService;
 import library.service.VnPayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,7 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
     private final VnPayService vnPayService;
     private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
     private final library.repository.ReservationRepository reservationRepository;
+    private final SystemLogService systemLogService;
 
     @org.springframework.context.annotation.Lazy
     @org.springframework.beans.factory.annotation.Autowired
@@ -164,6 +166,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             responseBuilder.paymentUrl(paymentUrl);
             log.info("VNPay payment URL generated for orderCode={}", orderCode);
         }
+
+        systemLogService.logAction(user, "Mượn sách", "Người dùng " + user.getEmail() + " đã mượn sách: " + book.getTitle() + " (Mã đơn: " + orderCode + ")");
 
         return responseBuilder.build();
     }
@@ -492,6 +496,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             adminBorrowService.processRenewal(order.getOrderCode(), new library.dto.admin.AdminRenewalRequestDto(true));
         }
 
+        systemLogService.logAction("Yêu cầu gia hạn", "Người dùng yêu cầu gia hạn đơn mượn: " + order.getOrderCode() + " thêm " + request.getDurationInDays() + " ngày.");
+
         return BorrowResponseDto.builder()
                 .orderCode(order.getOrderCode())
                 .paymentUrl(paymentUrl)
@@ -664,15 +670,33 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             log.info("VNPay payment URL generated for orderCode={}", orderCode);
         }
 
+        systemLogService.logAction(
+                library.common.constant.SystemLogConstants.ACTION_GUEST_CREATE_ORDER, 
+                String.format(library.common.constant.SystemLogConstants.DETAIL_GUEST_ORDER_SUCCESS, customer.getFullName(), customer.getPhone(), orderCode)
+        );
+
         return responseBuilder.build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public library.dto.borrow.BorrowOrderDetailResponseDto getGuestBorrowOrderDetail(String orderCode, String phone) {
-        BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerPhone(orderCode, phone)
-                .orElseThrow(() -> new CustomBusinessException(
-                        "Không tìm thấy đơn mượn hoặc số điện thoại không chính xác.", HttpStatus.NOT_FOUND));
+    public java.util.List<library.dto.borrow.BorrowOrderDetailResponseDto> getGuestBorrowOrders(String identifier) {
+        java.util.List<BorrowOrderEntity> orders;
+        if (identifier.contains("@")) {
+            orders = borrowOrderRepository.findByCustomerEmailOrderByCreatedAtDesc(identifier.toLowerCase());
+        } else {
+            java.util.Optional<BorrowOrderEntity> orderOpt = borrowOrderRepository.findByOrderCode(identifier);
+            orders = orderOpt.map(java.util.Collections::singletonList).orElse(java.util.Collections.emptyList());
+        }
+
+        if (orders.isEmpty()) {
+            throw new CustomBusinessException("Không tìm thấy đơn mượn nào khớp với thông tin cung cấp.", HttpStatus.NOT_FOUND);
+        }
+
+        return orders.stream().map(this::mapToBorrowOrderDetailResponseDto).collect(java.util.stream.Collectors.toList());
+    }
+
+    private library.dto.borrow.BorrowOrderDetailResponseDto mapToBorrowOrderDetailResponseDto(BorrowOrderEntity order) {
 
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter
                 .ofPattern("dd 'Tháng' MM, yyyy");
@@ -777,6 +801,15 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
         long extensionCount = borrowExtensionRepository.countByBorrowOrderIdAndStatus(order.getId(),
                 library.entity.BorrowExtensionStatus.APPROVED);
 
+        String customerName = order.getCustomer().getFullName();
+        if (customerName == null) customerName = "Unknown";
+
+        String rawPhone = order.getCustomer().getPhone();
+        String customerPhone = "***";
+        if (rawPhone != null && rawPhone.length() >= 3) {
+            customerPhone = "*******" + rawPhone.substring(rawPhone.length() - 3);
+        }
+
         return library.dto.borrow.BorrowOrderDetailResponseDto.builder()
                 .id(order.getOrderCode())
                 .borrowDate(borrowDateStr)
@@ -793,8 +826,40 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
                 .status(status)
                 .overdueDays(overdueDays)
                 .extensionCount((int) extensionCount)
+                .customerName(customerName)
+                .customerPhone(customerPhone)
                 .books(bookItems)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void cancelBorrowOrder(String orderCode, Integer userId) {
+        BorrowOrderEntity borrowOrder = borrowOrderRepository.findByOrderCode(orderCode)
+                .orElseThrow(() -> new CustomBusinessException("Order not found", HttpStatus.NOT_FOUND));
+
+        if (borrowOrder.getCustomer() == null || borrowOrder.getCustomer().getUser() == null || !borrowOrder.getCustomer().getUser().getId().equals(userId)) {
+            throw new CustomBusinessException("Unauthorized to cancel this order", HttpStatus.FORBIDDEN);
+        }
+
+        if (borrowOrder.getStatus() != BorrowOrderStatus.PENDING && borrowOrder.getStatus() != BorrowOrderStatus.READY) {
+            throw new CustomBusinessException("Only pending or ready orders can be cancelled", HttpStatus.BAD_REQUEST);
+        }
+
+        borrowOrder.setStatus(BorrowOrderStatus.CANCELLED);
+        borrowOrderRepository.save(borrowOrder);
+
+        java.util.List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrder(borrowOrder);
+        for (BorrowOrderDetailEntity detail : details) {
+            detail.setStatus(BorrowOrderDetailStatus.CANCELLED);
+            borrowOrderDetailRepository.save(detail);
+
+            BookCopyEntity copy = detail.getBookCopy();
+            if (copy != null) {
+                copy.setStatus(BookCopyStatus.AVAILABLE);
+                bookCopyRepository.save(copy);
+            }
+        }
     }
 
     private UserBorrowHistoryDto toHistoryDto(BorrowOrderEntity order) {

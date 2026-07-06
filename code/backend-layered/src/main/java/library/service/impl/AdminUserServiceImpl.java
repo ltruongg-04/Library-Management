@@ -4,6 +4,7 @@ import library.dto.admin.AdminUserResponseDto;
 import library.entity.UserEntity;
 import library.repository.UserRepository;
 import library.service.AdminUserService;
+import library.service.SystemLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final library.repository.CustomerRepository customerRepository;
     private final library.repository.AssistantRepository assistantRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SystemLogService systemLogService;
 
     @Override
     public List<AdminUserResponseDto> getAllUsers() {
@@ -50,6 +52,9 @@ public class AdminUserServiceImpl implements AdminUserService {
         
         user.setActive(isActive);
         userRepository.save(user);
+        
+        systemLogService.logAction("Cập nhật trạng thái người dùng", 
+            "Admin đã " + (isActive ? "mở khóa" : "khóa") + " tài khoản: " + user.getEmail());
     }
 
     @Override
@@ -118,6 +123,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
         
         userRepository.save(user);
+        systemLogService.logAction("Cập nhật người dùng", "Admin đã cập nhật thông tin người dùng: " + user.getEmail());
     }
 
     @Override
@@ -168,5 +174,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                     .build();
             assistantRepository.save(assistant);
         }
+        
+        systemLogService.logAction("Tạo người dùng mới", "Admin đã tạo tài khoản mới: " + savedUser.getEmail() + " với quyền " + role.name());
     }
 }

@@ -102,5 +102,21 @@ public class BorrowController {
 
         return ResponseEntity.ok(ApiResponse.success("Yêu cầu gia hạn đã được xử lý", response));
     }
+
+    @PostMapping("/{orderCode}/cancel")
+    public ResponseEntity<ApiResponse<Void>> cancelBorrowOrder(@PathVariable String orderCode) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
+
+        String email = authentication.getPrincipal().toString();
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+
+        borrowOrderService.cancelBorrowOrder(orderCode, user.getId());
+
+        return ResponseEntity.ok(ApiResponse.success("Huỷ phiếu mượn thành công", null));
+    }
 }
 

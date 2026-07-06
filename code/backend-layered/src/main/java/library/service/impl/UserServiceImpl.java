@@ -12,6 +12,7 @@ import library.entity.RefreshTokenEntity;
 import library.entity.UserEntity;
 import library.repository.RefreshTokenRepository;
 import library.repository.UserRepository;
+import library.service.SystemLogService;
 import library.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final SystemLogService systemLogService;
 
     @SuppressWarnings("null")
     private String createRefreshToken(UserEntity user) {
@@ -69,6 +71,8 @@ public class UserServiceImpl implements UserService {
         String token = jwtUtil.generateToken(savedUser);
         String refreshToken = createRefreshToken(savedUser);
 
+        systemLogService.logAction(savedUser, "Đăng ký tài khoản", "Người dùng " + savedUser.getEmail() + " đã đăng ký tài khoản mới.");
+
         return RegisterResponse.builder()
                 .id(savedUser.getId())
                 .fullName(savedUser.getFullName())
@@ -101,6 +105,8 @@ public class UserServiceImpl implements UserService {
 
         String token = jwtUtil.generateToken(user);
         String refreshToken = createRefreshToken(user);
+
+        systemLogService.logAction(user, "Đăng nhập", "Người dùng " + user.getEmail() + " đã đăng nhập hệ thống.");
 
         return LoginResponse.builder()
                 .token(token)
@@ -140,6 +146,8 @@ public class UserServiceImpl implements UserService {
         String token = jwtUtil.generateToken(user);
         String refreshToken = createRefreshToken(user);
 
+        systemLogService.logAction(user, "Đăng nhập Google", "Người dùng " + user.getEmail() + " đã đăng nhập bằng Google.");
+
         return LoginResponse.builder()
                 .token(token)
                 .refreshToken(refreshToken)
@@ -178,6 +186,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void logout(String token) {
-        refreshTokenRepository.findByToken(token).ifPresent(refreshTokenRepository::delete);
+        refreshTokenRepository.findByToken(token).ifPresent(refreshToken -> {
+            UserEntity user = refreshToken.getUser();
+            systemLogService.logAction(user, library.common.constant.SystemLogConstants.ACTION_LOGOUT, 
+                String.format(library.common.constant.SystemLogConstants.DETAIL_LOGOUT_SUCCESS, user.getEmail()));
+            refreshTokenRepository.delete(refreshToken);
+        });
     }
 }

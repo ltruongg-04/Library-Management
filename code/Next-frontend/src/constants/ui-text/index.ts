@@ -12,6 +12,8 @@ import {
 } from "./admin";
 import { AUTH } from "./auth";
 import { COMMON, MAINTENANCE } from "./common";
+import { REPORT_REASONS } from "./report";
+import { REVIEW } from "./review";
 import { ABOUT, BOOK_DETAIL, BOOK_LIST, BOOK_VISIT, BORROW, CONTACT, FAVORITE, HOME, MY_BOOKS_PAGE, NOTIFICATIONS, PUBLIC_LAYOUT, RENEW_PAGE } from "./public";
 import { PROFILE, SETTINGS_HEADER, SETTINGS_NOTIFICATIONS, SETTINGS_SECURITY, SETTINGS_SIDEBAR } from "./settings";
 
@@ -46,4 +48,6 @@ export const UI_TEXT = {
     SETTINGS_NOTIFICATIONS,
     SETTINGS_SECURITY,
     ROLES,
+    REVIEW,
+    REPORT_REASONS,
 };

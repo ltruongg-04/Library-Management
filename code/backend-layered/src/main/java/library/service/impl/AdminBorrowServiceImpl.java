@@ -7,6 +7,7 @@ import library.entity.BorrowOrderStatus;
 import library.repository.BorrowOrderDetailRepository;
 import library.repository.BorrowOrderRepository;
 import library.service.AdminBorrowService;
+import library.service.SystemLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     private final library.repository.BookCopyRepository bookCopyRepository;
     private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
     private final library.repository.PaymentRepository paymentRepository;
+    private final SystemLogService systemLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -140,6 +142,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
         }
 
         borrowOrderRepository.save(order);
+        systemLogService.logAction("Cập nhật trạng thái đơn mượn", "Admin cập nhật đơn " + orderCode + " thành " + newStatus.name());
     }
 
     @Override
@@ -308,6 +311,8 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
             }
         }
 
+        systemLogService.logAction("Tạo đơn mượn", "Admin tạo đơn mượn: " + orderCode + " cho khách: " + customer.getPhone());
+
         return AdminBorrowOrderDto.builder()
                 .id(savedOrder.getOrderCode())
                 .customerName(customer.getFullName())
@@ -381,5 +386,6 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
         borrowExtensionRepository.save(extension);
         borrowOrderRepository.save(order);
+        systemLogService.logAction("Xử lý gia hạn đơn mượn", "Admin " + (request.isApproved() ? "duyệt" : "từ chối") + " gia hạn đơn " + orderCode);
     }
 }

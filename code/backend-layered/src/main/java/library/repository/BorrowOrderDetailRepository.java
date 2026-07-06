@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface BorrowOrderDetailRepository extends JpaRepository<BorrowOrderDetailEntity, Integer> {
     List<BorrowOrderDetailEntity> findByBorrowOrderId(Integer borrowOrderId);
+    List<BorrowOrderDetailEntity> findByBorrowOrder(library.entity.BorrowOrderEntity borrowOrder);
 }
