@@ -11,6 +11,7 @@ import library.repository.BookRepository;
 import library.repository.CustomerRepository;
 import library.repository.ReservationRepository;
 import library.service.ReservationService;
+import library.service.SystemLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final BookRepository bookRepository;
     private final CustomerRepository customerRepository;
+    private final SystemLogService systemLogService;
 
     @Override
     @Transactional
@@ -61,6 +63,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         long position = reservationRepository.countByBookIdAndStatusAndReservationDateBefore(book.getId(), ReservationStatus.PENDING, now) + 1;
 
+        systemLogService.logAction("Đặt trước sách", "Người dùng " + customer.getFullName() + " đã đặt trước sách: " + book.getTitle());
         log.info("MOCK_NOTIFICATION: User {} successfully reserved book '{}'. Position in queue: {}", customer.getFullName(), book.getTitle(), position);
 
         return mapToResponse(reservation, position);
@@ -95,6 +98,8 @@ public class ReservationServiceImpl implements ReservationService {
 
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
+        
+        systemLogService.logAction("Hủy đặt trước sách", "Người dùng " + reservation.getCustomer().getFullName() + " đã hủy đặt trước sách: " + reservation.getBook().getTitle());
         log.info("MOCK_NOTIFICATION: User {} cancelled reservation for book '{}'", reservation.getCustomer().getFullName(), reservation.getBook().getTitle());
     }
 

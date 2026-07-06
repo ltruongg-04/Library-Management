@@ -143,7 +143,7 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                     <div className="mt-md flex flex-col justify-between border-t border-outline-variant/30 pt-md dark:border-slate-700 md:mt-0 md:border-l md:border-t-0 md:pl-lg md:pt-0 md:text-right">
                         {(() => {
                             const isEverOverdue = loan.status === "overdue";
-                            const formattedDeposit = loan.totalDeposit != null ? `${loan.totalDeposit.toLocaleString("vi-VN")} đ` : DASH;
+                            const formattedDeposit = loan.totalDeposit != null ? `${loan.totalDeposit.toLocaleString("vi-VN")} VND` : DASH;
 
                             if (isEverOverdue) {
                                 return (

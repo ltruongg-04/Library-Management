@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { useAuth } from "@/providers/auth";
 import { favoriteService } from "@/services/favorite";
 import type { Book } from "@/types/book";
@@ -29,7 +30,7 @@ export function useFavorites(initialLimit: number = 12) {
     const fetchFavorites = useCallback(
         async (size: number) => {
             if (!isAuthenticated) {
-                setState((prev) => ({ ...prev, loading: false, error: "Vui lòng đăng nhập" }));
+                setState((prev) => ({ ...prev, loading: false, error: API_ERRORS.LOGIN_FAILED }));
                 return;
             }
 
@@ -48,7 +49,7 @@ export function useFavorites(initialLimit: number = 12) {
                 setState((prev) => ({
                     ...prev,
                     loading: false,
-                    error: err.message || "Đã xảy ra lỗi khi tải danh sách yêu thích",
+                    error: err.message || API_ERRORS.FAVORITE_LOAD_FAILED,
                 }));
             }
         },

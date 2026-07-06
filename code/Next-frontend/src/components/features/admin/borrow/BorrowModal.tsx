@@ -1,8 +1,8 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { BookOpen, CalendarDays, Loader2, User as UserIcon, X } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { createAdminBorrowOrder } from "@/services/adminBorrow";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.MODAL;
@@ -31,7 +31,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
     const handleSubmit = async () => {
         setError(null);
         if (!form.phone.trim() || !form.bookBarcodes.trim() || !form.dueDate) {
-            setError("Vui lòng điền các thông tin bắt buộc (SĐT, Mã vạch, Ngày hẹn trả)");
+            setError(API_ERRORS.MISSING_FIELDS);
             return;
         }
 
@@ -41,7 +41,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
             .filter((b) => b.length > 0);
 
         if (barcodes.length === 0) {
-            setError("Vui lòng nhập ít nhất một mã vạch hợp lệ");
+            setError(API_ERRORS.MISSING_BARCODE);
             return;
         }
 
@@ -59,10 +59,10 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                 onSubmitSuccess();
                 onClose();
             } else {
-                setError(res.message || "Tạo phiếu mượn thất bại");
+                setError(res.message || API_ERRORS.CREATE_BORROW_FAILED);
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || "Đã có lỗi xảy ra");
+            setError(err.response?.data?.message || API_ERRORS.GENERIC_ERROR);
         } finally {
             setIsLoading(false);
         }

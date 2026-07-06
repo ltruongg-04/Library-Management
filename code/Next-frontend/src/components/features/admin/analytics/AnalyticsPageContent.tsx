@@ -1,10 +1,10 @@
 "use client";
-
 import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, BarChart3, CheckCircle2, ClipboardList, LibraryBig, ShoppingBasket, Users } from "lucide-react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import AnalyticsExportControls, { type AnalyticsExportData } from "@/components/features/admin/analytics/AnalyticsExportControls";
 import { ANALYTICS_TEXT, CURRENT_MONTH_RANGE } from "@/constants/admin/analytics";
+import { ADMIN_UI } from "@/constants/ui-text/admin";
 import { type DashboardStats, adminDashboardService } from "@/services/adminDashboard";
 import type { AnalyticsData, MonthRangeSelection } from "@/types/admin-analytics";
 import { MonthRangeControls, buildTrendData, formatMonthPickerValue, normalizeMonthRange } from "./AnalyticsMonthControls";
@@ -28,12 +28,12 @@ function buildAnalyticsFromStats(stats: DashboardStats): AnalyticsData {
 
     return {
         statCards: [
-            { label: "Tổng số sách", value: totalCopies.toLocaleString("vi-VN"), icon: LibraryBig, tone: "books", trend: "" },
-            { label: "Sách sẵn sàng", value: available.toLocaleString("vi-VN"), icon: CheckCircle2, tone: "available", trend: "" },
-            { label: "Đang mượn", value: borrowed.toLocaleString("vi-VN"), icon: ShoppingBasket, tone: "borrowed", trend: "" },
-            { label: "Quá hạn", value: stats.overdueBooks.toLocaleString("vi-VN"), icon: AlertTriangle, tone: "danger", trend: "" },
-            { label: "Độc giả", value: stats.totalCustomers.toLocaleString("vi-VN"), icon: Users, tone: "members", trend: "" },
-            { label: "Yêu cầu", value: stats.pendingApprovals.toLocaleString("vi-VN"), icon: ClipboardList, tone: "requests", trend: "" },
+            { label: ADMIN_UI.ANALYTICS.TOTAL_BOOKS, value: totalCopies.toLocaleString("vi-VN"), icon: LibraryBig, tone: "books", trend: "" },
+            { label: ADMIN_UI.ANALYTICS.AVAILABLE_BOOKS, value: available.toLocaleString("vi-VN"), icon: CheckCircle2, tone: "available", trend: "" },
+            { label: ADMIN_UI.ANALYTICS.BORROWED_BOOKS, value: borrowed.toLocaleString("vi-VN"), icon: ShoppingBasket, tone: "borrowed", trend: "" },
+            { label: ADMIN_UI.ANALYTICS.OVERDUE_BOOKS, value: stats.overdueBooks.toLocaleString("vi-VN"), icon: AlertTriangle, tone: "danger", trend: "" },
+            { label: ADMIN_UI.ANALYTICS.READERS, value: stats.totalCustomers.toLocaleString("vi-VN"), icon: Users, tone: "members", trend: "" },
+            { label: ADMIN_UI.ANALYTICS.REQUESTS, value: stats.pendingApprovals.toLocaleString("vi-VN"), icon: ClipboardList, tone: "requests", trend: "" },
         ],
         libraryStatus: {
             available: available > 0 ? Math.round((available / Math.max(totalCopies, 1)) * 100) : 0,

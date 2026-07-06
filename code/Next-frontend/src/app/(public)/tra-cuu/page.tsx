@@ -1,9 +1,9 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { getGuestBorrowOrderDetail } from "@/services/borrow";
 import type { BorrowOrderDetailResponseDto } from "@/types/borrow";
 
@@ -41,7 +41,7 @@ export default function GuestLookupPage() {
             }
         } catch (err: any) {
             console.error("Lỗi tra cứu đơn mượn:", err);
-            setError(err.response?.data?.message || "Tra cứu thất bại. Vui lòng kiểm tra lại thông tin.");
+            setError(err.response?.data?.message || API_ERRORS.SEARCH_FAILED);
         } finally {
             setIsLoading(false);
         }

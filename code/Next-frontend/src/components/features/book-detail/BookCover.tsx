@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { API_ERRORS, API_SUCCESS } from "@/constants/ui-text/shared/api";
 import { useAuth } from "@/providers/auth";
 import { favoriteService } from "@/services/favorite";
 import { reservationService } from "@/services/reservation";
@@ -67,15 +68,15 @@ export default function BookCover({ book }: BookCoverProps) {
             if (isFavorite) {
                 await favoriteService.removeFavorite(book.id);
                 setIsFavorite(false);
-                toast.success(UI_TEXT.COMMON.SUCCESS_REMOVED_WISHLIST || "Đã xóa khỏi danh sách yêu thích");
+                toast.success(API_SUCCESS.FAVORITE_REMOVE_SUCCESS);
             } else {
                 await favoriteService.addFavorite(book.id);
                 setIsFavorite(true);
-                toast.success(UI_TEXT.COMMON.SUCCESS_ADDED_WISHLIST || "Đã thêm vào danh sách yêu thích");
+                toast.success(API_SUCCESS.FAVORITE_ADD_SUCCESS);
             }
         } catch (error) {
             console.error("Failed to toggle favorite", error);
-            toast.error(UI_TEXT.COMMON.ERROR_OCCURRED || "Đã có lỗi xảy ra");
+            toast.error(API_ERRORS.GENERIC_ERROR);
         } finally {
             setIsLoadingFavorite(false);
         }
@@ -107,10 +108,10 @@ export default function BookCover({ book }: BookCoverProps) {
         try {
             await reservationService.cancelReservation(userReservationId);
             setUserReservationId(null);
-            toast.success("Đã huỷ đặt giữ chỗ thành công");
+            toast.success(API_SUCCESS.HOLD_CANCEL_SUCCESS);
         } catch (error: any) {
             console.error("Failed to cancel reservation", error);
-            const msg = error.response?.data?.message || "Có lỗi xảy ra khi huỷ đặt giữ chỗ";
+            const msg = error.response?.data?.message || API_ERRORS.HOLD_CANCEL_FAILED;
             toast.error(msg);
         } finally {
             setIsReserving(false);

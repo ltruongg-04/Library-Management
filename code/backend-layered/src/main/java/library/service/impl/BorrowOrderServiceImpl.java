@@ -10,6 +10,7 @@ import library.dto.borrow.UserBorrowHistoryDto;
 import library.entity.*;
 import library.repository.*;
 import library.service.BorrowOrderService;
+import library.service.SystemLogService;
 import library.service.VnPayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
     private final VnPayService vnPayService;
     private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
     private final library.repository.ReservationRepository reservationRepository;
+    private final SystemLogService systemLogService;
+    private final library.service.EmailService emailService;
 
     @org.springframework.context.annotation.Lazy
     @org.springframework.beans.factory.annotation.Autowired
@@ -164,6 +167,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             responseBuilder.paymentUrl(paymentUrl);
             log.info("VNPay payment URL generated for orderCode={}", orderCode);
         }
+
+        systemLogService.logAction(user, "Mượn sách", "Người dùng " + user.getEmail() + " đã mượn sách: " + book.getTitle() + " (Mã đơn: " + orderCode + ")");
 
         return responseBuilder.build();
     }
@@ -492,6 +497,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             adminBorrowService.processRenewal(order.getOrderCode(), new library.dto.admin.AdminRenewalRequestDto(true));
         }
 
+        systemLogService.logAction("Yêu cầu gia hạn", "Người dùng yêu cầu gia hạn đơn mượn: " + order.getOrderCode() + " thêm " + request.getDurationInDays() + " ngày.");
+
         return BorrowResponseDto.builder()
                 .orderCode(order.getOrderCode())
                 .paymentUrl(paymentUrl)
@@ -555,15 +562,23 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             HttpServletRequest httpRequest) {
         // Get or create customer profile
         CustomerEntity customer = customerRepository.findByPhone(request.getPhone()).orElseGet(() -> {
-            CustomerEntity newCustomer = CustomerEntity.builder()
+            return CustomerEntity.builder()
                     .user(null)
-                    .fullName(request.getFullName() != null ? request.getFullName() : "Khách vãng lai")
+                    .fullName(request.getFullName() != null && !request.getFullName().trim().isEmpty() ? request.getFullName() : "Khách vãng lai")
                     .phone(request.getPhone())
                     .email(request.getEmail())
                     .address("Chưa cập nhật")
                     .build();
-            return customerRepository.save(newCustomer);
         });
+
+        // Update customer details if provided
+        if (request.getFullName() != null && !request.getFullName().trim().isEmpty()) {
+            customer.setFullName(request.getFullName());
+        }
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            customer.setEmail(request.getEmail());
+        }
+        customer = customerRepository.save(customer);
 
         BookEntity book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
@@ -662,6 +677,33 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
                     ipAddress);
             responseBuilder.paymentUrl(paymentUrl);
             log.info("VNPay payment URL generated for orderCode={}", orderCode);
+        }
+
+        systemLogService.logAction(
+                library.common.constant.SystemLogConstants.ACTION_GUEST_CREATE_ORDER, 
+                String.format(library.common.constant.SystemLogConstants.DETAIL_GUEST_ORDER_SUCCESS, customer.getFullName(), customer.getPhone(), orderCode)
+        );
+
+        // Send confirmation email if email is provided
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            String emailName = (request.getFullName() != null && !request.getFullName().trim().isEmpty()) 
+                                ? request.getFullName() : customer.getFullName();
+            
+            java.text.NumberFormat format = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+            String formattedRentalFee = format.format(rentalFee);
+            String formattedDepositPrice = format.format(depositPrice);
+
+            emailService.sendGuestBorrowConfirmationEmail(
+                    request.getEmail(),
+                    emailName,
+                    orderCode,
+                    request.getPickupDate(),
+                    request.getReturnDate(),
+                    book.getTitle(),
+                    "Chờ xử lý",
+                    formattedRentalFee,
+                    formattedDepositPrice
+            );
         }
 
         return responseBuilder.build();

@@ -1,7 +1,7 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { Loader2, Save, X } from "lucide-react";
+import { ADMIN_UI } from "@/constants/ui-text/admin";
 import { ADMIN_CATEGORY_MANAGEMENT } from "@/constants/ui-text/admin";
 import { categoryService } from "@/services/category";
 import type { Category, CategoryRequest } from "@/types/category";
@@ -55,7 +55,7 @@ export default function CategoryModal({ category, isOpen, onClose, onSuccess }: 
             onSuccess();
             onClose();
         } catch (err: any) {
-            setError(err.message || "Lỗi khi lưu thể loại");
+            setError(err.message || ADMIN_UI.CATEGORIES.EDIT_FAILED);
         } finally {
             setSaving(false);
         }

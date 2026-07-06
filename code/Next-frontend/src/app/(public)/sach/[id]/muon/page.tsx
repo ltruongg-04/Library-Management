@@ -172,7 +172,7 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
                     book={book}
                     pickupDate={pickupDate}
                     returnDate={returnDate}
-                    userFullName={isAuthenticated ? user?.fullName || "User" : fullName || "Khách"}
+                    userFullName={isAuthenticated ? user?.fullName || "User" : fullName || UI_TEXT.COMMON.GUEST}
                     isSubmitting={isSubmitting}
                     isSuccess={isSuccess}
                     onSubmit={handleSubmit}

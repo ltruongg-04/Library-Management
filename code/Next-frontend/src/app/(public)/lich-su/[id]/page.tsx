@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { getBorrowOrderDetail } from "@/services/borrow";
 import { BorrowOrderDetailResponseDto } from "@/types/borrow";
 
@@ -40,10 +41,10 @@ export default function LoanDetailPage() {
             if (response.success && response.data) {
                 setLoan(response.data);
             } else {
-                setError(response.message || "Không thể tải chi tiết đơn mượn");
+                setError(response.message || API_ERRORS.FETCH_DETAIL_ERROR);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Không thể tải chi tiết đơn mượn");
+            setError(err instanceof Error ? err.message : API_ERRORS.FETCH_DETAIL_ERROR);
         } finally {
             setLoading(false);
         }
@@ -72,7 +73,7 @@ export default function LoanDetailPage() {
                     <span className="material-symbols-outlined mb-4 text-6xl text-outline" style={{ fontVariationSettings: "'FILL' 0" }}>
                         {"error_outline"}
                     </span>
-                    <p className="text-body-md text-on-surface-variant dark:text-slate-400">{error || "Không tìm thấy đơn mượn"}</p>
+                    <p className="text-body-md text-on-surface-variant dark:text-slate-400">{error || API_ERRORS.NOT_FOUND_LOAN}</p>
                     <Link href="/lich-su" className="mt-4 text-primary hover:underline dark:text-primary-300">
                         {UI_TEXT.PUBLIC_LAYOUT.MY_HISTORY}
                     </Link>
@@ -261,7 +262,7 @@ export default function LoanDetailPage() {
                                                         : "bg-surface-container-highest text-on-surface-variant dark:bg-slate-700 dark:text-slate-300"
                                                 }`}
                                             >
-                                                {book.status === "returned" ? "Đã trả" : book.status === "inUse" ? "Đang sử dụng" : "—"}
+                                                {book.status === "returned" ? UI_TEXT.COMMON.RETURNED : book.status === "inUse" ? UI_TEXT.COMMON.IN_USE : "—"}
                                             </span>
                                         </div>
                                     </div>

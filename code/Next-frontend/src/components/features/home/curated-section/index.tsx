@@ -36,7 +36,7 @@ export default function CuratedSection() {
                             {UI_TEXT.HOME.CURATED_HEADING}
                         </h2>
                         <p className="font-sans text-[13px] text-on-surface-variant transition-colors duration-200 dark:text-white/60">
-                            {isAuthenticated ? UI_TEXT.HOME.CURATED_SUBHEADING : "Đăng nhập để nhận gợi ý cá nhân hóa."}
+                            {isAuthenticated ? UI_TEXT.HOME.CURATED_SUBHEADING : UI_TEXT.HOME.CURATED_SECTION.GUEST_SUBHEADING}
                         </p>
                     </div>
                 </div>

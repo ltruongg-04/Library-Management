@@ -11,6 +11,7 @@ import BorrowTable, { type BorrowRecord } from "@/components/features/admin/borr
 import ReturnBookModal from "@/components/features/admin/borrow/ReturnBookModal";
 import ReturnInvoiceModal from "@/components/features/admin/borrow/ReturnInvoiceModal";
 import { UI_TEXT } from "@/constants/ui-text";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { type ReturnBookResponse, getAdminBorrowOrders, processRenewal, updateAdminBorrowStatus } from "@/services/adminBorrow";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.HEADER;
@@ -74,7 +75,7 @@ export default function LuotMuonPage() {
                 await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
             }
             console.error("Error fetching borrow orders:", error);
-            setError(error.message || "Lỗi khi tải dữ liệu lượt mượn");
+            setError(error.message || API_ERRORS.FETCH_BORROW_ERROR);
         } finally {
             setIsLoading(false);
         }
@@ -92,7 +93,7 @@ export default function LuotMuonPage() {
             setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus as any } : r)));
         } catch (error) {
             console.error("Lỗi khi cập nhật trạng thái:", error);
-            toast.error("Cập nhật trạng thái thất bại. Vui lòng thử lại!");
+            toast.error(API_ERRORS.UPDATE_STATUS_FAILED);
         }
     };
 
@@ -103,7 +104,7 @@ export default function LuotMuonPage() {
             fetchBorrows();
         } catch (error) {
             console.error("Lỗi khi duyệt gia hạn:", error);
-            alert("Xử lý duyệt gia hạn thất bại. Vui lòng thử lại!");
+            alert(API_ERRORS.RENEW_APPROVE_FAILED);
         }
     };
 
@@ -135,6 +136,7 @@ export default function LuotMuonPage() {
     const filteredRecords = records.filter((r) => {
         const matchSearch =
             search.trim() === "" ||
+            r.id.toLowerCase().includes(search.toLowerCase()) ||
             r.member.name.toLowerCase().includes(search.toLowerCase()) ||
             r.member.code.toLowerCase().includes(search.toLowerCase()) ||
             r.book.title.toLowerCase().includes(search.toLowerCase());

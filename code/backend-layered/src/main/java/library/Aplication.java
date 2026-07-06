@@ -12,8 +12,11 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.scheduling.annotation.EnableAsync;
+
 @SpringBootApplication
 @EnableJpaAuditing
+@EnableAsync
 public class Aplication {
     private static final Logger log = LoggerFactory.getLogger(Aplication.class);
 

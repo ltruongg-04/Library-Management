@@ -135,6 +135,9 @@ export const BORROW = {
         LOGIN_NOW: "Đăng nhập ngay",
         NOT_FOUND: "Không tìm thấy đơn mượn.",
         MISSING_INFO: "Vui lòng nhập đầy đủ mã đơn mượn và số điện thoại.",
+        INVALID_PHONE: "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam (10 số).",
+        CONSOLE_ERROR: "Lỗi tra cứu đơn mượn:",
+        LOOKUP_FAILED: "Tra cứu thất bại. Vui lòng kiểm tra lại thông tin.",
         RESULT: {
             TITLE: "Kết quả tra cứu",
             STATUS: "Trạng thái:",
