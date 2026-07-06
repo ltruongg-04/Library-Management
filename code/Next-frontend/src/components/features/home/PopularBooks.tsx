@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { API_ERRORS, API_SUCCESS } from "@/constants/ui-text/shared/api";
 import { useTrendingBooks } from "@/hooks/useBooks";
 import { favoriteService } from "@/services/favorite";
 import type { Book } from "@/types/book";
@@ -28,14 +29,14 @@ function FeaturedBookCard({ book }: { book: Book }) {
         e.stopPropagation();
         try {
             await favoriteService.addFavorite(book.id);
-            toast.success("Thêm vào danh sách thành công!", {
+            toast.success(API_SUCCESS.FAVORITE_ADD_SUCCESS, {
                 action: {
                     label: "Tới Sách của tôi",
                     onClick: () => router.push("/sach-cua-toi"),
                 },
             });
         } catch (error: any) {
-            toast.error(error.message || "Không thể thêm vào danh sách yêu thích");
+            toast.error(error.message || API_ERRORS.FAVORITE_ADD_FAILED);
         }
     };
 
@@ -111,14 +112,14 @@ function SmallBookCard({ book, rank }: { book: Book; rank: number }) {
         e.stopPropagation();
         try {
             await favoriteService.addFavorite(book.id);
-            toast.success("Thêm vào danh sách thành công!", {
+            toast.success(API_SUCCESS.FAVORITE_ADD_SUCCESS, {
                 action: {
                     label: "Tới Sách của tôi",
                     onClick: () => router.push("/sach-cua-toi"),
                 },
             });
         } catch (error: any) {
-            toast.error(error.message || "Không thể thêm vào danh sách yêu thích");
+            toast.error(error.message || API_ERRORS.FAVORITE_ADD_FAILED);
         }
     };
 

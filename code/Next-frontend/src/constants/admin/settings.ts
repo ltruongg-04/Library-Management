@@ -44,7 +44,7 @@ export const DEFAULT_SETTINGS: AdminSettingsState = {
 
 export const borrowingFields = [
     { key: "maxDays", label: SETTINGS.BORROWING.MAX_DAYS, suffix: undefined },
-    { key: "finePerDay", label: SETTINGS.BORROWING.FINE_PER_DAY, suffix: "đ" },
+    { key: "finePerDay", label: SETTINGS.BORROWING.FINE_PER_DAY, suffix: UI_TEXT.COMMON.CURRENCY_SUFFIX },
     { key: "maxBooks", label: SETTINGS.BORROWING.MAX_BOOKS, suffix: undefined },
     { key: "depositPercentage", label: SETTINGS.BORROWING.DEPOSIT_PERCENTAGE, suffix: "%" },
 ] as const;

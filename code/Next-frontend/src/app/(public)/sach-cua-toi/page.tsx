@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
+import { API_ERRORS, API_SUCCESS } from "@/constants/ui-text/shared/api";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/providers/auth";
 
@@ -41,9 +42,9 @@ function MyBooksContent() {
     const handleRemoveFavorite = async (bookId: number) => {
         const success = await removeFavorite(bookId);
         if (success) {
-            toast.success(UI_TEXT.COMMON?.SUCCESS_REMOVED_WISHLIST || "Đã xóa khỏi danh sách yêu thích");
+            toast.success(API_SUCCESS.FAVORITE_REMOVE_SUCCESS);
         } else {
-            toast.error(UI_TEXT.COMMON?.ERROR_OCCURRED || "Đã có lỗi xảy ra");
+            toast.error(API_ERRORS.GENERIC_ERROR);
         }
     };
 

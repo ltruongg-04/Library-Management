@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { bookService } from "@/services/book";
 import type { Book, BookPageResponse, BookSearchParams } from "@/types/book";
 
@@ -56,7 +57,7 @@ export function useBooks(initialParams?: BookSearchParams) {
             setState((prev) => ({
                 ...prev,
                 loading: false,
-                error: err.message || "Đã xảy ra lỗi khi tải sách",
+                error: err.message || API_ERRORS.BOOK_LOAD_FAILED,
             }));
         }
     }, []);
@@ -160,7 +161,7 @@ export function useBookDetail(id: number | null) {
                         await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
                     }
                     if (!cancelled) {
-                        setError(err.message || "Không thể tải chi tiết sách");
+                        setError(err.message || API_ERRORS.BOOK_DETAIL_FAILED);
                         setLoading(false);
                     }
                 }
@@ -205,7 +206,7 @@ export function useTrendingBooks(limit: number = 8) {
                         await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
                     }
                     if (!cancelled) {
-                        setError(err.message || "Không thể tải sách thịnh hành");
+                        setError(err.message || API_ERRORS.BOOK_TRENDING_FAILED);
                         setLoading(false);
                     }
                 }
@@ -251,7 +252,7 @@ export function useRelatedBooks(bookId: number | null, categoryId?: string, limi
                 }
             } catch (err: any) {
                 if (!cancelled) {
-                    setError(err.message || "Không thể tải sách liên quan");
+                    setError(err.message || API_ERRORS.BOOK_RELATED_FAILED);
                     setLoading(false);
                 }
             }

@@ -1,3 +1,4 @@
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import axiosInstance from "@/lib/axios";
 
 export interface UserBorrowHistoryItem {
@@ -50,7 +51,7 @@ export const userBorrowService = {
             `/api/user/borrow?page=${page}&size=${size}&sort=createdAt,desc`,
         );
         if (!response.data.success || !response.data.data) {
-            throw new Error(response.data.message || "Không thể tải lịch sử mượn sách");
+            throw new Error(response.data.message || API_ERRORS.USER_BORROW_HISTORY_FAILED);
         }
         return response.data.data;
     },
@@ -58,7 +59,7 @@ export const userBorrowService = {
     async getDetail(orderCode: string): Promise<UserBorrowDetail> {
         const response = await axiosInstance.get<ApiResponse<UserBorrowDetail>>(`/api/user/borrow/${orderCode}`);
         if (!response.data.success || !response.data.data) {
-            throw new Error(response.data.message || "Không thể tải chi tiết đơn mượn");
+            throw new Error(response.data.message || API_ERRORS.USER_BORROW_DETAIL_FAILED);
         }
         return response.data.data;
     },

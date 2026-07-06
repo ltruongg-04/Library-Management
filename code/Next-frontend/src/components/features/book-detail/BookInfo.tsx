@@ -61,15 +61,21 @@ export default function BookInfo({ book }: BookInfoProps) {
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 gap-4 border-y border-outline-variant/30 py-4 dark:border-slate-700 md:grid-cols-3 lg:grid-cols-6">
                 <MetadataItem
-                    label="Publisher"
+                    label={UI_TEXT.BOOK_DETAIL.METADATA.PUBLISHER}
                     value={book.publisher || "N/A"}
                     href={book.publisher ? `/sach?publisher=${encodeURIComponent(book.publisher)}` : undefined}
                 />
-                <MetadataItem label="Published" value={book.publishedDate ? new Date(book.publishedDate).getFullYear().toString() : "N/A"} />
-                <MetadataItem label="Pages" value={book.pages ? String(book.pages) : "N/A"} />
-                <MetadataItem label="ISBN" value={book.isbn || "N/A"} />
-                <MetadataItem label="Deposit" value={book.depositPrice ? `${book.depositPrice.toLocaleString("vi-VN")} đ` : "N/A"} />
-                <MetadataItem label="Rental Fee" value="5.000 đ/ngày" />
+                <MetadataItem
+                    label={UI_TEXT.BOOK_DETAIL.METADATA.PUBLISHED}
+                    value={book.publishedDate ? new Date(book.publishedDate).getFullYear().toString() : "N/A"}
+                />
+                <MetadataItem label={UI_TEXT.BOOK_DETAIL.METADATA.PAGES} value={book.pages ? String(book.pages) : "N/A"} />
+                <MetadataItem label={UI_TEXT.BOOK_DETAIL.METADATA.ISBN} value={book.isbn || "N/A"} />
+                <MetadataItem
+                    label={UI_TEXT.BOOK_DETAIL.METADATA.DEPOSIT}
+                    value={book.depositPrice ? `${book.depositPrice.toLocaleString("vi-VN")} đ` : "N/A"}
+                />
+                <MetadataItem label={UI_TEXT.BOOK_DETAIL.METADATA.RENTAL_FEE} value={UI_TEXT.BOOK_DETAIL.METADATA.RENTAL_FEE_VALUE} />
             </div>
 
             {/* Tags & Categories */}

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { HOME } from "@/constants/ui-text/public/home";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { useAuth } from "@/providers/auth";
 import { bookService } from "@/services/book";
 import { favoriteService } from "@/services/favorite";
@@ -146,7 +148,7 @@ export function useRecommendations() {
                         id: `trend-${catName}`,
                         categoryId: books[0]?.categories?.[0]?.id ? String(books[0].categories[0].id) : undefined,
                         categoryName: catName,
-                        description: "Đang được nhiều độc giả quan tâm hiện nay.",
+                        description: HOME.CURATED_SECTION.FAVORITE_DESC,
                         matchPercent: 70 + Math.floor(Math.random() * 15),
                         reason: "trending",
                         books,
@@ -171,8 +173,8 @@ export function useRecommendations() {
             return [
                 {
                     id: "guest-trending-1",
-                    categoryName: "Đang thịnh hành",
-                    description: "Những cuốn sách được đọc nhiều nhất tuần này.",
+                    categoryName: HOME.CURATED_SECTION.GUEST_TRENDING,
+                    description: HOME.CURATED_SECTION.GUEST_TRENDING_DESC,
                     matchPercent: 88,
                     reason: "default",
                     books: books.slice(0, half),
@@ -180,8 +182,8 @@ export function useRecommendations() {
                 },
                 {
                     id: "guest-trending-2",
-                    categoryName: "Mới nhất",
-                    description: "Các tựa sách mới bổ sung vào thư viện.",
+                    categoryName: HOME.CURATED_SECTION.GUEST_NEWEST,
+                    description: HOME.CURATED_SECTION.GUEST_NEWEST_DESC,
                     matchPercent: 75,
                     reason: "default",
                     books: books.slice(half),
@@ -199,7 +201,7 @@ export function useRecommendations() {
             const collections = isAuthenticated ? await buildPersonalizedCollections() : await buildGuestCollections();
             setState({ collections, loading: false, error: null });
         } catch (err: any) {
-            setState({ collections: [], loading: false, error: err.message || "Lỗi tải gợi ý" });
+            setState({ collections: [], loading: false, error: err.message || API_ERRORS.RECOMMENDATION_LOAD_FAILED });
         }
     }, [isAuthenticated, buildPersonalizedCollections, buildGuestCollections]);
 

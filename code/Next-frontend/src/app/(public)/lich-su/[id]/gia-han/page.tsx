@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
@@ -7,9 +5,13 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { SuccessModal } from "@/components/base/success-modal";
+import { UI_TEXT } from "@/constants/ui-text";
 import { RENEW_PAGE } from "@/constants/ui-text/public";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { getBorrowOrderDetail, renewBorrowOrder } from "@/services/borrow";
 import { BorrowOrderDetailResponseDto } from "@/types/borrow";
+
+("use client");
 
 const formatCurrency = (amount: number) => {
     return `${amount.toLocaleString("vi-VN")}đ`;
@@ -48,10 +50,10 @@ export default function RenewBookPage() {
                 if (res.success && res.data) {
                     setOrderData(res.data);
                 } else {
-                    setError(res.message || "Không thể tải dữ liệu");
+                    setError(res.message || API_ERRORS.FETCH_ERROR);
                 }
             } catch (err) {
-                setError("Đã xảy ra lỗi khi tải dữ liệu");
+                setError(API_ERRORS.GENERIC_FETCH_ERROR);
             } finally {
                 setIsFetching(false);
             }
@@ -66,7 +68,7 @@ export default function RenewBookPage() {
         return (
             <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-body-md text-on-surface-variant">Đang tải dữ liệu đơn mượn...</p>
+                <p className="text-body-md text-on-surface-variant">{UI_TEXT.COMMON.LOADING_DATA}</p>
             </div>
         );
     }
@@ -75,7 +77,7 @@ export default function RenewBookPage() {
         return (
             <div className="flex h-[60vh] flex-col items-center justify-center text-center">
                 <MaterialIcon name="error_outline" className="mb-2 text-4xl text-error" />
-                <p className="text-body-lg text-error">{error || "Không tìm thấy thông tin đơn mượn"}</p>
+                <p className="text-body-lg text-error">{error || API_ERRORS.NOT_FOUND_LOAN}</p>
                 <Link href="/lich-su" className="mt-4 text-primary hover:underline">
                     {RENEW_PAGE.BACK_TO_HISTORY}
                 </Link>
@@ -107,11 +109,11 @@ export default function RenewBookPage() {
                     setIsSuccessModalOpen(true);
                 }
             } else {
-                setError(res.message || "Gia hạn thất bại");
-                alert(res.message || "Gia hạn thất bại"); // Optional: Use toast in future
+                setError(res.message || API_ERRORS.RENEW_FAILED);
+                alert(res.message || API_ERRORS.RENEW_FAILED); // Optional: Use toast in future
             }
         } catch (err: any) {
-            const errMsg = err.response?.data?.message || "Đã xảy ra lỗi khi gửi yêu cầu gia hạn";
+            const errMsg = err.response?.data?.message || API_ERRORS.RENEW_REQUEST_ERROR;
             setError(errMsg);
             alert(errMsg);
         } finally {
@@ -267,7 +269,7 @@ export default function RenewBookPage() {
                 {isLoading ? (
                     <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        Đang xử lý...
+                        {UI_TEXT.COMMON.PROCESSING}
                     </>
                 ) : amountToPayNow > 0 ? (
                     `Thanh toán ${formatCurrency(amountToPayNow)} & Gia hạn`

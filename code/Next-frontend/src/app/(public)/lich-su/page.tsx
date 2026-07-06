@@ -6,6 +6,7 @@ import { MaterialIcon } from "@/components/base/material-icon";
 import { LoanCard } from "@/components/features/history/LoanCard";
 import { LoanFilter } from "@/components/features/history/LoanFilter";
 import { MY_BOOKS_PAGE } from "@/constants/ui-text/public/my-books";
+import { API_SUCCESS } from "@/constants/ui-text/shared/api";
 import { getBorrowHistory } from "@/services/borrow";
 import { type UserBorrowHistoryItem } from "@/services/userBorrow";
 
@@ -67,7 +68,7 @@ export default function MyBooksPage() {
 
     const handleCancel = (orderCode: string) => {
         setLoans((prev) => prev.map((loan) => (loan.orderCode === orderCode ? { ...loan, status: "CANCELLED" } : loan)));
-        toast.success("Đã huỷ đặt giữ chỗ thành công!");
+        toast.success(API_SUCCESS.HOLD_CANCEL_SUCCESS);
     };
 
     const mapStatusToFilter = (status: string): string => {

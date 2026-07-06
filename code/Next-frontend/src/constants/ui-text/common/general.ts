@@ -1,4 +1,6 @@
 export const COMMON = {
+    LOADING_DATA: "Đang tải dữ liệu...",
+    PROCESSING: "Đang xử lý...",
     LOADING: "Đang xử lý...",
     LOADING_BOOKS: "Đang tải danh sách sách...",
     LOADING_BOOK_DETAIL: "Đang tải chi tiết sách...",
@@ -21,4 +23,11 @@ export const COMMON = {
     SUCCESS_ADDED_WISHLIST: "Đã thêm vào danh sách yêu thích",
     SUCCESS_REMOVED_WISHLIST: "Đã xóa khỏi danh sách yêu thích",
     ERROR_OCCURRED: "Đã có lỗi xảy ra",
+    BOOK: "Sách",
+    LIBRARY_PAYMENT: "Thanh toán thư viện",
+    UPDATING: "Đang cập nhật",
+    CURRENCY_SUFFIX: "đ",
+    GUEST: "Khách",
+    RETURNED: "Đã trả",
+    IN_USE: "Đang sử dụng",
 };

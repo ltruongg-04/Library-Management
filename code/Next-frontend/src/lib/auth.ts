@@ -2,6 +2,7 @@ import axios from "axios";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
 
@@ -71,7 +72,7 @@ export const authOptions: NextAuthOptions = {
                     }
                     return null;
                 } catch (e: any) {
-                    const message = e.response?.data?.message || "Lỗi đăng nhập";
+                    const message = e.response?.data?.message || API_ERRORS.LOGIN_FAILED;
                     throw new Error(message);
                 }
             },
