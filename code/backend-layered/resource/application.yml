@@ -46,3 +46,13 @@ vnpay:
   version: "2.1.0"
   command: "pay"
   order-type: "other"
+
+resend:
+  api:
+    key: ${RESEND_API_KEY:}
+
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket-name: ${MINIO_BUCKET_NAME}

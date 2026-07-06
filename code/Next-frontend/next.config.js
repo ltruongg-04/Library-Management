@@ -34,10 +34,6 @@ const nextConfig = {
                 hostname: "covers.openlibrary.org",
             },
             {
-                protocol: "https",
-                hostname: "images.unsplash.com",
-            },
-            {
                 protocol: "http",
                 hostname: "localhost",
             },

@@ -19,6 +19,7 @@ export function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const isRegistered = searchParams?.get("registered") === "true";
+    const isReset = searchParams?.get("reset") === "true";
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -120,6 +121,13 @@ export function LoginForm() {
                 <div className="mb-6 flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
                     <span>{UI_TEXT.AUTH.LOGIN.SUCCESS_ICON}</span>
                     <span>{UI_TEXT.AUTH.LOGIN.REGISTER_SUCCESS}</span>
+                </div>
+            )}
+
+            {isReset && (
+                <div className="mb-6 flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                    <span>{UI_TEXT.AUTH.LOGIN.SUCCESS_ICON}</span>
+                    <span>{UI_TEXT.AUTH.LOGIN.RESET_SUCCESS}</span>
                 </div>
             )}
 

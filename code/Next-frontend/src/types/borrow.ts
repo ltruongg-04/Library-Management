@@ -33,6 +33,8 @@ export interface BorrowOrderDetailResponseDto {
     lateFee: string;
     paidOnline: string;
     total: string;
+    customerName?: string;
+    customerPhone?: string;
     status: string;
     overdueDays: number;
     extensionCount: number;

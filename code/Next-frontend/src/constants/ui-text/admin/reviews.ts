@@ -7,6 +7,9 @@ export const ADMIN_REVIEWS = {
     APP_SWITCHER_LABEL: "Mở lưới công cụ",
     HIDE_REASON_LABEL: "Lý do ẩn",
     HIDE_REASON_PLACEHOLDER: "Nhập lý do...",
+    HIDE_REASON_DIALOG_DESCRIPTION: "Chọn lý do để ẩn đánh giá này khỏi hệ thống.",
+    CUSTOM_HIDE_REASON: "Khác...",
+    HIDE_REASON_OPTIONS: ["Spam", "Ngôn từ không phù hợp", "Tiết lộ nội dung", "Không liên quan đến sách"],
     DETAIL: "Chi tiết",
     HIDE: "Ẩn",
     RESTORE: "Khôi phục",
@@ -21,7 +24,17 @@ export const ADMIN_REVIEWS = {
         TOTAL: "Tổng phản hồi",
         REPORTED: "Bị báo cáo",
         HIDDEN: "Đã ẩn",
-        AVERAGE: "Điểm trung bình",
+    },
+    CONTROLS: {
+        FILTER_TITLE: "Lọc theo",
+        FILTER_LABEL: "Nhóm đánh giá",
+        SEARCH_LABEL: "Tìm kiếm đánh giá",
+        CLEAR_SEARCH: "Xóa tìm kiếm",
+    },
+    PAGINATION: {
+        PAGE_LABEL: "Trang",
+        PREVIOUS_PAGE: "Trang trước",
+        NEXT_PAGE: "Trang sau",
     },
     FILTERS: {
         ALL: "Tất cả",

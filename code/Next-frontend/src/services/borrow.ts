@@ -47,6 +47,11 @@ export const renewBorrowOrder = async (orderId: string, durationInDays: number):
     return response.data;
 };
 
+export const cancelBorrowOrder = async (orderId: string): Promise<ApiResponse<void>> => {
+    const response = await axiosInstance.post<ApiResponse<void>>(`/api/user/borrow/${orderId}/cancel`);
+    return response.data;
+};
+
 export interface GuestBorrowRequestPayload extends BorrowRequestPayload {
     fullName: string;
     phone: string;
@@ -58,7 +63,16 @@ export const createGuestBorrowRequest = async (payload: GuestBorrowRequestPayloa
     return response.data;
 };
 
-export const getGuestBorrowOrderDetail = async (orderCode: string, phone: string): Promise<ApiResponse<BorrowOrderDetailResponseDto>> => {
-    const response = await axiosInstance.get<ApiResponse<BorrowOrderDetailResponseDto>>(`/api/public/borrow/lookup?orderCode=${orderCode}&phone=${phone}`);
+export const requestGuestLookupOtp = async (email: string): Promise<ApiResponse<void>> => {
+    const response = await axiosInstance.post<ApiResponse<void>>("/api/public/borrow/otp/request", { email });
+    return response.data;
+};
+
+export const getGuestBorrowOrders = async (identifier: string, otp?: string): Promise<ApiResponse<BorrowOrderDetailResponseDto[]>> => {
+    let url = `/api/public/borrow/lookup?identifier=${encodeURIComponent(identifier)}`;
+    if (otp) {
+        url += `&otp=${encodeURIComponent(otp)}`;
+    }
+    const response = await axiosInstance.get<ApiResponse<BorrowOrderDetailResponseDto[]>>(url);
     return response.data;
 };
