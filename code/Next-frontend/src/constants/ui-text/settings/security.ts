@@ -10,6 +10,7 @@ export const SETTINGS_SECURITY = {
         CONFIRM_NEW_LABEL: "Xác nhận mật khẩu mới",
         CONFIRM_NEW_PLACEHOLDER: "Nhập lại mật khẩu mới",
         UPDATE_PASSWORD_BTN: "Cập nhật mật khẩu",
+        UPDATING_PASSWORD_BTN: "Đang cập nhật...",
         PASSWORD_ELIGIBLE: "Đủ điều kiện",
         PASSWORD_INELIGIBLE: "Chưa đủ điều kiện",
         PASSWORD_MATCH: "Trùng khớp",
@@ -22,6 +23,9 @@ export const SETTINGS_SECURITY = {
         LOG_OUT_ALL_BTN: "Đăng xuất tất cả",
         EMPTY_SESSIONS: "Không có phiên đăng nhập nào.",
         ACTIVE_NOW: "Đang hoạt động",
+        ERROR_MESSAGES: {
+            PASSWORD_UPDATE_FAILED: "Đổi mật khẩu thất bại",
+        },
         SUCCESS_MESSAGES: {
             PASSWORD_UPDATED: "Mật khẩu đã được cập nhật thành công.",
             TWO_FACTOR_ENABLED: "Xác thực hai lớp đã được bật.",

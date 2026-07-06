@@ -70,4 +70,40 @@ public class AuthController {
                 return ResponseEntity
                                 .ok(ApiResponse.success("Đăng xuất thành công", null));
         }
+
+        @PutMapping("/change-password")
+        public ResponseEntity<ApiResponse<Void>> changePassword(
+                        @Valid @RequestBody library.dto.request.ChangePasswordRequest request) {
+                
+                org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                if (authentication == null || authentication.getName() == null) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error("Vui lòng đăng nhập"));
+                }
+                String email = authentication.getName();
+
+                userService.changePassword(email, request);
+
+                return ResponseEntity
+                                .ok(ApiResponse.success("Đổi mật khẩu thành công", null));
+        }
+
+        @PostMapping("/forgot-password")
+        public ResponseEntity<ApiResponse<Void>> forgotPassword(
+                        @Valid @RequestBody library.dto.request.ForgotPasswordRequest request) {
+
+                userService.forgotPassword(request);
+
+                return ResponseEntity
+                                .ok(ApiResponse.success("Mã xác nhận đã được gửi đến email của bạn", null));
+        }
+
+        @PostMapping("/reset-password")
+        public ResponseEntity<ApiResponse<Void>> resetPassword(
+                        @Valid @RequestBody library.dto.request.ResetPasswordRequest request) {
+
+                userService.resetPassword(request);
+
+                return ResponseEntity
+                                .ok(ApiResponse.success("Đặt lại mật khẩu thành công", null));
+        }
 }
