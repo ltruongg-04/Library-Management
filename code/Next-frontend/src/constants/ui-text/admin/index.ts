@@ -11,3 +11,5 @@ export * from "./inventory-management";
 export * from "./analytics";
 export * from "./roles";
 export * from "./reviews";
+
+export * from "./ui";

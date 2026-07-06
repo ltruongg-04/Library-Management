@@ -1,10 +1,11 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { Book, Calendar, DollarSign, User, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { AdminBorrowOrderDetailResponse, getAdminBorrowOrderDetail } from "@/services/adminBorrow";
+
+("use client");
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.DETAIL_MODAL;
 
@@ -49,7 +50,7 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
             if (elapsed < 5000) {
                 await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
             }
-            setError("Đã có lỗi xảy ra khi tải chi tiết");
+            setError(API_ERRORS.FETCH_BORROW_DETAIL_ERROR);
         } finally {
             setIsLoading(false);
         }

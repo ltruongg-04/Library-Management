@@ -1,0 +1,113 @@
+
+FILE: \app\admin\luot-muon\page.tsx
+L72:  error.message || "Lỗi khi tải dữ liệu lượt mượn"
+L90:  toast.error("Cập nhật trạng thái thất bại. Vui lòng thử lại!")
+L101:  alert("Xử lý duyệt gia hạn thất bại. Vui lòng thử lại!")
+
+FILE: \app\admin\tac-gia\page.tsx
+L7:  title: "Quản lý Tác giả | Admin"
+L8:  description: "Quản lý danh sách tác giả sách"
+
+FILE: \app\admin\thanh-vien\page.tsx
+L50:  toast.error("Cập nhật trạng thái thất bại. Vui lòng thử lại!")
+
+FILE: \app\admin\the-loai\page.tsx
+L7:  title: "Quản lý Thể loại | Admin"
+L8:  description: "Quản lý danh sách thể loại sách"
+
+FILE: \app\api\books\[id]\route.ts
+L17:  data.message || "Không tìm thấy sách"
+
+FILE: \components\features\admin\analytics\AnalyticsPageContent.tsx
+L31:  label: "Tổng số sách"
+L32:  label: "Sách sẵn sàng"
+L33:  label: "Đang mượn"
+L34:  label: "Quá hạn"
+L35:  label: "Độc giả"
+L36:  label: "Yêu cầu"
+
+FILE: \components\features\admin\audit-logs\AuditLogsPageContent.tsx
+L106:  actor: "Nguyễn An (Quản trị viên)"
+L114:  description: "Quản trị viên cập nhật chính sách giới hạn tần suất truy cập API."
+L120:  actor: "Hệ thống tự động"
+L126:  ipAddress: "10.0.0.22 (Nội bộ)"
+L128:  description: "Tác vụ đồng bộ dữ liệu danh mục bên ngoài kết thúc với trạng thái thất bại."
+L134:  actor: "Trần Minh (Người dùng)"
+L142:  description: "Người dùng tạo bản ghi biên mục mới trong kho dữ liệu."
+L148:  actor: "Nguồn không xác định"
+L156:  description: "Hệ thống chặn yêu cầu xác thực bất thường vào điểm cuối quản trị."
+L162:  actor: "Nguyễn An (Quản trị viên)"
+L170:  description: "Quản trị viên đăng nhập và hệ thống tạo phiên làm việc mới."
+L176:  actor: "Hệ thống tự động"
+L182:  ipAddress: "10.0.0.5 (Nội bộ)"
+L184:  description: "Hệ thống tạo báo cáo thống kê sử dụng theo tuần."
+L190:  actor: "Lê Hương (Người dùng)"
+L198:  description: "Người dùng cập nhật thông tin hồ sơ độc giả."
+L204:  actor: "Hệ thống tự động"
+L210:  ipAddress: "10.0.0.8 (Nội bộ)"
+L212:  description: "Hệ thống tạo snapshot sao lưu dữ liệu định kỳ."
+L218:  actor: "Phạm Khoa (Người dùng)"
+L226:  description: "Người dùng gia hạn lượt mượn nhưng không đáp ứng điều kiện nghiệp vụ."
+L232:  actor: "Mai Linh (Người dùng)"
+L240:  description: "Người dùng tạo yêu cầu đặt mượn sách từ danh mục trực tuyến."
+
+FILE: \components\features\admin\authors\AuthorModal.tsx
+L58:  err.message || "Lỗi khi lưu tác giả"
+
+FILE: \components\features\admin\authors\AuthorTable.tsx
+L32:  err.message || "Lỗi khi tải danh sách tác giả"
+L71:  err.message || "Lỗi khi xoá tác giả"
+
+FILE: \components\features\admin\borrow\BorrowDetailModal.tsx
+L52:  setError("Đã có lỗi xảy ra khi tải chi tiết")
+
+FILE: \components\features\admin\borrow\BorrowModal.tsx
+L34:  setError("Vui lòng điền các thông tin bắt buộc (SĐT, Mã vạch, Ngày hẹn trả)")
+L44:  setError("Vui lòng nhập ít nhất một mã vạch hợp lệ")
+L62:  res.message || "Tạo phiếu mượn thất bại"
+L65:  err.response?.data?.message || "Đã có lỗi xảy ra"
+
+FILE: \components\features\admin\borrow\BorrowTable.tsx
+L75:  T.STATUS_PENDING_RENEWAL || "Chờ duyệt gia hạn"
+
+FILE: \components\features\admin\categories\CategoryTable.tsx
+L32:  err.message || "Lỗi khi tải danh sách thể loại"
+L71:  err.message || "Lỗi khi xoá thể loại"
+L188:  isDeleting ? <Loader2 size={16} className="animate-spin" /> : "Xóa thể loại"
+
+FILE: \components\features\admin\inventory\AddBookModal.tsx
+L59:  setError("Không thể tải danh sách tác giả hoặc thể loại.")
+L142:  <p>Đang tải dữ liệu...</p>
+
+FILE: \components\features\admin\inventory\BookTable.tsx
+L104:  book.shelfLocation
+                        ? book.shelfLocation.split(", ").map((loc, idx) => (
+                              <span key={idx} className="block">
+                                  {loc}
+                              </span>
+                          ))
+                        : "Chưa xếp giá"
+L195:  err.message || "Lỗi khi tải dữ liệu"
+L274:  loading || !data
+                            ? "Đang tải..."
+                            : `Hiển thị ${data.number * data.size + 1} đến ${Math.min((data.number + 1) * data.size, data.totalElements)} của ${data.totalElements} mục`
+
+FILE: \components\features\admin\inventory\EditBookModal.tsx
+L87:  err.message || "Lỗi khi tải thông tin sách"
+L123:  err.message || "Lỗi khi lưu sách"
+L148:  <p>Đang tải dữ liệu...</p>
+
+FILE: \components\features\admin\member\UserModal.tsx
+L46:  setError("Tên không được để trống")
+L50:  setError("Email không được để trống")
+L54:  setError("Mật khẩu phải có ít nhất 8 ký tự")
+L66:  error?.response?.data?.message || "Lưu thông tin thất bại"
+L78:  isEditMode ? "Chỉnh sửa thành viên" : UI_TEXT.ADMIN_USER_MANAGEMENT.MODAL.CREATE_TITLE
+L221:  isSaving ? "Đang lưu..." : isEditMode ? "Lưu thay đổi" : UI_TEXT.ADMIN_USER_MANAGEMENT.MODAL.BTN_CREATE
+L221:  isEditMode ? "Lưu thay đổi" : UI_TEXT.ADMIN_USER_MANAGEMENT.MODAL.BTN_CREATE
+
+FILE: \components\features\admin\settings\SettingsPageContent.tsx
+L69:  suffix: "đ"
+L104:  label: "Português (BR)"
+L129:  label: "(UTC+07:00) Hà Nội, Bangkok, Jakarta, Phnom Penh"
+L133:  label: "(UTC+11:00) Nouméa, Honiara, Magadan"

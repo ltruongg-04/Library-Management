@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { UI_TEXT } from "@/constants/ui-text";
 import { Providers } from "@/providers/Providers";
 import "../index.css";
 
@@ -29,7 +30,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
     title: "Athenaeum — Library",
-    description: "Hệ thống quản lý thư viện",
+    description: UI_TEXT.PUBLIC_LAYOUT.DESC,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

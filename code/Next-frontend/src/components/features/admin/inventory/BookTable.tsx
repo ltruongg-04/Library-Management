@@ -1,15 +1,18 @@
-"use client";
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Book, ChevronLeft, ChevronRight, Library, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { UI_TEXT } from "@/constants/ui-text";
+import { ADMIN_UI } from "@/constants/ui-text/admin";
 import { ADMIN_INVENTORY_MANAGEMENT } from "@/constants/ui-text/admin";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { bookService } from "@/services/book";
 import type { BookListItem, PageResponse } from "@/types/book";
 import BookCopiesModal from "./BookCopiesModal";
 import EditBookModal from "./EditBookModal";
+
+("use client");
 
 const textUI = ADMIN_INVENTORY_MANAGEMENT;
 
@@ -101,7 +104,7 @@ const TableRow = ({ book, onEdit, onManageCopies }: TableRowProps) => {
                                   {loc}
                               </span>
                           ))
-                        : "Chưa xếp giá"}
+                        : ADMIN_UI.BOOKS.NOT_SHELVED}
                 </p>
             </td>
             <td className="px-6 py-4 text-center">
@@ -192,7 +195,7 @@ export default function BookTable() {
             if (elapsed < 5000) {
                 await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
             }
-            setError(err.message || "Lỗi khi tải dữ liệu");
+            setError(err.message || API_ERRORS.GENERIC_FETCH_ERROR);
         } finally {
             setLoading(false);
         }
@@ -271,8 +274,8 @@ export default function BookTable() {
                 <div className="flex items-center justify-between border-t border-surface-container-high px-6 py-4 text-[13px] text-on-surface-variant">
                     <span>
                         {loading || !data
-                            ? "Đang tải..."
-                            : `Hiển thị ${data.number * data.size + 1} đến ${Math.min((data.number + 1) * data.size, data.totalElements)} của ${data.totalElements} mục`}
+                            ? UI_TEXT.COMMON.LOADING
+                            : `${ADMIN_UI.BOOKS.SHOWING} ${data.number * data.size + 1} ${ADMIN_UI.BOOKS.TO} ${Math.min((data.number + 1) * data.size, data.totalElements)} ${ADMIN_UI.BOOKS.OF} ${data.totalElements} ${ADMIN_UI.BOOKS.ITEMS}`}
                     </span>
                     <div className="flex items-center gap-1">
                         <button

@@ -1,13 +1,15 @@
-"use client";
-
 import { useCallback, useEffect, useState } from "react";
 import { Edit2, Loader2, Plus, Tags, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { ADMIN_UI } from "@/constants/ui-text/admin";
 import { ADMIN_CATEGORY_MANAGEMENT } from "@/constants/ui-text/admin";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { categoryService } from "@/services/category";
 import type { Category } from "@/types/category";
 import CategoryModal from "./CategoryModal";
+
+("use client");
 
 export default function CategoryTable() {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -29,7 +31,7 @@ export default function CategoryTable() {
             if (elapsed < 5000) {
                 await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
             }
-            setError(err.message || "Lỗi khi tải danh sách thể loại");
+            setError(err.message || API_ERRORS.FETCH_CATEGORIES_ERROR);
         } finally {
             setLoading(false);
         }
@@ -68,7 +70,7 @@ export default function CategoryTable() {
             fetchCategories();
             setDeleteCategoryId(null);
         } catch (err: any) {
-            toast.error(err.message || "Lỗi khi xoá thể loại");
+            toast.error(err.message || API_ERRORS.DELETE_CATEGORY_ERROR);
         } finally {
             setIsDeleting(false);
         }
@@ -185,7 +187,7 @@ export default function CategoryTable() {
                                 className="flex w-[130px] items-center justify-center gap-2 rounded-lg bg-error px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-error-600"
                                 disabled={isDeleting}
                             >
-                                {isDeleting ? <Loader2 size={16} className="animate-spin" /> : "Xóa thể loại"}
+                                {isDeleting ? <Loader2 size={16} className="animate-spin" /> : ADMIN_UI.CATEGORIES.DELETE_BTN}
                             </button>
                         </div>
                     </div>

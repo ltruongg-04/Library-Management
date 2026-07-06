@@ -1,4 +1,5 @@
 export const PUBLIC_LAYOUT = {
+    DESC: "Hệ thống quản lý thư viện",
     MY_ACCOUNT: "Tài khoản của tôi",
     MY_BOOKS_PAGE: "Sách của tôi",
     MY_HISTORY: "Lịch sử mượn sách",

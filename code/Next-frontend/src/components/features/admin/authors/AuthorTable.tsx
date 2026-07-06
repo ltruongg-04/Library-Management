@@ -1,13 +1,14 @@
-"use client";
-
 import { useCallback, useEffect, useState } from "react";
 import { Edit2, Feather, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { ADMIN, ADMIN_AUTHOR_MANAGEMENT } from "@/constants/ui-text/admin";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { authorService } from "@/services/author";
 import type { Author } from "@/types/author";
 import AuthorModal from "./AuthorModal";
+
+("use client");
 
 export default function AuthorTable() {
     const [authors, setAuthors] = useState<Author[]>([]);
@@ -29,7 +30,7 @@ export default function AuthorTable() {
             if (elapsed < 5000) {
                 await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
             }
-            setError(err.message || "Lỗi khi tải danh sách tác giả");
+            setError(err.message || API_ERRORS.FETCH_AUTHORS_ERROR);
         } finally {
             setLoading(false);
         }
@@ -68,7 +69,7 @@ export default function AuthorTable() {
             fetchAuthors();
             setDeleteAuthorId(null);
         } catch (err: any) {
-            toast.error(err.message || "Lỗi khi xoá tác giả");
+            toast.error(err.message || API_ERRORS.DELETE_AUTHOR_ERROR);
         } finally {
             setIsDeleting(false);
         }
