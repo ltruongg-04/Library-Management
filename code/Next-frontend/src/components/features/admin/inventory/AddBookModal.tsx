@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Loader2, Save, X } from "lucide-react";
+import Image from "next/image";
 import CreatableSelect from "react-select/creatable";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN } from "@/constants/ui-text/admin";
@@ -8,19 +9,34 @@ import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { authorService } from "@/services/author";
 import { bookService } from "@/services/book";
 import { categoryService } from "@/services/category";
+import { fileService } from "@/services/file";
 import type { Author } from "@/types/author";
 import type { BookCreateRequest } from "@/types/book";
 import type { Category } from "@/types/category";
+
+export interface InitialBookData {
+    title?: string;
+    authors?: string[];
+    description?: string;
+    publisher?: string;
+    publicationDate?: string;
+    pages?: number;
+    isbn?: string;
+    imageUrl?: string;
+    categories?: string[];
+}
 
 interface AddBookModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    initialData?: InitialBookData | null;
 }
 
-export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModalProps) {
+export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }: AddBookModalProps) {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Form states
@@ -34,6 +50,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
 
     const [shelfLocation, setShelfLocation] = useState("");
     const [imageUrl, setImageUrl] = useState("");
+    const [externalImageUrl, setExternalImageUrl] = useState("");
     const [description, setDescription] = useState("");
     const [publisher, setPublisher] = useState("");
     const [publicationDate, setPublicationDate] = useState("");
@@ -61,21 +78,46 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
         };
         if (isOpen) {
             loadData();
-            // Reset form
-            setTitle("");
-            setSelectedAuthors([]);
-            setIsbn("");
-            setSelectedCategories([]);
+            // Reset or preset form
+            setTitle(initialData?.title || "");
+            setIsbn(initialData?.isbn || "");
+            setDescription(initialData?.description || "");
+            setPublisher(initialData?.publisher || "");
+            setPublicationDate(initialData?.publicationDate || "");
+            setPages(initialData?.pages || "");
+            setImageUrl(initialData?.imageUrl || "");
+
+            // For authors, we create __isNew__ labels if they don't exist yet
+            if (initialData?.authors && initialData.authors.length > 0) {
+                const initAuthors = initialData.authors.map((a) => ({ label: a, value: a, __isNew__: true }));
+                setSelectedAuthors(initAuthors);
+            } else {
+                setSelectedAuthors([]);
+            }
+
+            // For categories, we also create __isNew__ labels
+            if (initialData?.categories && initialData.categories.length > 0) {
+                const initCategories = initialData.categories.map((c) => ({ label: c, value: c, __isNew__: true }));
+                setSelectedCategories(initCategories);
+            } else {
+                setSelectedCategories([]);
+            }
+
             setShelfLocation("");
-            setImageUrl("");
-            setDescription("");
-            setPublisher("");
-            setPublicationDate("");
-            setPages("");
             setDepositPrice("");
             setError(null);
+
+            // If there's an image URL, we might want to auto-upload it?
+            // Actually, we'll auto-upload it to MinIO right when opening the modal if it's an external URL
+            if (initialData?.imageUrl && initialData.imageUrl.startsWith("http")) {
+                setExternalImageUrl(initialData.imageUrl);
+                // We'll let the user click "Pull from URL" themselves, or we can auto-pull.
+                // It's safer to let them pull so they see the progress.
+            } else {
+                setExternalImageUrl("");
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, initialData]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -89,6 +131,15 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
             const categoryIds = selectedCategories.filter((c) => !c.__isNew__).map((c) => Number(c.value));
             const newCategories = selectedCategories.filter((c) => c.__isNew__).map((c) => c.label);
 
+            let finalImageUrl = imageUrl;
+            if (finalImageUrl && finalImageUrl.startsWith("http") && !finalImageUrl.includes(process.env.NEXT_PUBLIC_API_URL || "localhost")) {
+                try {
+                    finalImageUrl = await fileService.uploadFileFromUrl(finalImageUrl);
+                } catch (e) {
+                    console.error("Failed to auto upload external image URL to MinIO before saving", e);
+                }
+            }
+
             const createData: BookCreateRequest = {
                 title,
                 authorIds,
@@ -97,7 +148,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                 categoryIds,
                 newCategories,
                 shelfLocation,
-                imageUrl,
+                imageUrl: finalImageUrl,
                 description,
                 publisher,
                 publicationDate: publicationDate || undefined,
@@ -109,7 +160,8 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
             onSuccess();
             onClose();
         } catch (err: any) {
-            setError(err.message || textUI.ERROR);
+            const errorMsg = err.response?.data?.message || err.message || textUI.ERROR;
+            setError(errorMsg);
         } finally {
             setSaving(false);
         }
@@ -296,14 +348,62 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                                 />
                             </div>
 
-                            <div className="space-y-1.5">
+                            <div className="space-y-1.5 border-t border-surface-container-high pt-5">
                                 <label className="text-[13px] font-medium text-on-surface-variant">{textUI.IMAGE_URL_INPUT}</label>
-                                <input
-                                    type="url"
-                                    value={imageUrl}
-                                    onChange={(e) => setImageUrl(e.target.value)}
-                                    className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                                />
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder={textUI.OR_ENTER_URL}
+                                            value={externalImageUrl}
+                                            onChange={(e) => setExternalImageUrl(e.target.value)}
+                                            className="flex-1 rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                        />
+                                        <button
+                                            type="button"
+                                            disabled={!externalImageUrl || uploadingImage}
+                                            onClick={async () => {
+                                                try {
+                                                    setUploadingImage(true);
+                                                    const url = await fileService.uploadFileFromUrl(externalImageUrl);
+                                                    setImageUrl(url);
+                                                    setExternalImageUrl("");
+                                                } catch (err) {
+                                                    console.error("Failed to fetch image from URL", err);
+                                                } finally {
+                                                    setUploadingImage(false);
+                                                }
+                                            }}
+                                            className="rounded-lg bg-surface-container-high px-4 py-2 text-[13px] font-medium text-on-surface hover:bg-surface-container-highest disabled:opacity-50"
+                                        >
+                                            {textUI.PULL_FROM_URL}
+                                        </button>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            try {
+                                                setUploadingImage(true);
+                                                const url = await fileService.uploadFile(file);
+                                                setImageUrl(url);
+                                            } catch (err) {
+                                                console.error("Failed to upload image", err);
+                                            } finally {
+                                                setUploadingImage(false);
+                                            }
+                                        }}
+                                        className="w-full text-[14px] file:mr-4 file:rounded-full file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-700 hover:file:bg-primary-100"
+                                    />
+                                    {uploadingImage && <div className="text-[13px] text-primary-500">{textUI.UPLOADING_IMAGE}</div>}
+                                    {imageUrl && (
+                                        <div className="relative h-32 w-24 overflow-hidden rounded-md border border-surface-container-high">
+                                            <Image src={imageUrl} alt="Cover preview" fill className="object-cover" />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-3 pt-4">
