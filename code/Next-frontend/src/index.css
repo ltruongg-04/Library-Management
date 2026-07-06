@@ -59,6 +59,12 @@ img {
     color: #0b1330;
 }
 
+/* Hide default browser eye icon for password inputs (e.g. Edge) */
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+
 /* Subtle custom scrollbar for the dense table / panel areas */
 .thin-scroll::-webkit-scrollbar {
     width: 6px;
