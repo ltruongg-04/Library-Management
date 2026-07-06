@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
-        ApiResponse<Void> response = ApiResponse.error("Lỗi hệ thống: " + ex.getMessage());
+        ApiResponse<Void> response = ApiResponse.error("Lỗi hệ thống");
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -17,7 +17,6 @@ import java.util.*;
 public final class VnPayUtil {
 
     private static final String HMAC_SHA512 = "HmacSHA512";
-    private static final int HEX_RADIX = 16;
     private static final int BYTE_MASK = 0xff;
 
     private VnPayUtil() {

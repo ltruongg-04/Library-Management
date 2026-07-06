@@ -23,6 +23,9 @@ public class PaymentEntity extends BaseEntity {
     @Column(name = "fine_id")
     private Integer fineId;
 
+    @Column(name = "book_return_id")
+    private Integer bookReturnId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", length = 30)
     private PaymentMethod paymentMethod;

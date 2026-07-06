@@ -8,6 +8,7 @@ export interface UserBorrowHistoryItem {
     borrowDate: string;
     pickupDate: string | null;
     dueDate: string;
+    actualReturnDate?: string | null;
     totalDeposit: number;
     bookTitle: string;
     bookAuthor: string;

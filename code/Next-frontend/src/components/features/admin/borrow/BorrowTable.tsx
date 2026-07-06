@@ -7,7 +7,7 @@ import { ADMIN_UI } from "@/constants/ui-text/admin";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE;
 
-export type BorrowStatus = "borrowed" | "overdue" | "ready" | "returned" | "pending" | "pending_renewal";
+export type BorrowStatus = "borrowed" | "overdue" | "ready" | "returned" | "pending" | "pending_renewal" | "partially_returned";
 
 export type BorrowRecord = {
     id: string;
@@ -61,6 +61,13 @@ function StatusBadge({ status, overdayCount }: { status: BorrowStatus; overdayCo
                     {T.STATUS_RETURNED}
                 </span>
             );
+        case "partially_returned":
+            return (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-fixed bg-primary-fixed/20 px-2.5 py-1 text-xs font-medium text-primary">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    {T.STATUS_PARTIALLY_RETURNED}
+                </span>
+            );
         case "pending":
             return (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-tertiary-fixed bg-tertiary-fixed/20 px-2.5 py-1 text-xs font-medium text-on-tertiary-fixed-variant">
@@ -86,12 +93,14 @@ function ActionButtons({
     onStatusUpdate,
     onViewDetail,
     onRenewalUpdate,
+    onReturnUpdate,
 }: {
     id: string;
     status: BorrowStatus;
     onStatusUpdate: (newStatus: BorrowStatus) => void;
     onViewDetail?: (id: string) => void;
     onRenewalUpdate?: (id: string, approved: boolean) => void;
+    onReturnUpdate?: (id: string) => void;
 }) {
     return (
         <div className="flex justify-end gap-1 transition-opacity">
@@ -113,9 +122,9 @@ function ActionButtons({
                     <CheckCircle size={20} />
                 </button>
             )}
-            {status === "borrowed" && (
+            {(status === "borrowed" || status === "partially_returned") && (
                 <button
-                    onClick={() => onStatusUpdate("returned")}
+                    onClick={() => onReturnUpdate?.(id)}
                     className="rounded p-1.5 text-primary transition-colors hover:bg-primary-fixed/50"
                     title={T.BTN_RETURN}
                 >
@@ -123,9 +132,18 @@ function ActionButtons({
                 </button>
             )}
             {status === "overdue" && (
-                <button className="rounded p-1.5 text-error transition-colors hover:bg-error-container/50" title={T.BTN_REMIND}>
-                    <Mail size={20} />
-                </button>
+                <>
+                    <button
+                        onClick={() => onReturnUpdate?.(id)}
+                        className="rounded p-1.5 text-primary transition-colors hover:bg-primary-fixed/50"
+                        title={T.BTN_RETURN}
+                    >
+                        <CheckCircle size={20} />
+                    </button>
+                    <button className="rounded p-1.5 text-error transition-colors hover:bg-error-container/50" title={T.BTN_REMIND}>
+                        <Mail size={20} />
+                    </button>
+                </>
             )}
             {status === "ready" && (
                 <button
@@ -169,6 +187,7 @@ export default function BorrowTable({
     onStatusUpdate,
     onViewDetail,
     onRenewalUpdate,
+    onReturnUpdate,
     loading,
     error,
 }: {
@@ -176,6 +195,7 @@ export default function BorrowTable({
     onStatusUpdate?: (id: string, newStatus: BorrowStatus) => void;
     onViewDetail?: (id: string) => void;
     onRenewalUpdate?: (id: string, approved: boolean) => void;
+    onReturnUpdate?: (id: string) => void;
     loading?: boolean;
     error?: string | null;
 }) {
@@ -323,6 +343,7 @@ export default function BorrowTable({
                                                 onStatusUpdate={(newStatus) => onStatusUpdate?.(rec.id, newStatus)}
                                                 onViewDetail={onViewDetail}
                                                 onRenewalUpdate={onRenewalUpdate}
+                                                onReturnUpdate={onReturnUpdate}
                                             />
                                         </div>
                                     </td>
