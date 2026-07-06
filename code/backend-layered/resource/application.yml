@@ -42,3 +42,7 @@ vnpay:
   version: "2.1.0"
   command: "pay"
   order-type: "other"
+
+resend:
+  api:
+    key: ${RESEND_API_KEY:}
