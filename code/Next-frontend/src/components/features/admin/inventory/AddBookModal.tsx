@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Loader2, Save, X } from "lucide-react";
+import Image from "next/image";
 import CreatableSelect from "react-select/creatable";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN } from "@/constants/ui-text/admin";
@@ -8,6 +9,7 @@ import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { authorService } from "@/services/author";
 import { bookService } from "@/services/book";
 import { categoryService } from "@/services/category";
+import { fileService } from "@/services/file";
 import type { Author } from "@/types/author";
 import type { BookCreateRequest } from "@/types/book";
 import type { Category } from "@/types/category";
@@ -21,6 +23,7 @@ interface AddBookModalProps {
 export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModalProps) {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Form states
@@ -34,6 +37,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
 
     const [shelfLocation, setShelfLocation] = useState("");
     const [imageUrl, setImageUrl] = useState("");
+    const [externalImageUrl, setExternalImageUrl] = useState("");
     const [description, setDescription] = useState("");
     const [publisher, setPublisher] = useState("");
     const [publicationDate, setPublicationDate] = useState("");
@@ -296,14 +300,62 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                                 />
                             </div>
 
-                            <div className="space-y-1.5">
+                            <div className="space-y-1.5 border-t border-surface-container-high pt-5">
                                 <label className="text-[13px] font-medium text-on-surface-variant">{textUI.IMAGE_URL_INPUT}</label>
-                                <input
-                                    type="url"
-                                    value={imageUrl}
-                                    onChange={(e) => setImageUrl(e.target.value)}
-                                    className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                                />
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder={textUI.OR_ENTER_URL}
+                                            value={externalImageUrl}
+                                            onChange={(e) => setExternalImageUrl(e.target.value)}
+                                            className="flex-1 rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                        />
+                                        <button
+                                            type="button"
+                                            disabled={!externalImageUrl || uploadingImage}
+                                            onClick={async () => {
+                                                try {
+                                                    setUploadingImage(true);
+                                                    const url = await fileService.uploadFileFromUrl(externalImageUrl);
+                                                    setImageUrl(url);
+                                                    setExternalImageUrl("");
+                                                } catch (err) {
+                                                    console.error("Failed to fetch image from URL", err);
+                                                } finally {
+                                                    setUploadingImage(false);
+                                                }
+                                            }}
+                                            className="rounded-lg bg-surface-container-high px-4 py-2 text-[13px] font-medium text-on-surface hover:bg-surface-container-highest disabled:opacity-50"
+                                        >
+                                            {textUI.PULL_FROM_URL}
+                                        </button>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            try {
+                                                setUploadingImage(true);
+                                                const url = await fileService.uploadFile(file);
+                                                setImageUrl(url);
+                                            } catch (err) {
+                                                console.error("Failed to upload image", err);
+                                            } finally {
+                                                setUploadingImage(false);
+                                            }
+                                        }}
+                                        className="w-full text-[14px] file:mr-4 file:rounded-full file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-700 hover:file:bg-primary-100"
+                                    />
+                                    {uploadingImage && <div className="text-[13px] text-primary-500">{textUI.UPLOADING_IMAGE}</div>}
+                                    {imageUrl && (
+                                        <div className="relative h-32 w-24 overflow-hidden rounded-md border border-surface-container-high">
+                                            <Image src={imageUrl} alt="Cover preview" fill className="object-cover" />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-3 pt-4">
