@@ -21,7 +21,17 @@ export const ADMIN_REVIEWS = {
         TOTAL: "Tổng phản hồi",
         REPORTED: "Bị báo cáo",
         HIDDEN: "Đã ẩn",
-        AVERAGE: "Điểm trung bình",
+    },
+    CONTROLS: {
+        FILTER_TITLE: "Lọc theo",
+        FILTER_LABEL: "Nhóm đánh giá",
+        SEARCH_LABEL: "Tìm kiếm đánh giá",
+        CLEAR_SEARCH: "Xóa tìm kiếm",
+    },
+    PAGINATION: {
+        PAGE_LABEL: "Trang",
+        PREVIOUS_PAGE: "Trang trước",
+        NEXT_PAGE: "Trang sau",
     },
     FILTERS: {
         ALL: "Tất cả",
