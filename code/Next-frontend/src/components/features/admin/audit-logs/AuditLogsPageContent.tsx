@@ -1,5 +1,6 @@
 "use client";
-import { type ElementType, type ReactNode, useState } from "react";
+
+import { type ElementType, type ReactNode, useEffect, useState } from "react";
 import {
     Bot,
     CalendarDays,
@@ -13,18 +14,15 @@ import {
     SearchCheck,
     ShieldX,
     User,
-    UserX,
     XCircle,
     Zap,
 } from "lucide-react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
-import { AUDIT_MOCK } from "@/constants/ui-text/admin";
+import { systemLogService } from "@/services/systemLog";
 
 const TEXT = UI_TEXT.ADMIN_AUDIT_LOGS;
-const TOTAL_RECORDS = 1000;
 const PAGE_SIZE = 10;
-const TOTAL_PAGES = TOTAL_RECORDS / PAGE_SIZE;
 
 type AuditResult = "success" | "failed" | "blocked";
 type TimeRangeFilter = "12h" | "1d" | "3d" | "7d" | "all";
@@ -83,9 +81,7 @@ const exportFileConfig: Record<ExportFormat, { extension: string; mimeType: stri
     },
 };
 
-function createDate(hoursAgo: number) {
-    return new Date(CURRENT_TIME.getTime() - hoursAgo * 60 * 60 * 1000);
-}
+// createDate removed
 
 function formatDateTime(date: Date) {
     const day = String(date.getDate()).padStart(2, "0");
@@ -98,148 +94,7 @@ function formatDateTime(date: Date) {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
-const auditLogs: AuditLog[] = [
-    {
-        id: "audit-001",
-        occurredAt: createDate(2),
-        timestamp: formatDateTime(createDate(2)),
-        actor: AUDIT_MOCK[0].actor,
-        actorFilter: "admin",
-        initials: "NA",
-        actorTone: "primary",
-        action: "Cập nhật cấu hình",
-        targetObject: "chinh_sach_gioi_han_tan_suat",
-        ipAddress: "192.168.1.45",
-        result: "success",
-        description: AUDIT_MOCK[0].description,
-    },
-    {
-        id: "audit-002",
-        occurredAt: createDate(6),
-        timestamp: formatDateTime(createDate(6)),
-        actor: AUDIT_MOCK[1].actor,
-        actorFilter: "automation",
-        actorTone: "system",
-        actorIcon: Bot,
-        action: "Đồng bộ dữ liệu",
-        targetObject: "csdl_danh_muc_02",
-        ipAddress: AUDIT_MOCK[1].ipAddress,
-        result: "failed",
-        description: AUDIT_MOCK[1].description,
-    },
-    {
-        id: "audit-003",
-        occurredAt: createDate(11),
-        timestamp: formatDateTime(createDate(11)),
-        actor: AUDIT_MOCK[2].actor,
-        actorFilter: "user",
-        initials: "TM",
-        actorTone: "secondary",
-        action: "Tạo bản ghi",
-        targetObject: "ma_bien_muc: 88472A",
-        ipAddress: "203.0.113.88",
-        result: "success",
-        description: AUDIT_MOCK[2].description,
-    },
-    {
-        id: "audit-004",
-        occurredAt: createDate(20),
-        timestamp: formatDateTime(createDate(20)),
-        actor: AUDIT_MOCK[3].actor,
-        actorFilter: "unknown",
-        actorTone: "muted",
-        actorIcon: UserX,
-        action: "Thử xác thực",
-        targetObject: "diem_cuoi_quan_tri_/v1",
-        ipAddress: "198.51.100.14",
-        result: "blocked",
-        description: AUDIT_MOCK[3].description,
-    },
-    {
-        id: "audit-005",
-        occurredAt: createDate(30),
-        timestamp: formatDateTime(createDate(30)),
-        actor: AUDIT_MOCK[4].actor,
-        actorFilter: "admin",
-        initials: "NA",
-        actorTone: "primary",
-        action: "Đăng nhập",
-        targetObject: "tao_phien_dang_nhap",
-        ipAddress: "192.168.1.45",
-        result: "success",
-        description: AUDIT_MOCK[4].description,
-    },
-    {
-        id: "audit-006",
-        occurredAt: createDate(48),
-        timestamp: formatDateTime(createDate(48)),
-        actor: AUDIT_MOCK[5].actor,
-        actorFilter: "automation",
-        actorTone: "system",
-        actorIcon: Bot,
-        action: "Tạo báo cáo",
-        targetObject: "bao_cao_su_dung_tuan.pdf",
-        ipAddress: AUDIT_MOCK[5].ipAddress,
-        result: "success",
-        description: AUDIT_MOCK[5].description,
-    },
-    {
-        id: "audit-007",
-        occurredAt: createDate(70),
-        timestamp: formatDateTime(createDate(70)),
-        actor: AUDIT_MOCK[6].actor,
-        actorFilter: "user",
-        initials: "LH",
-        actorTone: "secondary",
-        action: "Cập nhật hồ sơ",
-        targetObject: "ho_so_doc_gia_10294",
-        ipAddress: "203.0.113.41",
-        result: "success",
-        description: AUDIT_MOCK[6].description,
-    },
-    {
-        id: "audit-008",
-        occurredAt: createDate(96),
-        timestamp: formatDateTime(createDate(96)),
-        actor: AUDIT_MOCK[7].actor,
-        actorFilter: "automation",
-        actorTone: "system",
-        actorIcon: Bot,
-        action: "Sao lưu dữ liệu",
-        targetObject: "snapshot_du_lieu_ngay_20231025",
-        ipAddress: AUDIT_MOCK[7].ipAddress,
-        result: "success",
-        description: AUDIT_MOCK[7].description,
-    },
-    {
-        id: "audit-009",
-        occurredAt: createDate(132),
-        timestamp: formatDateTime(createDate(132)),
-        actor: AUDIT_MOCK[8].actor,
-        actorFilter: "user",
-        initials: "PK",
-        actorTone: "secondary",
-        action: "Gia hạn lượt mượn",
-        targetObject: "phieu_muon_20231025_7781",
-        ipAddress: "198.51.100.21",
-        result: "failed",
-        description: AUDIT_MOCK[8].description,
-    },
-    {
-        id: "audit-010",
-        occurredAt: createDate(160),
-        timestamp: formatDateTime(createDate(160)),
-        actor: AUDIT_MOCK[9].actor,
-        actorFilter: "user",
-        initials: "ML",
-        actorTone: "secondary",
-        action: "Đặt mượn sách",
-        targetObject: "yeu_cau_dat_muon_sach_88472A_nguoi_dung_20941",
-        ipAddress: "192.0.2.73",
-        result: "success",
-        description: AUDIT_MOCK[9].description,
-    },
-];
+// audit logs fetched dynamically
 
 const actorToneClasses: Record<AuditLog["actorTone"], string> = {
     primary: "bg-primary-container text-on-primary-container",
@@ -334,19 +189,20 @@ function DetailItem({ label, value }: { label: string; value: string }) {
     );
 }
 
-function getPaginationItems(currentPage: number) {
-    const pages = new Set([1, 2, TOTAL_PAGES - 1, TOTAL_PAGES, currentPage - 1, currentPage, currentPage + 1]);
+function getPaginationItems(currentPage: number, totalPages: number) {
+    if (totalPages === 0) return [];
+    const pages = new Set([1, 2, totalPages - 1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
 
     if (currentPage <= 3) {
         pages.add(3);
     }
 
-    if (currentPage >= TOTAL_PAGES - 2) {
-        pages.add(TOTAL_PAGES - 2);
+    if (currentPage >= totalPages - 2) {
+        pages.add(totalPages - 2);
     }
 
     const sortedPages = Array.from(pages)
-        .filter((page) => page >= 1 && page <= TOTAL_PAGES)
+        .filter((page) => page >= 1 && page <= totalPages)
         .sort((first, second) => first - second);
 
     return sortedPages.reduce<Array<number | "ellipsis">>((items, page) => {
@@ -407,7 +263,7 @@ function createExportBlob(content: string, format: ExportFormat, mimeType: strin
     return new Blob([output], { type: mimeType });
 }
 
-export default function AuditLogsPage() {
+export default function AuditLogsPageContent() {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -416,7 +272,35 @@ export default function AuditLogsPage() {
     const [actionFilter, setActionFilter] = useState("all");
     const [searchKeyword, setSearchKeyword] = useState("");
     const [exportFormat, setExportFormat] = useState<ExportFormat>("csv");
-    const paginationItems = getPaginationItems(currentPage);
+
+    const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+
+    useEffect(() => {
+        const fetchLogs = async () => {
+            try {
+                const data = await systemLogService.getSystemLogs(0, 1000);
+                const mapped: AuditLog[] = data.content.map((log: any) => ({
+                    id: String(log.id),
+                    timestamp: formatDateTime(new Date(log.createdAt)),
+                    occurredAt: new Date(log.createdAt),
+                    actor: log.userFullName ? `${log.userFullName} (${log.userEmail})` : TEXT.SYSTEM_LOGS.GUEST,
+                    actorFilter: log.userFullName ? "user" : "unknown",
+                    initials: log.userFullName ? log.userFullName.substring(0, 2).toUpperCase() : "SYS",
+                    actorTone: log.userFullName ? "secondary" : "muted",
+                    action: log.action,
+                    targetObject: log.details.length > 50 ? log.details.substring(0, 50) + "..." : log.details,
+                    ipAddress: log.ipAddress || "N/A",
+                    result: log.status ? (log.status.toLowerCase() as AuditResult) : "success",
+                    description: log.details,
+                }));
+                setAuditLogs(mapped);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchLogs();
+    }, []);
+
     const actionOptions = Array.from(new Set(auditLogs.map((log) => log.action)));
     const normalizedSearchKeyword = searchKeyword.trim().toLowerCase();
     const filteredLogs = auditLogs.filter((log) => {
@@ -430,12 +314,21 @@ export default function AuditLogsPage() {
 
         return isInTimeRange && isInActorFilter && isInActionFilter && isInSearch;
     });
-    const visibleLogs = currentPage === 1 ? filteredLogs.slice(0, PAGE_SIZE) : [];
-    const paginationStart = currentPage === 1 ? 1 : (currentPage - 1) * PAGE_SIZE;
-    const paginationEnd = currentPage * PAGE_SIZE;
+
+    const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
+    const paginationItems = getPaginationItems(currentPage, totalPages);
+
+    // Ensure currentPage is valid after filtering
+    if (currentPage > totalPages && totalPages > 0) {
+        setCurrentPage(totalPages);
+    }
+
+    const visibleLogs = filteredLogs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    const paginationStart = filteredLogs.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+    const paginationEnd = Math.min(currentPage * PAGE_SIZE, filteredLogs.length);
     const paginationSummary = TEXT.TABLE.PAGINATION_SUMMARY.replace("{start}", String(paginationStart))
         .replace("{end}", String(paginationEnd))
-        .replace("{total}", String(TOTAL_RECORDS));
+        .replace("{total}", String(filteredLogs.length));
     const handleExportRecords = async () => {
         const exportConfig = exportFileConfig[exportFormat];
         const content = createExportContent(filteredLogs, exportFormat);
@@ -459,6 +352,11 @@ export default function AuditLogsPage() {
                 const writableFile = await fileHandle.createWritable();
                 await writableFile.write(blob);
                 await writableFile.close();
+                try {
+                    await systemLogService.logExportEvent(exportFormat);
+                } catch (e) {
+                    console.error("Failed to log export event", e);
+                }
                 return;
             } catch (error) {
                 if (error instanceof DOMException && error.name === "AbortError") {
@@ -476,6 +374,11 @@ export default function AuditLogsPage() {
         link.click();
         link.remove();
         URL.revokeObjectURL(downloadUrl);
+        try {
+            await systemLogService.logExportEvent(exportFormat);
+        } catch (e) {
+            console.error("Failed to log export event", e);
+        }
     };
 
     return (
@@ -735,8 +638,8 @@ export default function AuditLogsPage() {
                             <button
                                 type="button"
                                 aria-label={TEXT.TABLE.NEXT_PAGE}
-                                disabled={currentPage === TOTAL_PAGES}
-                                onClick={() => setCurrentPage((page) => Math.min(TOTAL_PAGES, page + 1))}
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                                 className="grid h-8 w-8 place-items-center rounded text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
                             >
                                 <ChevronRight size={18} strokeWidth={1.9} />

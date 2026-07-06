@@ -1,12 +1,10 @@
 package library.controller.user;
-
-import jakarta.servlet.http.HttpServletRequest;
-import library.common.exception.CustomBusinessException;
 import library.entity.*;
 import library.repository.BorrowOrderRepository;
 import library.repository.BorrowOrderDetailRepository;
 import library.repository.BookCopyRepository;
 import library.repository.PaymentRepository;
+import library.service.SystemLogService;
 import library.service.VnPayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +38,7 @@ public class VnPayController {
     private final BorrowOrderDetailRepository borrowOrderDetailRepository;
     private final BookCopyRepository bookCopyRepository;
     private final library.service.AdminBorrowService adminBorrowService;
+    private final SystemLogService systemLogService;
 
     @Value("${vnpay.frontend-url:http://localhost:3000}")
     private String frontendUrl;
@@ -87,6 +86,11 @@ public class VnPayController {
             payment.setPaymentDate(LocalDateTime.now());
             paymentRepository.save(payment);
 
+            systemLogService.logAction(
+                payment.getBorrowOrder() != null && payment.getBorrowOrder().getCustomer() != null ? payment.getBorrowOrder().getCustomer().getUser() : null,
+                library.common.constant.SystemLogConstants.ACTION_VNPAY_IPN, 
+                String.format(library.common.constant.SystemLogConstants.DETAIL_VNPAY_IPN_SUCCESS, orderCode)
+            );
             log.info("VNPay IPN: Payment SUCCESS for orderCode={}, transactionNo={}", orderCode, transactionNo);
 
             // Auto-approve renewal if it's a renewal fee
@@ -143,6 +147,12 @@ public class VnPayController {
                 payment.setPaymentStatus(PaymentStatus.SUCCESS);
                 payment.setPaymentDate(LocalDateTime.now());
                 paymentRepository.save(payment);
+                
+                systemLogService.logAction(
+                    payment.getBorrowOrder() != null && payment.getBorrowOrder().getCustomer() != null ? payment.getBorrowOrder().getCustomer().getUser() : null,
+                    library.common.constant.SystemLogConstants.ACTION_VNPAY_RETURN, 
+                    String.format(library.common.constant.SystemLogConstants.DETAIL_VNPAY_RETURN_SUCCESS, orderCode)
+                );
                 
                 // Trigger auto-approve logic here as fallback (crucial for localhost testing where IPN is unreachable)
                 if (payment.getPaymentType() == PaymentType.RENTAL_FEE) {
@@ -207,6 +217,13 @@ public class VnPayController {
         payment.setPaymentStatus(PaymentStatus.FAILED);
         payment.setPaymentDate(LocalDateTime.now());
         paymentRepository.save(payment);
+        
+        systemLogService.logAction(
+            payment.getBorrowOrder() != null && payment.getBorrowOrder().getCustomer() != null ? payment.getBorrowOrder().getCustomer().getUser() : null,
+            library.common.constant.SystemLogConstants.ACTION_VNPAY_FAIL, 
+            String.format(library.common.constant.SystemLogConstants.DETAIL_VNPAY_FAIL, orderCode),
+            library.common.constant.SystemLogConstants.STATUS_FAILED
+        );
 
         // Cancel the borrow order if it's a new borrow, or reject renewal if it's a renewal
         BorrowOrderEntity borrowOrder = payment.getBorrowOrder();

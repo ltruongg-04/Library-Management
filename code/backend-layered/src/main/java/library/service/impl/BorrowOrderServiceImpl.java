@@ -10,6 +10,7 @@ import library.dto.borrow.UserBorrowHistoryDto;
 import library.entity.*;
 import library.repository.*;
 import library.service.BorrowOrderService;
+import library.service.SystemLogService;
 import library.service.VnPayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,7 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
     private final VnPayService vnPayService;
     private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
     private final library.repository.ReservationRepository reservationRepository;
+    private final SystemLogService systemLogService;
 
     @org.springframework.context.annotation.Lazy
     @org.springframework.beans.factory.annotation.Autowired
@@ -164,6 +166,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             responseBuilder.paymentUrl(paymentUrl);
             log.info("VNPay payment URL generated for orderCode={}", orderCode);
         }
+
+        systemLogService.logAction(user, "Mượn sách", "Người dùng " + user.getEmail() + " đã mượn sách: " + book.getTitle() + " (Mã đơn: " + orderCode + ")");
 
         return responseBuilder.build();
     }
@@ -492,6 +496,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             adminBorrowService.processRenewal(order.getOrderCode(), new library.dto.admin.AdminRenewalRequestDto(true));
         }
 
+        systemLogService.logAction("Yêu cầu gia hạn", "Người dùng yêu cầu gia hạn đơn mượn: " + order.getOrderCode() + " thêm " + request.getDurationInDays() + " ngày.");
+
         return BorrowResponseDto.builder()
                 .orderCode(order.getOrderCode())
                 .paymentUrl(paymentUrl)
@@ -663,6 +669,11 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             responseBuilder.paymentUrl(paymentUrl);
             log.info("VNPay payment URL generated for orderCode={}", orderCode);
         }
+
+        systemLogService.logAction(
+                library.common.constant.SystemLogConstants.ACTION_GUEST_CREATE_ORDER, 
+                String.format(library.common.constant.SystemLogConstants.DETAIL_GUEST_ORDER_SUCCESS, customer.getFullName(), customer.getPhone(), orderCode)
+        );
 
         return responseBuilder.build();
     }
