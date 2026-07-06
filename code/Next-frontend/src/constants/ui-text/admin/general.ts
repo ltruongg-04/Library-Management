@@ -58,6 +58,7 @@ export const ADMIN = {
             NOT_FOUND: "Không tìm thấy sách với mã ISBN này",
             ERROR: "Có lỗi xảy ra khi tìm sách",
             CANCEL: "Hủy bỏ",
+            OR_TEXT: "HOẶC",
         },
         ADD_BOOK: {
             TITLE: "Thêm Sách Mới",

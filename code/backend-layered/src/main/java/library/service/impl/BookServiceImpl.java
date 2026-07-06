@@ -70,6 +70,12 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookResponse createBook(library.dto.request.BookCreateRequest request) {
+        if (request.getIsbn() != null && !request.getIsbn().trim().isEmpty()) {
+            if (bookRepository.existsByIsbn(request.getIsbn().trim())) {
+                throw new CustomBusinessException("Sách với mã ISBN này đã tồn tại trong thư viện", HttpStatus.BAD_REQUEST);
+            }
+        }
+
         BookEntity book = BookEntity.builder()
                 .title(request.getTitle())
                 .isbn(request.getIsbn() != null && request.getIsbn().trim().isEmpty() ? null : request.getIsbn())
