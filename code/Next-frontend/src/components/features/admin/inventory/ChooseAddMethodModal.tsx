@@ -1,0 +1,214 @@
+"use client";
+import { useState } from "react";
+import axios from "axios";
+import { FileEdit, Loader2, Search, X } from "lucide-react";
+import { ADMIN } from "@/constants/ui-text/admin";
+import { InitialBookData } from "./AddBookModal";
+
+interface ChooseAddMethodModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSelectManual: () => void;
+    onSelectAutofill: (data: InitialBookData) => void;
+}
+
+export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, onSelectAutofill }: ChooseAddMethodModalProps) {
+    const [isbn, setIsbn] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const textUI = ADMIN.MODAL.CHOOSE_ADD_METHOD;
+
+    const parseDateToYMD = (dateStr?: string) => {
+        if (!dateStr) return undefined;
+        // Google Books: "YYYY" or "YYYY-MM"
+        if (dateStr.match(/^\d{4}$/)) return `${dateStr}-01-01`;
+        if (dateStr.match(/^\d{4}-\d{2}$/)) return `${dateStr}-01`;
+
+        // OpenLibrary could be "August 12, 2008" or "2008"
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) {
+            return d.toISOString().split("T")[0];
+        }
+        return undefined;
+    };
+
+    if (!isOpen) return null;
+
+    const handleSearch = async () => {
+        if (!isbn.trim()) return;
+        setLoading(true);
+        setError(null);
+
+        try {
+            let bookData: InitialBookData | null = null;
+
+            // 1. Try Google Books API
+            try {
+                const googleRes = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn.trim()}`);
+                if (googleRes.data && googleRes.data.items && googleRes.data.items.length > 0) {
+                    const info = googleRes.data.items[0].volumeInfo;
+                    bookData = {
+                        title: info.title,
+                        authors: info.authors || [],
+                        description: info.description,
+                        publisher: info.publisher,
+                        publicationDate: parseDateToYMD(info.publishedDate),
+                        pages: info.pageCount,
+                        categories: info.categories || [],
+                        isbn: isbn.trim(),
+                        imageUrl: info.imageLinks?.thumbnail?.replace("http://", "https://") || undefined,
+                    };
+                }
+            } catch (googleErr) {
+                console.warn("Google Books API failed or rate limited:", googleErr);
+            }
+
+            // 2. Fallback to OpenLibrary API if not found or missing fields
+            if (!bookData || !bookData.imageUrl || !bookData.description || !bookData.pages) {
+                try {
+                    const openLibraryRes = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn.trim()}&format=json&jscmd=data`);
+                    const key = `ISBN:${isbn.trim()}`;
+                    if (openLibraryRes.data && openLibraryRes.data[key]) {
+                        const info = openLibraryRes.data[key];
+                        const olData = {
+                            title: info.title,
+                            authors: info.authors ? info.authors.map((a: any) => a.name) : [],
+                            description: info.notes || info.subtitle || "",
+                            publisher: info.publishers ? info.publishers.map((p: any) => p.name).join(", ") : undefined,
+                            publicationDate: parseDateToYMD(info.publish_date),
+                            pages: info.number_of_pages || parseInt(info.pagination) || undefined,
+                            categories: info.subjects ? info.subjects.map((s: any) => s.name).slice(0, 5) : [],
+                            isbn: isbn.trim(),
+                            imageUrl: info.cover?.large || info.cover?.medium || info.cover?.small || undefined,
+                        };
+
+                        if (!bookData) {
+                            bookData = olData;
+                        } else {
+                            if (!bookData.description) bookData.description = olData.description;
+                            if (!bookData.pages) bookData.pages = olData.pages;
+                            if (!bookData.imageUrl) bookData.imageUrl = olData.imageUrl;
+                            if (!bookData.categories || bookData.categories.length === 0) bookData.categories = olData.categories;
+                            if (!bookData.publisher) bookData.publisher = olData.publisher;
+                        }
+                    }
+                } catch (openLibErr) {
+                    console.warn("OpenLibrary API failed:", openLibErr);
+                }
+            }
+
+            // 3. Fallback for description from OpenLibrary Work if still missing
+            if (bookData && !bookData.description) {
+                try {
+                    const detailsRes = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn.trim()}&format=json&jscmd=details`);
+                    const key = `ISBN:${isbn.trim()}`;
+                    if (
+                        detailsRes.data &&
+                        detailsRes.data[key] &&
+                        detailsRes.data[key].details &&
+                        detailsRes.data[key].details.works &&
+                        detailsRes.data[key].details.works.length > 0
+                    ) {
+                        const workKey = detailsRes.data[key].details.works[0].key;
+                        const workRes = await axios.get(`https://openlibrary.org${workKey}.json`);
+                        if (workRes.data && workRes.data.description) {
+                            if (typeof workRes.data.description === "string") {
+                                bookData.description = workRes.data.description;
+                            } else if (workRes.data.description.value) {
+                                bookData.description = workRes.data.description.value;
+                            }
+                        }
+                    }
+                } catch (workErr) {
+                    console.warn("Failed to fetch OpenLibrary Work description:", workErr);
+                }
+            }
+
+            if (bookData) {
+                onSelectAutofill(bookData);
+            } else {
+                setError(textUI.NOT_FOUND);
+            }
+        } catch (err) {
+            console.error("Failed to fetch book from API", err);
+            setError(textUI.ERROR);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/40 p-4 backdrop-blur-sm">
+            <div className="relative flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
+                <div className="flex shrink-0 items-center justify-between border-b border-surface-container-high px-6 py-4">
+                    <h2 className="text-[18px] font-semibold text-ink-950">{textUI.TITLE}</h2>
+                    <button onClick={onClose} className="rounded-full p-1.5 text-outline transition-colors hover:bg-surface hover:text-on-surface">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                <div className="p-6">
+                    {/* Autofill Section */}
+                    <div className="border-primary-200 mb-6 rounded-xl border bg-primary-50 p-5">
+                        <div className="mb-3 flex items-start gap-3">
+                            <div className="text-primary-600 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100">
+                                <Search size={20} />
+                            </div>
+                            <div>
+                                <h3 className="text-[15px] font-semibold text-ink-950">{textUI.AUTOFILL_TITLE}</h3>
+                                <p className="mt-1 text-[13px] text-on-surface-variant">{textUI.AUTOFILL_DESC}</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 flex flex-col gap-3">
+                            <input
+                                type="text"
+                                placeholder={textUI.ISBN_PLACEHOLDER}
+                                value={isbn}
+                                onChange={(e) => setIsbn(e.target.value)}
+                                className="w-full rounded-lg border border-surface-container-high px-3 py-2.5 font-mono text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") handleSearch();
+                                }}
+                            />
+                            {error && <div className="text-[13px] text-error">{error}</div>}
+                            <button
+                                type="button"
+                                disabled={!isbn.trim() || loading}
+                                onClick={handleSearch}
+                                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-700 px-4 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-900 disabled:opacity-50"
+                            >
+                                {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                                {loading ? textUI.SEARCHING : textUI.SEARCH_BTN}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="relative mb-6 flex items-center justify-center">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-surface-container-high"></div>
+                        </div>
+                        <div className="relative bg-white px-4 text-[13px] text-on-surface-variant">{textUI.OR_TEXT}</div>
+                    </div>
+
+                    {/* Manual Section */}
+                    <div className="rounded-xl border border-surface-container-high bg-surface p-5 text-center">
+                        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-ink-600 shadow-sm">
+                            <FileEdit size={20} />
+                        </div>
+                        <h3 className="text-[15px] font-semibold text-ink-950">{textUI.MANUAL_TITLE}</h3>
+                        <p className="mt-1 text-[13px] text-on-surface-variant">{textUI.MANUAL_DESC}</p>
+                        <button
+                            type="button"
+                            onClick={onSelectManual}
+                            className="mt-4 flex w-full justify-center rounded-lg border border-surface-container-high bg-white px-4 py-2.5 text-[14px] font-semibold text-ink-950 transition-colors hover:bg-surface-container-lowest"
+                        >
+                            {textUI.MANUAL_BTN}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
