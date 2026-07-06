@@ -9,6 +9,7 @@ import NotificationDropdown from "@/components/features/notifications/Notificati
 import { UI_TEXT } from "@/constants/ui-text";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAuth } from "@/providers/auth";
+import { DEFAULT_PROFILE_AVATAR_URL, PROFILE_UPDATED_EVENT, StoredProfileData, getProfileStorageKey, readStoredProfile } from "@/utils/profile-storage";
 
 const NAV_LINKS = [
     { href: "/", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.HOME },
@@ -24,6 +25,7 @@ export function PublicHeader() {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [storedProfile, setStoredProfile] = useState<StoredProfileData | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const notificationRef = useRef<HTMLDivElement>(null);
     const notificationState = useNotifications();
@@ -47,6 +49,27 @@ export function PublicHeader() {
         setIsNotificationOpen(false);
         setIsMenuOpen(false);
     }, [pathname]);
+
+    useEffect(() => {
+        const syncStoredProfile = () => {
+            setStoredProfile(readStoredProfile(user));
+        };
+
+        const handleStorage = (event: StorageEvent) => {
+            if (event.key === getProfileStorageKey(user)) {
+                syncStoredProfile();
+            }
+        };
+
+        syncStoredProfile();
+        window.addEventListener(PROFILE_UPDATED_EVENT, syncStoredProfile);
+        window.addEventListener("storage", handleStorage);
+
+        return () => {
+            window.removeEventListener(PROFILE_UPDATED_EVENT, syncStoredProfile);
+            window.removeEventListener("storage", handleStorage);
+        };
+    }, [user]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -84,6 +107,11 @@ export function PublicHeader() {
         setIsNotificationOpen(false);
         await logout();
     };
+
+    const storedAvatarUrl = storedProfile?.avatarUrl;
+    const headerAvatarUrl = storedAvatarUrl && storedAvatarUrl !== DEFAULT_PROFILE_AVATAR_URL ? storedAvatarUrl : user?.image;
+    const headerFullName = storedProfile?.fullName || user?.fullName || "";
+    const headerEmail = user?.email || "";
 
     const renderNotificationButton = () => (
         <div className="relative" ref={notificationRef}>
@@ -165,8 +193,8 @@ export function PublicHeader() {
                                     aria-label={UI_TEXT.PUBLIC_LAYOUT.ARIA.USER_MENU}
                                     aria-expanded={isMenuOpen}
                                 >
-                                    {user.image ? (
-                                        <Image src={user.image} alt={user.fullName} width={40} height={40} className="h-full w-full object-cover" />
+                                    {headerAvatarUrl ? (
+                                        <Image src={headerAvatarUrl} alt={headerFullName} width={40} height={40} className="h-full w-full object-cover" />
                                     ) : (
                                         <div className="flex h-full w-full items-center justify-center bg-primary-100 dark:bg-primary-900">
                                             <MaterialIcon name="person" className="text-primary-700 dark:text-white" />
@@ -177,8 +205,8 @@ export function PublicHeader() {
                                 {isMenuOpen && (
                                     <div className="animate-slide-up absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-ink-100 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
                                         <div className="border-b border-ink-100 px-4 py-3 dark:border-slate-700">
-                                            <p className="truncate text-sm font-semibold text-ink-950 dark:text-white">{user.fullName}</p>
-                                            <p className="truncate text-xs text-ink-500 dark:text-slate-400">{user.email}</p>
+                                            <p className="truncate text-sm font-semibold text-ink-950 dark:text-white">{headerFullName}</p>
+                                            <p className="truncate text-xs text-ink-500 dark:text-slate-400">{headerEmail}</p>
                                         </div>
 
                                         <div className="py-1">
