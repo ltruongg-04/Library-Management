@@ -58,6 +58,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             URL url = new URI(fileUrl).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
             connection.connect();
 
             if (connection.getResponseCode() != 200) {
@@ -104,7 +105,8 @@ public class FileStorageServiceImpl implements FileStorageService {
 
             return minioUrl + "/" + bucketName + "/" + fileName;
         } catch (Exception e) {
-            throw new RuntimeException("Error occurred while uploading file from URL to MinIO", e);
+            e.printStackTrace();
+            throw new RuntimeException("Error occurred while uploading file from URL to MinIO: " + e.getMessage(), e);
         }
     }
 }
