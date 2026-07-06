@@ -70,7 +70,7 @@ export default function HeroSection() {
                         {/* Quick links */}
                         <div className="mt-4 flex flex-wrap items-center gap-2">
                             <span className="text-[12px] text-on-surface-variant dark:text-white/50">{UI_TEXT.HOME.TRENDING_LABEL}</span>
-                            {["Tiểu thuyết", "Lập trình", "Lịch sử", "Khoa học"].map((tag) => (
+                            {UI_TEXT.HOME.HERO_TAGS.map((tag) => (
                                 <button
                                     key={tag}
                                     onClick={() => router.push(`/sach?keyword=${encodeURIComponent(tag)}`)}

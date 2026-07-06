@@ -1,9 +1,10 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { CheckCircle, ChevronLeft, ChevronRight, Eye, Mail, PackageCheck, X } from "lucide-react";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
+import { ADMIN_UI } from "@/constants/ui-text/admin";
+
+("use client");
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE;
 
@@ -72,7 +73,7 @@ function StatusBadge({ status, overdayCount }: { status: BorrowStatus; overdayCo
             return (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/50 bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                    {T.STATUS_PENDING_RENEWAL || "Chờ duyệt gia hạn"}
+                    {T.STATUS_PENDING_RENEWAL || ADMIN_UI.BORROW.PENDING_RENEWAL}
                 </span>
             );
         default:

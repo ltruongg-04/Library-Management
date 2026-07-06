@@ -1,9 +1,11 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { BookOpen, Lock, Mail, ShieldAlert, User as UserIcon, X } from "lucide-react";
 import { UI_TEXT } from "@/constants/ui-text";
+import { ADMIN_UI } from "@/constants/ui-text/admin";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import type { User } from "@/types/user";
+
+("use client");
 
 interface UserModalProps {
     open: boolean;
@@ -43,15 +45,15 @@ export default function UserModal({ open, onClose, initialData, onSave }: UserMo
     const handleSave = async () => {
         setError(null);
         if (!form.name.trim()) {
-            setError("Tên không được để trống");
+            setError(API_ERRORS.NAME_REQUIRED);
             return;
         }
         if (!isEditMode && !form.email.trim()) {
-            setError("Email không được để trống");
+            setError(API_ERRORS.EMAIL_REQUIRED);
             return;
         }
         if (!isEditMode && form.password.length < 8) {
-            setError("Mật khẩu phải có ít nhất 8 ký tự");
+            setError(API_ERRORS.PASSWORD_MIN_LENGTH);
             return;
         }
 
@@ -63,7 +65,7 @@ export default function UserModal({ open, onClose, initialData, onSave }: UserMo
             onClose();
         } catch (error: any) {
             console.error("Failed to save user", error);
-            setError(error?.response?.data?.message || "Lưu thông tin thất bại");
+            setError(error?.response?.data?.message || API_ERRORS.SAVE_USER_FAILED);
         } finally {
             setIsSaving(false);
         }
@@ -75,7 +77,7 @@ export default function UserModal({ open, onClose, initialData, onSave }: UserMo
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-outline-variant/30 bg-surface-bright p-lg">
                     <h3 className="font-headline-lg text-headline-lg-mobile text-on-background">
-                        {isEditMode ? "Chỉnh sửa thành viên" : UI_TEXT.ADMIN_USER_MANAGEMENT.MODAL.CREATE_TITLE}
+                        {isEditMode ? ADMIN_UI.USERS.EDIT_TITLE : UI_TEXT.ADMIN_USER_MANAGEMENT.MODAL.CREATE_TITLE}
                     </h3>
                     <button
                         onClick={onClose}
@@ -218,7 +220,7 @@ export default function UserModal({ open, onClose, initialData, onSave }: UserMo
                         onClick={handleSave}
                         disabled={!form.name.trim() || isSaving}
                     >
-                        {isSaving ? "Đang lưu..." : isEditMode ? "Lưu thay đổi" : UI_TEXT.ADMIN_USER_MANAGEMENT.MODAL.BTN_CREATE}
+                        {isSaving ? ADMIN_UI.USERS.SAVING : isEditMode ? ADMIN_UI.USERS.SAVE_CHANGES : UI_TEXT.ADMIN_USER_MANAGEMENT.MODAL.BTN_CREATE}
                     </button>
                 </div>
             </div>

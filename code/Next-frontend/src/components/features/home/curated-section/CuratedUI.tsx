@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { useAuth } from "@/providers/auth";
 import { favoriteService } from "@/services/favorite";
 import type { Book } from "@/types/book";
@@ -108,7 +109,7 @@ export function WishlistButton({ book }: { book: Book }) {
                 });
             }
         } catch (err: any) {
-            toast.error(err.message || "Không thể cập nhật danh sách yêu thích");
+            toast.error(err.message || API_ERRORS.FAVORITE_UPDATE_FAILED);
         } finally {
             setLoading(false);
         }

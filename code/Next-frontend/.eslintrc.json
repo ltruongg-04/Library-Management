@@ -5,26 +5,86 @@
         "i18next/no-literal-string": [
             "error",
             {
-                "markupOnly": true,
-                "ignoreAttribute": [
-                    "href",
-                    "src",
-                    "className",
-                    "id",
-                    "alt",
-                    "title",
-                    "name",
-                    "type",
-                    "placeholder",
-                    "strokeWidth",
-                    "size",
-                    "viewBox",
-                    "xmlns",
-                    "target",
-                    "rel",
-                    "aria-label",
-                    "aria-hidden"
-                ]
+                "mode": "all",
+                "words": {
+                    "exclude": [
+                        "^[^ÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]+$"
+                    ]
+                },
+                "callees": {
+                    "exclude": [
+                        "console.log",
+                        "console.error",
+                        "console.warn",
+                        "require",
+                        "Error",
+                        "setTimeout",
+                        "setInterval",
+                        "addEventListener",
+                        "removeEventListener",
+                        "axiosInstance.get",
+                        "axiosInstance.post",
+                        "axiosInstance.put",
+                        "axiosInstance.patch",
+                        "axiosInstance.delete",
+                        "axios.get",
+                        "axios.post",
+                        "axios.put",
+                        "axios.patch",
+                        "axios.delete",
+                        "replaceAll",
+                        "split",
+                        "padStart",
+                        "startsWith",
+                        "substring",
+                        "join",
+                        "replace",
+                        "matchMedia",
+                        "append",
+                        "set",
+                        "get",
+                        "post",
+                        "put",
+                        "patch",
+                        "delete",
+                        "signIn",
+                        "signOut",
+                        "fetch",
+                        "remove",
+                        "requestPublicBooksApi",
+                        "requestProtectedBooksApi",
+                        "format",
+                        "formatDistance",
+                        "formatDistanceToNow"
+                    ]
+                },
+                "object-properties": {
+                    "exclude": ["Content-Type", "Authorization", "method", "key", "action", "statusClass", "status", "redirect", "callbackUrl"]
+                },
+                "jsx-attributes": {
+                    "exclude": [
+                        "href",
+                        "src",
+                        "className",
+                        "id",
+                        "alt",
+                        "title",
+                        "name",
+                        "type",
+                        "placeholder",
+                        "strokeWidth",
+                        "size",
+                        "viewBox",
+                        "xmlns",
+                        "target",
+                        "rel",
+                        "aria-label",
+                        "aria-hidden",
+                        "variant",
+                        "color",
+                        "defaultValue"
+                    ]
+                }
             }
         ],
         "@next/next/no-html-link-for-pages": "off"
