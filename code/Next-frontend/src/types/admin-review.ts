@@ -23,9 +23,4 @@ export type ReviewFilterOption = {
     rating?: number;
 };
 
-export type ReviewsStats = {
-    total: string;
-    reported: string;
-    hidden: string;
-    average: string;
-};
+export type ReviewFilterCounts = Partial<Record<ReviewFilter, string>>;
