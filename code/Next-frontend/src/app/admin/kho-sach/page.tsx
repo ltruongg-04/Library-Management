@@ -3,13 +3,16 @@
 import { Suspense, useState } from "react";
 import { BookOpen, Plus, Sparkles } from "lucide-react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
-import AddBookModal from "@/components/features/admin/inventory/AddBookModal";
+import AddBookModal, { InitialBookData } from "@/components/features/admin/inventory/AddBookModal";
 import BookFilters from "@/components/features/admin/inventory/BookFilters";
 import BookTable from "@/components/features/admin/inventory/BookTable";
+import ChooseAddMethodModal from "@/components/features/admin/inventory/ChooseAddMethodModal";
 import { ADMIN, ADMIN_PAGES } from "@/constants/ui-text/admin";
 
 export default function KhoSachPage() {
+    const [isChooseModalOpen, setIsChooseModalOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [initialBookData, setInitialBookData] = useState<InitialBookData | null>(null);
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-surface">
@@ -30,7 +33,7 @@ export default function KhoSachPage() {
                 {/* Action Buttons */}
                 <div className="flex shrink-0 items-center overflow-hidden rounded-lg shadow-sm">
                     <button
-                        onClick={() => setIsAddModalOpen(true)}
+                        onClick={() => setIsChooseModalOpen(true)}
                         className="focus-ring flex items-center gap-2 bg-primary-700 px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-900"
                     >
                         <Plus size={18} />
@@ -56,6 +59,23 @@ export default function KhoSachPage() {
                 </Suspense>
             </div>
 
+            {isChooseModalOpen && (
+                <ChooseAddMethodModal
+                    isOpen={isChooseModalOpen}
+                    onClose={() => setIsChooseModalOpen(false)}
+                    onSelectManual={() => {
+                        setIsChooseModalOpen(false);
+                        setInitialBookData(null);
+                        setIsAddModalOpen(true);
+                    }}
+                    onSelectAutofill={(data) => {
+                        setIsChooseModalOpen(false);
+                        setInitialBookData(data);
+                        setIsAddModalOpen(true);
+                    }}
+                />
+            )}
+
             {isAddModalOpen && (
                 <AddBookModal
                     isOpen={isAddModalOpen}
@@ -63,6 +83,7 @@ export default function KhoSachPage() {
                     onSuccess={() => {
                         window.location.reload();
                     }}
+                    initialData={initialBookData}
                 />
             )}
         </div>

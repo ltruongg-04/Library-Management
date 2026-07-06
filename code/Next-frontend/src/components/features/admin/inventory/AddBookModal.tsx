@@ -14,13 +14,26 @@ import type { Author } from "@/types/author";
 import type { BookCreateRequest } from "@/types/book";
 import type { Category } from "@/types/category";
 
+export interface InitialBookData {
+    title?: string;
+    authors?: string[];
+    description?: string;
+    publisher?: string;
+    publicationDate?: string;
+    pages?: number;
+    isbn?: string;
+    imageUrl?: string;
+    categories?: string[];
+}
+
 interface AddBookModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    initialData?: InitialBookData | null;
 }
 
-export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModalProps) {
+export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }: AddBookModalProps) {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
@@ -65,21 +78,46 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
         };
         if (isOpen) {
             loadData();
-            // Reset form
-            setTitle("");
-            setSelectedAuthors([]);
-            setIsbn("");
-            setSelectedCategories([]);
+            // Reset or preset form
+            setTitle(initialData?.title || "");
+            setIsbn(initialData?.isbn || "");
+            setDescription(initialData?.description || "");
+            setPublisher(initialData?.publisher || "");
+            setPublicationDate(initialData?.publicationDate || "");
+            setPages(initialData?.pages || "");
+            setImageUrl(initialData?.imageUrl || "");
+
+            // For authors, we create __isNew__ labels if they don't exist yet
+            if (initialData?.authors && initialData.authors.length > 0) {
+                const initAuthors = initialData.authors.map((a) => ({ label: a, value: a, __isNew__: true }));
+                setSelectedAuthors(initAuthors);
+            } else {
+                setSelectedAuthors([]);
+            }
+
+            // For categories, we also create __isNew__ labels
+            if (initialData?.categories && initialData.categories.length > 0) {
+                const initCategories = initialData.categories.map((c) => ({ label: c, value: c, __isNew__: true }));
+                setSelectedCategories(initCategories);
+            } else {
+                setSelectedCategories([]);
+            }
+
             setShelfLocation("");
-            setImageUrl("");
-            setDescription("");
-            setPublisher("");
-            setPublicationDate("");
-            setPages("");
             setDepositPrice("");
             setError(null);
+
+            // If there's an image URL, we might want to auto-upload it?
+            // Actually, we'll auto-upload it to MinIO right when opening the modal if it's an external URL
+            if (initialData?.imageUrl && initialData.imageUrl.startsWith("http")) {
+                setExternalImageUrl(initialData.imageUrl);
+                // We'll let the user click "Pull from URL" themselves, or we can auto-pull.
+                // It's safer to let them pull so they see the progress.
+            } else {
+                setExternalImageUrl("");
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, initialData]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -93,6 +131,15 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
             const categoryIds = selectedCategories.filter((c) => !c.__isNew__).map((c) => Number(c.value));
             const newCategories = selectedCategories.filter((c) => c.__isNew__).map((c) => c.label);
 
+            let finalImageUrl = imageUrl;
+            if (finalImageUrl && finalImageUrl.startsWith("http") && !finalImageUrl.includes(process.env.NEXT_PUBLIC_API_URL || "localhost")) {
+                try {
+                    finalImageUrl = await fileService.uploadFileFromUrl(finalImageUrl);
+                } catch (e) {
+                    console.error("Failed to auto upload external image URL to MinIO before saving", e);
+                }
+            }
+
             const createData: BookCreateRequest = {
                 title,
                 authorIds,
@@ -101,7 +148,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
                 categoryIds,
                 newCategories,
                 shelfLocation,
-                imageUrl,
+                imageUrl: finalImageUrl,
                 description,
                 publisher,
                 publicationDate: publicationDate || undefined,
@@ -113,7 +160,8 @@ export default function AddBookModal({ isOpen, onClose, onSuccess }: AddBookModa
             onSuccess();
             onClose();
         } catch (err: any) {
-            setError(err.message || textUI.ERROR);
+            const errorMsg = err.response?.data?.message || err.message || textUI.ERROR;
+            setError(errorMsg);
         } finally {
             setSaving(false);
         }
