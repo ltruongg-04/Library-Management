@@ -32,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final SystemLogService systemLogService;
+    private final library.service.OtpService otpService;
 
     @SuppressWarnings("null")
     private String createRefreshToken(UserEntity user) {
@@ -83,6 +84,43 @@ public class UserServiceImpl implements UserService {
                 .refreshToken(refreshToken)
                 .createdAt(savedUser.getCreatedAt())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(String email, library.dto.request.ChangePasswordRequest request) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new library.common.exception.CustomBusinessException("Mật khẩu hiện tại không chính xác", HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void forgotPassword(library.dto.request.ForgotPasswordRequest request) {
+        userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy tài khoản với email này", HttpStatus.NOT_FOUND));
+
+        otpService.requestForgotPasswordOtp(request.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(library.dto.request.ResetPasswordRequest request) {
+        UserEntity user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy tài khoản với email này", HttpStatus.NOT_FOUND));
+
+        boolean isValid = otpService.validateOtp(request.getEmail(), request.getOtp());
+        if (!isValid) {
+            throw new library.common.exception.CustomBusinessException("Mã xác nhận (OTP) không chính xác hoặc đã hết hạn", HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     @Override
