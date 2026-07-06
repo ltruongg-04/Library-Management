@@ -43,7 +43,7 @@ export const ADMIN_AUDIT_LOGS = {
         IP_ADDRESS: "Địa chỉ IP",
         RESULT: "Kết quả",
         PAGINATION_SUMMARY: "Hiển thị {start}-{end} trong {total} bản ghi",
-        EMPTY_PAGE: "Trang này chưa có bản ghi.",
+        EMPTY_PAGE: "Không tìm thấy bản ghi nào phù hợp.",
         PAGE_LABEL: "Trang",
         PREVIOUS_PAGE: "Trang trước",
         NEXT_PAGE: "Trang sau",
