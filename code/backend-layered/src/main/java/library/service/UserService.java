@@ -10,6 +10,12 @@ public interface UserService {
 
     RegisterResponse register(RegisterRequest request);
 
+    void changePassword(String email, library.dto.request.ChangePasswordRequest request);
+
+    void forgotPassword(library.dto.request.ForgotPasswordRequest request);
+
+    void resetPassword(library.dto.request.ResetPasswordRequest request);
+
     LoginResponse login(LoginRequest request);
 
     LoginResponse loginWithGoogle(GoogleLoginRequest request);
