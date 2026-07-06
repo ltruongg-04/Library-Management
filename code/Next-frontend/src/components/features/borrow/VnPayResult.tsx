@@ -98,7 +98,7 @@ export default function VnPayResult({ status, orderCode, amount, txnNo, payDate,
                                 <div className="flex justify-between border-b border-outline-variant/20 pb-2">
                                     <span>{UI_TEXT.BORROW.VNPAY_RESULT.RECEIPT.CONTENT}</span>
                                     <span className="font-medium text-on-surface dark:text-white">
-                                        {orderInfo ? decodeURIComponent(orderInfo) : "Thanh toán thư viện"}
+                                        {orderInfo ? decodeURIComponent(orderInfo) : UI_TEXT.COMMON.LIBRARY_PAYMENT}
                                     </span>
                                 </div>
                                 <div className="flex justify-between pt-2 text-title-md font-bold text-primary dark:text-primary-300">

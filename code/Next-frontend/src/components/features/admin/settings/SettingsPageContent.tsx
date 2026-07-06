@@ -1,5 +1,4 @@
 "use client";
-
 import type { ElementType, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import {
@@ -22,6 +21,7 @@ import { Toggle } from "@/components/base/Toggle";
 import { SuccessModal } from "@/components/base/success-modal";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
+import { ADMIN_UI } from "@/constants/ui-text/admin";
 
 const SETTINGS = UI_TEXT.ADMIN_SETTINGS;
 const STORAGE_KEY = "lumina_admin_business_policies";
@@ -66,7 +66,7 @@ const DEFAULT_SETTINGS: AdminSettingsState = {
 
 const borrowingFields = [
     { key: "maxDays", label: SETTINGS.BORROWING.MAX_DAYS, suffix: undefined },
-    { key: "finePerDay", label: SETTINGS.BORROWING.FINE_PER_DAY, suffix: "đ" },
+    { key: "finePerDay", label: SETTINGS.BORROWING.FINE_PER_DAY, suffix: UI_TEXT.COMMON.CURRENCY_SUFFIX },
     { key: "maxBooks", label: SETTINGS.BORROWING.MAX_BOOKS, suffix: undefined },
     { key: "depositPercentage", label: SETTINGS.BORROWING.DEPOSIT_PERCENTAGE, suffix: "%" },
 ] as const;
@@ -101,7 +101,7 @@ const languageOptions = [
     { value: "fr", label: "Français (FR)" },
     { value: "ar", label: "العربية" },
     { value: "bn", label: "বাংলা (BD)" },
-    { value: "pt", label: "Português (BR)" },
+    { value: "pt", label: ADMIN_UI.SETTINGS.LANG_PT_BR },
     { value: "ru", label: "Русский (RU)" },
     { value: "ja", label: "日本語 (JP)" },
 ];
@@ -126,11 +126,11 @@ const timezoneOptions = [
     { value: "utc-plus-4", label: "(UTC+04:00) Dubai, Abu Dhabi, Baku, Muscat" },
     { value: "utc-plus-5", label: "(UTC+05:00) Karachi, Tashkent, Yekaterinburg" },
     { value: "utc-plus-6", label: "(UTC+06:00) Dhaka, Almaty, Bishkek" },
-    { value: "utc-plus-7", label: "(UTC+07:00) Hà Nội, Bangkok, Jakarta, Phnom Penh" },
+    { value: "utc-plus-7", label: ADMIN_UI.SETTINGS.TIMEZONE_HAN },
     { value: "utc-plus-8", label: "(UTC+08:00) Singapore, Beijing, Hong Kong, Kuala Lumpur" },
     { value: "utc-plus-9", label: "(UTC+09:00) Tokyo, Seoul, Pyongyang" },
     { value: "utc-plus-10", label: "(UTC+10:00) Sydney, Melbourne, Brisbane, Port Moresby" },
-    { value: "utc-plus-11", label: "(UTC+11:00) Nouméa, Honiara, Magadan" },
+    { value: "utc-plus-11", label: ADMIN_UI.SETTINGS.TIMEZONE_NOU },
     { value: "utc-plus-12", label: "(UTC+12:00) Auckland, Wellington, Suva" },
     { value: "utc-plus-13", label: "(UTC+13:00) Apia, Nukuʻalofa, Fakaofo" },
     { value: "utc-plus-14", label: "(UTC+14:00) Kiritimati / Christmas Island, Line Islands" },

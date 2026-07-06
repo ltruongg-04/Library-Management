@@ -2,10 +2,11 @@ import { Metadata } from "next";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import AuthorTable from "@/components/features/admin/authors/AuthorTable";
 import { UI_TEXT } from "@/constants/ui-text";
+import { ADMIN_UI } from "@/constants/ui-text/admin";
 
 export const metadata: Metadata = {
-    title: "Quản lý Tác giả | Admin",
-    description: "Quản lý danh sách tác giả sách",
+    title: ADMIN_UI.AUTHORS.TITLE,
+    description: ADMIN_UI.AUTHORS.DESC,
 };
 
 export default function AuthorManagementPage() {

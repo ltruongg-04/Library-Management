@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8081";
 
@@ -14,7 +15,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
         const data = await response.json();
 
         if (!response.ok) {
-            return NextResponse.json({ success: false, message: data.message || "Không tìm thấy sách" }, { status: response.status });
+            return NextResponse.json({ success: false, message: data.message || API_ERRORS.NOT_FOUND_BOOK }, { status: response.status });
         }
 
         return NextResponse.json(data);
