@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class BorrowItemDto {
     private Integer id;
+    private Integer bookCopyId;
     private String bookTitle;
     private String bookAuthor;
     private String barcode;

@@ -8,14 +8,19 @@ import BorrowDetailModal from "@/components/features/admin/borrow/BorrowDetailMo
 import BorrowFilters from "@/components/features/admin/borrow/BorrowFilters";
 import BorrowModal from "@/components/features/admin/borrow/BorrowModal";
 import BorrowTable, { type BorrowRecord } from "@/components/features/admin/borrow/BorrowTable";
+import ReturnBookModal from "@/components/features/admin/borrow/ReturnBookModal";
+import ReturnInvoiceModal from "@/components/features/admin/borrow/ReturnInvoiceModal";
 import { UI_TEXT } from "@/constants/ui-text";
-import { getAdminBorrowOrders, processRenewal, updateAdminBorrowStatus } from "@/services/adminBorrow";
+import { type ReturnBookResponse, getAdminBorrowOrders, processRenewal, updateAdminBorrowStatus } from "@/services/adminBorrow";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.HEADER;
 
 export default function LuotMuonPage() {
     const [openModal, setOpenModal] = useState(false);
     const [detailModalOpen, setDetailModalOpen] = useState(false);
+    const [returnModalOpen, setReturnModalOpen] = useState(false);
+    const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+    const [invoiceData, setInvoiceData] = useState<ReturnBookResponse | null>(null);
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
     const [records, setRecords] = useState<BorrowRecord[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -107,6 +112,11 @@ export default function LuotMuonPage() {
         setDetailModalOpen(true);
     };
 
+    const handleReturnClick = (id: string) => {
+        setSelectedOrderId(id);
+        setReturnModalOpen(true);
+    };
+
     const handleApplyDates = (from: string, to: string) => {
         setDateFrom(from);
         setDateTo(to);
@@ -182,12 +192,25 @@ export default function LuotMuonPage() {
                     onStatusUpdate={handleStatusUpdate}
                     onViewDetail={handleViewDetail}
                     onRenewalUpdate={handleRenewal}
+                    onReturnUpdate={handleReturnClick}
                     loading={isLoading}
                     error={error}
                 />
 
                 <BorrowModal open={openModal} onClose={() => setOpenModal(false)} onSubmitSuccess={fetchBorrows} />
                 <BorrowDetailModal isOpen={detailModalOpen} onClose={() => setDetailModalOpen(false)} orderCode={selectedOrderId} />
+                <ReturnBookModal
+                    isOpen={returnModalOpen}
+                    onClose={() => setReturnModalOpen(false)}
+                    orderCode={selectedOrderId}
+                    onSubmitSuccess={(data) => {
+                        setInvoiceData(data);
+                        setInvoiceModalOpen(true);
+                        fetchBorrows();
+                    }}
+                />
+
+                <ReturnInvoiceModal isOpen={invoiceModalOpen} onClose={() => setInvoiceModalOpen(false)} invoiceData={invoiceData} />
             </main>
         </div>
     );

@@ -169,6 +169,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
             return library.dto.admin.BorrowItemDto.builder()
                     .id(detail.getId())
+                    .bookCopyId(detail.getBookCopy() != null ? detail.getBookCopy().getId() : null)
                     .bookTitle(title)
                     .bookAuthor(author)
                     .barcode(barcode)
@@ -195,6 +196,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
         }
 
         return library.dto.admin.AdminBorrowOrderDetailDto.builder()
+                .id(order.getId())
                 .orderCode(order.getOrderCode())
                 .borrowDate(order.getBorrowDate())
                 .pickupDate(order.getPickupDate())
