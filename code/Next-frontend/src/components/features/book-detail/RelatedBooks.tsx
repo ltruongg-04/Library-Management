@@ -6,9 +6,10 @@ import type { RelatedBook } from "@/types/book";
 
 interface RelatedBooksProps {
     books: RelatedBook[];
+    categoryId?: string;
 }
 
-export default function RelatedBooks({ books }: RelatedBooksProps) {
+export default function RelatedBooks({ books, categoryId }: RelatedBooksProps) {
     return (
         <section className="mt-12 border-t border-outline-variant/30 pt-6 transition-colors duration-200 dark:border-slate-700">
             {/* Section Header */}
@@ -17,7 +18,7 @@ export default function RelatedBooks({ books }: RelatedBooksProps) {
                     {UI_TEXT.BOOK_DETAIL.RELATED_BOOKS_HEADING}
                 </h2>
                 <Link
-                    href="/sach"
+                    href={categoryId ? `/sach?category=${categoryId}` : "/sach"}
                     className="flex items-center font-body-sm text-body-sm text-primary transition-colors duration-200 hover:underline dark:text-primary-300"
                 >
                     {UI_TEXT.BOOK_DETAIL.VIEW_ALL}
@@ -54,7 +55,7 @@ export default function RelatedBooks({ books }: RelatedBooksProps) {
                             {book.title}
                         </h4>
                         <p className="mb-1 line-clamp-1 font-body-sm text-[12px] text-on-surface-variant transition-colors duration-200 dark:text-slate-400">
-                            {book.authors?.map(a => a.name).join(", ") || "Đang cập nhật"}
+                            {book.authors?.map((a) => a.name).join(", ") || "Đang cập nhật"}
                         </p>
                     </Link>
                 ))}
