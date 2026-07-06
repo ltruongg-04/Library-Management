@@ -39,6 +39,7 @@ public class VnPayController {
     private final BookCopyRepository bookCopyRepository;
     private final library.service.AdminBorrowService adminBorrowService;
     private final SystemLogService systemLogService;
+    private final library.repository.FineRepository fineRepository;
 
     @Value("${vnpay.frontend-url:http://localhost:3000}")
     private String frontendUrl;
@@ -107,6 +108,19 @@ public class VnPayController {
                     adminBorrowService.updateBorrowStatus(orderCode, library.entity.BorrowOrderStatus.READY);
                 } catch (Exception e) {
                     log.error("Failed to auto-approve new borrow order", e);
+                }
+            } else if (payment.getPaymentType() == PaymentType.FINE) {
+                log.info("Auto-approving fine payment for orderCode={}", orderCode);
+                try {
+                    if (payment.getFineId() != null) {
+                        library.entity.FineEntity fine = fineRepository.findById(payment.getFineId()).orElse(null);
+                        if (fine != null) {
+                            fine.setStatus(library.entity.FineStatus.PAID);
+                            fineRepository.save(fine);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to update fine status", e);
                 }
             }
         } else {

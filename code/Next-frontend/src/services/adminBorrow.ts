@@ -34,6 +34,7 @@ export const updateAdminBorrowStatus = async (orderCode: string, status: string)
 
 export interface BorrowItemResponse {
     id: number;
+    bookCopyId: number;
     bookTitle: string;
     bookAuthor: string;
     barcode: string;
@@ -43,6 +44,7 @@ export interface BorrowItemResponse {
 }
 
 export interface AdminBorrowOrderDetailResponse {
+    id: number;
     orderCode: string;
     borrowDate: string | null;
     pickupDate: string | null;
@@ -79,5 +81,50 @@ export const createAdminBorrowOrder = async (request: AdminCreateBorrowOrderRequ
 
 export const processRenewal = async (orderCode: string, approved: boolean): Promise<ApiResponse<void>> => {
     const response = await axiosInstance.put<ApiResponse<void>>(`/api/admin/borrows/${orderCode}/renew`, { approved });
+    return response.data;
+};
+
+export interface BookReturnDetailRequest {
+    bookCopyId: number;
+    conditionStatus: "NORMAL" | "DAMAGED" | "LOST";
+    note?: string;
+}
+
+export interface AdminReturnBookRequest {
+    borrowOrderId: number;
+    details: BookReturnDetailRequest[];
+    generalNote?: string;
+}
+
+export interface ReturnBookResponse {
+    bookReturnId: number;
+    borrowOrderId: number;
+    returnDate: string;
+    overdueDays: number;
+    totalFineAmount: number;
+    note: string;
+    fine?: {
+        id: number;
+        amount: number;
+        status: string;
+    };
+    orderCode: string;
+    subtotalFee: number;
+    totalDeposit: number;
+    totalAmountToPay: number;
+}
+
+export const returnBooks = async (borrowOrderId: number, request: AdminReturnBookRequest): Promise<ApiResponse<ReturnBookResponse>> => {
+    const response = await axiosInstance.post<ApiResponse<ReturnBookResponse>>(`/api/admin/borrows/${borrowOrderId}/return`, request);
+    return response.data;
+};
+
+export const generateReturnVnPayUrl = async (bookReturnId: number): Promise<ApiResponse<string>> => {
+    const response = await axiosInstance.post<ApiResponse<string>>(`/api/admin/borrows/returns/${bookReturnId}/vnpay`);
+    return response.data;
+};
+
+export const confirmReturnCashPayment = async (bookReturnId: number): Promise<ApiResponse<string>> => {
+    const response = await axiosInstance.post<ApiResponse<string>>(`/api/admin/borrows/returns/${bookReturnId}/cash`);
     return response.data;
 };

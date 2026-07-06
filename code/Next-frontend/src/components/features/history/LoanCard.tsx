@@ -181,22 +181,7 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                             return null;
                         })()}
 
-                        {loan.status === "overdue" || loan.status === "borrowed" ? (
-                            <div className="mt-4 flex justify-end gap-2">
-                                <Link
-                                    href={`/lich-su/${loan.orderCode}`}
-                                    className="group mr-4 mt-md flex items-center justify-end gap-xs text-body-sm font-medium text-primary decoration-2 dark:text-primary-300"
-                                >
-                                    <span className="group-hover:underline">{MY_BOOKS_PAGE.CARD.VIEW_DETAIL}</span>
-                                </Link>
-                                <Link
-                                    href={`/lich-su/${loan.orderCode}/gia-han`}
-                                    className={`mt-md flex items-center justify-center rounded-lg px-md py-2 font-body-md text-body-sm transition-all hover:opacity-90 ${loan.status === "overdue" ? "bg-error text-on-error" : "dark:bg-secondary-400 bg-secondary text-on-secondary dark:text-slate-900"}`}
-                                >
-                                    {MY_BOOKS_PAGE.RENEW_NOW}
-                                </Link>
-                            </div>
-                        ) : displayStatus === "pending" ? (
+                        {displayStatus === "pending" ? (
                             <div className="mt-4 flex items-center justify-end gap-2">
                                 <button
                                     onClick={onCancel}
