@@ -11,9 +11,10 @@ interface VnPayResultProps {
     txnNo?: string | null;
     payDate?: string | null;
     orderInfo?: string | null;
+    paymentType?: string | null;
 }
 
-export default function VnPayResult({ status, orderCode, amount, txnNo, payDate, orderInfo }: VnPayResultProps) {
+export default function VnPayResult({ status, orderCode, amount, txnNo, payDate, orderInfo, paymentType }: VnPayResultProps) {
     const { VNPAY_RESULT } = UI_TEXT.BORROW;
     const isSuccess = status === "success";
     const texts = isSuccess ? VNPAY_RESULT.SUCCESS : VNPAY_RESULT.FAILED;
@@ -128,7 +129,14 @@ export default function VnPayResult({ status, orderCode, amount, txnNo, payDate,
 
                     {/* Action Buttons */}
                     <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                        {isSuccess ? (
+                        {paymentType === "FINE" ? (
+                            <button
+                                onClick={() => window.close()}
+                                className="hover:bg-primary-800 w-full rounded-lg bg-primary-700 px-8 py-3 text-center font-title-md text-white shadow-md transition-all active:scale-95 sm:w-auto"
+                            >
+                                {VNPAY_RESULT.CLOSE_PAGE}
+                            </button>
+                        ) : isSuccess ? (
                             <>
                                 <Link
                                     href="/lich-su"
@@ -145,12 +153,12 @@ export default function VnPayResult({ status, orderCode, amount, txnNo, payDate,
                             </>
                         ) : (
                             <>
-                                <Link
-                                    href="/"
+                                <button
+                                    onClick={() => window.history.back()}
                                     className="hover:bg-primary-800 w-full rounded-lg bg-primary-700 px-8 py-3 text-center font-title-md text-white shadow-md transition-all active:scale-95 sm:w-auto"
                                 >
                                     {VNPAY_RESULT.FAILED.TRY_AGAIN}
-                                </Link>
+                                </button>
                                 <Link
                                     href="/"
                                     className="w-full rounded-lg border-2 border-outline-variant px-8 py-3 text-center font-title-md text-on-surface-variant transition-all hover:bg-surface-container-high active:scale-95 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 sm:w-auto"

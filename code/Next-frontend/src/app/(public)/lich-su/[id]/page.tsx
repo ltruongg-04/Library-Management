@@ -187,14 +187,16 @@ export default function LoanDetailPage() {
                         <div className="grid grid-cols-1 gap-md md:grid-cols-3">
                             <div>
                                 <p className="mb-xs font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">{LOAN_DETAIL.BORROW_DATE}</p>
-                                <p className="font-body-md text-body-md font-medium text-on-surface dark:text-white">{loan.borrowDate || "—"}</p>
+                                <p className="font-body-md text-body-md font-medium text-on-surface dark:text-white">
+                                    {loan.status === "cancelled" ? "—" : loan.borrowDate || "—"}
+                                </p>
                             </div>
                             <div>
                                 <p className="mb-xs font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">{LOAN_DETAIL.DUE_DATE}</p>
                                 <p
                                     className={`font-body-md text-body-md font-medium ${loan.status === "overdue" ? "text-error" : loan.status === "borrowing" ? "dark:text-secondary-400 text-secondary" : "text-on-surface dark:text-white"}`}
                                 >
-                                    {loan.dueDate || "—"}
+                                    {loan.status === "cancelled" ? "—" : loan.dueDate || "—"}
                                 </p>
                             </div>
                             {loan.actualReturnDate && (

@@ -37,6 +37,7 @@ export default function MyBooksPage() {
                     borrowDate: item.borrowDate,
                     pickupDate: item.borrowDate,
                     dueDate: item.dueDate,
+                    actualReturnDate: item.actualReturnDate,
                     totalDeposit: parseFloat((item.deposit || "0").replace(/[^0-9]/g, "")),
                     bookTitle: item.title,
                     bookAuthor: item.author,

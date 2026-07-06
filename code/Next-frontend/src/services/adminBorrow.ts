@@ -96,6 +96,14 @@ export interface AdminReturnBookRequest {
     generalNote?: string;
 }
 
+export interface ReturnDetailDto {
+    bookTitle: string;
+    barcode: string;
+    conditionStatus: "NORMAL" | "DAMAGED" | "LOST";
+    fineAmount: number;
+    note?: string;
+}
+
 export interface ReturnBookResponse {
     bookReturnId: number;
     borrowOrderId: number;
@@ -112,6 +120,7 @@ export interface ReturnBookResponse {
     subtotalFee: number;
     totalDeposit: number;
     totalAmountToPay: number;
+    details: ReturnDetailDto[];
 }
 
 export const returnBooks = async (borrowOrderId: number, request: AdminReturnBookRequest): Promise<ApiResponse<ReturnBookResponse>> => {

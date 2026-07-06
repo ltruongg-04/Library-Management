@@ -11,6 +11,7 @@ const STATUS_OPTIONS = [
     { value: "pending", label: T.STATUS_PENDING },
     { value: "ready", label: T.STATUS_READY },
     { value: "borrowed", label: T.STATUS_BORROWED },
+    { value: "partially_returned", label: "Trả một phần" },
     { value: "overdue", label: T.STATUS_OVERDUE },
     { value: "returned", label: T.STATUS_RETURNED },
 ];

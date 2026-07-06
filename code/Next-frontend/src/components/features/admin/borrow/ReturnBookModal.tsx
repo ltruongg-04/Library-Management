@@ -68,7 +68,7 @@ export default function ReturnBookModal({ isOpen, onClose, orderCode, onSubmitSu
                 setError(res.message || "Failed to load details");
             }
         } catch (err) {
-            setError("Đã có lỗi xảy ra khi tải chi tiết phiếu mượn");
+            setError(TEXT.ERROR_FETCH);
         } finally {
             setIsLoading(false);
         }
@@ -99,7 +99,7 @@ export default function ReturnBookModal({ isOpen, onClose, orderCode, onSubmitSu
                 }));
 
             if (details.length === 0) {
-                toast.error("Vui lòng chọn ít nhất 1 cuốn sách để trả");
+                toast.error(TEXT.ERROR_NO_BOOK_SELECTED);
                 setIsSubmitting(false);
                 return;
             }
@@ -115,10 +115,10 @@ export default function ReturnBookModal({ isOpen, onClose, orderCode, onSubmitSu
                 onSubmitSuccess(res.data);
                 onClose();
             } else {
-                toast.error(res.message || "Xác nhận trả sách thất bại.");
+                toast.error(res.message || TEXT.ERROR_RETURN_FAILED);
             }
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.");
+            toast.error(err.response?.data?.message || TEXT.ERROR_GENERAL);
         } finally {
             setIsSubmitting(false);
         }

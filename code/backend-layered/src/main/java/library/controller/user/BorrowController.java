@@ -6,17 +6,10 @@ import library.common.base.ApiResponse;
 import library.common.exception.CustomBusinessException;
 import library.dto.borrow.BorrowRequestDto;
 import library.dto.borrow.BorrowResponseDto;
-import library.dto.borrow.UserBorrowDetailDto;
-import library.dto.borrow.UserBorrowHistoryDto;
-import library.entity.CustomerEntity;
 import library.entity.UserEntity;
-import library.repository.CustomerRepository;
 import library.repository.UserRepository;
 import library.service.BorrowOrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,7 +23,6 @@ public class BorrowController {
 
     private final BorrowOrderService borrowOrderService;
     private final UserRepository userRepository;
-    private final CustomerRepository customerRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse<BorrowResponseDto>> createBorrowOrder(

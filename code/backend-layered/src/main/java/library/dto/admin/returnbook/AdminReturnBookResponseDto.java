@@ -18,4 +18,6 @@ public class AdminReturnBookResponseDto {
     private BigDecimal subtotalFee;
     private BigDecimal totalDeposit;
     private BigDecimal totalAmountToPay;
+
+    private java.util.List<ReturnDetailDto> details;
 }

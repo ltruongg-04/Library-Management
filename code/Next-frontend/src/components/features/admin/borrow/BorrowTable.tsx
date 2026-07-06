@@ -7,7 +7,7 @@ import { ADMIN_UI } from "@/constants/ui-text/admin";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE;
 
-export type BorrowStatus = "borrowed" | "overdue" | "ready" | "returned" | "pending" | "pending_renewal";
+export type BorrowStatus = "borrowed" | "overdue" | "ready" | "returned" | "pending" | "pending_renewal" | "partially_returned";
 
 export type BorrowRecord = {
     id: string;
@@ -59,6 +59,13 @@ function StatusBadge({ status, overdayCount }: { status: BorrowStatus; overdayCo
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container px-2.5 py-1 text-xs font-medium text-on-surface-variant">
                     <span className="h-1.5 w-1.5 rounded-full bg-outline-variant" />
                     {T.STATUS_RETURNED}
+                </span>
+            );
+        case "partially_returned":
+            return (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-fixed bg-primary-fixed/20 px-2.5 py-1 text-xs font-medium text-primary">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    {T.STATUS_PARTIALLY_RETURNED}
                 </span>
             );
         case "pending":
@@ -115,7 +122,7 @@ function ActionButtons({
                     <CheckCircle size={20} />
                 </button>
             )}
-            {status === "borrowed" && (
+            {(status === "borrowed" || status === "partially_returned") && (
                 <button
                     onClick={() => onReturnUpdate?.(id)}
                     className="rounded p-1.5 text-primary transition-colors hover:bg-primary-fixed/50"

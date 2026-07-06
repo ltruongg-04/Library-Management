@@ -36,13 +36,8 @@ public class AdminBookReturnController {
 
         String assistantEmail = authentication.getPrincipal().toString();
 
-        try {
-            AdminReturnBookResponseDto response = bookReturnService.returnBooks(requestDto, assistantEmail);
-            return ResponseEntity.ok(ApiResponse.success("Xác nhận trả sách thành công", response));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Lỗi khi xác nhận trả sách: " + e.getMessage()));
-        }
+        AdminReturnBookResponseDto response = bookReturnService.returnBooks(requestDto, assistantEmail);
+        return ResponseEntity.ok(ApiResponse.success("Xác nhận trả sách thành công", response));
     }
 
     @PostMapping("/returns/{bookReturnId}/vnpay")
@@ -55,19 +50,14 @@ public class AdminBookReturnController {
             throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
-        try {
-            // Get IP Address
-            String ipAddress = request.getHeader("X-FORWARDED-FOR");
-            if (ipAddress == null || ipAddress.isEmpty()) {
-                ipAddress = request.getRemoteAddr();
-            }
-
-            String vnpayUrl = bookReturnService.generateVnPayUrl(bookReturnId, ipAddress);
-            return ResponseEntity.ok(ApiResponse.success("Tạo mã thanh toán thành công", vnpayUrl));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Lỗi khi tạo thanh toán VNPay: " + e.getMessage()));
+        // Get IP Address
+        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = request.getRemoteAddr();
         }
+
+        String vnpayUrl = bookReturnService.generateVnPayUrl(bookReturnId, ipAddress);
+        return ResponseEntity.ok(ApiResponse.success("Tạo mã thanh toán thành công", vnpayUrl));
     }
 
     @PostMapping("/returns/{bookReturnId}/cash")
@@ -79,12 +69,8 @@ public class AdminBookReturnController {
             throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
-        try {
-            bookReturnService.confirmCashPayment(bookReturnId);
-            return ResponseEntity.ok(ApiResponse.success("Xác nhận thanh toán tiền mặt thành công", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Lỗi khi xác nhận thanh toán: " + e.getMessage()));
-        }
+        String assistantEmail = authentication.getPrincipal().toString();
+        bookReturnService.confirmCashPayment(bookReturnId, assistantEmail);
+        return ResponseEntity.ok(ApiResponse.success("Xác nhận thanh toán tiền mặt thành công", null));
     }
 }

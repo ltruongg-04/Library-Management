@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Receipt, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { ADMIN_BORROW_MANAGEMENT } from "@/constants/ui-text/admin/borrow-management";
 import { formatCurrency } from "@/lib/utils";
-import { type ReturnBookResponse, confirmReturnCashPayment, generateReturnVnPayUrl } from "@/services/adminBorrow";
+import { type ReturnBookResponse, confirmReturnCashPayment, generateReturnVnPayUrl, getAdminBorrowOrderDetail } from "@/services/adminBorrow";
 
 const TEXT = ADMIN_BORROW_MANAGEMENT.RETURN_INVOICE_MODAL;
 
@@ -22,6 +22,36 @@ export default function ReturnInvoiceModal({ isOpen, onClose, invoiceData }: Ret
     const [isConfirmingCash, setIsConfirmingCash] = useState(false);
     const [isCashConfirmed, setIsCashConfirmed] = useState(false);
 
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (isOpen && invoiceData?.orderCode && !isCashConfirmed && vnpayUrl) {
+            // Poll every 3 seconds to check if status changed to RETURNED or PARTIALLY_RETURNED
+            interval = setInterval(async () => {
+                try {
+                    const res = await getAdminBorrowOrderDetail(invoiceData.orderCode);
+                    if (res.success && res.data) {
+                        const status = res.data.status;
+                        if (status === "RETURNED" || status === "PARTIALLY_RETURNED") {
+                            toast.success(TEXT.SUCCESS_VNPAY_POLLING);
+                            setIsCashConfirmed(true);
+                            clearInterval(interval);
+                            // Auto close modal to refresh the list
+                            setTimeout(() => {
+                                onClose();
+                            }, 2000);
+                        }
+                    }
+                } catch (error) {
+                    // Ignore polling errors
+                }
+            }, 3000);
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [isOpen, invoiceData?.orderCode, isCashConfirmed, vnpayUrl, onClose]);
+
     const handleGenerateVnPay = async () => {
         if (!invoiceData?.bookReturnId) return;
         setIsGenerating(true);
@@ -29,12 +59,12 @@ export default function ReturnInvoiceModal({ isOpen, onClose, invoiceData }: Ret
             const res = await generateReturnVnPayUrl(invoiceData.bookReturnId);
             if (res.success && res.data) {
                 setVnpayUrl(res.data);
-                toast.success("Đã tạo mã QR thanh toán VNPay");
+                toast.success(TEXT.SUCCESS_VNPAY);
             } else {
-                toast.error(res.message || "Không thể tạo mã QR");
+                toast.error(res.message || TEXT.ERROR_VNPAY);
             }
         } catch (error) {
-            toast.error("Lỗi kết nối khi tạo mã QR");
+            toast.error(TEXT.ERROR_CONN_VNPAY);
         } finally {
             setIsGenerating(false);
         }
@@ -46,26 +76,29 @@ export default function ReturnInvoiceModal({ isOpen, onClose, invoiceData }: Ret
         try {
             const res = await confirmReturnCashPayment(invoiceData.bookReturnId);
             if (res.success) {
-                toast.success("Đã xác nhận giao dịch tiền mặt thành công!");
+                toast.success(TEXT.SUCCESS_CASH);
                 setIsCashConfirmed(true);
             } else {
-                toast.error(res.message || "Không thể xác nhận thanh toán");
+                toast.error(res.message || TEXT.ERROR_CASH);
             }
         } catch (error) {
-            toast.error("Lỗi kết nối khi xác nhận thanh toán");
+            toast.error(TEXT.ERROR_CONN_CASH);
         } finally {
             setIsConfirmingCash(false);
         }
     };
 
     // Reset state when closed
-    if (!isOpen) {
-        if (vnpayUrl) setVnpayUrl(null);
-        if (isCashConfirmed) setIsCashConfirmed(false);
-        return null;
-    }
+    useEffect(() => {
+        if (!isOpen) {
+            setVnpayUrl(null);
+            setIsCashConfirmed(false);
+            setIsGenerating(false);
+            setIsConfirmingCash(false);
+        }
+    }, [isOpen]);
 
-    if (!invoiceData) return null;
+    if (!isOpen || !invoiceData) return null;
 
     const isRefund = invoiceData.totalAmountToPay < 0;
     const absAmount = Math.abs(invoiceData.totalAmountToPay);
@@ -92,7 +125,41 @@ export default function ReturnInvoiceModal({ isOpen, onClose, invoiceData }: Ret
                 </div>
 
                 {/* Body - Invoice Details */}
-                <div className="flex-1 p-6">
+                <div className="max-h-[70vh] flex-1 overflow-y-auto p-6">
+                    <div className="mb-4 flex items-center gap-2 font-semibold text-on-surface">
+                        <Receipt size={18} className="text-primary" />
+                        {TEXT.BOOK_DETAILS}
+                    </div>
+
+                    <div className="mb-6 space-y-2">
+                        {invoiceData.details?.map((detail, idx) => (
+                            <div key={idx} className="flex items-start justify-between rounded-lg border border-outline-variant/20 bg-surface p-3 text-sm">
+                                <div className="flex-1 pr-4">
+                                    <p className="line-clamp-1 font-medium text-on-surface">{detail.bookTitle}</p>
+                                    <p className="mt-1 text-xs text-on-surface-variant">
+                                        {TEXT.LABEL_CODE} {detail.barcode} • {TEXT.LABEL_STATUS}{" "}
+                                        {detail.conditionStatus === "NORMAL"
+                                            ? TEXT.COND_NORMAL
+                                            : detail.conditionStatus === "DAMAGED"
+                                              ? TEXT.COND_DAMAGED
+                                              : TEXT.COND_LOST}
+                                    </p>
+                                    {detail.note && (
+                                        <p className="mt-1 text-xs italic text-on-surface-variant">
+                                            {TEXT.LABEL_NOTE} {detail.note}
+                                        </p>
+                                    )}
+                                </div>
+                                {detail.fineAmount > 0 && (
+                                    <div className="whitespace-nowrap text-right">
+                                        <p className="text-xs text-on-surface-variant">{TEXT.LABEL_FINE}</p>
+                                        <p className="font-medium text-error">{formatCurrency(detail.fineAmount)}</p>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
                     <div className="mb-4 flex items-center gap-2 font-semibold text-on-surface">
                         <Receipt size={18} className="text-primary" />
                         {TEXT.COST_SUMMARY}
@@ -125,7 +192,7 @@ export default function ReturnInvoiceModal({ isOpen, onClose, invoiceData }: Ret
                             <span
                                 className={`font-semibold ${isRefund ? "text-success" : invoiceData.totalAmountToPay > 0 ? "text-error" : "text-on-surface"}`}
                             >
-                                {isRefund ? "Số tiền thối lại:" : invoiceData.totalAmountToPay > 0 ? "Số tiền thu thêm:" : "Đã thanh toán đủ:"}
+                                {isRefund ? TEXT.REFUND_AMOUNT : invoiceData.totalAmountToPay > 0 ? TEXT.COLLECT_AMOUNT : TEXT.PAID_AMOUNT}
                             </span>
                             <span
                                 className={`text-xl font-bold ${isRefund ? "text-success" : invoiceData.totalAmountToPay > 0 ? "text-error" : "text-on-surface"}`}
@@ -175,6 +242,10 @@ export default function ReturnInvoiceModal({ isOpen, onClose, invoiceData }: Ret
                                     >
                                         {TEXT.OPEN_LINK_NEW_TAB}
                                     </a>
+                                    <div className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-blue-600">
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                                        <span>{TEXT.WAITING_CONFIRMATION}</span>
+                                    </div>
                                 </div>
                             )}
                         </div>

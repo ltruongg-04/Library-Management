@@ -124,6 +124,7 @@ export const BORROW = {
             CONTENT: "Nội dung:",
             AMOUNT: "Số tiền thanh toán:",
         },
+        CLOSE_PAGE: "Đóng trang",
     },
     TRA_CUU: {
         TITLE: "Tra cứu đơn mượn",
