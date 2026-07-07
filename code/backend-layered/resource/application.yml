@@ -22,7 +22,6 @@ spring:
         default_batch_fetch_size: 100
     show-sql: true
 
-
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -46,10 +45,6 @@ vnpay:
   version: "2.1.0"
   command: "pay"
   order-type: "other"
-
-resend:
-  api:
-    key: ${RESEND_API_KEY:}
 
 minio:
   url: ${MINIO_URL}
