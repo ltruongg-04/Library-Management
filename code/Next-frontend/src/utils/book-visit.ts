@@ -1,4 +1,4 @@
-import { DEFAULT_VISIT_DURATION_MINUTES, VISIT_TIME_STEP_MINUTES, WEEKDAY_VISIT_TIME_RANGE, WEEKEND_VISIT_TIME_RANGE } from "@/constants/book-visit";
+import { DEFAULT_VISIT_DURATION_MINUTES, VISIT_TIME_STEP_MINUTES, WEEKDAY_VISIT_TIME_RANGE, WEEKEND_VISIT_TIME_RANGE } from "@/constants/public/book-visit";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { Book } from "@/types/book";
 import type { VisitFormState } from "@/types/book-visit";

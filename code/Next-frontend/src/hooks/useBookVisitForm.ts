@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { INITIAL_VISIT_FORM_STATE } from "@/constants/book-visit";
+import { INITIAL_VISIT_FORM_STATE } from "@/constants/public/book-visit";
 import { submitBookVisit } from "@/services/bookVisit";
 import type { SubmitStatus, VisitFormState } from "@/types/book-visit";
 import { buildBookVisitSuccessUrl, createVisitReferenceCode } from "@/utils/book-visit";

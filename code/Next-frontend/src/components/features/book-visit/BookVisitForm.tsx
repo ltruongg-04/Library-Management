@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
 import { useMemo } from "react";
 import { Clock3, Info, User } from "lucide-react";
-import { BOOK_VISIT_INPUT_CLASS_NAME } from "@/constants/book-visit";
+import { BOOK_VISIT_INPUT_CLASS_NAME } from "@/constants/public/book-visit";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { SubmitStatus, VisitFormState } from "@/types/book-visit";
 import { buildVisitTimeValue, getVisitTimeOptions, parseVisitTimeValue } from "@/utils/book-visit";

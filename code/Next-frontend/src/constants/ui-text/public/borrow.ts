@@ -146,6 +146,10 @@ export const BORROW = {
         NOT_FOUND: "Không tìm thấy đơn mượn nào.",
         MISSING_INFO: "Vui lòng nhập mã đơn mượn hoặc email.",
         MISSING_OTP: "Vui lòng nhập mã OTP để tra cứu.",
+        MISSING_CAPTCHA: "Vui lòng nhập mã CAPTCHA.",
+        INVALID_CAPTCHA: "Mã CAPTCHA không chính xác.",
+        CAPTCHA_LABEL: "Mã xác nhận (CAPTCHA)",
+        CAPTCHA_PLACEHOLDER: "Nhập mã xác nhận bên trên",
         CONSOLE_ERROR: "Lỗi tra cứu đơn mượn:",
         LOOKUP_FAILED: "Tra cứu thất bại. Vui lòng kiểm tra lại thông tin.",
         RESULT: {

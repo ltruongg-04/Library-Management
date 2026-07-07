@@ -23,6 +23,7 @@ public class PublicBorrowController {
 
     private final BorrowOrderService borrowOrderService;
     private final OtpService otpService;
+    private final library.service.ReCaptchaService reCaptchaService;
 
     @PostMapping("/otp/request")
     public ResponseEntity<ApiResponse<Void>> requestOtp(@Valid @RequestBody OtpRequestDto request) {
@@ -50,7 +51,8 @@ public class PublicBorrowController {
     @GetMapping("/lookup")
     public ResponseEntity<ApiResponse<java.util.List<BorrowOrderDetailResponseDto>>> lookupGuestBorrowOrder(
             @RequestParam String identifier,
-            @RequestParam(required = false) String otp) {
+            @RequestParam(required = false) String otp,
+            @RequestParam(required = false) String recaptchaToken) {
         
         if (identifier != null && identifier.contains("@")) {
             if (otp == null || otp.trim().isEmpty()) {
@@ -58,6 +60,14 @@ public class PublicBorrowController {
             }
             if (!otpService.validateOtp(identifier, otp)) {
                 throw new CustomBusinessException("Mã OTP không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED);
+            }
+        } else {
+            // Tra cứu bằng mã đơn -> Kiểm tra reCAPTCHA
+            if (recaptchaToken == null || recaptchaToken.trim().isEmpty()) {
+                throw new CustomBusinessException("Vui lòng xác nhận CAPTCHA để tra cứu", HttpStatus.BAD_REQUEST);
+            }
+            if (!reCaptchaService.verifyToken(recaptchaToken)) {
+                throw new CustomBusinessException("Mã CAPTCHA không hợp lệ. Vui lòng thử lại", HttpStatus.UNAUTHORIZED);
             }
         }
 

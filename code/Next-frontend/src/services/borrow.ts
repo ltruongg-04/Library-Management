@@ -68,10 +68,13 @@ export const requestGuestLookupOtp = async (email: string): Promise<ApiResponse<
     return response.data;
 };
 
-export const getGuestBorrowOrders = async (identifier: string, otp?: string): Promise<ApiResponse<BorrowOrderDetailResponseDto[]>> => {
+export const getGuestBorrowOrders = async (identifier: string, otp?: string, recaptchaToken?: string): Promise<ApiResponse<BorrowOrderDetailResponseDto[]>> => {
     let url = `/api/public/borrow/lookup?identifier=${encodeURIComponent(identifier)}`;
     if (otp) {
         url += `&otp=${encodeURIComponent(otp)}`;
+    }
+    if (recaptchaToken) {
+        url += `&recaptchaToken=${encodeURIComponent(recaptchaToken)}`;
     }
     const response = await axiosInstance.get<ApiResponse<BorrowOrderDetailResponseDto[]>>(url);
     return response.data;
