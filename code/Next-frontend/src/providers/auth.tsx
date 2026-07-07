@@ -9,8 +9,10 @@ interface User {
     id: string;
     email: string;
     fullName: string;
+    phone?: string | null;
     role: string;
     image?: string; // Google avatar
+    authProvider?: string;
 }
 
 // 🔑 Auth Context type
@@ -41,8 +43,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                       id: session.user.id ?? session.user.email ?? "",
                       email: session.user.email ?? "",
                       fullName: session.user.name ?? "",
+                      phone: session.user.phone ?? null,
                       role: session.user.role ?? "USER",
                       image: session.user.image ?? undefined,
+                      authProvider: session.user.authProvider,
                   }
                 : null,
         [session?.user],
