@@ -22,10 +22,14 @@ spring:
         default_batch_fetch_size: 100
     show-sql: true
 
+
   flyway:
     enabled: true
     baseline-on-migrate: true
     ignore-migration-patterns: "*:missing"
+resend:
+  api-key: ${RESEND_API_KEY:}
+  from-email: ${RESEND_FROM_EMAIL:Lumina Library <onboarding@resend.dev>}
 
 app:
   jwt:
@@ -46,3 +50,9 @@ vnpay:
 resend:
   api:
     key: ${RESEND_API_KEY:}
+
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket-name: ${MINIO_BUCKET_NAME}

@@ -14,8 +14,20 @@ const CoverPlaceholder = () => (
 
 const formatDate = (dateStr: string | null): string => {
     if (!dateStr) return DASH;
+
+    // If date is already in dd/MM/yyyy format, return it directly
+    if (dateStr.includes("/")) {
+        const parts = dateStr.split("/");
+        if (parts.length === 3) {
+            return dateStr;
+        }
+    }
+
     try {
         const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+            return dateStr;
+        }
         return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
     } catch {
         return dateStr;
@@ -108,7 +120,7 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                         <div className="grid grid-cols-2 gap-lg pt-sm lg:grid-cols-3">
                             <div>
                                 <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{MY_BOOKS_PAGE.CARD.BORROW_DATE}</p>
-                                <p className="text-body-md font-medium dark:text-white">{formatDate(loan.borrowDate)}</p>
+                                <p className="text-body-md font-medium dark:text-white">{displayStatus === "cancelled" ? DASH : formatDate(loan.borrowDate)}</p>
                             </div>
                             <div>
                                 <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">{MY_BOOKS_PAGE.CARD.DUE_DATE}</p>
@@ -121,7 +133,7 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                                               : "dark:text-white"
                                     }`}
                                 >
-                                    {formatDate(loan.dueDate)}
+                                    {displayStatus === "cancelled" ? DASH : formatDate(loan.dueDate)}
                                 </p>
                             </div>
                             <div className="hidden lg:block">
@@ -135,68 +147,13 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                                             : "text-on-surface-variant dark:text-slate-400"
                                     }`}
                                 >
-                                    {DASH}
+                                    {displayStatus === "returned" ? formatDate(loan.actualReturnDate || null) : DASH}
                                 </p>
                             </div>
                         </div>
                     </div>
-                    <div className="mt-md flex flex-col justify-between border-t border-outline-variant/30 pt-md dark:border-slate-700 md:mt-0 md:border-l md:border-t-0 md:pl-lg md:pt-0 md:text-right">
-                        {(() => {
-                            const isEverOverdue = loan.status === "overdue";
-                            const formattedDeposit = loan.totalDeposit != null ? `${loan.totalDeposit.toLocaleString("vi-VN")} VND` : DASH;
-
-                            if (isEverOverdue) {
-                                return (
-                                    <div className="space-y-xs">
-                                        <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">
-                                            {MY_BOOKS_PAGE.CARD.DEPOSIT} {MY_BOOKS_PAGE.CARD.DEPOSIT_FORFEITED}
-                                        </p>
-                                        <p className="text-body-sm text-error line-through dark:text-error-300">{formattedDeposit}</p>
-                                    </div>
-                                );
-                            } else if (
-                                loan.status === "borrowed" ||
-                                loan.status === "pending_renewal" ||
-                                loan.status === "pending" ||
-                                loan.status === "ready"
-                            ) {
-                                return (
-                                    <div>
-                                        <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">
-                                            {MY_BOOKS_PAGE.CARD.DEPOSIT}
-                                        </p>
-                                        <p className="text-body-md font-bold dark:text-white">{formattedDeposit}</p>
-                                    </div>
-                                );
-                            } else if (loan.status === "returned") {
-                                return (
-                                    <div>
-                                        <p className="font-label-caps text-label-caps uppercase text-outline dark:text-slate-400">
-                                            {MY_BOOKS_PAGE.CARD.DEPOSIT_RETURN}
-                                        </p>
-                                        <p className="text-body-md font-bold text-on-surface-variant dark:text-slate-300">{formattedDeposit}</p>
-                                    </div>
-                                );
-                            }
-                            return null;
-                        })()}
-
-                        {loan.status === "overdue" || loan.status === "borrowed" ? (
-                            <div className="mt-4 flex justify-end gap-2">
-                                <Link
-                                    href={`/lich-su/${loan.orderCode}`}
-                                    className="group mr-4 mt-md flex items-center justify-end gap-xs text-body-sm font-medium text-primary decoration-2 dark:text-primary-300"
-                                >
-                                    <span className="group-hover:underline">{MY_BOOKS_PAGE.CARD.VIEW_DETAIL}</span>
-                                </Link>
-                                <Link
-                                    href={`/lich-su/${loan.orderCode}/gia-han`}
-                                    className={`mt-md flex items-center justify-center rounded-lg px-md py-2 font-body-md text-body-sm transition-all hover:opacity-90 ${loan.status === "overdue" ? "bg-error text-on-error" : "dark:bg-secondary-400 bg-secondary text-on-secondary dark:text-slate-900"}`}
-                                >
-                                    {MY_BOOKS_PAGE.RENEW_NOW}
-                                </Link>
-                            </div>
-                        ) : displayStatus === "pending" ? (
+                    <div className="mt-md flex flex-col justify-end border-t border-outline-variant/30 pt-md dark:border-slate-700 md:mt-0 md:border-l md:border-t-0 md:pl-lg md:pt-0 md:text-right">
+                        {displayStatus === "pending" ? (
                             <div className="mt-4 flex items-center justify-end gap-2">
                                 <button
                                     onClick={onCancel}

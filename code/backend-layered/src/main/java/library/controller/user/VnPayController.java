@@ -39,6 +39,7 @@ public class VnPayController {
     private final BookCopyRepository bookCopyRepository;
     private final library.service.AdminBorrowService adminBorrowService;
     private final SystemLogService systemLogService;
+    private final library.service.BookReturnService bookReturnService;
 
     @Value("${vnpay.frontend-url:http://localhost:3000}")
     private String frontendUrl;
@@ -108,6 +109,17 @@ public class VnPayController {
                 } catch (Exception e) {
                     log.error("Failed to auto-approve new borrow order", e);
                 }
+            } else if (payment.getPaymentType() == PaymentType.FINE) {
+                log.info("Auto-completing fine payment for orderCode={}", orderCode);
+                try {
+                    if (payment.getFineId() != null) {
+                        bookReturnService.completeVnPayFinePayment(payment.getFineId());
+                    } else if (payment.getBookReturnId() != null) {
+                        bookReturnService.finalizeReturnStatus(payment.getBookReturnId());
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to complete fine payment", e);
+                }
             }
         } else {
             // Payment failed — auto cancel the borrow order
@@ -169,6 +181,17 @@ public class VnPayController {
                     } catch (Exception e) {
                         log.error("Failed to auto-approve new borrow order", e);
                     }
+                } else if (payment.getPaymentType() == PaymentType.FINE) {
+                    log.info("Auto-completing fine payment (via Return URL) for orderCode={}", orderCode);
+                    try {
+                        if (payment.getFineId() != null) {
+                            bookReturnService.completeVnPayFinePayment(payment.getFineId());
+                        } else if (payment.getBookReturnId() != null) {
+                            bookReturnService.finalizeReturnStatus(payment.getBookReturnId());
+                        }
+                    } catch (Exception e) {
+                        log.error("Failed to complete fine payment via Return URL", e);
+                    }
                 }
             }
         } else {
@@ -181,9 +204,11 @@ public class VnPayController {
         }
 
         // Redirect to frontend result page with payment details for receipt
+        String paymentTypeStr = payment != null && payment.getPaymentType() != null ? payment.getPaymentType().name() : "";
         StringBuilder redirectUrl = new StringBuilder(frontendUrl)
                 .append("/thanh-toan/ket-qua?status=").append(status)
-                .append("&orderCode=").append(orderCode);
+                .append("&orderCode=").append(orderCode)
+                .append("&type=").append(paymentTypeStr);
                 
         if (RESPONSE_CODE_SUCCESS.equals(responseCode)) {
             try {

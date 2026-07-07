@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận đơn mượn sách</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #1a56db;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+            color: #333333;
+            line-height: 1.6;
+        }
+        .content h2 {
+            color: #1a56db;
+            font-size: 20px;
+            margin-top: 0;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .details-table th, .details-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eeeeee;
+            text-align: left;
+        }
+        .details-table th {
+            color: #555555;
+            width: 40%;
+        }
+        .details-table td {
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f9fafb;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #777777;
+            border-top: 1px solid #eeeeee;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #1a56db;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .note {
+            background-color: #fdfae5;
+            border-left: 4px solid #fbd38d;
+            padding: 10px 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Lumina Library</h1>
+        </div>
+        <div class="content">
+            <h2>Xin chào <span th:text="${fullName}">Khách hàng</span>,</h2>
+            <p>Cảm ơn bạn đã sử dụng dịch vụ của thư viện Lumina. Đơn mượn sách của bạn đã được ghi nhận vào hệ thống với các thông tin chi tiết dưới đây:</p>
+            
+            <table class="details-table">
+                <tr>
+                    <th>Mã đơn mượn:</th>
+                    <td style="color: #1a56db;" th:text="${orderCode}">BO-123456</td>
+                </tr>
+                <tr>
+                    <th>Sách mượn:</th>
+                    <td th:text="${bookTitle}">Tên sách</td>
+                </tr>
+                <tr>
+                    <th>Ngày đến lấy dự kiến:</th>
+                    <td th:text="${pickupDate}">01/01/2026</td>
+                </tr>
+                <tr>
+                    <th>Ngày trả dự kiến:</th>
+                    <td th:text="${dueDate}">15/01/2026</td>
+                </tr>
+                <tr>
+                    <th>Trạng thái đơn:</th>
+                    <td th:text="${status}">Chờ xử lý</td>
+                </tr>
+                <tr>
+                    <th>Phí mượn sách:</th>
+                    <td th:text="${rentalFee}">0 đ</td>
+                </tr>
+                <tr>
+                    <th>Tiền cọc sách:</th>
+                    <td th:text="${depositPrice}">0 đ</td>
+                </tr>
+            </table>
+
+            <div class="note">
+                <strong>Lưu ý:</strong> Vui lòng lưu lại <b>Mã đơn mượn</b> để tiện cho việc tra cứu trạng thái đơn trên hệ thống của chúng tôi.
+            </div>
+
+            <p style="margin-top: 25px;">Nếu bạn có bất kỳ thắc mắc nào, xin vui lòng liên hệ với thủ thư hoặc phản hồi lại email này.</p>
+            <p>Trân trọng,<br>Đội ngũ Lumina Library</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 Lumina Library. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -6,8 +6,9 @@ import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
 import { SystemLog, systemLogService } from "@/services/systemLog";
 
+const textUI = UI_TEXT.ADMIN_AUDIT_LOGS.SYSTEM_LOGS;
+
 export default function SystemLogTable() {
-    const textUI = UI_TEXT.ADMIN_AUDIT_LOGS.SYSTEM_LOGS;
     const [logs, setLogs] = useState<SystemLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

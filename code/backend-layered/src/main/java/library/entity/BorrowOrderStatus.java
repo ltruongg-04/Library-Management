@@ -5,6 +5,7 @@ public enum BorrowOrderStatus {
     READY,
     BORROWED,
     PENDING_RENEWAL,
+    PARTIALLY_RETURNED,
     RETURNED,
     OVERDUE,
     CANCELLED

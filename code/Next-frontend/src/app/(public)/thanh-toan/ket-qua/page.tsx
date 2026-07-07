@@ -13,10 +13,11 @@ function VnPayResultContent() {
     const txnNo = searchParams?.get("txnNo") || null;
     const payDate = searchParams?.get("payDate") || null;
     const orderInfo = searchParams?.get("orderInfo") || null;
+    const type = searchParams?.get("type") || null;
 
     return (
         <main className="mx-auto flex w-full max-w-container-max justify-center px-6 py-12">
-            <VnPayResult status={status} orderCode={orderCode} amount={amount} txnNo={txnNo} payDate={payDate} orderInfo={orderInfo} />
+            <VnPayResult status={status} orderCode={orderCode} amount={amount} txnNo={txnNo} payDate={payDate} orderInfo={orderInfo} paymentType={type} />
         </main>
     );
 }

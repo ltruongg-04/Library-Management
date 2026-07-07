@@ -42,6 +42,7 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
     private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
     private final library.repository.ReservationRepository reservationRepository;
     private final SystemLogService systemLogService;
+    private final library.service.EmailService emailService;
 
     @org.springframework.context.annotation.Lazy
     @org.springframework.beans.factory.annotation.Autowired
@@ -561,15 +562,23 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             HttpServletRequest httpRequest) {
         // Get or create customer profile
         CustomerEntity customer = customerRepository.findByPhone(request.getPhone()).orElseGet(() -> {
-            CustomerEntity newCustomer = CustomerEntity.builder()
+            return CustomerEntity.builder()
                     .user(null)
-                    .fullName(request.getFullName() != null ? request.getFullName() : "Khách vãng lai")
+                    .fullName(request.getFullName() != null && !request.getFullName().trim().isEmpty() ? request.getFullName() : "Khách vãng lai")
                     .phone(request.getPhone())
                     .email(request.getEmail())
                     .address("Chưa cập nhật")
                     .build();
-            return customerRepository.save(newCustomer);
         });
+
+        // Update customer details if provided
+        if (request.getFullName() != null && !request.getFullName().trim().isEmpty()) {
+            customer.setFullName(request.getFullName());
+        }
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            customer.setEmail(request.getEmail());
+        }
+        customer = customerRepository.save(customer);
 
         BookEntity book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
@@ -674,6 +683,28 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
                 library.common.constant.SystemLogConstants.ACTION_GUEST_CREATE_ORDER, 
                 String.format(library.common.constant.SystemLogConstants.DETAIL_GUEST_ORDER_SUCCESS, customer.getFullName(), customer.getPhone(), orderCode)
         );
+
+        // Send confirmation email if email is provided
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            String emailName = (request.getFullName() != null && !request.getFullName().trim().isEmpty()) 
+                                ? request.getFullName() : customer.getFullName();
+            
+            java.text.NumberFormat format = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+            String formattedRentalFee = format.format(rentalFee);
+            String formattedDepositPrice = format.format(depositPrice);
+
+            emailService.sendGuestBorrowConfirmationEmail(
+                    request.getEmail(),
+                    emailName,
+                    orderCode,
+                    request.getPickupDate(),
+                    request.getReturnDate(),
+                    book.getTitle(),
+                    "Chờ xử lý",
+                    formattedRentalFee,
+                    formattedDepositPrice
+            );
+        }
 
         return responseBuilder.build();
     }
