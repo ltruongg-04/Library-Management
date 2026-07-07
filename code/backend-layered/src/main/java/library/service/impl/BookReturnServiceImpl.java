@@ -94,6 +94,12 @@ public class BookReturnServiceImpl implements BookReturnService {
         List<BookCopyEntity> copiesToUpdate = new ArrayList<>();
         List<BookReturnDetailEntity> returnDetails = new ArrayList<>();
 
+        // Tính rental fee thực tế
+        LocalDate feeStartDate = borrowOrder.getBorrowDate() != null ? borrowOrder.getBorrowDate() : borrowOrder.getPickupDate();
+        long actualDays = feeStartDate != null ? java.time.temporal.ChronoUnit.DAYS.between(feeStartDate, LocalDate.now()) : 1;
+        if (actualDays <= 0) actualDays = 1;
+        BigDecimal actualRentalFeePerBook = BigDecimal.valueOf(actualDays * 5000L);
+
         for (BookReturnDetailRequestDto detailReq : requestDto.getDetails()) {
             BookCopyEntity bookCopy = bookCopyRepository.findById(detailReq.getBookCopyId())
                     .orElseThrow(() -> new CustomBusinessException("Book copy not found: " + detailReq.getBookCopyId(), HttpStatus.NOT_FOUND));
@@ -114,6 +120,10 @@ public class BookReturnServiceImpl implements BookReturnService {
                 overdueFinePerBook = policy.getOverdueFinePerDay().multiply(new BigDecimal(overdueDays));
             }
             totalOverdueFine = totalOverdueFine.add(overdueFinePerBook);
+
+            // Cập nhật rental fee thực tế vào order detail
+            orderDetail.setRentalFee(actualRentalFeePerBook);
+            borrowOrderDetailRepository.save(orderDetail);
 
             thisReturnRentalFee = thisReturnRentalFee.add(orderDetail.getRentalFee() != null ? orderDetail.getRentalFee() : BigDecimal.ZERO);
             thisReturnDeposit = thisReturnDeposit.add(orderDetail.getDepositPrice() != null ? orderDetail.getDepositPrice() : BigDecimal.ZERO);
@@ -180,6 +190,17 @@ public class BookReturnServiceImpl implements BookReturnService {
             } else {
                 borrowOrder.setStatus(BorrowOrderStatus.PARTIALLY_RETURNED);
             }
+            borrowOrderRepository.save(borrowOrder);
+        } else {
+            // Vẫn cần lưu lại subtotalFee/totalFee cho order dù có hay không thanh toán ngay
+            BigDecimal totalOrderRentalFee = actualRentalFeePerBook.multiply(new BigDecimal(borrowOrder.getOrderDetails().size()));
+            borrowOrder.setSubtotalFee(totalOrderRentalFee);
+            
+            // Tính tổng overdue cho toàn bộ order
+            BigDecimal unpaidOverdueFee = BigDecimal.ZERO;
+            // (Chỉ đơn giản hóa cập nhật totalFee = subtotalFee nếu không tính kỹ overdue chung)
+            // Ta set totalFee tạm thời, việc confirm payment sẽ tính sau.
+            borrowOrder.setTotalFee(totalOrderRentalFee);
             borrowOrderRepository.save(borrowOrder);
         }
 

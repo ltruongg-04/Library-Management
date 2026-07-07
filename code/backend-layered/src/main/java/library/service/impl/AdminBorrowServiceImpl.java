@@ -109,17 +109,47 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
         if (newStatus == BorrowOrderStatus.RETURNED) {
             order.setActualReturnDate(LocalDate.now()); // Confirm return date
             
+            // Tính lại phí thuê theo ngày thực tế mượn
+            LocalDate feeStartDate = order.getBorrowDate() != null ? order.getBorrowDate() : order.getPickupDate();
+            long actualDays = feeStartDate != null ? java.time.temporal.ChronoUnit.DAYS.between(feeStartDate, LocalDate.now()) : 1;
+            if (actualDays <= 0) actualDays = 1;
+            
+            List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
+            java.math.BigDecimal rentalFeePerBook = java.math.BigDecimal.valueOf(actualDays * 5000L);
+            java.math.BigDecimal totalRentalFee = rentalFeePerBook.multiply(new java.math.BigDecimal(details.size()));
+            
+            for (BorrowOrderDetailEntity detail : details) {
+                detail.setRentalFee(rentalFeePerBook);
+            }
+            order.setSubtotalFee(totalRentalFee);
+            
+            java.math.BigDecimal overdueFee = java.math.BigDecimal.ZERO;
             // Solidify penalty if overdue
             if (order.getDueDate() != null && LocalDate.now().isAfter(order.getDueDate())) {
                 long overdueDays = java.time.temporal.ChronoUnit.DAYS.between(order.getDueDate(), LocalDate.now());
                 if (overdueDays > 0) {
                     java.math.BigDecimal penaltyPerDay = new java.math.BigDecimal("10000");
-                    java.math.BigDecimal overdueFee = penaltyPerDay.multiply(new java.math.BigDecimal(overdueDays));
+                    overdueFee = penaltyPerDay.multiply(new java.math.BigDecimal(overdueDays));
                     
-                    java.math.BigDecimal currentTotalFee = order.getTotalFee() != null ? order.getTotalFee() : (order.getSubtotalFee() != null ? order.getSubtotalFee() : java.math.BigDecimal.ZERO);
+                    // Trừ đi số tiền phạt đã thanh toán qua VNPay để tránh tính trùng
+                    java.math.BigDecimal totalPaidOnline = java.math.BigDecimal.ZERO;
+                    java.util.List<library.entity.PaymentEntity> successfulPayments = paymentRepository
+                            .findByBorrowOrderIdAndPaymentStatus(order.getId(), library.entity.PaymentStatus.SUCCESS);
+                    for (library.entity.PaymentEntity p : successfulPayments) {
+                        if (p.getPaymentType() == library.entity.PaymentType.RENTAL_FEE
+                                || p.getPaymentType() == library.entity.PaymentType.FINE) {
+                            totalPaidOnline = totalPaidOnline.add(p.getAmount());
+                        }
+                    }
                     
-                    order.setTotalFee(currentTotalFee.add(overdueFee));
+                    // Chỉ cộng phần chưa thanh toán
+                    java.math.BigDecimal unpaidOverdueFee = overdueFee.subtract(totalPaidOnline).max(java.math.BigDecimal.ZERO);
+                    order.setTotalFee(totalRentalFee.add(unpaidOverdueFee));
+                } else {
+                    order.setTotalFee(totalRentalFee);
                 }
+            } else {
+                order.setTotalFee(totalRentalFee);
             }
         }
 
@@ -185,18 +215,36 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
         java.math.BigDecimal totalPaidOnline = java.math.BigDecimal.ZERO;
         List<library.entity.PaymentEntity> successfulPayments = paymentRepository.findByBorrowOrderIdAndPaymentStatus(order.getId(), library.entity.PaymentStatus.SUCCESS);
         for (library.entity.PaymentEntity p : successfulPayments) {
-            // We only deduct RENTAL_FEE (which includes old rental + fines) from the total fee
-            // (DEPOSIT is handled separately in totalDeposit)
             if (p.getPaymentType() == library.entity.PaymentType.RENTAL_FEE || p.getPaymentType() == library.entity.PaymentType.FINE) {
                 totalPaidOnline = totalPaidOnline.add(p.getAmount());
             }
         }
 
         java.math.BigDecimal currentTotal = order.getTotalFee() != null ? order.getTotalFee() : (order.getSubtotalFee() != null ? order.getSubtotalFee() : java.math.BigDecimal.ZERO);
-        java.math.BigDecimal actualAmountToPay = currentTotal.subtract(totalPaidOnline);
-        if (actualAmountToPay.compareTo(java.math.BigDecimal.ZERO) < 0) {
-            actualAmountToPay = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal deposit = order.getTotalDeposit() != null ? order.getTotalDeposit() : java.math.BigDecimal.ZERO;
+
+        // Tính chênh lệch giữa tổng phí và tiền cọc đã thu
+        // totalFee = phí thuê + phí trễ hạn (nếu có)
+        // deposit = tiền cọc đã thu từ khách
+        java.math.BigDecimal difference = currentTotal.subtract(deposit).subtract(totalPaidOnline);
+        java.math.BigDecimal settlementAmount;
+        String settlementType;
+
+        if (difference.compareTo(java.math.BigDecimal.ZERO) > 0) {
+            // Tổng phí > tiền cọc + đã thanh toán → thu thêm
+            settlementAmount = difference;
+            settlementType = "COLLECT";
+        } else if (difference.compareTo(java.math.BigDecimal.ZERO) < 0) {
+            // Tổng phí < tiền cọc + đã thanh toán → hoàn lại
+            settlementAmount = difference.abs();
+            settlementType = "REFUND";
+        } else {
+            settlementAmount = java.math.BigDecimal.ZERO;
+            settlementType = "SETTLED";
         }
+
+        // actualAmountToPay giữ lại để tương thích, nhưng giờ tính đúng
+        java.math.BigDecimal actualAmountToPay = difference.max(java.math.BigDecimal.ZERO);
 
         return library.dto.admin.AdminBorrowOrderDetailDto.builder()
                 .id(order.getId())
@@ -211,6 +259,8 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                 .totalDeposit(order.getTotalDeposit())
                 .totalPaidOnline(totalPaidOnline)
                 .actualAmountToPay(actualAmountToPay)
+                .settlementAmount(settlementAmount)
+                .settlementType(settlementType)
                 .customerName(order.getCustomer() != null ? order.getCustomer().getFullName() : "Unknown")
                 .customerCode(order.getCustomer() != null
                         ? (order.getCustomer().getLibraryCardNo() != null ? order.getCustomer().getLibraryCardNo()
@@ -269,6 +319,10 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
         String orderCode = "BO-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
+        // Phí thuê = 0 khi tạo đơn, sẽ tính theo ngày thực tế khi trả sách
+        java.math.BigDecimal rentalFeePerBook = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal totalRentalFee = java.math.BigDecimal.ZERO;
+
         BorrowOrderEntity borrowOrder = BorrowOrderEntity.builder()
                 .orderCode(orderCode)
                 .customer(customer)
@@ -276,10 +330,10 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                 .pickupDate(LocalDate.now())
                 .dueDate(request.getDueDate())
                 .status(BorrowOrderStatus.BORROWED)
-                .subtotalFee(java.math.BigDecimal.ZERO)
+                .subtotalFee(totalRentalFee)
                 .discountPercent(java.math.BigDecimal.ZERO)
                 .discountAmount(java.math.BigDecimal.ZERO)
-                .totalFee(java.math.BigDecimal.ZERO)
+                .totalFee(totalRentalFee)
                 .totalDeposit(totalDeposit)
                 .build();
 
@@ -299,7 +353,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
             BorrowOrderDetailEntity detail = BorrowOrderDetailEntity.builder()
                     .borrowOrder(savedOrder)
                     .bookCopy(copy)
-                    .rentalFee(java.math.BigDecimal.ZERO)
+                    .rentalFee(rentalFeePerBook)
                     .depositPrice(depositPrice)
                     .status(library.entity.BorrowOrderDetailStatus.BORROWING)
                     .build();
@@ -360,19 +414,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                 }
             }
             
-            // Calculate extension fee
-            LocalDate baseDate = oldDueDate;
-            if (baseDate == null || baseDate.isBefore(requestedDate)) {
-                baseDate = requestedDate;
-            }
-            long extensionDays = java.time.temporal.ChronoUnit.DAYS.between(baseDate, extension.getRequestedDueDate());
-            if (extensionDays > 0) {
-                java.math.BigDecimal extensionFee = new java.math.BigDecimal("5000").multiply(new java.math.BigDecimal(extensionDays));
-                java.math.BigDecimal currentSubtotal = order.getSubtotalFee() != null ? order.getSubtotalFee() : java.math.BigDecimal.ZERO;
-                java.math.BigDecimal currentTotalFee = order.getTotalFee() != null ? order.getTotalFee() : java.math.BigDecimal.ZERO;
-                order.setSubtotalFee(currentSubtotal.add(extensionFee));
-                order.setTotalFee(currentTotalFee.add(extensionFee));
-            }
+            // Bỏ tính extension fee vì sẽ tính tổng rental fee theo ngày thực tế lúc trả sách.
 
             order.setDueDate(extension.getRequestedDueDate());
             order.setStatus(BorrowOrderStatus.BORROWED);

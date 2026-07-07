@@ -47,10 +47,6 @@ vnpay:
   command: "pay"
   order-type: "other"
 
-resend:
-  api:
-    key: ${RESEND_API_KEY:}
-
 minio:
   url: ${MINIO_URL}
   access-key: ${MINIO_ACCESS_KEY}

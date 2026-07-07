@@ -168,7 +168,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             log.info("VNPay payment URL generated for orderCode={}", orderCode);
         }
 
-        systemLogService.logAction(user, "Mượn sách", "Người dùng " + user.getEmail() + " đã mượn sách: " + book.getTitle() + " (Mã đơn: " + orderCode + ")");
+        systemLogService.logAction(user, "Mượn sách",
+                "Người dùng " + user.getEmail() + " đã mượn sách: " + book.getTitle() + " (Mã đơn: " + orderCode + ")");
 
         return responseBuilder.build();
     }
@@ -497,7 +498,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
             adminBorrowService.processRenewal(order.getOrderCode(), new library.dto.admin.AdminRenewalRequestDto(true));
         }
 
-        systemLogService.logAction("Yêu cầu gia hạn", "Người dùng yêu cầu gia hạn đơn mượn: " + order.getOrderCode() + " thêm " + request.getDurationInDays() + " ngày.");
+        systemLogService.logAction("Yêu cầu gia hạn", "Người dùng yêu cầu gia hạn đơn mượn: " + order.getOrderCode()
+                + " thêm " + request.getDurationInDays() + " ngày.");
 
         return BorrowResponseDto.builder()
                 .orderCode(order.getOrderCode())
@@ -547,7 +549,7 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
         if (order.getDueDate() != null && LocalDate.now().isAfter(order.getDueDate())
                 && !"RETURNED".equals(order.getStatus().name()) && !"CANCELLED".equals(order.getStatus().name())) {
             long overdueDays = java.time.temporal.ChronoUnit.DAYS.between(order.getDueDate(), LocalDate.now());
-            BigDecimal lateFee = BigDecimal.valueOf(overdueDays * 5000);
+            BigDecimal lateFee = BigDecimal.valueOf(overdueDays * 10000);
             builder.lateFee(lateFee);
         } else {
             builder.lateFee(BigDecimal.ZERO);
@@ -564,7 +566,9 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
         CustomerEntity customer = customerRepository.findByPhone(request.getPhone()).orElseGet(() -> {
             return CustomerEntity.builder()
                     .user(null)
-                    .fullName(request.getFullName() != null && !request.getFullName().trim().isEmpty() ? request.getFullName() : "Khách vãng lai")
+                    .fullName(request.getFullName() != null && !request.getFullName().trim().isEmpty()
+                            ? request.getFullName()
+                            : "Khách vãng lai")
                     .phone(request.getPhone())
                     .email(request.getEmail())
                     .address("Chưa cập nhật")
@@ -680,16 +684,18 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
         }
 
         systemLogService.logAction(
-                library.common.constant.SystemLogConstants.ACTION_GUEST_CREATE_ORDER, 
-                String.format(library.common.constant.SystemLogConstants.DETAIL_GUEST_ORDER_SUCCESS, customer.getFullName(), customer.getPhone(), orderCode)
-        );
+                library.common.constant.SystemLogConstants.ACTION_GUEST_CREATE_ORDER,
+                String.format(library.common.constant.SystemLogConstants.DETAIL_GUEST_ORDER_SUCCESS,
+                        customer.getFullName(), customer.getPhone(), orderCode));
 
         // Send confirmation email if email is provided
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            String emailName = (request.getFullName() != null && !request.getFullName().trim().isEmpty()) 
-                                ? request.getFullName() : customer.getFullName();
-            
-            java.text.NumberFormat format = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+            String emailName = (request.getFullName() != null && !request.getFullName().trim().isEmpty())
+                    ? request.getFullName()
+                    : customer.getFullName();
+
+            java.text.NumberFormat format = java.text.NumberFormat
+                    .getCurrencyInstance(new java.util.Locale("vi", "VN"));
             String formattedRentalFee = format.format(rentalFee);
             String formattedDepositPrice = format.format(depositPrice);
 
@@ -702,8 +708,7 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
                     book.getTitle(),
                     "Chờ xử lý",
                     formattedRentalFee,
-                    formattedDepositPrice
-            );
+                    formattedDepositPrice);
         }
 
         return responseBuilder.build();
@@ -721,10 +726,12 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
         }
 
         if (orders.isEmpty()) {
-            throw new CustomBusinessException("Không tìm thấy đơn mượn nào khớp với thông tin cung cấp.", HttpStatus.NOT_FOUND);
+            throw new CustomBusinessException("Không tìm thấy đơn mượn nào khớp với thông tin cung cấp.",
+                    HttpStatus.NOT_FOUND);
         }
 
-        return orders.stream().map(this::mapToBorrowOrderDetailResponseDto).collect(java.util.stream.Collectors.toList());
+        return orders.stream().map(this::mapToBorrowOrderDetailResponseDto)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     private library.dto.borrow.BorrowOrderDetailResponseDto mapToBorrowOrderDetailResponseDto(BorrowOrderEntity order) {
@@ -833,7 +840,8 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
                 library.entity.BorrowExtensionStatus.APPROVED);
 
         String customerName = order.getCustomer().getFullName();
-        if (customerName == null) customerName = "Unknown";
+        if (customerName == null)
+            customerName = "Unknown";
 
         String rawPhone = order.getCustomer().getPhone();
         String customerPhone = "***";
@@ -869,11 +877,13 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
         BorrowOrderEntity borrowOrder = borrowOrderRepository.findByOrderCode(orderCode)
                 .orElseThrow(() -> new CustomBusinessException("Order not found", HttpStatus.NOT_FOUND));
 
-        if (borrowOrder.getCustomer() == null || borrowOrder.getCustomer().getUser() == null || !borrowOrder.getCustomer().getUser().getId().equals(userId)) {
+        if (borrowOrder.getCustomer() == null || borrowOrder.getCustomer().getUser() == null
+                || !borrowOrder.getCustomer().getUser().getId().equals(userId)) {
             throw new CustomBusinessException("Unauthorized to cancel this order", HttpStatus.FORBIDDEN);
         }
 
-        if (borrowOrder.getStatus() != BorrowOrderStatus.PENDING && borrowOrder.getStatus() != BorrowOrderStatus.READY) {
+        if (borrowOrder.getStatus() != BorrowOrderStatus.PENDING
+                && borrowOrder.getStatus() != BorrowOrderStatus.READY) {
             throw new CustomBusinessException("Only pending or ready orders can be cancelled", HttpStatus.BAD_REQUEST);
         }
 
