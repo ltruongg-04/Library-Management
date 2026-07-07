@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.format.DateTimeFormatter;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,27 +22,12 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final library.repository.AssistantRepository assistantRepository;
     private final PasswordEncoder passwordEncoder;
     private final SystemLogService systemLogService;
+    private final library.mapper.UserMapper userMapper;
 
     @Override
     public List<AdminUserResponseDto> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
-        
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        
-        return users.stream().map(user -> {
-            String roleStr = user.getRole().name().toLowerCase();
-            if ("user".equals(roleStr)) {
-                roleStr = "customer";
-            }
-            return AdminUserResponseDto.builder()
-                .id(user.getId())
-                .name(user.getFullName())
-                .email(user.getEmail())
-                .role(roleStr)
-                .status(user.isActive() ? "active" : "locked")
-                .lastLogin(user.getLastLogin() != null ? user.getLastLogin().format(formatter) : "Chưa đăng nhập")
-                .build();
-        }).collect(Collectors.toList());
+        return users.stream().map(userMapper::toAdminUserResponseDto).collect(Collectors.toList());
     }
 
     @Override

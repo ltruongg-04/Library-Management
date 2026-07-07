@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@org.hibernate.annotations.BatchSize(size = 50)
 public class BookCopyEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -31,6 +31,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final BookRepository bookRepository;
     private final CustomerRepository customerRepository;
     private final SystemLogService systemLogService;
+    private final library.mapper.ReservationMapper reservationMapper;
 
     @Override
     @Transactional
@@ -66,7 +67,7 @@ public class ReservationServiceImpl implements ReservationService {
         systemLogService.logAction("Đặt trước sách", "Người dùng " + customer.getFullName() + " đã đặt trước sách: " + book.getTitle());
         log.info("MOCK_NOTIFICATION: User {} successfully reserved book '{}'. Position in queue: {}", customer.getFullName(), book.getTitle(), position);
 
-        return mapToResponse(reservation, position);
+        return reservationMapper.toReservationResponse(reservation, position);
     }
 
     @Override
@@ -78,7 +79,7 @@ public class ReservationServiceImpl implements ReservationService {
             if (r.getStatus() == ReservationStatus.PENDING) {
                 position = reservationRepository.countByBookIdAndStatusAndReservationDateBefore(r.getBook().getId(), ReservationStatus.PENDING, r.getReservationDate()) + 1;
             }
-            return mapToResponse(r, position);
+            return reservationMapper.toReservationResponse(r, position);
         });
     }
 
@@ -103,15 +104,4 @@ public class ReservationServiceImpl implements ReservationService {
         log.info("MOCK_NOTIFICATION: User {} cancelled reservation for book '{}'", reservation.getCustomer().getFullName(), reservation.getBook().getTitle());
     }
 
-    private ReservationResponse mapToResponse(ReservationEntity reservation, long queuePosition) {
-        return ReservationResponse.builder()
-                .id(reservation.getId())
-                .bookId(reservation.getBook().getId())
-                .bookTitle(reservation.getBook().getTitle())
-                .coverImage(reservation.getBook().getImageUrl())
-                .reservationDate(reservation.getReservationDate())
-                .status(reservation.getStatus())
-                .queuePosition(queuePosition)
-                .build();
-    }
 }

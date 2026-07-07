@@ -15,6 +15,10 @@ import java.util.List;
 
 @Repository
 public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, Integer> {
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"customer", "customer.user"})
+    @Override
+    List<BorrowOrderEntity> findAll();
+
     long countByStatus(BorrowOrderStatus status);
     
     long countByBorrowDate(LocalDate date);

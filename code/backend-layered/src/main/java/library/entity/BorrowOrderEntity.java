@@ -58,7 +58,28 @@ public class BorrowOrderEntity extends BaseEntity {
     private BigDecimal totalDeposit;
 
     @OneToMany(mappedBy = "borrowOrder", fetch = FetchType.LAZY)
+    @org.hibernate.annotations.BatchSize(size = 50)
     @Builder.Default
     private List<BorrowOrderDetailEntity> orderDetails = new ArrayList<>();
 
+    // Business Logic Methods
+    public void addExtensionFee(BigDecimal fee) {
+        BigDecimal currentSubtotal = this.subtotalFee != null ? this.subtotalFee : BigDecimal.ZERO;
+        BigDecimal currentTotal = this.totalFee != null ? this.totalFee : BigDecimal.ZERO;
+        this.subtotalFee = currentSubtotal.add(fee);
+        this.totalFee = currentTotal.add(fee);
+    }
+
+    public void approveExtension(LocalDate newDueDate) {
+        this.dueDate = newDueDate;
+        this.status = BorrowOrderStatus.BORROWED;
+    }
+
+    public void rejectExtensionRevertStatus() {
+        if (this.dueDate != null && this.dueDate.isBefore(LocalDate.now())) {
+            this.status = BorrowOrderStatus.OVERDUE;
+        } else {
+            this.status = BorrowOrderStatus.BORROWED;
+        }
+    }
 }

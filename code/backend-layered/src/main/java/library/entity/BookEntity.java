@@ -17,6 +17,7 @@ import java.util.Set;
 @Builder
 @org.hibernate.annotations.SQLDelete(sql = "UPDATE books SET is_deleted = true WHERE id=?")
 @org.hibernate.annotations.SQLRestriction("is_deleted = false")
+@org.hibernate.annotations.BatchSize(size = 50)
 public class BookEntity extends BaseEntity {
 
     @Column(name = "title", nullable = false)
@@ -28,6 +29,7 @@ public class BookEntity extends BaseEntity {
         joinColumns = @JoinColumn(name = "book_id"),
         inverseJoinColumns = @JoinColumn(name = "author_id")
     )
+    @org.hibernate.annotations.BatchSize(size = 50)
     @Builder.Default
     private Set<AuthorEntity> authors = new HashSet<>();
 
@@ -61,6 +63,7 @@ public class BookEntity extends BaseEntity {
         joinColumns = @JoinColumn(name = "book_id"),
         inverseJoinColumns = @JoinColumn(name = "category_id")
     )
+    @org.hibernate.annotations.BatchSize(size = 50)
     @Builder.Default
     private Set<CategoryEntity> categories = new HashSet<>();
 
