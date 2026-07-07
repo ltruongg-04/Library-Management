@@ -26,6 +26,8 @@ public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, 
     @Query("SELECT COUNT(br) FROM BorrowOrderEntity br WHERE br.status = :status AND br.dueDate < :date")
     long countOverdueBooks(@Param("status") BorrowOrderStatus status, @Param("date") LocalDate date);
     
+    List<BorrowOrderEntity> findByStatusAndDueDateBefore(BorrowOrderStatus status, LocalDate date);
+    
     java.util.Optional<BorrowOrderEntity> findByOrderCode(String orderCode);
 
     @Query("SELECT b FROM BorrowOrderEntity b WHERE b.customer.user.id = :userId ORDER BY b.createdAt DESC")

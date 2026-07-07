@@ -35,6 +35,8 @@ public class BookReturnServiceImpl implements BookReturnService {
     private final library.repository.PaymentRepository paymentRepository;
     private final library.service.FeeCalculatorService feeCalculatorService;
     private final library.mapper.BookReturnMapper bookReturnMapper;
+    private final library.repository.ReservationRepository reservationRepository;
+    private final library.service.EmailService emailService;
 
     // Helpers
     private final library.service.impl.helper.BookReturnValidationHelper validationHelper;
@@ -267,6 +269,34 @@ public class BookReturnServiceImpl implements BookReturnService {
                     if (rd.getConditionStatus() == ConditionStatus.NORMAL) {
                         bc.setStatus(BookCopyStatus.AVAILABLE);
                         od.setStatus(BorrowOrderDetailStatus.RETURNED);
+
+                        // Check if there's any pending reservation for this book
+                        java.util.Optional<ReservationEntity> nextReservation = reservationRepository.findFirstByBookIdAndStatusOrderByReservationDateAsc(
+                                bc.getBook().getId(), ReservationStatus.PENDING);
+                                
+                        if (nextReservation.isPresent()) {
+                            ReservationEntity reservation = nextReservation.get();
+                            reservation.setStatus(ReservationStatus.NOTIFIED);
+                            reservationRepository.save(reservation);
+                            
+                            // Send email
+                            String toEmail = null;
+                            String fullName = null;
+                            if (reservation.getCustomer() != null) {
+                                fullName = reservation.getCustomer().getFullName();
+                                if (reservation.getCustomer().getUser() != null && reservation.getCustomer().getUser().getEmail() != null) {
+                                    toEmail = reservation.getCustomer().getUser().getEmail();
+                                } else {
+                                    toEmail = reservation.getCustomer().getEmail();
+                                }
+                            }
+                            
+                            if (toEmail != null && !toEmail.isEmpty()) {
+                                LocalDate holdUntil = LocalDate.now().plusDays(3); // Giữ sách trong 3 ngày
+                                emailService.sendReservationAvailableEmail(toEmail, fullName, bc.getBook().getTitle(), holdUntil);
+                            }
+                        }
+
                     } else if (rd.getConditionStatus() == ConditionStatus.DAMAGED) {
                         bc.setStatus(BookCopyStatus.MAINTENANCE);
                         od.setStatus(BorrowOrderDetailStatus.DAMAGED);

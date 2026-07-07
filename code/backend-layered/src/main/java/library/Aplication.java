@@ -14,9 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
+
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableAsync
+@EnableScheduling
 public class Aplication {
     private static final Logger log = LoggerFactory.getLogger(Aplication.class);
 
