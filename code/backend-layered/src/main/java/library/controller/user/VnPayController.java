@@ -40,6 +40,7 @@ public class VnPayController {
     private final library.service.AdminBorrowService adminBorrowService;
     private final SystemLogService systemLogService;
     private final library.service.BookReturnService bookReturnService;
+    private final library.service.EmailService emailService;
 
     @Value("${vnpay.frontend-url:http://localhost:3000}")
     private String frontendUrl;
@@ -93,6 +94,23 @@ public class VnPayController {
                 String.format(library.common.constant.SystemLogConstants.DETAIL_VNPAY_IPN_SUCCESS, orderCode)
             );
             log.info("VNPay IPN: Payment SUCCESS for orderCode={}, transactionNo={}", orderCode, transactionNo);
+
+            // Gửi email biên lai điện tử
+            String toEmail = null;
+            String fullName = null;
+            if (payment.getBorrowOrder() != null && payment.getBorrowOrder().getCustomer() != null) {
+                fullName = payment.getBorrowOrder().getCustomer().getFullName();
+                if (payment.getBorrowOrder().getCustomer().getUser() != null) {
+                    toEmail = payment.getBorrowOrder().getCustomer().getUser().getEmail();
+                } else {
+                    toEmail = payment.getBorrowOrder().getCustomer().getEmail();
+                }
+            }
+            if (toEmail != null && !toEmail.isEmpty()) {
+                String amountStr = params.get("vnp_Amount");
+                String displayAmount = amountStr != null ? String.valueOf(Long.parseLong(amountStr) / 100) : "0";
+                emailService.sendPaymentSuccessEmail(toEmail, fullName, orderCode, displayAmount, transactionNo, params.get("vnp_PayDate"));
+            }
 
             // Auto-approve renewal if it's a renewal fee
             if (payment.getPaymentType() == PaymentType.RENTAL_FEE) {

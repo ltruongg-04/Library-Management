@@ -164,4 +164,88 @@ public class EmailServiceImpl implements EmailService {
             log.error("Failed to send email via Resend: {}", e.getMessage());
         }
     }
+
+    @Override
+    @Async
+    public void sendOverdueReminderEmail(String toEmail, String fullName, String orderCode, List<String> bookList, LocalDate dueDate, String finePerDay) {
+        if (this.resend == null) return;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("orderCode", orderCode);
+            context.setVariable("bookList", bookList);
+            context.setVariable("dueDate", dueDate != null ? dueDate.format(formatter) : "N/A");
+            context.setVariable("finePerDay", finePerDay);
+
+            String htmlContent = templateEngine.process("email/overdue-reminder", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Cảnh báo: Sách quá hạn trả - " + orderCode)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent overdue reminder email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send overdue email to {}", toEmail, e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendPaymentSuccessEmail(String toEmail, String fullName, String orderCode, String amount, String transactionId, String payDate) {
+        if (this.resend == null) return;
+        try {
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("orderCode", orderCode);
+            context.setVariable("amount", amount);
+            context.setVariable("transactionId", transactionId);
+            context.setVariable("payDate", payDate);
+
+            String htmlContent = templateEngine.process("email/payment-success", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Xác nhận thanh toán thành công - Thư viện Lumina")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent payment success email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send payment success email to {}", toEmail, e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendReservationAvailableEmail(String toEmail, String fullName, String bookTitle, LocalDate holdUntilDate) {
+        if (this.resend == null) return;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("bookTitle", bookTitle);
+            context.setVariable("holdUntilDate", holdUntilDate != null ? holdUntilDate.format(formatter) : "N/A");
+
+            String htmlContent = templateEngine.process("email/reservation-available", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Thông báo: Sách bạn đặt trước đã có sẵn")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent reservation available email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send reservation available email to {}", toEmail, e);
+        }
+    }
 }

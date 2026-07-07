@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cảnh báo: Sách quá hạn</title>
+</head>
+<body style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+    <h2 style="color: #d9534f;">Thông báo quá hạn trả sách</h2>
+    <p>Chào <span th:text="${fullName}">Bạn</span>,</p>
+    <p>Hệ thống Thư viện Lumina xin thông báo, đơn mượn <strong><span th:text="${orderCode}"></span></strong> của bạn đã quá hạn trả.</p>
+    
+    <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; border-left: 4px solid #d9534f; margin: 20px 0;">
+        <p><strong>Ngày hẹn trả:</strong> <span th:text="${dueDate}"></span></p>
+        <p><strong>Danh sách sách chưa trả:</strong></p>
+        <ul>
+            <li th:each="book : ${bookList}" th:text="${book}">Tên sách</li>
+        </ul>
+        <p><strong>Phí phạt trễ hạn dự kiến:</strong> <span th:text="${finePerDay}"></span> VNĐ / ngày</p>
+    </div>
+
+    <p>Vui lòng mang sách đến trả tại thư viện trong thời gian sớm nhất để tránh phát sinh thêm phí phạt.</p>
+    <p>Nếu bạn đã trả sách hoặc cần gia hạn, vui lòng liên hệ ban quản trị để được hỗ trợ.</p>
+    
+    <p style="margin-top: 30px;">Trân trọng,<br>Ban quản trị Thư viện Lumina</p>
+</body>
+</html>
