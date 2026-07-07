@@ -31,26 +31,30 @@ export default function NotificationDropdown({ notifications, markAsRead, onClos
             </div>
 
             <div className="max-h-[400px] overflow-y-auto">
-                {latestNotifications.map((notification) => (
-                    <Link
-                        key={notification.id}
-                        href={`/notifications/${notification.id}`}
-                        onClick={() => handleNotificationClick(notification.id)}
-                        className={`block border-b px-4 py-3 hover:bg-ink-50 dark:border-slate-800 dark:hover:bg-slate-800 ${
-                            !notification.isRead ? "bg-blue-50 dark:bg-blue-900/20" : ""
-                        } `}
-                    >
-                        <div className="flex justify-between">
-                            <h4 className="text-sm font-medium text-ink-950 dark:text-white">{notification.title}</h4>
+                {latestNotifications.length > 0 ? (
+                    latestNotifications.map((notification) => (
+                        <Link
+                            key={notification.id}
+                            href={`/notifications/${notification.id}`}
+                            onClick={() => handleNotificationClick(notification.id)}
+                            className={`block border-b px-4 py-3 hover:bg-ink-50 dark:border-slate-800 dark:hover:bg-slate-800 ${
+                                !notification.isRead ? "bg-blue-50 dark:bg-blue-900/20" : ""
+                            } `}
+                        >
+                            <div className="flex justify-between">
+                                <h4 className="text-sm font-medium text-ink-950 dark:text-white">{notification.title}</h4>
 
-                            {!notification.isRead && <span className="mt-1 h-2 w-2 rounded-full bg-blue-500" />}
-                        </div>
+                                {!notification.isRead && <span className="mt-1 h-2 w-2 rounded-full bg-blue-500" />}
+                            </div>
 
-                        <p className="mt-1 line-clamp-2 text-sm text-ink-600 dark:text-slate-300">{notification.message}</p>
+                            <p className="mt-1 line-clamp-2 text-sm text-ink-600 dark:text-slate-300">{notification.message}</p>
 
-                        <span className="text-xs text-ink-500 dark:text-slate-400">{notification.time}</span>
-                    </Link>
-                ))}
+                            <span className="text-xs text-ink-500 dark:text-slate-400">{notification.time}</span>
+                        </Link>
+                    ))
+                ) : (
+                    <p className="px-4 py-6 text-center text-sm text-ink-500 dark:text-slate-400">{NOTIFICATIONS.NO_NOTIFICATIONS}</p>
+                )}
             </div>
 
             <div className="p-4 text-center">

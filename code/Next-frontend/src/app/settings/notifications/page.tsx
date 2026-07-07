@@ -5,33 +5,24 @@ import { Mail, Smartphone } from "lucide-react";
 import { Toggle } from "@/components/base/Toggle";
 import { SuccessModal } from "@/components/base/success-modal";
 import { UI_TEXT } from "@/constants/ui-text";
+import { DEFAULT_NOTIFICATION_SETTINGS, type NotificationSettings, readNotificationSettings, writeNotificationSettings } from "@/utils/notification-settings";
 
-type NotificationSettingKey =
-    | "emailNewArrivals"
-    | "emailDueDates"
-    | "emailReservations"
-    | "pushMobileAlerts";
+type NotificationSettingKey = keyof NotificationSettings;
 
 export default function NotificationSettingsPage() {
-    const [emailNewArrivals, setEmailNewArrivals] = useState(true);
-    const [emailDueDates, setEmailDueDates] = useState(true);
-    const [emailReservations, setEmailReservations] = useState(true);
-    const [pushMobileAlerts, setPushMobileAlerts] = useState(false);
+    const [emailNewArrivals, setEmailNewArrivals] = useState(DEFAULT_NOTIFICATION_SETTINGS.emailNewArrivals);
+    const [emailDueDates, setEmailDueDates] = useState(DEFAULT_NOTIFICATION_SETTINGS.emailDueDates);
+    const [emailReservations, setEmailReservations] = useState(DEFAULT_NOTIFICATION_SETTINGS.emailReservations);
+    const [pushMobileAlerts, setPushMobileAlerts] = useState(DEFAULT_NOTIFICATION_SETTINGS.pushMobileAlerts);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     useEffect(() => {
-        const savedSettings = localStorage.getItem("lumina_notification_settings");
-        if (!savedSettings) return;
+        const savedSettings = readNotificationSettings();
 
-        try {
-            const parsed = JSON.parse(savedSettings);
-            if (typeof parsed.emailNewArrivals === "boolean") setEmailNewArrivals(parsed.emailNewArrivals);
-            if (typeof parsed.emailDueDates === "boolean") setEmailDueDates(parsed.emailDueDates);
-            if (typeof parsed.emailReservations === "boolean") setEmailReservations(parsed.emailReservations);
-            if (typeof parsed.pushMobileAlerts === "boolean") setPushMobileAlerts(parsed.pushMobileAlerts);
-        } catch (error) {
-            console.error("Failed to parse notification settings", error);
-        }
+        setEmailNewArrivals(savedSettings.emailNewArrivals);
+        setEmailDueDates(savedSettings.emailDueDates);
+        setEmailReservations(savedSettings.emailReservations);
+        setPushMobileAlerts(savedSettings.pushMobileAlerts);
     }, []);
 
     const updateSetting = (key: NotificationSettingKey, value: boolean) => {
@@ -48,7 +39,7 @@ export default function NotificationSettingsPage() {
         if (key === "emailReservations") setEmailReservations(value);
         if (key === "pushMobileAlerts") setPushMobileAlerts(value);
 
-        localStorage.setItem("lumina_notification_settings", JSON.stringify(newSettings));
+        writeNotificationSettings(newSettings);
         setShowSuccessModal(true);
         setTimeout(() => setShowSuccessModal(false), 3000);
     };
@@ -56,12 +47,8 @@ export default function NotificationSettingsPage() {
     return (
         <div className="w-full max-w-4xl rounded-2xl border border-ink-200 bg-white p-xl shadow-sm transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900">
             <div className="mb-xl border-b border-ink-200 pb-xl dark:border-slate-800">
-                <h1 className="mb-2 text-3xl font-bold text-ink-950 dark:text-white">
-                    {UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.HEADING}
-                </h1>
-                <p className="max-w-2xl font-body-md text-body-md text-ink-600 dark:text-slate-400">
-                    {UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.SUBHEADING}
-                </p>
+                <h1 className="mb-2 text-3xl font-bold text-ink-950 dark:text-white">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.HEADING}</h1>
+                <p className="max-w-2xl font-body-md text-body-md text-ink-600 dark:text-slate-400">{UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.SUBHEADING}</p>
             </div>
 
             <div className="space-y-xl">
@@ -136,11 +123,7 @@ export default function NotificationSettingsPage() {
                 </section>
             </div>
 
-            <SuccessModal
-                isOpen={showSuccessModal}
-                onClose={() => setShowSuccessModal(false)}
-                message={UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.SUCCESS_MSG}
-            />
+            <SuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} message={UI_TEXT.SETTINGS_NOTIFICATIONS.PAGE.SUCCESS_MSG} />
         </div>
     );
 }

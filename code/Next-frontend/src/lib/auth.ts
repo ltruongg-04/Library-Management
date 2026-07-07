@@ -65,6 +65,7 @@ export const authOptions: NextAuthOptions = {
                             id: String(data.data.user.id),
                             email: data.data.user.email,
                             name: data.data.user.fullName,
+                            phone: data.data.user.phone,
                             role: data.data.user.role,
                             backendToken: data.data.token,
                             refreshToken: data.data.refreshToken,
@@ -86,6 +87,7 @@ export const authOptions: NextAuthOptions = {
             // Initial sign in
             if (user || (account && profile)) {
                 if (account?.provider === "google") {
+                    token.authProvider = "google";
                     // Sync Google Login với backend
                     try {
                         const res = await axios.post(`${API_URL}/api/auth/google`, {
@@ -99,10 +101,12 @@ export const authOptions: NextAuthOptions = {
                             token.refreshToken = data.data.refreshToken ?? null;
                             token.id = String(data.data.user.id);
                             token.role = data.data.user.role;
+                            token.phone = data.data.user.phone ?? null;
                             // Nếu có refreshToken thì set expiry, không thì để session tự quản lý
                             token.expiresAt = token.refreshToken ? Date.now() + 15 * 60 * 1000 : Number.MAX_SAFE_INTEGER;
                         } else {
                             // Backend sync thất bại → giữ session Google, không có backend token
+                            token.phone = null;
                             token.expiresAt = Number.MAX_SAFE_INTEGER;
                         }
                     } catch (e: any) {
@@ -112,10 +116,12 @@ export const authOptions: NextAuthOptions = {
                     }
                 } else if (user) {
                     // Credentials login
+                    token.authProvider = "credentials";
                     token.backendToken = (user as any).backendToken;
                     token.refreshToken = (user as any).refreshToken;
                     token.id = user.id;
                     token.role = (user as any).role;
+                    token.phone = (user as any).phone ?? null;
                     token.expiresAt = Date.now() + 15 * 60 * 1000;
                 }
                 return token;
@@ -134,6 +140,8 @@ export const authOptions: NextAuthOptions = {
             if (session.user) {
                 session.user.id = token.id as string;
                 session.user.role = token.role as string;
+                session.user.phone = token.phone as string | null;
+                session.user.authProvider = token.authProvider as string;
                 session.backendToken = token.backendToken as string;
                 session.error = token.error as string;
             }
