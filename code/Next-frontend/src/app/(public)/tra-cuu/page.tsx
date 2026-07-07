@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Captcha } from "@/components/base/captcha";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
@@ -18,9 +19,10 @@ export default function GuestLookupPage() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [orderList, setOrderList] = useState<BorrowOrderDetailResponseDto[]>([]);
+    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
     const isEmail = lookupMethod === "EMAIL";
-    const isFormValid = searchQuery.trim().length > 0 && (!isEmail || !isOtpSent || (isOtpSent && otp.trim().length >= 6));
+    const isFormValid = searchQuery.trim().length > 0 && (!isEmail ? recaptchaToken !== null : !isOtpSent || (isOtpSent && otp.trim().length >= 6));
 
     const handleLookup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,8 +53,13 @@ export default function GuestLookupPage() {
                     setIsLoading(false);
                     return;
                 }
+                if (!isEmail && !recaptchaToken) {
+                    setError(UI_TEXT.BORROW.TRA_CUU.MISSING_CAPTCHA);
+                    setIsLoading(false);
+                    return;
+                }
 
-                const response = await getGuestBorrowOrders(identifier, isEmail ? otp.trim() : undefined);
+                const response = await getGuestBorrowOrders(identifier, isEmail ? otp.trim() : undefined, !isEmail ? (recaptchaToken ?? undefined) : undefined);
                 if (response.data && response.data.length > 0) {
                     setOrderList(response.data);
                 } else {
@@ -94,6 +101,7 @@ export default function GuestLookupPage() {
                                 setOrderList([]);
                                 setIsOtpSent(false);
                                 setOtp("");
+                                setRecaptchaToken(null);
                             }}
                         >
                             {UI_TEXT.BORROW.TRA_CUU.METHOD_ORDER_CODE}
@@ -112,6 +120,7 @@ export default function GuestLookupPage() {
                                 setIsOtpSent(false);
                                 setOtp("");
                                 setOrderList([]);
+                                setRecaptchaToken(null);
                             }}
                         >
                             {UI_TEXT.BORROW.TRA_CUU.METHOD_EMAIL}
@@ -153,6 +162,12 @@ export default function GuestLookupPage() {
                             }}
                         />
                     </div>
+
+                    {!isEmail && (
+                        <div className="flex flex-col items-center justify-center space-y-2 py-2">
+                            <Captcha onValidate={setRecaptchaToken} />
+                        </div>
+                    )}
 
                     {lookupMethod === "EMAIL" && isOtpSent && (
                         <div className="space-y-1">

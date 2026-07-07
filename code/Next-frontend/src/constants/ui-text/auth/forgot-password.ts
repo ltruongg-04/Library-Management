@@ -22,4 +22,10 @@ export const FORGOT_PASSWORD = {
         PASSWORD_MISMATCH: "Mật khẩu xác nhận không khớp.",
     },
     SUCCESS: "Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.",
+    MESSAGES: {
+        OTP_SENT_SUCCESS: "Mã xác nhận đã được gửi đến email của bạn",
+        OTP_VERIFIED_SUCCESS: "Xác thực thành công, vui lòng nhập mật khẩu mới",
+        RESET_SUCCESS: "Đặt lại mật khẩu thành công",
+    },
+    SUBMIT_OTP_BTN: "Tiếp tục",
 };

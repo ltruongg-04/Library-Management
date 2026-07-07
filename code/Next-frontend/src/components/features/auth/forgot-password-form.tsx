@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, KeyRound, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { BaseButton } from "@/components/base/base-button";
 import { BaseInput } from "@/components/base/base-input";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -11,12 +12,13 @@ import { authService } from "@/services/auth";
 
 export function ForgotPasswordForm() {
     const router = useRouter();
-    const [step, setStep] = useState<1 | 2>(1);
+    const [step, setStep] = useState<1 | 2 | 3>(1);
     const [isLoading, setIsLoading] = useState(false);
 
     // Form state
     const [email, setEmail] = useState("");
     const [otp, setOtp] = useState("");
+    const [resetToken, setResetToken] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -36,7 +38,11 @@ export function ForgotPasswordForm() {
         const next: typeof errors = {};
         if (!otp) next.otp = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.OTP_REQUIRED;
         else if (otp.length !== 6) next.otp = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.OTP_LENGTH;
+        return next;
+    }
 
+    function validateStep3() {
+        const next: typeof errors = {};
         if (!newPassword) next.password = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.PASSWORD_REQUIRED;
         else if (newPassword.length < 8) next.password = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.PASSWORD_MIN_LENGTH;
 
@@ -55,6 +61,7 @@ export function ForgotPasswordForm() {
         setIsLoading(true);
         try {
             await authService.forgotPassword({ email });
+            toast.success(UI_TEXT.AUTH.FORGOT_PASSWORD.MESSAGES.OTP_SENT_SUCCESS);
             setStep(2);
         } catch (error: any) {
             setErrors({ global: error.message });
@@ -63,7 +70,7 @@ export function ForgotPasswordForm() {
         }
     }
 
-    async function handleResetPassword(e: React.FormEvent) {
+    async function handleVerifyOtp(e: React.FormEvent) {
         e.preventDefault();
         const next = validateStep2();
         if (Object.keys(next).length) {
@@ -73,7 +80,29 @@ export function ForgotPasswordForm() {
         setErrors({});
         setIsLoading(true);
         try {
-            await authService.resetPassword({ email, otp, newPassword });
+            const res = await authService.verifyOtp({ email, otp });
+            setResetToken(res.resetToken);
+            toast.success(UI_TEXT.AUTH.FORGOT_PASSWORD.MESSAGES.OTP_VERIFIED_SUCCESS);
+            setStep(3);
+        } catch (error: any) {
+            setErrors({ global: error.message });
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    async function handleResetPassword(e: React.FormEvent) {
+        e.preventDefault();
+        const next = validateStep3();
+        if (Object.keys(next).length) {
+            setErrors(next);
+            return;
+        }
+        setErrors({});
+        setIsLoading(true);
+        try {
+            await authService.resetPassword({ resetToken, newPassword });
+            toast.success(UI_TEXT.AUTH.FORGOT_PASSWORD.MESSAGES.RESET_SUCCESS);
             router.push("/login?reset=true");
         } catch (error: any) {
             setErrors({ global: error.message });
@@ -111,8 +140,8 @@ export function ForgotPasswordForm() {
                         <ArrowRight size={18} strokeWidth={1.5} aria-hidden="true" />
                     </BaseButton>
                 </form>
-            ) : (
-                <form onSubmit={handleResetPassword} className="space-y-5">
+            ) : step === 2 ? (
+                <form onSubmit={handleVerifyOtp} className="space-y-5">
                     <BaseInput
                         label={UI_TEXT.AUTH.FORGOT_PASSWORD.OTP_LABEL}
                         type="text"
@@ -123,6 +152,13 @@ export function ForgotPasswordForm() {
                         maxLength={6}
                     />
 
+                    <BaseButton type="submit" isLoading={isLoading}>
+                        <span>{UI_TEXT.AUTH.FORGOT_PASSWORD.SUBMIT_OTP_BTN}</span>
+                        <ArrowRight size={18} strokeWidth={1.5} aria-hidden="true" />
+                    </BaseButton>
+                </form>
+            ) : (
+                <form onSubmit={handleResetPassword} className="space-y-5">
                     <BaseInput
                         label={UI_TEXT.AUTH.FORGOT_PASSWORD.NEW_PASSWORD_LABEL}
                         type={showPassword ? "text" : "password"}
