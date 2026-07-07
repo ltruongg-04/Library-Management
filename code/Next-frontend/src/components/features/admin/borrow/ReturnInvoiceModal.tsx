@@ -106,7 +106,7 @@ export default function ReturnInvoiceModal({ isOpen, onClose, invoiceData }: Ret
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-            <div className="animate-in zoom-in-95 flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-surface-container-lowest shadow-2xl duration-200">
+            <div className="animate-in zoom-in-95 flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-surface-container-lowest shadow-2xl duration-200">
                 {/* Header */}
                 <div className="relative flex flex-col items-center justify-center bg-primary/10 px-6 py-8 text-center">
                     <button
@@ -125,7 +125,7 @@ export default function ReturnInvoiceModal({ isOpen, onClose, invoiceData }: Ret
                 </div>
 
                 {/* Body - Invoice Details */}
-                <div className="max-h-[70vh] flex-1 overflow-y-auto p-6">
+                <div className="min-h-0 flex-1 overflow-y-auto p-6">
                     <div className="mb-4 flex items-center gap-2 font-semibold text-on-surface">
                         <Receipt size={18} className="text-primary" />
                         {TEXT.BOOK_DETAILS}

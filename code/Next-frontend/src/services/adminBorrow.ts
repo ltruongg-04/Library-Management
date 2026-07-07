@@ -54,6 +54,9 @@ export interface AdminBorrowOrderDetailResponse {
     discountAmount: number;
     totalFee: number;
     totalDeposit: number;
+    totalPaidOnline: number;
+    settlementAmount: number;
+    settlementType: "COLLECT" | "REFUND" | "SETTLED";
     customerName: string;
     customerCode: string;
     customerPhone: string;
