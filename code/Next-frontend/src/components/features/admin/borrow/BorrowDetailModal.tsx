@@ -223,17 +223,44 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                                         <span className="text-on-surface-variant">{T.FEE_RENT}</span>
                                         <span>{formatMoney(detail.subtotalFee)}</span>
                                     </div>
+                                    {detail.discountAmount > 0 && (
+                                        <div className="flex justify-between">
+                                            <span className="text-on-surface-variant">{T.FEE_DISCOUNT}</span>
+                                            <span>-{formatMoney(detail.discountAmount)}</span>
+                                        </div>
+                                    )}
                                     <div className="flex justify-between">
-                                        <span className="text-on-surface-variant">{T.FEE_DISCOUNT}</span>
-                                        <span>-{formatMoney(detail.discountAmount)}</span>
+                                        <span className="text-on-surface-variant">{T.FEE_TOTAL}</span>
+                                        <span className="font-medium">{formatMoney(detail.totalFee)}</span>
                                     </div>
+                                    <div className="my-1 border-t border-outline-variant/30" />
                                     <div className="flex justify-between">
                                         <span className="text-on-surface-variant">{T.FEE_DEPOSIT}</span>
-                                        <span>{formatMoney(detail.totalDeposit)}</span>
+                                        <span className="text-tertiary">{formatMoney(detail.totalDeposit)}</span>
                                     </div>
+                                    {detail.totalPaidOnline > 0 && (
+                                        <div className="flex justify-between">
+                                            <span className="text-on-surface-variant">{T.FEE_PAID_ONLINE}</span>
+                                            <span className="text-tertiary">{formatMoney(detail.totalPaidOnline)}</span>
+                                        </div>
+                                    )}
                                     <div className="mt-2 flex justify-between border-t border-outline-variant/30 pt-2 text-base font-bold">
-                                        <span className="text-on-surface">{T.FEE_TOTAL}</span>
-                                        <span className="text-primary">{formatMoney(detail.totalFee + detail.totalDeposit)}</span>
+                                        {detail.settlementType === "COLLECT" ? (
+                                            <>
+                                                <span className="text-error">{T.FEE_COLLECT}</span>
+                                                <span className="text-error">{formatMoney(detail.settlementAmount)}</span>
+                                            </>
+                                        ) : detail.settlementType === "REFUND" ? (
+                                            <>
+                                                <span className="text-green-600 dark:text-green-400">{T.FEE_REFUND}</span>
+                                                <span className="text-green-600 dark:text-green-400">{formatMoney(detail.settlementAmount)}</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="text-on-surface">{T.FEE_SETTLED}</span>
+                                                <span className="text-primary">{formatMoney(0)}</span>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>

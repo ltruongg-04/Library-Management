@@ -60,6 +60,21 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
         if (newStatus == BorrowOrderStatus.RETURNED) {
             order.setActualReturnDate(LocalDate.now()); // Confirm return date
             
+            // Tính lại phí thuê theo ngày thực tế mượn
+            LocalDate feeStartDate = order.getBorrowDate() != null ? order.getBorrowDate() : order.getPickupDate();
+            long actualDays = feeStartDate != null ? java.time.temporal.ChronoUnit.DAYS.between(feeStartDate, LocalDate.now()) : 1;
+            if (actualDays <= 0) actualDays = 1;
+            
+            List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
+            java.math.BigDecimal rentalFeePerBook = java.math.BigDecimal.valueOf(actualDays * 5000L);
+            java.math.BigDecimal totalRentalFee = rentalFeePerBook.multiply(new java.math.BigDecimal(details.size()));
+            
+            for (BorrowOrderDetailEntity detail : details) {
+                detail.setRentalFee(rentalFeePerBook);
+            }
+            order.setSubtotalFee(totalRentalFee);
+            
+            java.math.BigDecimal overdueFee = java.math.BigDecimal.ZERO;
             // Solidify penalty if overdue
             java.math.BigDecimal overdueFee = feeCalculatorService.calculateOverdueFee(order.getDueDate(), LocalDate.now());
             if (overdueFee.compareTo(java.math.BigDecimal.ZERO) > 0) {
@@ -111,6 +126,10 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
         String orderCode = "BO-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
+        // Phí thuê = 0 khi tạo đơn, sẽ tính theo ngày thực tế khi trả sách
+        java.math.BigDecimal rentalFeePerBook = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal totalRentalFee = java.math.BigDecimal.ZERO;
+
         BorrowOrderEntity borrowOrder = BorrowOrderEntity.builder()
                 .orderCode(orderCode)
                 .customer(customer)
@@ -118,10 +137,10 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                 .pickupDate(LocalDate.now())
                 .dueDate(request.getDueDate())
                 .status(BorrowOrderStatus.BORROWED)
-                .subtotalFee(java.math.BigDecimal.ZERO)
+                .subtotalFee(totalRentalFee)
                 .discountPercent(java.math.BigDecimal.ZERO)
                 .discountAmount(java.math.BigDecimal.ZERO)
-                .totalFee(java.math.BigDecimal.ZERO)
+                .totalFee(totalRentalFee)
                 .totalDeposit(totalDeposit)
                 .build();
 

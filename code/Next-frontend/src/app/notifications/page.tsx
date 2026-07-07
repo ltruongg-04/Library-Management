@@ -29,16 +29,22 @@ export default function NotificationsPage() {
             <NotificationTabs activeTab={activeTab} onChange={setActiveTab} />
 
             <div>
-                {filteredNotifications.map((notification) => (
-                    <NotificationCard key={notification.id} notification={notification} />
-                ))}
+                {filteredNotifications.length > 0 ? (
+                    filteredNotifications.map((notification) => <NotificationCard key={notification.id} notification={notification} />)
+                ) : (
+                    <div className="rounded-lg border border-ink-200 bg-white px-6 py-10 text-center text-ink-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+                        {NOTIFICATIONS.NO_NOTIFICATIONS}
+                    </div>
+                )}
             </div>
 
-            <div className="mt-8 text-center">
-                <button type="button" className="text-primary-600 dark:text-primary-400 transition-colors hover:underline">
-                    {NOTIFICATIONS.LOAD_MORE}
-                </button>
-            </div>
+            {filteredNotifications.length > 0 && (
+                <div className="mt-8 text-center">
+                    <button type="button" className="text-primary-600 dark:text-primary-400 transition-colors hover:underline">
+                        {NOTIFICATIONS.LOAD_MORE}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

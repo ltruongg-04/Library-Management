@@ -27,6 +27,10 @@ public class AdminBorrowOrderDetailDto {
     private BigDecimal totalDeposit;
     private BigDecimal totalPaidOnline;
     private BigDecimal actualAmountToPay;
+    // Số tiền chênh lệch giữa tổng phí và tiền cọc (luôn dương)
+    private BigDecimal settlementAmount;
+    // COLLECT = thu thêm, REFUND = hoàn lại, SETTLED = hòa
+    private String settlementType;
 
     private String customerName;
     private String customerCode;

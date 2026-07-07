@@ -74,6 +74,12 @@ public class BookReturnServiceImpl implements BookReturnService {
         List<BookCopyEntity> copiesToUpdate = new ArrayList<>();
         List<BookReturnDetailEntity> returnDetails = new ArrayList<>();
 
+        // Tính rental fee thực tế
+        LocalDate feeStartDate = borrowOrder.getBorrowDate() != null ? borrowOrder.getBorrowDate() : borrowOrder.getPickupDate();
+        long actualDays = feeStartDate != null ? java.time.temporal.ChronoUnit.DAYS.between(feeStartDate, LocalDate.now()) : 1;
+        if (actualDays <= 0) actualDays = 1;
+        BigDecimal actualRentalFeePerBook = BigDecimal.valueOf(actualDays * 5000L);
+
         for (BookReturnDetailRequestDto detailReq : requestDto.getDetails()) {
             BookCopyEntity bookCopy = bookCopyRepository.findById(detailReq.getBookCopyId())
                     .orElseThrow(() -> new CustomBusinessException("Book copy not found: " + detailReq.getBookCopyId(),
