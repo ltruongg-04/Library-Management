@@ -1,10 +1,10 @@
 package library.service.impl;
 
-import library.common.exception.CustomBusinessException;
+
 import library.service.EmailService;
 import library.service.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.stereotype.Service;
 
 import java.util.Random;

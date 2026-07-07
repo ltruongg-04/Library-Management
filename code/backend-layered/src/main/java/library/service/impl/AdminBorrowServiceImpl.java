@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,13 +23,13 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
     private final BorrowOrderRepository borrowOrderRepository;
     private final BorrowOrderDetailRepository borrowOrderDetailRepository;
-    private final library.repository.CustomerRepository customerRepository;
-    private final library.repository.BookCopyRepository bookCopyRepository;
     private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
-    private final library.repository.PaymentRepository paymentRepository;
     private final library.service.FeeCalculatorService feeCalculatorService;
     private final SystemLogService systemLogService;
     private final library.mapper.AdminBorrowOrderMapper adminBorrowOrderMapper;
+    
+    // Helpers
+    private final library.service.impl.helper.AdminBorrowHelper adminBorrowHelper;
 
     @Override
     @Transactional(readOnly = true)
@@ -103,47 +103,11 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     @Override
     @Transactional
     public AdminBorrowOrderDto createBorrowOrder(library.dto.admin.AdminCreateBorrowOrderRequest request) {
-        library.entity.CustomerEntity customer = customerRepository.findByLibraryCardNoOrPhone(request.getPhone())
-                .orElseGet(() -> {
-                    if (request.getPhone() == null || request.getPhone().trim().isEmpty()) {
-                        throw new library.common.exception.CustomBusinessException("Phone number is required",
-                                org.springframework.http.HttpStatus.BAD_REQUEST);
-                    }
-                    library.entity.CustomerEntity newCustomer = library.entity.CustomerEntity.builder()
-                            .phone(request.getPhone())
-                            .fullName(request.getFullName() != null && !request.getFullName().trim().isEmpty()
-                                    ? request.getFullName()
-                                    : "Khách vãng lai")
-                            .email(request.getEmail())
-                            .address("Tại quầy")
-                            .build();
-                    return customerRepository.save(newCustomer);
-                });
+        library.entity.CustomerEntity customer = adminBorrowHelper.getOrCreateCustomer(request.getPhone(), request.getFullName(), request.getEmail());
 
-        if (request.getBookBarcodes() == null || request.getBookBarcodes().isEmpty()) {
-            throw new library.common.exception.CustomBusinessException("At least one book barcode is required",
-                    org.springframework.http.HttpStatus.BAD_REQUEST);
-        }
-
-        java.math.BigDecimal totalDeposit = java.math.BigDecimal.ZERO;
-        java.util.List<library.entity.BookCopyEntity> copiesToBorrow = new java.util.ArrayList<>();
-
-        for (String barcode : request.getBookBarcodes()) {
-            library.entity.BookCopyEntity copy = bookCopyRepository.findByBarcode(barcode)
-                    .orElseThrow(() -> new library.common.exception.CustomBusinessException(
-                            "Book copy not found: " + barcode, org.springframework.http.HttpStatus.NOT_FOUND));
-
-            if (copy.getStatus() != library.entity.BookCopyStatus.AVAILABLE) {
-                throw new library.common.exception.CustomBusinessException(
-                        "Book copy is not available: " + barcode + " (Status: " + copy.getStatus() + ")",
-                        org.springframework.http.HttpStatus.BAD_REQUEST);
-            }
-
-            copiesToBorrow.add(copy);
-            if (copy.getBook() != null && copy.getBook().getDepositPrice() != null) {
-                totalDeposit = totalDeposit.add(copy.getBook().getDepositPrice());
-            }
-        }
+        java.math.BigDecimal[] depositRef = new java.math.BigDecimal[1];
+        java.util.List<library.entity.BookCopyEntity> copiesToBorrow = adminBorrowHelper.validateAndGetBookCopies(request.getBookBarcodes(), depositRef);
+        java.math.BigDecimal totalDeposit = depositRef[0];
 
         String orderCode = "BO-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
@@ -163,33 +127,9 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
         BorrowOrderEntity savedOrder = borrowOrderRepository.save(borrowOrder);
 
-        String firstBookTitle = "N/A";
-        String firstBookAuthor = "N/A";
-
-        for (library.entity.BookCopyEntity copy : copiesToBorrow) {
-            copy.setStatus(library.entity.BookCopyStatus.BORROWED);
-            bookCopyRepository.save(copy);
-
-            java.math.BigDecimal depositPrice = copy.getBook() != null && copy.getBook().getDepositPrice() != null
-                    ? copy.getBook().getDepositPrice()
-                    : java.math.BigDecimal.ZERO;
-
-            BorrowOrderDetailEntity detail = BorrowOrderDetailEntity.builder()
-                    .borrowOrder(savedOrder)
-                    .bookCopy(copy)
-                    .rentalFee(java.math.BigDecimal.ZERO)
-                    .depositPrice(depositPrice)
-                    .status(library.entity.BorrowOrderDetailStatus.BORROWING)
-                    .build();
-            borrowOrderDetailRepository.save(detail);
-
-            if (firstBookTitle.equals("N/A") && copy.getBook() != null) {
-                firstBookTitle = copy.getBook().getTitle();
-                if (copy.getBook().getAuthors() != null && !copy.getBook().getAuthors().isEmpty()) {
-                    firstBookAuthor = copy.getBook().getAuthors().iterator().next().getName();
-                }
-            }
-        }
+        String[] bookInfos = adminBorrowHelper.processBookCopiesForOrder(copiesToBorrow, savedOrder);
+        String firstBookTitle = bookInfos[0];
+        String firstBookAuthor = bookInfos[1];
 
         systemLogService.logAction("Tạo đơn mượn", "Admin tạo đơn mượn: " + orderCode + " cho khách: " + customer.getPhone());
 
@@ -247,22 +187,13 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
                 // extensionFee corresponds to the rental fee for the extended days
                 int numberOfBooks = borrowOrderDetailRepository.findByBorrowOrderId(order.getId()).size();
                 java.math.BigDecimal extensionFee = feeCalculatorService.calculateRentalFee(baseDate, extension.getRequestedDueDate(), numberOfBooks);
-                java.math.BigDecimal currentSubtotal = order.getSubtotalFee() != null ? order.getSubtotalFee() : java.math.BigDecimal.ZERO;
-                java.math.BigDecimal currentTotalFee = order.getTotalFee() != null ? order.getTotalFee() : java.math.BigDecimal.ZERO;
-                order.setSubtotalFee(currentSubtotal.add(extensionFee));
-                order.setTotalFee(currentTotalFee.add(extensionFee));
+                order.addExtensionFee(extensionFee);
             }
 
-            order.setDueDate(extension.getRequestedDueDate());
-            order.setStatus(BorrowOrderStatus.BORROWED);
+            order.approveExtension(extension.getRequestedDueDate());
         } else {
             extension.setStatus(library.entity.BorrowExtensionStatus.REJECTED);
-            // Revert status
-            if (order.getDueDate() != null && order.getDueDate().isBefore(LocalDate.now())) {
-                order.setStatus(BorrowOrderStatus.OVERDUE);
-            } else {
-                order.setStatus(BorrowOrderStatus.BORROWED);
-            }
+            order.rejectExtensionRevertStatus();
         }
 
         borrowExtensionRepository.save(extension);
