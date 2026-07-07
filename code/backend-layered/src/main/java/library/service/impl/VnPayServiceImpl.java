@@ -26,7 +26,7 @@ public class VnPayServiceImpl implements VnPayService {
     private static final int VND_MULTIPLIER = 100;
     private static final int PAYMENT_TIMEOUT_MINUTES = 15;
     private static final String DATE_FORMAT = "yyyyMMddHHmmss";
-    private static final String RESPONSE_CODE_SUCCESS = "00";
+
 
     private final VnPayConfig vnPayConfig;
 

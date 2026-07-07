@@ -7,21 +7,19 @@ import library.entity.*;
 import library.repository.BorrowExtensionRepository;
 import library.repository.PaymentRepository;
 import library.service.FeeCalculatorService;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
-public abstract class BorrowOrderMapper {
+
+@Component
+public class BorrowOrderMapper {
 
     @Autowired
     protected PaymentRepository paymentRepository;
@@ -95,7 +93,7 @@ public abstract class BorrowOrderMapper {
         if (order == null) return null;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd 'Tháng' MM, yyyy");
-        java.text.NumberFormat currencyFormatter = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+        java.text.NumberFormat currencyFormatter = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.of("vi", "VN"));
 
         String borrowDateStr = order.getBorrowDate() != null ? order.getBorrowDate().format(formatter)
                 : (order.getCreatedAt() != null ? order.getCreatedAt().toLocalDate().format(formatter) : "");
@@ -175,7 +173,7 @@ public abstract class BorrowOrderMapper {
         if (order == null) return null;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd 'Tháng' MM, yyyy");
-        java.text.NumberFormat currencyFormatter = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+        java.text.NumberFormat currencyFormatter = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.of("vi", "VN"));
 
         String title = "Unknown";
         String author = "Unknown Author";

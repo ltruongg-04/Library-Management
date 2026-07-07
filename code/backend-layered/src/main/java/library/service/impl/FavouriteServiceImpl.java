@@ -1,12 +1,11 @@
 package library.service.impl;
 
 import library.common.exception.CustomBusinessException;
-import library.dto.response.AuthorResponse;
+
 import library.dto.response.BookListResponse;
-import library.dto.response.CategoryResponse;
-import library.entity.AuthorEntity;
+
 import library.entity.BookEntity;
-import library.entity.CategoryEntity;
+
 import library.entity.CustomerEntity;
 import library.entity.FavouriteEntity;
 import library.entity.FavouriteId;
@@ -21,9 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
