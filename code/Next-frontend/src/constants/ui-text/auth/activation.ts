@@ -1,0 +1,16 @@
+export const ACTIVATION = {
+    HEADING: "Kích hoạt tài khoản",
+    SUBHEADING: "Nhập mã kích hoạt trong email để mở quyền đăng nhập.",
+    TOKEN_LABEL: "Mã kích hoạt",
+    TOKEN_PLACEHOLDER: "Dán mã kích hoạt",
+    EMAIL_LABEL: "Email",
+    EMAIL_PLACEHOLDER: "Email đã đăng ký",
+    ACTIVATE_BTN: "Kích hoạt",
+    ACTIVATING_BTN: "Đang kích hoạt...",
+    RESEND_BTN: "Gửi lại mã",
+    RESENDING_BTN: "Đang gửi...",
+    SUCCESS_MSG: "Tài khoản đã được kích hoạt. Bạn có thể đăng nhập.",
+    RESEND_SUCCESS_MSG: "Mã kích hoạt mới đã được gửi tới email của bạn.",
+    ERROR_MSG: "Không thể kích hoạt tài khoản. Vui lòng thử lại.",
+    BACK_TO_LOGIN: "Quay lại đăng nhập",
+};

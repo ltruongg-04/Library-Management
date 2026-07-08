@@ -1,18 +1,13 @@
 export interface Notification {
-  id: number;
+    id: number;
 
-  title: string;
+    title: string;
 
-  message: string;
+    message: string;
 
-  type:
-    | "SYSTEM"
-    | "AI_INSIGHT"
-    | "BORROW"
-    | "RETURN"
-    | "OVERDUE";
+    type: "SYSTEM" | "AUTH" | "AI_INSIGHT" | "BORROW" | "RESERVATION" | "RETURN" | "OVERDUE" | string;
 
-  isRead: boolean;
+    isRead: boolean;
 
-  time: string;
+    time: string;
 }

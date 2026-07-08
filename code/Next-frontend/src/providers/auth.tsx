@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                       email: session.user.email ?? "",
                       fullName: session.user.name ?? "",
                       phone: session.user.phone ?? null,
-                      role: session.user.role ?? "USER",
+                      role: session.user.role ?? "CUSTOMER",
                       image: session.user.image ?? undefined,
                       authProvider: session.user.authProvider,
                   }
@@ -85,15 +85,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLoading(true);
         try {
             await authService.register({ fullName, email, password, phone });
-            // Sau khi đăng ký thành công, đăng nhập ngay bằng credentials provider
-            const signInResult = await signIn("credentials", {
-                redirect: false,
-                email,
-                password,
-            });
-            if (signInResult?.error) {
-                throw new Error("Không thể tự động đăng nhập sau khi đăng ký");
-            }
         } finally {
             setIsLoading(false);
         }

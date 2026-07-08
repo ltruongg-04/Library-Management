@@ -20,8 +20,18 @@ interface ApiResponse<T> {
     timestamp: string;
 }
 
-export const getAdminBorrowOrders = async (): Promise<ApiResponse<AdminBorrowResponse[]>> => {
-    const response = await axiosInstance.get<ApiResponse<AdminBorrowResponse[]>>("/api/admin/borrows");
+export interface AdminBorrowFilters {
+    status?: string;
+    customerType?: "ALL" | "GUEST" | "CUSTOMER";
+    keyword?: string;
+    page?: number;
+    size?: number;
+}
+
+export const getAdminBorrowOrders = async (filters: AdminBorrowFilters = {}): Promise<ApiResponse<AdminBorrowResponse[]>> => {
+    const response = await axiosInstance.get<ApiResponse<AdminBorrowResponse[]>>("/api/admin/borrows", {
+        params: filters,
+    });
     return response.data;
 };
 
@@ -29,6 +39,21 @@ export const updateAdminBorrowStatus = async (orderCode: string, status: string)
     const response = await axiosInstance.put<ApiResponse<void>>(`/api/admin/borrows/${orderCode}/status`, null, {
         params: { status },
     });
+    return response.data;
+};
+
+export const approveAdminBorrow = async (orderCode: string): Promise<ApiResponse<void>> => {
+    const response = await axiosInstance.put<ApiResponse<void>>(`/api/admin/borrows/${orderCode}/approve`);
+    return response.data;
+};
+
+export const rejectAdminBorrow = async (orderCode: string, reason: string): Promise<ApiResponse<void>> => {
+    const response = await axiosInstance.put<ApiResponse<void>>(`/api/admin/borrows/${orderCode}/reject`, { reason });
+    return response.data;
+};
+
+export const confirmAdminBorrowPickup = async (orderCode: string): Promise<ApiResponse<void>> => {
+    const response = await axiosInstance.put<ApiResponse<void>>(`/api/admin/borrows/${orderCode}/pickup`);
     return response.data;
 };
 
