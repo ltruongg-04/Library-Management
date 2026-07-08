@@ -17,6 +17,9 @@ export interface DashboardStats {
     totalCustomers: number;
     totalBorrowOrders: number;
     recentActivities: RecentActivity[];
+    categories: Array<{ label: string; value: number }>;
+    borrowedBooks: Array<{ title: string; author: string; borrows: number; status: string }>;
+    monthlyTrends: Array<{ month: string; borrowed: number; returned: number; overdue: number }>;
 }
 
 export const adminDashboardService = {

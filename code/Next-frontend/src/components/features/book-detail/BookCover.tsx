@@ -11,12 +11,14 @@ import { useAuth } from "@/providers/auth";
 import { favoriteService } from "@/services/favorite";
 import { reservationService } from "@/services/reservation";
 import type { BookDetail } from "@/types/book";
+import LoginPromptModal from "./LoginPromptModal";
 
 interface BookCoverProps {
     book: BookDetail;
+    onOpenReview: () => void;
 }
 
-export default function BookCover({ book }: BookCoverProps) {
+export default function BookCover({ book, onOpenReview }: BookCoverProps) {
     const router = useRouter();
     const { isAuthenticated } = useAuth();
     const isAvailable = book.availableCount > 0;
@@ -26,6 +28,7 @@ export default function BookCover({ book }: BookCoverProps) {
     const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
     const [isReserving, setIsReserving] = useState(false);
     const [userReservationId, setUserReservationId] = useState<number | null>(null);
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
     useEffect(() => {
         const checkFavoriteStatus = async () => {
@@ -63,7 +66,7 @@ export default function BookCover({ book }: BookCoverProps) {
 
     const handleToggleFavorite = async () => {
         if (!isAuthenticated) {
-            router.push("/login");
+            setShowLoginPrompt(true);
             return;
         }
 
@@ -88,7 +91,7 @@ export default function BookCover({ book }: BookCoverProps) {
 
     const handleReserve = async () => {
         if (!isAuthenticated) {
-            router.push("/login");
+            setShowLoginPrompt(true);
             return;
         }
 
@@ -119,6 +122,23 @@ export default function BookCover({ book }: BookCoverProps) {
             toast.error(msg);
         } finally {
             setIsReserving(false);
+        }
+    };
+
+    const handleOpenReview = () => {
+        if (!isAuthenticated) {
+            setShowLoginPrompt(true);
+            return;
+        }
+
+        onOpenReview();
+    };
+
+    const handleProtectedAction = (action: () => void) => {
+        if (!isAuthenticated) {
+            setShowLoginPrompt(true);
+        } else {
+            action();
         }
     };
 
@@ -158,7 +178,7 @@ export default function BookCover({ book }: BookCoverProps) {
             <div className="mt-2 flex flex-col gap-2">
                 {isAvailable ? (
                     <button
-                        onClick={() => router.push(`/sach/${book.id}/muon`)}
+                        onClick={() => handleProtectedAction(() => router.push(`/sach/${book.id}/muon`))}
                         className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-label-caps text-label-caps text-on-primary shadow-sm transition-colors duration-200 hover:bg-on-primary-fixed-variant active:scale-95 dark:bg-primary-500"
                     >
                         <MaterialIcon name="book" />
@@ -193,13 +213,23 @@ export default function BookCover({ book }: BookCoverProps) {
                 </button>
                 <button
                     type="button"
-                    onClick={() => router.push(`/sach/${book.id}/doc-tai-thu-vien`)}
+                    onClick={() => handleProtectedAction(() => router.push(`/sach/${book.id}/doc-tai-thu-vien`))}
                     className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-secondary bg-transparent px-4 py-2 font-label-caps text-label-caps text-secondary transition-colors duration-200 hover:bg-secondary/10 active:scale-95 dark:border-white dark:text-white dark:hover:bg-white/10"
                 >
                     <MaterialIcon name="local_library" />
                     {UI_TEXT.BOOK_DETAIL.READ_AT_LIBRARY}
                 </button>
+                <button
+                    type="button"
+                    onClick={handleOpenReview}
+                    className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-primary bg-transparent px-4 py-2 font-label-caps text-label-caps text-primary transition-colors duration-200 hover:bg-primary/10 active:scale-95 dark:border-primary-300 dark:text-primary-100 dark:hover:bg-primary-900/30"
+                >
+                    <MaterialIcon name="rate_review" />
+                    {UI_TEXT.BOOK_DETAIL.REVIEW_BOOK}
+                </button>
             </div>
+
+            <LoginPromptModal open={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
         </div>
     );
 }

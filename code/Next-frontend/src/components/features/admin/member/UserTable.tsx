@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { BookOpen, ChevronLeft, ChevronRight, Edit2, Lock, ShieldAlert, Unlock, User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,6 +29,20 @@ export default function UserTable({
     onEditUser?: (user: User) => void;
     onToggleStatus?: (id: number, isActive: boolean) => Promise<void>;
 }) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [users]);
+
+    const totalItems = users.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+    const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    const endItem = Math.min(currentPage * pageSize, totalItems);
+
+    const currentUsers = users.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
     const renderRoleBadge = (role: User["role"]) => {
         if (role === "admin") {
             return (
@@ -122,10 +137,10 @@ export default function UserTable({
                     ))
                 ) : error ? (
                     <div className="flex flex-1 items-center justify-center p-8 text-error">{error}</div>
-                ) : users.length === 0 ? (
+                ) : currentUsers.length === 0 ? (
                     <div className="flex flex-1 items-center justify-center p-8 text-outline-variant">{UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.EMPTY_STATE}</div>
                 ) : (
-                    users.map((u) => {
+                    currentUsers.map((u) => {
                         const isLocked = u.status === "locked";
                         return (
                             <div
@@ -212,28 +227,49 @@ export default function UserTable({
 
             {/* Pagination Footer */}
             <div className="mt-auto flex items-center justify-between border-t border-outline-variant/30 bg-surface-container-lowest p-sm px-md">
-                <span className="font-body-sm text-body-sm text-on-surface-variant">{UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION_INFO}</span>
+                <span className="font-body-sm text-body-sm text-on-surface-variant">
+                    {UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION.SHOWING} {startItem}
+                    {UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION.TO}
+                    {endItem} {UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION.OF} {totalItems} {UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION.ITEMS}
+                </span>
                 <div className="flex items-center gap-1">
                     <button
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-variant disabled:cursor-not-allowed disabled:opacity-30"
-                        disabled
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     >
                         <ChevronLeft size={20} />
                     </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-container text-[14px] font-semibold text-on-primary-container">
-                        1
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg font-body-sm text-body-sm text-on-surface transition-colors hover:bg-surface-variant">
-                        2
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg font-body-sm text-body-sm text-on-surface transition-colors hover:bg-surface-variant">
-                        3
-                    </button>
-                    <span className="px-1 text-on-surface-variant">...</span>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg font-body-sm text-body-sm text-on-surface transition-colors hover:bg-surface-variant">
-                        12
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-variant">
+                    {Array.from({ length: totalPages }).map((_, i) => {
+                        const page = i + 1;
+                        if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                            return (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                                        currentPage === page
+                                            ? "bg-primary-container text-[14px] font-semibold text-on-primary-container"
+                                            : "font-body-sm text-body-sm text-on-surface transition-colors hover:bg-surface-variant"
+                                    }`}
+                                >
+                                    {page}
+                                </button>
+                            );
+                        } else if (page === currentPage - 2 || page === currentPage + 2) {
+                            return (
+                                <span key={page} className="px-1 text-on-surface-variant">
+                                    ...
+                                </span>
+                            );
+                        }
+                        return null;
+                    })}
+                    <button
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-variant disabled:cursor-not-allowed disabled:opacity-30"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    >
                         <ChevronRight size={20} />
                     </button>
                 </div>

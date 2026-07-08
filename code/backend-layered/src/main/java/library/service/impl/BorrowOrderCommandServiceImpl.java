@@ -42,6 +42,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
 
     private final SystemLogService systemLogService;
     private final library.service.EmailService emailService;
+    private final library.service.FeeCalculatorService feeCalculatorService;
 
 
     // Helpers
@@ -66,8 +67,8 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
                 .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
 
         // 2. Validate dates and calculate fee
-        long borrowDays = validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
-        BigDecimal rentalFee = BigDecimal.valueOf(borrowDays * 5000L);
+        validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
+        BigDecimal rentalFee = feeCalculatorService.calculateRentalFee(request.getPickupDate(), request.getReturnDate(), 1);
 
         // 3. Validate book availability and reserve a copy
         BookCopyEntity availableCopy = reserveBookCopy(book.getId(), customer);
@@ -94,6 +95,12 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
                 .orElseThrow(() -> new CustomBusinessException("Borrow order not found", HttpStatus.NOT_FOUND));
 
         validationHelper.validateRenewalConditions(order);
+        int maxBorrowDays = feeCalculatorService.getActivePolicy().getMaxBorrowDays() != null
+                ? feeCalculatorService.getActivePolicy().getMaxBorrowDays()
+                : 14;
+        if (request.getDurationInDays() > maxBorrowDays) {
+            throw new CustomBusinessException("Thời gian gia hạn không được vượt quá " + maxBorrowDays + " ngày", HttpStatus.BAD_REQUEST);
+        }
 
         // Determine base date for extension and calculate overdue penalty
         LocalDate baseDate = order.getDueDate();
@@ -108,7 +115,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         // Create extension
         createBorrowExtension(order, baseDate.plusDays(request.getDurationInDays()));
 
-        BigDecimal overdueFee = overdueDaysForPenalty > 0 ? new BigDecimal("10000").multiply(new BigDecimal(overdueDaysForPenalty)) : BigDecimal.ZERO;
+        BigDecimal overdueFee = overdueDaysForPenalty > 0 ? feeCalculatorService.calculateOverdueFee(order.getDueDate(), LocalDate.now()) : BigDecimal.ZERO;
         
         BigDecimal totalPaidOnline = paymentRepository.findByBorrowOrderIdAndPaymentStatus(order.getId(), PaymentStatus.SUCCESS)
                 .stream()
@@ -167,8 +174,8 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
                 .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
 
         // Validate dates
-        long borrowDays = validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
-        BigDecimal rentalFee = BigDecimal.valueOf(borrowDays * 5000L);
+        validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
+        BigDecimal rentalFee = feeCalculatorService.calculateRentalFee(request.getPickupDate(), request.getReturnDate(), 1);
 
         // Validate book availability and get a copy
         BookCopyEntity availableCopy = reserveBookCopy(book.getId(), customer);

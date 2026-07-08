@@ -14,7 +14,7 @@ public class AdminReviewController {
     private final ReviewService reviewService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<org.springframework.data.domain.Page<library.dto.response.AdminReviewResponse>> getAllReviews(
             @RequestParam(required = false) library.entity.ReviewStatus status,
             @RequestParam(required = false) String search,
@@ -23,7 +23,7 @@ public class AdminReviewController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<Void> updateReviewStatus(
             @PathVariable Integer id,
             @RequestParam library.entity.ReviewStatus status,
@@ -33,14 +33,14 @@ public class AdminReviewController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<Void> deleteReview(@PathVariable Integer id) {
         reviewService.deleteReview(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/summary")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<library.dto.response.ReviewSummaryResponse> getReviewSummary() {
         return ResponseEntity.ok(reviewService.getReviewSummary());
     }

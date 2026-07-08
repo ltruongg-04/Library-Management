@@ -3,15 +3,25 @@
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { AUTH } from "@/constants/ui-text/auth";
 import { useAuth } from "@/providers/auth";
-import { isAdminRole } from "@/utils/role";
+import { isStaffOrAdmin, isSuperAdmin } from "@/utils/role";
 
 export function AdminGuard({ children }: { children: ReactNode }) {
     const { user, isLoading, isAuthenticated } = useAuth();
     const router = useRouter();
-    const canViewAdmin = isAuthenticated && isAdminRole(user?.role);
+    const params = useParams();
+    const portal = (params?.portal as string) || "admin";
+
+    let canViewAdmin = false;
+    if (isAuthenticated) {
+        if (portal === "admin") {
+            canViewAdmin = isSuperAdmin(user?.role);
+        } else if (portal === "staff") {
+            canViewAdmin = isStaffOrAdmin(user?.role);
+        }
+    }
 
     useEffect(() => {
         // Chỉ kiểm tra khi đã load xong trạng thái auth

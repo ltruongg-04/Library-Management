@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { BookOpen, ChevronLeft, ChevronRight, Edit2, Lock, ShieldAlert, Unlock, User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -23,6 +24,20 @@ export default function UserTable({
     onEditUser?: (user: User) => void;
     onToggleStatus?: (id: number, isActive: boolean) => void;
 }) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [users]);
+
+    const totalItems = users.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+    const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    const endItem = Math.min(currentPage * pageSize, totalItems);
+
+    const currentUsers = users.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
     const renderRoleBadge = (role: User["role"]) => {
         if (role === "admin") {
             return (
@@ -87,112 +102,139 @@ export default function UserTable({
 
             {/* Table Body */}
             <div className="flex min-h-[400px] flex-col overflow-y-auto">
-                {users.map((u) => {
-                    const isLocked = u.status === "locked";
-                    return (
-                        <div
-                            key={u.id}
-                            className={`group grid grid-cols-12 items-center gap-4 border-b border-surface-variant p-md transition-colors ${isLocked ? "bg-surface-container-low/20 hover:bg-surface-container-low/50" : "hover:bg-surface-container-low/50"}`}
-                        >
-                            {/* User Details */}
-                            <div className={`col-span-12 flex items-center gap-3 sm:col-span-4 md:col-span-3 lg:col-span-3 ${isLocked ? "opacity-60" : ""}`}>
-                                {u.avatarUrl ? (
-                                    <Image
-                                        src={u.avatarUrl}
-                                        alt={u.name}
-                                        className={`h-10 w-10 rounded-full border border-outline-variant/50 object-cover ${isLocked ? "grayscale" : ""}`}
-                                    />
-                                ) : (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-container text-[14px] font-semibold text-on-tertiary-container">
-                                        {u.name.substring(0, 2).toUpperCase()}
+                {currentUsers.length === 0 ? (
+                    <div className="flex flex-1 items-center justify-center p-8 text-outline-variant">{UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.EMPTY_STATE}</div>
+                ) : (
+                    currentUsers.map((u) => {
+                        const isLocked = u.status === "locked";
+                        return (
+                            <div
+                                key={u.id}
+                                className={`group grid grid-cols-12 items-center gap-4 border-b border-surface-variant p-md transition-colors ${isLocked ? "bg-surface-container-low/20 hover:bg-surface-container-low/50" : "hover:bg-surface-container-low/50"}`}
+                            >
+                                {/* User Details */}
+                                <div
+                                    className={`col-span-12 flex items-center gap-3 sm:col-span-4 md:col-span-3 lg:col-span-3 ${isLocked ? "opacity-60" : ""}`}
+                                >
+                                    {u.avatarUrl ? (
+                                        <Image
+                                            src={u.avatarUrl}
+                                            alt={u.name}
+                                            className={`h-10 w-10 rounded-full border border-outline-variant/50 object-cover ${isLocked ? "grayscale" : ""}`}
+                                        />
+                                    ) : (
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-container text-[14px] font-semibold text-on-tertiary-container">
+                                            {u.name.substring(0, 2).toUpperCase()}
+                                        </div>
+                                    )}
+                                    <div className="flex flex-col">
+                                        <span className={`text-[15px] font-semibold text-on-background ${isLocked ? "line-through decoration-error/50" : ""}`}>
+                                            {u.name}
+                                        </span>
+                                        <span className="font-body-sm text-body-sm text-on-surface-variant sm:hidden">{u.email}</span>
                                     </div>
-                                )}
-                                <div className="flex flex-col">
-                                    <span className={`text-[15px] font-semibold text-on-background ${isLocked ? "line-through decoration-error/50" : ""}`}>
-                                        {u.name}
-                                    </span>
-                                    <span className="font-body-sm text-body-sm text-on-surface-variant sm:hidden">{u.email}</span>
+                                </div>
+
+                                {/* Email (Desktop) */}
+                                <div
+                                    className={`col-span-8 hidden items-center truncate font-body-sm text-body-sm text-on-surface sm:flex md:col-span-4 lg:col-span-3 ${isLocked ? "text-on-surface-variant opacity-60" : ""}`}
+                                >
+                                    {u.email}
+                                </div>
+
+                                {/* Role */}
+                                <div className={`col-span-12 flex items-center gap-2 sm:col-span-4 md:col-span-2 ${isLocked ? "opacity-60" : ""}`}>
+                                    {renderRoleBadge(u.role)}
+                                </div>
+
+                                {/* Status */}
+                                <div className="col-span-6 hidden items-center lg:col-span-2 lg:flex">{renderStatusBadge(u.status)}</div>
+
+                                {/* Last Login */}
+                                <div
+                                    className={`col-span-6 hidden items-center justify-end font-body-sm text-body-sm text-on-surface-variant lg:col-span-1 lg:flex ${isLocked ? "opacity-60" : ""}`}
+                                >
+                                    {u.lastLogin}
+                                </div>
+
+                                {/* Actions */}
+                                <div className="col-span-12 flex items-center justify-end gap-2 opacity-100 transition-opacity group-hover:opacity-100 sm:col-span-4 md:col-span-3 lg:col-span-1 lg:opacity-0">
+                                    <button
+                                        className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-secondary"
+                                        title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_EDIT}
+                                        onClick={() => onEditUser?.(u)}
+                                    >
+                                        <Edit2 size={20} />
+                                    </button>
+                                    {isLocked ? (
+                                        <button
+                                            className="flex items-center rounded-lg p-2 text-error transition-colors hover:bg-error hover:text-on-error"
+                                            title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_UNLOCK}
+                                            onClick={() => onToggleStatus?.(u.id, true)}
+                                        >
+                                            <Unlock size={20} />
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-error-container/50 hover:text-error"
+                                            title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_LOCK}
+                                            onClick={() => onToggleStatus?.(u.id, false)}
+                                        >
+                                            <Lock size={20} />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
-
-                            {/* Email (Desktop) */}
-                            <div
-                                className={`col-span-8 hidden items-center truncate font-body-sm text-body-sm text-on-surface sm:flex md:col-span-4 lg:col-span-3 ${isLocked ? "text-on-surface-variant opacity-60" : ""}`}
-                            >
-                                {u.email}
-                            </div>
-
-                            {/* Role */}
-                            <div className={`col-span-12 flex items-center gap-2 sm:col-span-4 md:col-span-2 ${isLocked ? "opacity-60" : ""}`}>
-                                {renderRoleBadge(u.role)}
-                            </div>
-
-                            {/* Status */}
-                            <div className="col-span-6 hidden items-center lg:col-span-2 lg:flex">{renderStatusBadge(u.status)}</div>
-
-                            {/* Last Login */}
-                            <div
-                                className={`col-span-6 hidden items-center justify-end font-body-sm text-body-sm text-on-surface-variant lg:col-span-1 lg:flex ${isLocked ? "opacity-60" : ""}`}
-                            >
-                                {u.lastLogin}
-                            </div>
-
-                            {/* Actions */}
-                            <div className="col-span-12 flex items-center justify-end gap-2 opacity-100 transition-opacity group-hover:opacity-100 sm:col-span-4 md:col-span-3 lg:col-span-1 lg:opacity-0">
-                                <button
-                                    className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-surface-variant hover:text-secondary"
-                                    title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_EDIT}
-                                    onClick={() => onEditUser?.(u)}
-                                >
-                                    <Edit2 size={20} />
-                                </button>
-                                {isLocked ? (
-                                    <button
-                                        className="flex items-center rounded-lg p-2 text-error transition-colors hover:bg-error hover:text-on-error"
-                                        title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_UNLOCK}
-                                        onClick={() => onToggleStatus?.(u.id, true)}
-                                    >
-                                        <Unlock size={20} />
-                                    </button>
-                                ) : (
-                                    <button
-                                        className="rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-error-container/50 hover:text-error"
-                                        title={UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.BTN_LOCK}
-                                        onClick={() => onToggleStatus?.(u.id, false)}
-                                    >
-                                        <Lock size={20} />
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })
+                )}
             </div>
 
             {/* Pagination Footer */}
             <div className="mt-auto flex items-center justify-between border-t border-outline-variant/30 bg-surface-container-lowest p-sm px-md">
-                <span className="font-body-sm text-body-sm text-on-surface-variant">{UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION_INFO}</span>
+                <span className="font-body-sm text-body-sm text-on-surface-variant">
+                    {UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION.SHOWING} {startItem}
+                    {UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION.TO}
+                    {endItem} {UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION.OF} {totalItems} {UI_TEXT.ADMIN_USER_MANAGEMENT.TABLE.PAGINATION.ITEMS}
+                </span>
                 <div className="flex items-center gap-1">
                     <button
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-variant disabled:cursor-not-allowed disabled:opacity-30"
-                        disabled
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     >
                         <ChevronLeft size={20} />
                     </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-container text-[14px] font-semibold text-on-primary-container">
-                        1
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg font-body-sm text-body-sm text-on-surface transition-colors hover:bg-surface-variant">
-                        2
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg font-body-sm text-body-sm text-on-surface transition-colors hover:bg-surface-variant">
-                        3
-                    </button>
-                    <span className="px-1 text-on-surface-variant">...</span>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg font-body-sm text-body-sm text-on-surface transition-colors hover:bg-surface-variant">
-                        12
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-variant">
+                    {Array.from({ length: totalPages }).map((_, i) => {
+                        const page = i + 1;
+                        if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                            return (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                                        currentPage === page
+                                            ? "bg-primary-container text-[14px] font-semibold text-on-primary-container"
+                                            : "font-body-sm text-body-sm text-on-surface transition-colors hover:bg-surface-variant"
+                                    }`}
+                                >
+                                    {page}
+                                </button>
+                            );
+                        } else if (page === currentPage - 2 || page === currentPage + 2) {
+                            return (
+                                <span key={page} className="px-1 text-on-surface-variant">
+                                    ...
+                                </span>
+                            );
+                        }
+                        return null;
+                    })}
+                    <button
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-variant disabled:cursor-not-allowed disabled:opacity-30"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    >
                         <ChevronRight size={20} />
                     </button>
                 </div>

@@ -82,7 +82,7 @@ function formatStatusLabel(label: string, value: number) {
 }
 
 export function BorrowingTrend({ trend, controls }: { trend: TrendData; controls: ReactNode }) {
-    const maxValue = Math.max(...trend.borrowed, ...trend.returned, ...trend.overdue);
+    const maxValue = Math.max(1, ...trend.borrowed, ...trend.returned, ...trend.overdue);
     const hasSinglePoint = trend.labels.length === 1;
     const borrowedDots = trendCoordinates(trend.borrowed, maxValue);
     const returnedDots = trendCoordinates(trend.returned, maxValue);

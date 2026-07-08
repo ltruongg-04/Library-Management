@@ -18,13 +18,13 @@ public class AdminBookVisitController {
     private final BookVisitService bookVisitService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<Page<BookVisitResponse>> getAllVisits(Pageable pageable) {
         return ResponseEntity.ok(bookVisitService.getAllVisits(pageable));
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<BookVisitResponse> updateStatus(
             @PathVariable Integer id,
             @RequestBody BookVisitStatusRequest request) {
