@@ -29,7 +29,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
 
-    @Value("${FRONTEND_URL:http://localhost:3000}")
+    @Value("${FRONTEND_URL:https://library-management-lovat-theta.vercel.app}")
     private String frontendUrl;
 
     @Value("${CORS_ALLOWED_ORIGIN_PATTERNS:}")
@@ -81,7 +81,9 @@ public class SecurityConfig {
     }
 
     private List<String> buildAllowedOriginPatterns() {
-        List<String> origins = new ArrayList<>(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
+        List<String> origins = new ArrayList<>(List.of(
+                "https://library-management-lovat-theta.vercel.app",
+                "https://*.vercel.app"));
 
         if (frontendUrl != null && !frontendUrl.isBlank()) {
             origins.add(frontendUrl.trim());
