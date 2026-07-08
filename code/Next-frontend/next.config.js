@@ -2,18 +2,19 @@
 const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
+    output: "standalone",
     // 🔄 Proxy API requests to backend to avoid CORS issues during development
     async rewrites() {
         return [
             // Proxy backend auth endpoints (login, register, google) — nhưng KHÔNG proxy NextAuth routes
             {
                 source: "/api/auth/:slug(login|register|google|forgot-password|verify-otp|reset-password|change-password)",
-                destination: "http://127.0.0.1:8081/api/auth/:slug",
+                destination: `${process.env.BACKEND_INTERNAL_URL || "http://127.0.0.1:8081"}/api/auth/:slug`,
             },
             // Proxy tất cả API khác (không phải /api/auth/*)
             {
                 source: "/api/:path((?!auth(?:/|$)).*)",
-                destination: "http://127.0.0.1:8081/api/:path*",
+                destination: `${process.env.BACKEND_INTERNAL_URL || "http://127.0.0.1:8081"}/api/:path*`,
             },
         ];
     },
