@@ -17,14 +17,16 @@ type ReviewFilterBarProps = {
 export default function ReviewFilterBar({ activeFilter, onFilterChange, filterCounts, searchQuery, onSearchChange }: ReviewFilterBarProps) {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const activeOption = filterOptions.find((option) => option.key === activeFilter) ?? filterOptions[0];
-    const getOptionCount = (filter: ReviewFilter) => filterCounts[filter] ?? "0";
-    const renderOptionLabel = (option: (typeof filterOptions)[number]) => (
-        <>
-            <span>{option.label}</span>
-            {option.rating ? <Star size={14} strokeWidth={1.8} className="fill-warning-500 text-warning-500" /> : null}
-            <span>({getOptionCount(option.key)})</span>
-        </>
-    );
+    const renderOptionLabel = (option: (typeof filterOptions)[number]) => {
+        const count = filterCounts[option.key];
+        return (
+            <>
+                <span>{option.label}</span>
+                {option.rating ? <Star size={14} strokeWidth={1.8} className="fill-warning-500 text-warning-500" /> : null}
+                {count ? <span>({count})</span> : null}
+            </>
+        );
+    };
 
     return (
         <div className="mb-lg flex w-full flex-col gap-md rounded-lg border border-outline-variant/20 bg-surface-container-lowest p-md shadow-sm dark:border-slate-800 dark:bg-slate-950 sm:flex-row sm:items-center sm:justify-between">

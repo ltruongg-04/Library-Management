@@ -17,4 +17,5 @@ public class BookVisitRequest {
     private Integer bookId;
     private String bookTitle;
     private String confirmationCode;
+    private String captchaToken;
 }

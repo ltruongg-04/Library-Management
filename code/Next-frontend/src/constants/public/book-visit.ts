@@ -9,6 +9,7 @@ export const INITIAL_VISIT_FORM_STATE: VisitFormState = {
     visitMinute: "",
     visitPeriod: "",
     purpose: "",
+    captchaToken: "",
 };
 
 export const VISIT_TIME_STEP_MINUTES = 30;

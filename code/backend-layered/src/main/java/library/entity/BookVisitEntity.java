@@ -23,6 +23,10 @@ public class BookVisitEntity {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
     private BookEntity book;
 
@@ -50,6 +54,9 @@ public class BookVisitEntity {
     @Column(name = "status", length = 20)
     @Builder.Default
     private String status = "PENDING";
+
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
 
     @Column(name = "is_reminded")
     @Builder.Default

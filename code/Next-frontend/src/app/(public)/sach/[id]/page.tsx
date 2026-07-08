@@ -9,7 +9,6 @@ import RelatedBooks from "@/components/features/book-detail/RelatedBooks";
 import ReviewSection from "@/components/features/book-detail/review/ReviewSection";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
-import { useBookReviews } from "@/hooks/useBookReviews";
 import { useBookDetail, useRelatedBooks } from "@/hooks/useBooks";
 import { bookToBookDetail } from "@/types/book";
 import type { RelatedBook } from "@/types/book";
@@ -18,10 +17,8 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     const bookId = parseInt(params.id, 10);
     const { book, loading, error } = useBookDetail(isNaN(bookId) ? null : bookId);
     const { books: relatedBooksData } = useRelatedBooks(bookId, book?.categories?.[0]?.id?.toString(), 4);
-    const { reviews, loading: reviewsLoading } = useBookReviews(bookId);
-
     // Loading state
-    if (loading || reviewsLoading) {
+    if (loading) {
         return (
             <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
                 <div className="py-4">
@@ -87,7 +84,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                     <BookInfo book={bookDetail} />
                 </div>
             </div>
-            <ReviewSection initialReviews={reviews} loading={reviewsLoading} />
+            <ReviewSection bookId={bookId} />
 
             {/* Related Books Section */}
             {relatedBooks.length > 0 && <RelatedBooks books={relatedBooks} categoryId={book?.categories?.[0]?.id?.toString()} />}

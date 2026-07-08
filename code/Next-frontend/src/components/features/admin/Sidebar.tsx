@@ -3,6 +3,7 @@
 import {
     BarChart3,
     BookOpen,
+    Calendar,
     CircleHelp,
     ClipboardList,
     Feather,
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
     { label: SIDEBAR.NAV_CATEGORIES, icon: Tags, href: "/admin/the-loai" },
     { label: SIDEBAR.NAV_AUTHORS, icon: Feather, href: "/admin/tac-gia" },
     { label: SIDEBAR.NAV_BORROWS, icon: ClipboardList, href: "/admin/luot-muon" },
+    { label: SIDEBAR.NAV_VISITS, icon: Calendar, href: "/admin/lich-hen" },
     { label: SIDEBAR.NAV_REVIEWS, icon: MessageSquare, href: "/admin/danh-gia" },
     { label: SIDEBAR.NAV_MEMBERS, icon: Users, href: "/admin/thanh-vien" },
     { label: SIDEBAR.NAV_ROLES, icon: ShieldCheck, href: "/admin/vai-tro" },

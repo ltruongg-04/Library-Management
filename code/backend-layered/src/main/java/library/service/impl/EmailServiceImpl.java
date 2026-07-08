@@ -304,4 +304,69 @@ public class EmailServiceImpl implements EmailService {
             log.error("Failed to send book visit reminder email to {}", toEmail, e);
         }
     }
+
+    @Override
+    @Async
+    public void sendWelcomeEmail(String toEmail, String fullName, String rawPassword) {
+        if (this.resend == null) {
+            log.warn("Resend API key is not configured. Email will not be sent to {}", toEmail);
+            return;
+        }
+
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        context.setVariable("email", toEmail);
+        context.setVariable("password", rawPassword);
+        
+        String htmlContent = templateEngine.process("email/welcome-user", context);
+
+        try {
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Chào mừng bạn đến với Thư viện Lumina")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Welcome email sent successfully to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send welcome email to {}: {}", toEmail, e.getMessage());
+        }
+    }
+
+    @Override
+    @Async
+    public void sendBookVisitStatusEmail(String toEmail, String fullName, String status, String notes) {
+        if (this.resend == null) {
+            log.warn("Resend API key is not configured. Email will not be sent to {}", toEmail);
+            return;
+        }
+
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        
+        String statusText = status;
+        if ("APPROVED".equals(status)) statusText = "Đã được duyệt (APPROVED)";
+        else if ("REJECTED".equals(status)) statusText = "Đã bị từ chối (REJECTED)";
+        
+        context.setVariable("status", statusText);
+        context.setVariable("notes", notes);
+        
+        String htmlContent = templateEngine.process("email/book-visit-status", context);
+
+        try {
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Thông báo cập nhật trạng thái Lịch Hẹn")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Book visit status email sent successfully to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send book visit status email to {}: {}", toEmail, e.getMessage());
+        }
+    }
 }

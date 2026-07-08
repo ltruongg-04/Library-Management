@@ -23,6 +23,18 @@ export const REVIEW = {
 
     EDIT_MY_REVIEW: "Chỉnh sửa đánh giá của tôi",
 
+    ALREADY_REVIEWED: "Bạn đã đánh giá cuốn sách này.",
+
+    SUBMITTING_REVIEW: "Đang gửi đánh giá...",
+
+    REVIEW_UPDATED: "Bạn đã cập nhật đánh giá.",
+
+    RE_EDIT_REVIEW: "Sửa lại đánh giá",
+
+    WRITE_ANOTHER_REVIEW: "Viết đánh giá khác",
+
+    LOADING_MORE: "Đang tải...",
+
     DELETE_MY_REVIEW: "Bạn có chắc chắn muốn xóa đánh giá này không?",
 
     LOADING: "Đang tải đánh giá...",
@@ -67,9 +79,15 @@ export const REVIEW = {
         SUBMIT_BUTTON: "Gửi báo cáo",
     },
 
-    SUCCESS_DIALOG: {
+    REPORT_SUCCESS_DIALOG: {
         TITLE: "Báo cáo thành công",
         DESCRIPTION: "Cảm ơn bạn đã gửi báo cáo.\nChúng tôi sẽ xem xét đánh giá này trong thời gian sớm nhất.",
+        CLOSE_BUTTON: "Đóng",
+    },
+
+    SUBMIT_SUCCESS_DIALOG: {
+        TITLE: "Đánh giá thành công",
+        DESCRIPTION: "Cảm ơn bạn đã gửi đánh giá.\nĐánh giá của bạn sẽ giúp cộng đồng có thêm thông tin hữu ích.",
         CLOSE_BUTTON: "Đóng",
     },
 } as const;

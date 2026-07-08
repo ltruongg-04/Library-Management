@@ -11,4 +11,6 @@ public interface EmailService {
     void sendReservationAvailableEmail(String toEmail, String fullName, String bookTitle, LocalDate holdUntilDate);
     void sendBookVisitConfirmationEmail(String toEmail, String fullName, String bookTitle, String confirmationCode, String visitDate, String visitTime, String phone);
     void sendBookVisitReminderEmail(String toEmail, String fullName, String bookTitle, String visitDate, String visitTime);
+    void sendWelcomeEmail(String toEmail, String fullName, String rawPassword);
+    void sendBookVisitStatusEmail(String toEmail, String fullName, String status, String notes);
 }

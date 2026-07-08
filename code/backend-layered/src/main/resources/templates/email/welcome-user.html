@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chào mừng đến với Thư viện</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+        <h2 style="color: #4CAF50;">Xin chào <span th:text="${fullName}"></span>,</h2>
+        
+        <p>Chào mừng bạn đã đến với Thư viện Lumina! Để tiện cho việc theo dõi lịch hẹn và các dịch vụ của thư viện, chúng tôi đã tự động tạo cho bạn một tài khoản.</p>
+        
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0;"><strong>Tên đăng nhập (Email):</strong> <span th:text="${email}"></span></p>
+            <p style="margin: 5px 0 0 0;"><strong>Mật khẩu tạm thời:</strong> <span th:text="${password}"></span></p>
+        </div>
+        
+        <p>Vui lòng đăng nhập và đổi mật khẩu trong lần truy cập đầu tiên để đảm bảo bảo mật.</p>
+        
+        <p>Trân trọng,<br>Đội ngũ Thư viện Lumina</p>
+    </div>
+</body>
+</html>
