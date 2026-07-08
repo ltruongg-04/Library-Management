@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { getServerBackendUrl } from "@/config/env";
 
-const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || "http://127.0.0.1:8081";
+const BACKEND_URL = getServerBackendUrl();
 const DEFAULT_TRENDING_LIMIT = 8;
 
 export async function GET(request: Request) {

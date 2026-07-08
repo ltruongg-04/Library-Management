@@ -1,4 +1,8 @@
 /** @type {import('next').NextConfig} */
+const DEFAULT_BACKEND_URL = "https://lms-backend-345298684510.europe-west1.run.app";
+const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || DEFAULT_BACKEND_URL;
+const backendHostname = new URL(backendUrl).hostname;
+
 const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
@@ -9,12 +13,12 @@ const nextConfig = {
             // Proxy backend auth endpoints (login, register, google) — nhưng KHÔNG proxy NextAuth routes
             {
                 source: "/api/auth/:slug(login|register|activate|resend-activation|google|forgot-password|verify-otp|reset-password|change-password|refresh-token|logout)",
-                destination: `${process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || "http://127.0.0.1:8081"}/api/auth/:slug`,
+                destination: `${backendUrl}/api/auth/:slug`,
             },
             // Proxy tất cả API khác (không phải /api/auth/*)
             {
                 source: "/api/:path((?!auth(?:/|$)).*)",
-                destination: `${process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || "http://127.0.0.1:8081"}/api/:path*`,
+                destination: `${backendUrl}/api/:path*`,
             },
         ];
     },
@@ -41,6 +45,14 @@ const nextConfig = {
             {
                 protocol: "http",
                 hostname: "127.0.0.1",
+            },
+            {
+                protocol: "https",
+                hostname: backendHostname,
+            },
+            {
+                protocol: "https",
+                hostname: "storage.googleapis.com",
             },
         ],
     },
