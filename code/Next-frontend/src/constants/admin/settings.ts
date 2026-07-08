@@ -21,6 +21,11 @@ export type AdminSettingsState = {
         language: string;
         timezone: string;
     };
+    payment: {
+        vnpayTmnCode: string;
+        vnpayHashSecret: string;
+        vnpayActive: boolean;
+    };
 };
 
 export const DEFAULT_SETTINGS: AdminSettingsState = {
@@ -39,6 +44,11 @@ export const DEFAULT_SETTINGS: AdminSettingsState = {
     localization: {
         language: "vi",
         timezone: "utc-plus-7",
+    },
+    payment: {
+        vnpayTmnCode: "",
+        vnpayHashSecret: "",
+        vnpayActive: false,
     },
 };
 
@@ -154,6 +164,10 @@ export function readSavedSettings() {
                 ...DEFAULT_SETTINGS.localization,
                 ...parsed.localization,
                 timezone: normalizeTimezoneValue(parsed.localization?.timezone),
+            },
+            payment: {
+                ...DEFAULT_SETTINGS.payment,
+                ...parsed.payment,
             },
         };
     } catch {
