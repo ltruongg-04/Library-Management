@@ -49,10 +49,24 @@ public class PublicBorrowController {
     }
 
     @GetMapping("/lookup")
-    public ResponseEntity<ApiResponse<java.util.List<BorrowOrderDetailResponseDto>>> lookupGuestBorrowOrder(
-            @RequestParam String identifier,
+    public ResponseEntity<ApiResponse<?>> lookupGuestBorrowOrder(
+            @RequestParam(required = false) String identifier,
+            @RequestParam(required = false) String orderCode,
+            @RequestParam(required = false) String phone,
             @RequestParam(required = false) String otp,
             @RequestParam(required = false) String recaptchaToken) {
+        if (orderCode != null && !orderCode.isBlank() && phone != null && !phone.isBlank()) {
+            BorrowOrderDetailResponseDto response = borrowOrderService.getGuestBorrowOrder(orderCode, phone);
+            return ResponseEntity.ok(ApiResponse.builder()
+                    .success(true)
+                    .message("Borrow order retrieved successfully")
+                    .data(response)
+                    .build());
+        }
+
+        if (identifier == null || identifier.trim().isEmpty()) {
+            throw new CustomBusinessException("Vui lòng cung cấp mã phiếu và SĐT", HttpStatus.BAD_REQUEST);
+        }
         
         if (identifier != null && identifier.contains("@")) {
             if (otp == null || otp.trim().isEmpty()) {
@@ -76,6 +90,18 @@ public class PublicBorrowController {
         return ResponseEntity.ok(ApiResponse.<java.util.List<BorrowOrderDetailResponseDto>>builder()
                 .success(true)
                 .message("Borrow orders retrieved successfully")
+                .data(response)
+                .build());
+    }
+
+    @GetMapping("/lookup-by-phone")
+    public ResponseEntity<ApiResponse<BorrowOrderDetailResponseDto>> lookupGuestBorrowOrderByPhone(
+            @RequestParam String orderCode,
+            @RequestParam String phone) {
+        BorrowOrderDetailResponseDto response = borrowOrderService.getGuestBorrowOrder(orderCode, phone);
+        return ResponseEntity.ok(ApiResponse.<BorrowOrderDetailResponseDto>builder()
+                .success(true)
+                .message("Borrow order retrieved successfully")
                 .data(response)
                 .build());
     }

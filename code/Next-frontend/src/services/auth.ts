@@ -16,7 +16,7 @@ interface RegisterResponseData {
     email: string;
     phone: string | null;
     role: string;
-    token: string;
+    token: string | null;
     createdAt: string;
 }
 
@@ -47,6 +47,38 @@ export const authService = {
             }
             if (error.code === "ECONNABORTED" || error.message === "Network Error") {
                 throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
+            }
+            throw error;
+        }
+    },
+
+    async activate(data: { token: string }): Promise<void> {
+        try {
+            const response = await axiosInstance.post<ApiResponse<null>>("/api/auth/activate", data);
+
+            const result = response.data;
+            if (!result.success) {
+                throw new Error(result.message || "Kích hoạt tài khoản thất bại");
+            }
+        } catch (error: any) {
+            if (error.response?.data?.message) {
+                throw new Error(error.response.data.message);
+            }
+            throw error;
+        }
+    },
+
+    async resendActivation(data: { email: string }): Promise<void> {
+        try {
+            const response = await axiosInstance.post<ApiResponse<null>>("/api/auth/resend-activation", data);
+
+            const result = response.data;
+            if (!result.success) {
+                throw new Error(result.message || "Gửi lại mã kích hoạt thất bại");
+            }
+        } catch (error: any) {
+            if (error.response?.data?.message) {
+                throw new Error(error.response.data.message);
             }
             throw error;
         }

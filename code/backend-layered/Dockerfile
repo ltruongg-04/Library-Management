@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
 COPY pom.xml .
 COPY src ./src
+COPY resource ./resource
 
 # Build the application
 RUN mvn clean package -DskipTests

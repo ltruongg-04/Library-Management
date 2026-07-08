@@ -1,0 +1,20 @@
+ALTER TABLE users
+    ADD COLUMN activation_token VARCHAR(100) NULL,
+    ADD COLUMN activation_token_expires_at DATETIME NULL,
+    ADD COLUMN failed_login_attempts INT NOT NULL DEFAULT 0,
+    ADD COLUMN locked_until DATETIME NULL;
+
+ALTER TABLE users MODIFY COLUMN role ENUM('ADMIN', 'LIBRARIAN', 'USER', 'CUSTOMER') NOT NULL;
+UPDATE users SET role = 'CUSTOMER' WHERE role = 'USER';
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    read_at DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

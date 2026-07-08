@@ -1,3 +1,4 @@
+import { ACTIVATION } from "./activation";
 import { ADMIN_GUARD } from "./admin-guard";
 import { BANNER } from "./banner";
 import { FORGOT_PASSWORD } from "./forgot-password";
@@ -8,6 +9,7 @@ export const AUTH = {
     LOGIN,
     LOCKED_STATE,
     REGISTER,
+    ACTIVATION,
     BANNER,
     ADMIN_GUARD,
     FORGOT_PASSWORD,

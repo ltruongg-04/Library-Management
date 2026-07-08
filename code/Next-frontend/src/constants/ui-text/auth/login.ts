@@ -21,7 +21,7 @@ export const LOGIN = {
         PASSWORD_MIN_LENGTH: "Mật khẩu phải có ít nhất 6 ký tự.",
     },
     ERROR_MSG: "Đăng nhập thất bại. Vui lòng thử lại.",
-    REGISTER_SUCCESS: "Đăng ký thành công! Vui lòng đăng nhập.",
+    REGISTER_SUCCESS: "Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản trước khi đăng nhập.",
     RESET_SUCCESS: "Đặt lại mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.",
     SUCCESS_ICON: "✅",
 };

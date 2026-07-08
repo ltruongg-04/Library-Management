@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -44,6 +45,18 @@ public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, 
     java.util.List<BorrowOrderEntity> findByCustomerEmailOrderByCreatedAtDesc(String email);
 
     List<BorrowOrderEntity> findTop5ByOrderByCreatedAtDesc();
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"customer", "customer.user"})
+    @Query("""
+            SELECT orderEntity
+            FROM BorrowOrderEntity orderEntity
+            WHERE orderEntity.status = :status
+              AND orderEntity.customer.user IS NULL
+              AND orderEntity.updatedAt < :cutoff
+            """)
+    List<BorrowOrderEntity> findGuestOrdersByStatusAndUpdatedAtBefore(
+            @Param("status") BorrowOrderStatus status,
+            @Param("cutoff") LocalDateTime cutoff);
 
     @Query("""
             SELECT orderEntity.orderCode,
