@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
+import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { getBorrowOrderDetail } from "@/services/borrow";
@@ -84,30 +85,16 @@ export default function LoanDetailPage() {
 
     const displayStatus = mapStatus(loan.status);
     const isOverdue = displayStatus === "overdue";
+    const breadcrumbItems = [
+        { label: MY_BOOKS_PAGE.BREADCRUMB_ACCOUNT, href: "/profile" },
+        { label: MY_BOOKS_PAGE.TITLE, href: "/lich-su" },
+        { label: `#${loan.id}` },
+    ];
 
     return (
         <div className="mx-auto w-full max-w-container-max flex-grow px-md py-xl md:px-lg">
             {/* Breadcrumb */}
-            <nav aria-label="Breadcrumb" className="mb-lg flex font-body-sm text-body-sm text-on-surface-variant">
-                <ol className="inline-flex items-center space-x-1 md:space-x-3">
-                    <li className="inline-flex items-center">
-                        <Link
-                            className="inline-flex items-center transition-colors hover:text-primary dark:text-slate-400 dark:hover:text-primary-300"
-                            href="/lich-su"
-                        >
-                            {UI_TEXT.PUBLIC_LAYOUT.MY_HISTORY}
-                        </Link>
-                    </li>
-                    <li>
-                        <div className="flex items-center">
-                            <span className="material-symbols-outlined mx-1 text-sm dark:text-slate-500" style={{ fontVariationSettings: "'FILL' 0" }}>
-                                {"chevron_right"}
-                            </span>
-                            <span className="ml-1 font-medium text-on-surface dark:text-white md:ml-2">{`#${loan.id}`}</span>
-                        </div>
-                    </li>
-                </ol>
-            </nav>
+            <Breadcrumb items={breadcrumbItems} />
 
             {/* Page Header & Actions */}
             <div className="mb-xl flex flex-col justify-between gap-md md:flex-row md:items-start">

@@ -1,37 +1,41 @@
 import Link from "next/link";
 import { MaterialIcon } from "@/components/base/material-icon";
+import { UI_TEXT } from "@/constants/ui-text";
 
-interface BreadcrumbItem {
-  label: string;
-  href?: string;
+export interface BreadcrumbItem {
+    label: string;
+    href?: string;
 }
 
 interface BreadcrumbProps {
-  items: BreadcrumbItem[];
+    items: BreadcrumbItem[];
 }
 
 export default function Breadcrumb({ items }: BreadcrumbProps) {
-  return (
-    <nav className="flex items-center font-body-sm text-body-sm text-on-surface-variant dark:text-white mb-6 transition-colors duration-200">
-      {items.map((item, index) => (
-        <span key={index} className="flex items-center">
-          {index > 0 && (
-            <MaterialIcon name="chevron_right" className="text-[16px] mx-1" />
-          )}
-          {item.href ? (
-            <Link
-              href={item.href}
-              className="hover:text-primary dark:hover:text-primary-300 transition-colors"
-            >
-              {item.label}
-            </Link>
-          ) : (
-            <span className="text-on-surface dark:text-white font-semibold">
-              {item.label}
-            </span>
-          )}
-        </span>
-      ))}
-    </nav>
-  );
+    return (
+        <nav
+            aria-label={UI_TEXT.COMMON.BREADCRUMB_ARIA}
+            className="mb-6 font-body-sm text-body-sm text-on-surface-variant transition-colors duration-200 dark:text-slate-300"
+        >
+            <ol className="flex flex-wrap items-center gap-1">
+                {items.map((item, index) => {
+                    const isCurrent = index === items.length - 1;
+                    return (
+                        <li key={`${item.label}-${index}`} className="flex items-center">
+                            {index > 0 && <MaterialIcon name="chevron_right" className="mx-1 text-[16px] text-on-surface-variant/60 dark:text-slate-500" />}
+                            {item.href && !isCurrent ? (
+                                <Link href={item.href} className="transition-colors hover:text-primary dark:hover:text-primary-300">
+                                    {item.label}
+                                </Link>
+                            ) : (
+                                <span aria-current={isCurrent ? "page" : undefined} className="font-semibold text-on-surface dark:text-white">
+                                    {item.label}
+                                </span>
+                            )}
+                        </li>
+                    );
+                })}
+            </ol>
+        </nav>
+    );
 }

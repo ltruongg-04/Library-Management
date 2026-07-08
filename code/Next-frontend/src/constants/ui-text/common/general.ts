@@ -1,4 +1,5 @@
 export const COMMON = {
+    BREADCRUMB_ARIA: "Breadcrumb",
     LOADING_DATA: "Đang tải dữ liệu...",
     PROCESSING: "Đang xử lý...",
     LOADING: "Đang xử lý...",

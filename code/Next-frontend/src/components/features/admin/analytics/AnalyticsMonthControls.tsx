@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CalendarDays, X } from "lucide-react";
-import { ANALYTICS_TEXT, CURRENT_MONTH_RANGE, MONTH_PICKER_OPTIONS, YEAR_PICKER_OPTIONS } from "@/constants/admin/analytics";
+import { ANALYTICS_TEXT, MONTH_PICKER_OPTIONS, getCurrentMonthRange, getYearPickerOptions } from "@/constants/admin/analytics";
 import type { MonthRangeSelection, TimeRange, TrendData } from "@/types/admin-analytics";
 
 export function monthToAbsoluteIndex(year: number, month: number) {
@@ -63,24 +63,25 @@ function MonthInputControl({
                     setPickerYear(year);
                     setIsOpen((current) => !current);
                 }}
-                className="focus-ring flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-surface px-3 text-center transition-colors hover:bg-surface-container-low"
+                className="focus-ring flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-surface px-3 text-center transition-colors hover:bg-surface-container-low dark:bg-slate-800 dark:hover:bg-slate-700"
                 aria-label={label}
                 aria-expanded={isOpen}
+                aria-haspopup="dialog"
             >
-                <CalendarDays size={18} className="text-on-surface-variant" />
-                <span className="text-body-sm font-medium text-on-surface-variant">{label}</span>
-                <span className="text-body-sm font-medium text-on-surface">{formatMonthPickerValue(year, month)}</span>
+                <CalendarDays size={18} className="text-on-surface-variant dark:text-slate-300" />
+                <span className="text-body-sm font-medium text-on-surface-variant dark:text-slate-300">{label}</span>
+                <span className="text-body-sm font-medium text-on-surface dark:text-white">{formatMonthPickerValue(year, month)}</span>
             </button>
 
             {isOpen ? (
-                <div className="absolute left-0 top-12 z-30 w-[288px] rounded-xl border border-outline-variant/40 bg-white p-md shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
+                <div className="absolute left-0 top-12 z-30 w-[288px] rounded-xl border border-outline-variant/40 bg-white p-md shadow-[0_18px_40px_rgba(0,0,0,0.16)] dark:border-slate-700 dark:bg-slate-900">
                     <select
                         value={pickerYear}
                         onChange={(event) => setPickerYear(Number(event.target.value))}
-                        className="mb-md h-9 w-full rounded-lg border border-outline-variant/40 bg-surface px-3 text-body-sm font-medium text-on-surface outline-none focus:border-primary"
+                        className="mb-md h-9 w-full rounded-lg border border-outline-variant/40 bg-surface px-3 text-body-sm font-medium text-on-surface outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         aria-label={label}
                     >
-                        {YEAR_PICKER_OPTIONS.map((option) => (
+                        {getYearPickerOptions().map((option) => (
                             <option key={option} value={option}>
                                 {option}
                             </option>
@@ -101,10 +102,10 @@ function MonthInputControl({
                                     }}
                                     className={`h-10 rounded-lg text-body-sm font-medium transition-colors ${
                                         isActive
-                                            ? "bg-primary text-on-primary"
+                                            ? "bg-primary text-on-primary dark:bg-primary-500 dark:text-white"
                                             : isDisabled
-                                              ? "cursor-not-allowed bg-surface-container-low text-outline/45 opacity-60"
-                                              : "bg-surface-container-low text-on-surface hover:bg-primary-50"
+                                              ? "cursor-not-allowed bg-surface-container-low text-outline/45 opacity-60 dark:bg-slate-800 dark:text-slate-600"
+                                              : "bg-surface-container-low text-on-surface hover:bg-primary-50 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                                     }`}
                                     aria-disabled={isDisabled}
                                 >
@@ -128,7 +129,8 @@ export function MonthRangeControls({
     onChange: (value: MonthRangeSelection) => void;
     showReset: boolean;
 }) {
-    const latestAvailableIndex = monthToAbsoluteIndex(CURRENT_MONTH_RANGE.endYear, CURRENT_MONTH_RANGE.endMonth);
+    const currentMonthRange = getCurrentMonthRange();
+    const latestAvailableIndex = monthToAbsoluteIndex(currentMonthRange.endYear, currentMonthRange.endMonth);
     const startIndex = monthToAbsoluteIndex(value.startYear, value.startMonth);
     const endIndex = monthToAbsoluteIndex(value.endYear, value.endMonth);
     const updateSelection = (nextSelection: MonthRangeSelection) => {
@@ -160,8 +162,8 @@ export function MonthRangeControls({
             {showReset ? (
                 <button
                     type="button"
-                    onClick={() => onChange(CURRENT_MONTH_RANGE)}
-                    className="focus-ring flex h-11 w-11 items-center justify-center rounded-lg border border-error/30 bg-error-50 text-error transition-colors hover:bg-error-100"
+                    onClick={() => onChange(getCurrentMonthRange())}
+                    className="focus-ring flex h-11 w-11 items-center justify-center rounded-lg border border-error/30 bg-error-50 text-error transition-colors hover:bg-error-100 dark:border-error-900/60 dark:bg-error-900/30 dark:text-error-300 dark:hover:bg-error-900/50"
                     title={ANALYTICS_TEXT.CALENDAR_RESET_LABEL}
                     aria-label={ANALYTICS_TEXT.CALENDAR_RESET_LABEL}
                 >

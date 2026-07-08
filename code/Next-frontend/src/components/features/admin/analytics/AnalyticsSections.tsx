@@ -4,7 +4,13 @@ import { ANALYTICS_TEXT } from "@/constants/admin/analytics";
 import type { ActivityData, BorrowedBookData, CategoryData, InsightsData, LibraryStatusData, StatCardData, TrendData } from "@/types/admin-analytics";
 
 function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
-    return <section className={`rounded-xl border border-outline-variant/25 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${className}`}>{children}</section>;
+    return (
+        <section
+            className={`rounded-xl border border-outline-variant/25 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-slate-800 dark:bg-slate-900 ${className}`}
+        >
+            {children}
+        </section>
+    );
 }
 
 const statToneClasses = {
@@ -44,9 +50,9 @@ export function StatCard({ label, value, icon: Icon, trend, tone }: StatCardData
     const toneClasses = statToneClasses[tone];
 
     return (
-        <article className={`rounded-xl border p-lg shadow-[0_4px_12px_rgba(0,0,0,0.04)] ${toneClasses.card}`}>
+        <article className={`rounded-xl border p-lg shadow-[0_4px_12px_rgba(0,0,0,0.04)] dark:border-slate-800 dark:bg-slate-900 ${toneClasses.card}`}>
             <div className="mb-md flex items-start justify-between gap-sm">
-                <h2 className="text-body-md font-medium text-on-surface-variant">{label}</h2>
+                <h2 className="text-body-md font-medium text-on-surface-variant dark:text-slate-300">{label}</h2>
                 <Icon size={22} strokeWidth={1.8} className={toneClasses.icon} />
             </div>
             <div className="flex items-end gap-sm">
@@ -91,8 +97,8 @@ export function BorrowingTrend({ trend, controls }: { trend: TrendData; controls
     return (
         <Panel className="p-lg">
             <div className="mb-md flex flex-col gap-sm sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-title-md font-semibold text-on-surface">{ANALYTICS_TEXT.TREND_TITLE}</h2>
-                <div className="flex flex-wrap items-center gap-md text-sm text-on-surface">
+                <h2 className="text-title-md font-semibold text-on-surface dark:text-white">{ANALYTICS_TEXT.TREND_TITLE}</h2>
+                <div className="flex flex-wrap items-center gap-md text-sm text-on-surface dark:text-slate-300">
                     <span className="flex items-center gap-2">
                         <span className="h-3 w-3 rounded-full bg-secondary-container" />
                         {ANALYTICS_TEXT.TREND_BORROWED}
@@ -109,7 +115,7 @@ export function BorrowingTrend({ trend, controls }: { trend: TrendData; controls
             </div>
             <div className="mb-md">{controls}</div>
 
-            <div className="relative h-64 overflow-hidden rounded-lg bg-surface-container-low px-md pb-10 pt-md">
+            <div className="relative h-64 overflow-hidden rounded-lg bg-surface-container-low px-md pb-10 pt-md dark:bg-slate-950/40">
                 <svg
                     className="absolute inset-x-0 top-0 h-[calc(100%-2.5rem)] w-full"
                     preserveAspectRatio="none"
@@ -182,7 +188,7 @@ export function BorrowingTrend({ trend, controls }: { trend: TrendData; controls
                         </>
                     )}
                 </svg>
-                <div className="absolute bottom-3 left-0 flex w-full justify-between px-lg text-xs text-outline">
+                <div className="absolute bottom-3 left-0 flex w-full justify-between px-lg text-xs text-outline dark:text-slate-500">
                     {trend.labels.map((label) => (
                         <span key={label}>{label}</span>
                     ))}
@@ -199,7 +205,7 @@ export function LibraryStatus({ status }: { status: LibraryStatusData }) {
 
     return (
         <Panel className="flex flex-col p-lg">
-            <h2 className="mb-md text-title-md font-semibold text-on-surface">{ANALYTICS_TEXT.STATUS_TITLE}</h2>
+            <h2 className="mb-md text-title-md font-semibold text-on-surface dark:text-white">{ANALYTICS_TEXT.STATUS_TITLE}</h2>
             <div className="relative flex min-h-56 flex-1 items-center justify-center">
                 <svg className="h-48 w-48 -rotate-90" viewBox="0 0 36 36" aria-label={ANALYTICS_TEXT.STATUS_ARIA} role="img">
                     <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#22c55e" strokeDasharray={`${status.available} 100`} strokeWidth="4" />
@@ -235,11 +241,11 @@ export function LibraryStatus({ status }: { status: LibraryStatusData }) {
                     />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <strong className="text-[28px] leading-none text-on-surface">100%</strong>
-                    <span className="mt-2 text-xs text-on-surface-variant">{ANALYTICS_TEXT.STATUS_CAPACITY}</span>
+                    <strong className="text-[28px] leading-none text-on-surface dark:text-white">100%</strong>
+                    <span className="mt-2 text-xs text-on-surface-variant dark:text-slate-400">{ANALYTICS_TEXT.STATUS_CAPACITY}</span>
                 </div>
             </div>
-            <div className="mt-md grid grid-cols-2 gap-x-md gap-y-sm text-sm text-on-surface">
+            <div className="mt-md grid grid-cols-2 gap-x-md gap-y-sm text-sm text-on-surface dark:text-slate-300">
                 <span className="flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
                     {formatStatusLabel(ANALYTICS_TEXT.STATUS_AVAILABLE_LABEL, status.available)}
@@ -264,15 +270,15 @@ export function LibraryStatus({ status }: { status: LibraryStatusData }) {
 export function TopCategories({ categories }: { categories: CategoryData[] }) {
     return (
         <Panel className="p-lg">
-            <h2 className="mb-lg text-title-md font-semibold text-on-surface">{ANALYTICS_TEXT.CATEGORIES_TITLE}</h2>
+            <h2 className="mb-lg text-title-md font-semibold text-on-surface dark:text-white">{ANALYTICS_TEXT.CATEGORIES_TITLE}</h2>
             <div className="space-y-md">
                 {categories.map((category) => (
                     <div key={category.label} className="grid grid-cols-[92px_1fr_44px] items-center gap-sm">
-                        <span className="text-body-sm text-on-surface-variant">{category.label}</span>
-                        <span className="h-2 overflow-hidden rounded-full bg-surface-container-low">
+                        <span className="text-body-sm text-on-surface-variant dark:text-slate-300">{category.label}</span>
+                        <span className="h-2 overflow-hidden rounded-full bg-surface-container-low dark:bg-slate-800">
                             <span className={`block h-full rounded-full ${category.opacity}`} style={{ width: `${category.value}%` }} />
                         </span>
-                        <span className="text-right text-body-sm font-medium text-on-surface">{category.value}%</span>
+                        <span className="text-right text-body-sm font-medium text-on-surface dark:text-white">{category.value}%</span>
                     </div>
                 ))}
             </div>
@@ -284,7 +290,7 @@ export function MostBorrowedBooks({ books }: { books: BorrowedBookData[] }) {
     return (
         <Panel className="p-lg">
             <div className="mb-md">
-                <h2 className="text-title-md font-semibold text-on-surface">{ANALYTICS_TEXT.MOST_BORROWED_TITLE}</h2>
+                <h2 className="text-title-md font-semibold text-on-surface dark:text-white">{ANALYTICS_TEXT.MOST_BORROWED_TITLE}</h2>
             </div>
             <div className="thin-scroll max-h-[320px] overflow-y-auto pr-sm">
                 <table className="w-full table-fixed border-collapse text-left">
@@ -294,23 +300,23 @@ export function MostBorrowedBooks({ books }: { books: BorrowedBookData[] }) {
                         <col className="w-[96px]" />
                         <col className="w-[112px]" />
                     </colgroup>
-                    <thead className="sticky top-0 z-10 bg-white">
-                        <tr className="border-b border-surface-variant text-xs font-medium text-outline">
+                    <thead className="sticky top-0 z-10 bg-white dark:bg-slate-900">
+                        <tr className="border-b border-surface-variant text-xs font-medium text-outline dark:border-slate-800 dark:text-slate-400">
                             <th className="w-12 pb-sm font-medium">{ANALYTICS_TEXT.TABLE_BOOK}</th>
                             <th className="pb-sm font-medium">{ANALYTICS_TEXT.TABLE_TITLE_AUTHOR}</th>
                             <th className="pb-sm pl-md text-left font-medium">{ANALYTICS_TEXT.TABLE_BORROWS}</th>
                             <th className="pb-sm pl-sm text-left font-medium">{ANALYTICS_TEXT.TABLE_STATUS}</th>
                         </tr>
                     </thead>
-                    <tbody className="text-body-sm text-on-surface">
+                    <tbody className="text-body-sm text-on-surface dark:text-white">
                         {books.map((book) => (
-                            <tr key={book.title} className="border-b border-surface-container-high last:border-0">
+                            <tr key={book.title} className="border-b border-surface-container-high last:border-0 dark:border-slate-800">
                                 <td className="py-3">
-                                    <div className="h-12 w-10 rounded bg-surface-variant" aria-hidden="true" />
+                                    <div className="h-12 w-10 rounded bg-surface-variant dark:bg-slate-800" aria-hidden="true" />
                                 </td>
                                 <td className="py-3 pr-sm">
                                     <p className="truncate font-medium">{book.title}</p>
-                                    <p className="truncate text-xs text-on-surface-variant">{book.author}</p>
+                                    <p className="truncate text-xs text-on-surface-variant dark:text-slate-400">{book.author}</p>
                                 </td>
                                 <td className="py-3 pl-md text-left font-medium">{book.borrows}</td>
                                 <td className="py-3 pl-sm text-left">
@@ -328,15 +334,15 @@ export function MostBorrowedBooks({ books }: { books: BorrowedBookData[] }) {
 export function RecentActivities({ activities }: { activities: ActivityData[] }) {
     return (
         <Panel className="p-lg">
-            <h2 className="mb-lg text-title-md font-semibold text-on-surface">{ANALYTICS_TEXT.ACTIVITIES_TITLE}</h2>
+            <h2 className="mb-lg text-title-md font-semibold text-on-surface dark:text-white">{ANALYTICS_TEXT.ACTIVITIES_TITLE}</h2>
             <div className="thin-scroll max-h-[320px] space-y-0 overflow-y-auto pl-1 pr-sm">
                 {activities.map((activity, index) => (
                     <div key={activity.title} className="relative pb-7 pl-7 last:pb-0">
-                        {index < activities.length - 1 ? <span className="absolute left-[7px] top-5 h-full w-px bg-surface-variant" /> : null}
-                        <span className={`absolute left-0 top-1 h-4 w-4 rounded-full border-2 bg-white ${activity.color}`} />
-                        <p className="text-body-sm font-medium text-on-surface">{activity.title}</p>
-                        <p className="mt-1 text-xs text-on-surface-variant">{activity.detail}</p>
-                        <time className="mt-2 block text-xs text-outline">{activity.time}</time>
+                        {index < activities.length - 1 ? <span className="absolute left-[7px] top-5 h-full w-px bg-surface-variant dark:bg-slate-800" /> : null}
+                        <span className={`absolute left-0 top-1 h-4 w-4 rounded-full border-2 bg-white dark:bg-slate-900 ${activity.color}`} />
+                        <p className="text-body-sm font-medium text-on-surface dark:text-white">{activity.title}</p>
+                        <p className="mt-1 text-xs text-on-surface-variant dark:text-slate-400">{activity.detail}</p>
+                        <time className="mt-2 block text-xs text-outline dark:text-slate-500">{activity.time}</time>
                     </div>
                 ))}
             </div>
@@ -347,31 +353,31 @@ export function RecentActivities({ activities }: { activities: ActivityData[] })
 export function AiInsights({ insights }: { insights: InsightsData }) {
     return (
         <section className="rounded-xl bg-gradient-to-r from-primary to-secondary-container p-[2px] shadow-[0_12px_32px_rgba(0,0,0,0.1)]">
-            <div className="flex flex-col gap-md rounded-[10px] bg-white p-lg sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-md rounded-[10px] bg-white p-lg dark:bg-slate-900 sm:flex-row sm:items-center">
                 <div className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
                     <Sparkles size={34} strokeWidth={1.8} />
                 </div>
                 <div>
                     <div className="mb-sm flex flex-wrap items-center gap-sm">
-                        <h2 className="text-title-md font-semibold text-on-surface">{ANALYTICS_TEXT.AI_TITLE}</h2>
+                        <h2 className="text-title-md font-semibold text-on-surface dark:text-white">{ANALYTICS_TEXT.AI_TITLE}</h2>
                         <span className="rounded bg-secondary-fixed px-3 py-1 font-mono text-xs font-semibold text-on-secondary-fixed">
                             {ANALYTICS_TEXT.AI_BADGE}
                         </span>
                     </div>
-                    <ul className="ml-5 list-disc space-y-1 text-body-md text-on-surface-variant">
+                    <ul className="ml-5 list-disc space-y-1 text-body-md text-on-surface-variant dark:text-slate-300">
                         <li>
                             {ANALYTICS_TEXT.AI_BORROW_PREFIX}
-                            <strong className="text-on-surface">{insights.borrowChange}</strong>
+                            <strong className="text-on-surface dark:text-white">{insights.borrowChange}</strong>
                             {ANALYTICS_TEXT.AI_BORROW_SUFFIX}
                         </li>
                         <li>
                             {ANALYTICS_TEXT.AI_SCIENCE_PREFIX}
-                            <strong className="text-on-surface">{insights.category}</strong>
+                            <strong className="text-on-surface dark:text-white">{insights.category}</strong>
                             {ANALYTICS_TEXT.AI_SCIENCE_SUFFIX}
                         </li>
                         <li>
                             {ANALYTICS_TEXT.AI_TRAFFIC_PREFIX}
-                            <strong className="text-on-surface">{insights.traffic}</strong>
+                            <strong className="text-on-surface dark:text-white">{insights.traffic}</strong>
                             {ANALYTICS_TEXT.AI_TRAFFIC_SUFFIX}
                         </li>
                     </ul>
