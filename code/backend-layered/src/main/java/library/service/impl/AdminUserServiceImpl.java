@@ -59,9 +59,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             
             try {
                 String roleStr = request.getRole().toUpperCase();
-                if ("CUSTOMER".equals(roleStr)) {
-                    roleStr = "USER";
-                }
+                if ("USER".equals(roleStr)) roleStr = "CUSTOMER";
                 UserEntity.Role newRole = UserEntity.Role.valueOf(roleStr);
                 
                 // If role actually changed
@@ -83,7 +81,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                         }
                     } 
                     // Changing to Customer
-                    else if (newRole == UserEntity.Role.USER) {
+                    else if (newRole == UserEntity.Role.CUSTOMER || newRole == UserEntity.Role.USER) {
                         // Delete Assistant if exists
                         assistantRepository.findByUserId(user.getId()).ifPresent(assistantRepository::delete);
                         
@@ -121,14 +119,14 @@ public class AdminUserServiceImpl implements AdminUserService {
         try {
             String roleStr = request.getRole().toUpperCase();
             if ("CUSTOMER".equals(roleStr)) {
-                roleStr = "USER";
+                roleStr = "CUSTOMER";
             }
             role = UserEntity.Role.valueOf(roleStr);
             if (role == UserEntity.Role.ADMIN) {
                 throw new library.common.exception.CustomBusinessException("Không được phép tạo tài khoản có quyền Admin", org.springframework.http.HttpStatus.FORBIDDEN);
             }
         } catch (IllegalArgumentException e) {
-            role = UserEntity.Role.USER;
+            role = UserEntity.Role.CUSTOMER;
         }
 
         UserEntity user = UserEntity.builder()
@@ -141,7 +139,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         UserEntity savedUser = userRepository.save(user);
 
-        if (role == UserEntity.Role.USER) {
+        if (role == UserEntity.Role.CUSTOMER || role == UserEntity.Role.USER) {
             library.entity.CustomerEntity customer = library.entity.CustomerEntity.builder()
                     .user(savedUser)
                     .fullName(savedUser.getFullName())

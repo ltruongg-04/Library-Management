@@ -52,6 +52,11 @@ public class BorrowOrderServiceImpl implements BorrowOrderService {
     }
 
     @Override
+    public BorrowOrderDetailResponseDto getGuestBorrowOrder(String orderCode, String phone) {
+        return queryService.getGuestBorrowOrder(orderCode, phone);
+    }
+
+    @Override
     public void cancelBorrowOrder(String orderCode, Integer userId) {
         commandService.cancelBorrowOrder(orderCode, userId);
     }

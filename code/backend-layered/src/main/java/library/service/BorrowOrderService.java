@@ -18,6 +18,7 @@ public interface BorrowOrderService {
     List<BorrowHistoryResponseDto> getBorrowHistory(Integer userId);
     BorrowOrderDetailResponseDto getBorrowOrderDetail(String orderCode, Integer userId);
     java.util.List<BorrowOrderDetailResponseDto> getGuestBorrowOrders(String identifier);
+    BorrowOrderDetailResponseDto getGuestBorrowOrder(String orderCode, String phone);
     void cancelBorrowOrder(String orderCode, Integer userId);
     BorrowResponseDto renewBorrowOrder(String orderCode, Integer userId, library.dto.borrow.BorrowExtensionRequestDto request, HttpServletRequest httpRequest);
 

@@ -369,4 +369,79 @@ public class EmailServiceImpl implements EmailService {
             log.error("Failed to send book visit status email to {}: {}", toEmail, e.getMessage());
         }
     }
+
+    @Override
+    @Async
+    public void sendAccountActivationEmail(String toEmail, String fullName, String activationToken) {
+        String subject = "Kích hoạt tài khoản Thư viện Lumina";
+        String htmlContent = "<div style=\"font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px;\">"
+                + "<h2>Kích hoạt tài khoản</h2>"
+                + "<p>Chào " + safe(fullName) + ",</p>"
+                + "<p>Vui lòng dùng mã/token bên dưới để kích hoạt tài khoản của bạn:</p>"
+                + "<pre style=\"padding:12px;background:#f4f4f4;border-radius:6px;white-space:pre-wrap;\">" + safe(activationToken) + "</pre>"
+                + "<p>Token có hiệu lực trong 24 giờ.</p>"
+                + "</div>";
+        sendSimpleEmail(toEmail, subject, htmlContent);
+    }
+
+    @Override
+    @Async
+    public void sendGuestBorrowStatusEmail(String toEmail, String fullName, String orderCode, String status, String reason) {
+        String subject = "Cập nhật phiếu mượn " + orderCode;
+        String htmlContent = "<div style=\"font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px;\">"
+                + "<h2>Cập nhật phiếu mượn</h2>"
+                + "<p>Chào " + safe(fullName) + ",</p>"
+                + "<p>Phiếu mượn <strong>" + safe(orderCode) + "</strong> hiện có trạng thái: <strong>" + safe(status) + "</strong>.</p>"
+                + (reason != null && !reason.isBlank() ? "<p>Lý do/Ghi chú: " + safe(reason) + "</p>" : "")
+                + "</div>";
+        sendSimpleEmail(toEmail, subject, htmlContent);
+    }
+
+    @Override
+    @Async
+    public void sendGuestReturnReceiptEmail(String toEmail, String fullName, String orderCode, String summary) {
+        String subject = "Biên nhận trả sách " + orderCode;
+        String htmlContent = "<div style=\"font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px;\">"
+                + "<h2>Biên nhận trả sách</h2>"
+                + "<p>Chào " + safe(fullName) + ",</p>"
+                + "<p>Phiếu mượn <strong>" + safe(orderCode) + "</strong> đã được xử lý trả sách.</p>"
+                + "<p>" + safe(summary) + "</p>"
+                + "</div>";
+        sendSimpleEmail(toEmail, subject, htmlContent);
+    }
+
+    private void sendSimpleEmail(String toEmail, String subject, String htmlContent) {
+        if (this.resend == null) {
+            log.warn("Resend API key is not configured. Email '{}' will not be sent to {}", subject, toEmail);
+            return;
+        }
+        if (toEmail == null || toEmail.trim().isEmpty()) {
+            log.warn("Cannot send email '{}' because recipient is empty", subject);
+            return;
+        }
+
+        try {
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject(subject)
+                    .html(htmlContent)
+                    .build();
+            resend.emails().send(sendEmailRequest);
+            log.info("Email '{}' sent successfully to {}", subject, toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send email '{}' to {}: {}", subject, toEmail, e.getMessage());
+        }
+    }
+
+    private String safe(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
 }

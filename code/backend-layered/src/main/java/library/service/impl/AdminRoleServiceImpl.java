@@ -53,6 +53,7 @@ public class AdminRoleServiceImpl implements AdminRoleService {
     @Cacheable(value = CacheNames.ADMIN_ROLES, key = "'roles'")
     public List<RoleResponse> getRoles() {
         return Arrays.stream(UserEntity.Role.values())
+                .filter(role -> role != UserEntity.Role.USER)
                 .map(this::buildRoleResponse)
                 .collect(Collectors.toList());
     }
@@ -136,6 +137,7 @@ public class AdminRoleServiceImpl implements AdminRoleService {
         return switch (role) {
             case ADMIN -> "Administrator";
             case LIBRARIAN -> "Librarian";
+            case CUSTOMER -> "Customer";
             case USER -> "Customer";
         };
     }
@@ -144,6 +146,7 @@ public class AdminRoleServiceImpl implements AdminRoleService {
         return switch (role) {
             case ADMIN -> "Full system access & configuration.";
             case LIBRARIAN -> "Catalog management & user support.";
+            case CUSTOMER -> "Standard borrowing & browsing access.";
             case USER -> "Standard borrowing & browsing access.";
         };
     }

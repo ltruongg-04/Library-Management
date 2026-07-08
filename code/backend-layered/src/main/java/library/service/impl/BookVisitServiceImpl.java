@@ -49,7 +49,7 @@ public class BookVisitServiceImpl implements BookVisitService {
                     .fullName(request.getFullName())
                     .phone(request.getPhone())
                     .password(passwordEncoder.encode(rawPassword))
-                    .role(UserEntity.Role.USER)
+                    .role(UserEntity.Role.CUSTOMER)
                     .active(true)
                     .build();
             userRepository.save(newUser);

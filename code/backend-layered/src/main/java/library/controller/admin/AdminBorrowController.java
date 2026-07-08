@@ -2,7 +2,9 @@ package library.controller.admin;
 
 import library.common.base.ApiResponse;
 import library.dto.admin.AdminBorrowOrderDto;
+import library.dto.admin.BorrowRejectRequest;
 import library.service.AdminBorrowService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import library.entity.BorrowOrderStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,13 @@ public class AdminBorrowController {
     private final AdminBorrowService adminBorrowService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<AdminBorrowOrderDto>>> getAllBorrows() {
-        List<AdminBorrowOrderDto> borrows = adminBorrowService.getAllBorrowOrders();
+    public ResponseEntity<ApiResponse<List<AdminBorrowOrderDto>>> getAllBorrows(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false, defaultValue = "ALL") String customerType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        List<AdminBorrowOrderDto> borrows = adminBorrowService.searchBorrowOrders(status, customerType, keyword, page, size);
         return ResponseEntity.ok(ApiResponse.success("Lấy danh sách lượt mượn thành công", borrows));
     }
 
@@ -37,6 +44,30 @@ public class AdminBorrowController {
             return ResponseEntity.badRequest().body(ApiResponse.error("Trạng thái không hợp lệ: " + status));
         }
     }
+
+    @PutMapping("/{orderCode}/approve")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('borrow.approve')")
+    public ResponseEntity<ApiResponse<Void>> approveBorrow(@PathVariable String orderCode) {
+        adminBorrowService.approveBorrow(orderCode);
+        return ResponseEntity.ok(ApiResponse.success("Duyệt phiếu mượn thành công", null));
+    }
+
+    @PutMapping("/{orderCode}/reject")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('borrow.approve')")
+    public ResponseEntity<ApiResponse<Void>> rejectBorrow(
+            @PathVariable String orderCode,
+            @Valid @RequestBody BorrowRejectRequest request) {
+        adminBorrowService.rejectBorrow(orderCode, request.getReason());
+        return ResponseEntity.ok(ApiResponse.success("Từ chối phiếu mượn thành công", null));
+    }
+
+    @PutMapping("/{orderCode}/pickup")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('borrow.approve')")
+    public ResponseEntity<ApiResponse<Void>> confirmPickup(@PathVariable String orderCode) {
+        adminBorrowService.confirmPickup(orderCode);
+        return ResponseEntity.ok(ApiResponse.success("Xác nhận giao sách thành công", null));
+    }
+
     @GetMapping("/{orderCode}")
     public ResponseEntity<ApiResponse<library.dto.admin.AdminBorrowOrderDetailDto>> getBorrowOrderDetail(@PathVariable String orderCode) {
         library.dto.admin.AdminBorrowOrderDetailDto detail = adminBorrowService.getBorrowOrderDetail(orderCode);

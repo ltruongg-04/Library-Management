@@ -13,6 +13,7 @@ public interface BorrowOrderQueryService {
     List<BorrowHistoryResponseDto> getBorrowHistory(Integer userId);
     BorrowOrderDetailResponseDto getBorrowOrderDetail(String orderCode, Integer userId);
     java.util.List<BorrowOrderDetailResponseDto> getGuestBorrowOrders(String identifier);
+    BorrowOrderDetailResponseDto getGuestBorrowOrder(String orderCode, String phone);
     Page<UserBorrowHistoryDto> getUserBorrowHistory(Integer customerId, Pageable pageable);
     UserBorrowDetailDto getUserBorrowDetail(Integer customerId, String orderCode);
 }

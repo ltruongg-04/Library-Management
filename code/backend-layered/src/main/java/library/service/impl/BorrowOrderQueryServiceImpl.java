@@ -74,4 +74,18 @@ public class BorrowOrderQueryServiceImpl implements library.service.BorrowOrderQ
 
         return orders.stream().map(borrowOrderMapper::toBorrowOrderDetailResponseDto).collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public library.dto.borrow.BorrowOrderDetailResponseDto getGuestBorrowOrder(String orderCode, String phone) {
+        if (orderCode == null || orderCode.isBlank() || phone == null || phone.isBlank()) {
+            throw new CustomBusinessException("Không tìm thấy phiếu mượn. Vui lòng kiểm tra lại thông tin.", HttpStatus.NOT_FOUND);
+        }
+
+        BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerPhone(orderCode.trim(), phone.trim())
+                .filter(found -> found.getCustomer() != null && found.getCustomer().getUser() == null)
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy phiếu mượn. Vui lòng kiểm tra lại thông tin.", HttpStatus.NOT_FOUND));
+
+        return borrowOrderMapper.toBorrowOrderDetailResponseDto(order);
+    }
 }

@@ -11,7 +11,13 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-
+    hikari:
+      pool-name: LibraryHikariPool
+      maximum-pool-size: 20 # Tối đa 20 connection đồng thời (Chống quá tải DB)
+      minimum-idle: 5 # Luôn giữ 5 connection sẵn sàng (Tăng tốc độ phản hồi)
+      idle-timeout: 300000 # Đóng connection nếu rảnh rỗi 5 phút (Giải phóng tài nguyên)
+      connection-timeout: 20000 # Nếu đợi 20s không lấy được connection -> Báo lỗi (Tránh treo App)
+      max-lifetime: 900000 # 15 phút - Rất quan trọng đối với Cloud SQL để tránh bị ngắt kết nối đột ngột
   jpa:
     hibernate:
       ddl-auto: update
@@ -39,7 +45,7 @@ app:
   cache:
     provider: ${CACHE_PROVIDER:caffeine}
   jwt:
-    secret: ${JWT_SECRET}
+    secret: ${JWT_SECRET:dGVtcG9yYXJ5X3NlY3JldF9rZXlfdGhhdF9tdXN0X2JlX2F0X2xlYXN0XzMyX2J5dGVz}
     expiration: 900000
 
 vnpay:
