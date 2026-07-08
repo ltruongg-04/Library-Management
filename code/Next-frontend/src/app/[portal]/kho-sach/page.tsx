@@ -1,18 +1,50 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { BookOpen, Plus, Sparkles } from "lucide-react";
+import { useSession } from "next-auth/react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import AddBookModal, { InitialBookData } from "@/components/features/admin/inventory/AddBookModal";
 import BookFilters from "@/components/features/admin/inventory/BookFilters";
 import BookTable from "@/components/features/admin/inventory/BookTable";
 import ChooseAddMethodModal from "@/components/features/admin/inventory/ChooseAddMethodModal";
 import { ADMIN, ADMIN_PAGES } from "@/constants/ui-text/admin";
+import { adminRoleService } from "@/services/adminRole";
 
 export default function KhoSachPage() {
+    const { data: session } = useSession();
     const [isChooseModalOpen, setIsChooseModalOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [initialBookData, setInitialBookData] = useState<InitialBookData | null>(null);
+    const [permissions, setPermissions] = useState<string[]>([]);
+
+    const isAdmin = session?.user?.role?.toUpperCase() === "ADMIN";
+    const canAddBook = useMemo(() => isAdmin || permissions.includes("books.add-book"), [isAdmin, permissions]);
+    const canEditBook = useMemo(() => isAdmin || permissions.includes("books.edit-book"), [isAdmin, permissions]);
+
+    useEffect(() => {
+        if (!session?.backendToken || isAdmin) {
+            return;
+        }
+
+        let isMounted = true;
+        adminRoleService
+            .getMyPermissions()
+            .then((nextPermissions) => {
+                if (isMounted) {
+                    setPermissions(nextPermissions);
+                }
+            })
+            .catch(() => {
+                if (isMounted) {
+                    setPermissions([]);
+                }
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [isAdmin, session?.backendToken]);
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-surface">
@@ -31,19 +63,21 @@ export default function KhoSachPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex shrink-0 items-center overflow-hidden rounded-lg shadow-sm">
-                    <button
-                        onClick={() => setIsChooseModalOpen(true)}
-                        className="focus-ring flex items-center gap-2 bg-primary-700 px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-900"
-                    >
-                        <Plus size={18} />
-                        {ADMIN.SIDEBAR.ADD_BOOK}
-                    </button>
-                    <button className="focus-ring flex items-center gap-1.5 border-l border-white/20 bg-info-400 px-4 py-2.5 text-[14px] font-bold text-white transition-colors hover:bg-info-500">
-                        <Sparkles size={16} />
-                        {ADMIN_PAGES.INVENTORY.AI_OCR_BTN}
-                    </button>
-                </div>
+                {canAddBook && (
+                    <div className="flex shrink-0 items-center overflow-hidden rounded-lg shadow-sm">
+                        <button
+                            onClick={() => setIsChooseModalOpen(true)}
+                            className="focus-ring flex items-center gap-2 bg-primary-700 px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-900"
+                        >
+                            <Plus size={18} />
+                            {ADMIN.SIDEBAR.ADD_BOOK}
+                        </button>
+                        <button className="focus-ring flex items-center gap-1.5 border-l border-white/20 bg-info-400 px-4 py-2.5 text-[14px] font-bold text-white transition-colors hover:bg-info-500">
+                            <Sparkles size={16} />
+                            {ADMIN_PAGES.INVENTORY.AI_OCR_BTN}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Content Section */}
@@ -55,7 +89,7 @@ export default function KhoSachPage() {
 
                 {/* Table View */}
                 <Suspense fallback={<div className="min-h-[400px] animate-pulse rounded-xl bg-surface-container-high"></div>}>
-                    <BookTable />
+                    <BookTable canEditBook={canEditBook} />
                 </Suspense>
             </div>
 

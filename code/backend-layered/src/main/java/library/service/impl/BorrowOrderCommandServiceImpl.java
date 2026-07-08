@@ -41,6 +41,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     private final library.repository.ReservationRepository reservationRepository;
 
     private final SystemLogService systemLogService;
+    private final library.service.CacheInvalidationService cacheInvalidationService;
     private final library.service.EmailService emailService;
     private final library.service.FeeCalculatorService feeCalculatorService;
 
@@ -80,6 +81,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         );
 
         systemLogService.logAction(user, "Mượn sách", "Người dùng " + user.getEmail() + " đã mượn sách: " + book.getTitle() + " (Mã đơn: " + response.getOrderCode() + ")");
+        cacheInvalidationService.evictBookCaches();
 
         return response;
     }
@@ -135,6 +137,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         }
 
         systemLogService.logAction("Yêu cầu gia hạn", "Người dùng yêu cầu gia hạn đơn mượn: " + order.getOrderCode() + " thêm " + request.getDurationInDays() + " ngày.");
+        cacheInvalidationService.evictDashboardCaches();
 
         return BorrowResponseDto.builder()
                 .orderCode(order.getOrderCode())
@@ -190,6 +193,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
                 library.common.constant.SystemLogConstants.ACTION_GUEST_CREATE_ORDER, 
                 String.format(library.common.constant.SystemLogConstants.DETAIL_GUEST_ORDER_SUCCESS, customer.getFullName(), customer.getPhone(), response.getOrderCode())
         );
+        cacheInvalidationService.evictBookCaches();
 
         // Send confirmation email if email is provided
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
@@ -246,6 +250,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
                 bookCopyRepository.save(copy);
             }
         }
+        cacheInvalidationService.evictBookCaches();
     }
 
     // --- Extracted Private Methods ---

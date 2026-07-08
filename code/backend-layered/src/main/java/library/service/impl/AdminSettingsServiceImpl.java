@@ -1,13 +1,17 @@
 package library.service.impl;
 
 import library.dto.admin.AdminSettingsResponse;
+import library.common.constant.CacheNames;
 import library.entity.BorrowingPolicyEntity;
 import library.entity.SystemSettingEntity;
 import library.repository.BorrowingPolicyRepository;
 import library.repository.SystemSettingRepository;
 import library.service.AdminSettingsService;
+import library.service.CacheInvalidationService;
+import library.config.VnPayConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -23,12 +27,17 @@ public class AdminSettingsServiceImpl implements AdminSettingsService {
     private static final String AUTO_BACKUP = "features.autoBackup";
     private static final String LANGUAGE = "localization.language";
     private static final String TIMEZONE = "localization.timezone";
-
+    private static final String VNPAY_TMNCODE = "payment.vnpayTmnCode";
+    private static final String VNPAY_HASHSECRET = "payment.vnpayHashSecret";
+    private static final String VNPAY_ACTIVE = "payment.vnpayActive";
     private final BorrowingPolicyRepository borrowingPolicyRepository;
     private final SystemSettingRepository systemSettingRepository;
+    private final VnPayConfig vnPayConfig;
+    private final CacheInvalidationService cacheInvalidationService;
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.ADMIN_SETTINGS, key = "'settings'")
     public AdminSettingsResponse getSettings() {
         BorrowingPolicyEntity policy = getActivePolicy();
         Map<String, String> settings = systemSettingRepository.findAll().stream()
@@ -50,6 +59,11 @@ public class AdminSettingsServiceImpl implements AdminSettingsService {
                 .localization(AdminSettingsResponse.Localization.builder()
                         .language(settings.getOrDefault(LANGUAGE, "vi"))
                         .timezone(settings.getOrDefault(TIMEZONE, "utc-plus-7"))
+                        .build())
+                .payment(AdminSettingsResponse.Payment.builder()
+                        .vnpayTmnCode(settings.getOrDefault(VNPAY_TMNCODE, vnPayConfig.getTmnCode() != null ? vnPayConfig.getTmnCode() : ""))
+                        .vnpayHashSecret(settings.getOrDefault(VNPAY_HASHSECRET, vnPayConfig.getHashSecret() != null ? vnPayConfig.getHashSecret() : ""))
+                        .vnpayActive(parseBoolean(settings.get(VNPAY_ACTIVE), false))
                         .build())
                 .build();
     }
@@ -93,6 +107,14 @@ public class AdminSettingsServiceImpl implements AdminSettingsService {
             saveSetting(TIMEZONE, defaultText(localization.getTimezone(), "utc-plus-7"));
         }
 
+        AdminSettingsResponse.Payment payment = request.getPayment();
+        if (payment != null) {
+            saveSetting(VNPAY_TMNCODE, defaultText(payment.getVnpayTmnCode(), ""));
+            saveSetting(VNPAY_HASHSECRET, defaultText(payment.getVnpayHashSecret(), ""));
+            saveSetting(VNPAY_ACTIVE, String.valueOf(payment.isVnpayActive()));
+        }
+
+        cacheInvalidationService.evictSettingsCaches();
         return getSettings();
     }
 

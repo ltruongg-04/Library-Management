@@ -7,6 +7,7 @@ import library.entity.UserEntity;
 import library.service.AdminRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,18 +20,28 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/roles")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class AdminRoleController {
 
     private final AdminRoleService adminRoleService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('roles.manage')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getRoles() {
         return ResponseEntity.ok(ApiResponse.success("Lấy danh sách vai trò thành công", adminRoleService.getRoles()));
     }
 
+    @GetMapping("/me/permissions")
+    public ResponseEntity<ApiResponse<List<String>>> getMyPermissions(Authentication authentication) {
+        List<String> permissions = authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .filter(authority -> !authority.startsWith("ROLE_"))
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success("Lấy danh sách quyền thành công", permissions));
+    }
+
     @PutMapping("/{role}/permissions")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('roles.manage')")
     public ResponseEntity<ApiResponse<RoleResponse>> updatePermissions(
             @PathVariable UserEntity.Role role,
             @RequestBody RolePermissionUpdateRequest request) {

@@ -27,9 +27,10 @@ interface TableRowProps {
     book: BookListItem;
     onEdit: (id: number) => void;
     onManageCopies: (id: number, title: string) => void;
+    canEditBook: boolean;
 }
 
-const TableRow = ({ book, onEdit, onManageCopies }: TableRowProps) => {
+const TableRow = ({ book, onEdit, onManageCopies, canEditBook }: TableRowProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -107,58 +108,64 @@ const TableRow = ({ book, onEdit, onManageCopies }: TableRowProps) => {
                 </p>
             </td>
             <td className="px-6 py-4 text-center">
-                <div className="relative inline-block text-left" ref={menuRef}>
-                    <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="focus-ring rounded p-1.5 text-outline transition-colors hover:bg-surface hover:text-on-surface"
-                    >
-                        <MoreVertical size={18} />
-                    </button>
+                {canEditBook && (
+                    <div className="relative inline-block text-left" ref={menuRef}>
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="focus-ring rounded p-1.5 text-outline transition-colors hover:bg-surface hover:text-on-surface"
+                        >
+                            <MoreVertical size={18} />
+                        </button>
 
-                    {isMenuOpen && (
-                        <div className="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            <div className="py-1">
-                                <button
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        onManageCopies(book.id, book.title);
-                                    }}
-                                    className="group flex w-full items-center gap-2 px-4 py-2 text-sm text-on-surface transition-colors hover:bg-surface"
-                                >
-                                    <Library size={15} className="group-hover:text-primary-600 text-outline" />
-                                    {textUI.TABLE.BTN_COPIES}
-                                </button>
-                                <div className="my-1 border-t border-surface-container-high"></div>
-                                <button
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        onEdit(book.id);
-                                    }}
-                                    className="group flex w-full items-center gap-2 px-4 py-2 text-sm text-on-surface transition-colors hover:bg-surface"
-                                >
-                                    <Pencil size={15} className="group-hover:text-primary-600 text-outline" />
-                                    {textUI.TABLE.BTN_EDIT}
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setIsMenuOpen(false);
-                                        toast.info("Chức năng xóa sách đang phát triển");
-                                    }}
-                                    className="group flex w-full items-center gap-2 px-4 py-2 text-sm text-error transition-colors hover:bg-error-50"
-                                >
-                                    <Trash2 size={15} className="text-error-400 group-hover:text-error" />
-                                    {textUI.TABLE.BTN_DELETE}
-                                </button>
+                        {isMenuOpen && (
+                            <div className="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                    <button
+                                        onClick={() => {
+                                            setIsMenuOpen(false);
+                                            onManageCopies(book.id, book.title);
+                                        }}
+                                        className="group flex w-full items-center gap-2 px-4 py-2 text-sm text-on-surface transition-colors hover:bg-surface"
+                                    >
+                                        <Library size={15} className="group-hover:text-primary-600 text-outline" />
+                                        {textUI.TABLE.BTN_COPIES}
+                                    </button>
+                                    <div className="my-1 border-t border-surface-container-high"></div>
+                                    <button
+                                        onClick={() => {
+                                            setIsMenuOpen(false);
+                                            onEdit(book.id);
+                                        }}
+                                        className="group flex w-full items-center gap-2 px-4 py-2 text-sm text-on-surface transition-colors hover:bg-surface"
+                                    >
+                                        <Pencil size={15} className="group-hover:text-primary-600 text-outline" />
+                                        {textUI.TABLE.BTN_EDIT}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setIsMenuOpen(false);
+                                            toast.info("Chức năng xóa sách đang phát triển");
+                                        }}
+                                        className="group flex w-full items-center gap-2 px-4 py-2 text-sm text-error transition-colors hover:bg-error-50"
+                                    >
+                                        <Trash2 size={15} className="text-error-400 group-hover:text-error" />
+                                        {textUI.TABLE.BTN_DELETE}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
             </td>
         </tr>
     );
 };
 
-export default function BookTable() {
+interface BookTableProps {
+    canEditBook?: boolean;
+}
+
+export default function BookTable({ canEditBook = false }: BookTableProps) {
     const [data, setData] = useState<PageResponse<BookListItem> | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -262,7 +269,13 @@ export default function BookTable() {
                                 </tr>
                             ) : (
                                 data?.content.map((book) => (
-                                    <TableRow key={book.id} book={book} onEdit={handleEditClick} onManageCopies={handleManageCopiesClick} />
+                                    <TableRow
+                                        key={book.id}
+                                        book={book}
+                                        onEdit={handleEditClick}
+                                        onManageCopies={handleManageCopiesClick}
+                                        canEditBook={canEditBook}
+                                    />
                                 ))
                             )}
                         </tbody>

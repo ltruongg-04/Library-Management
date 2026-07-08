@@ -5,6 +5,7 @@ import library.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,6 +27,7 @@ public class BookAdminController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('books.add-book')")
     public ResponseEntity<library.dto.response.BookResponse> createBook(
             @RequestBody @jakarta.validation.Valid library.dto.request.BookCreateRequest request) {
         library.dto.response.BookResponse createdBook = bookService.createBook(request);
@@ -33,6 +35,7 @@ public class BookAdminController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('books.edit-book')")
     public ResponseEntity<library.dto.response.BookResponse> updateBook(
             @PathVariable Integer id,
             @RequestBody library.dto.request.BookUpdateRequest request) {

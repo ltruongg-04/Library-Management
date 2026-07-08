@@ -1,6 +1,7 @@
 package library.service.impl;
 
 import library.common.exception.CustomBusinessException;
+import library.common.constant.CacheNames;
 import library.dto.response.BookListResponse;
 import library.dto.response.BookPageResponse;
 import library.dto.response.BookResponse;
@@ -11,6 +12,7 @@ import library.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 
 
 import java.util.List;
@@ -39,6 +41,7 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
     }
 
     @Override
+    @Cacheable(value = CacheNames.BOOKS_TOP_RATED, key = "'top10'")
     public List<BookListResponse> getTopRatedBooks() {
         return bookRepository.findTop10ByOrderByRatingDesc().stream()
                 .map(bookMapper::toBookListResponse)
@@ -46,6 +49,7 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
     }
 
     @Override
+    @Cacheable(value = CacheNames.BOOKS_DETAIL, key = "#id")
     public BookResponse getBookById(Integer id) {
         BookEntity book = bookRepository.findById(id)
                 .orElseThrow(() -> new CustomBusinessException(
@@ -67,6 +71,10 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
 
     @Override
     @SuppressWarnings("null")
+    @Cacheable(
+            value = CacheNames.BOOKS_LIST,
+            key = "T(java.util.Objects).hash(#keyword, #categoryId, #authorId, #publisher, #page, #size, #sortBy, #minRating, #isAvailable)"
+    )
     public BookPageResponse getBooks(String keyword, Integer categoryId, Integer authorId, String publisher, int page,
             int size, String sortBy, Double minRating, Boolean isAvailable) {
         Sort sort = resolveSort(sortBy);
@@ -92,6 +100,7 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
     }
 
     @Override
+    @Cacheable(value = CacheNames.BOOKS_TRENDING, key = "#limit")
     public BookPageResponse getTrendingBooks(int limit) {
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<BookEntity> bookPage = bookRepository.findAll(pageable);

@@ -26,11 +26,18 @@ spring:
     enabled: true
     baseline-on-migrate: true
     ignore-migration-patterns: "*:missing"
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
 resend:
   api-key: ${RESEND_API_KEY:}
   from-email: ${RESEND_FROM_EMAIL:Lumina Library <onboarding@resend.dev>}
 
 app:
+  cache:
+    provider: ${CACHE_PROVIDER:caffeine}
   jwt:
     secret: ${JWT_SECRET}
     expiration: 900000

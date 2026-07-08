@@ -10,7 +10,6 @@ import {
     CreditCard,
     DatabaseBackup,
     Globe2,
-    Landmark,
     Save,
     Settings,
     Sparkles,
@@ -20,49 +19,13 @@ import {
 import { Toggle } from "@/components/base/Toggle";
 import { SuccessModal } from "@/components/base/success-modal";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
+import { type AdminSettingsState, DEFAULT_SETTINGS } from "@/constants/admin/settings";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN_UI } from "@/constants/ui-text/admin";
+import { useSidebar } from "@/providers/SidebarContext";
 import { adminSettingsService } from "@/services/adminSettings";
 
 const SETTINGS = UI_TEXT.ADMIN_SETTINGS;
-
-type AdminSettingsState = {
-    borrowing: {
-        maxDays: string;
-        finePerDay: string;
-        maxBooks: string;
-        depositPercentage: string;
-        maxRenewals: string;
-    };
-    features: {
-        aiSearch: boolean;
-        onlinePayments: boolean;
-        autoBackup: boolean;
-    };
-    localization: {
-        language: string;
-        timezone: string;
-    };
-};
-
-const DEFAULT_SETTINGS: AdminSettingsState = {
-    borrowing: {
-        maxDays: "14",
-        finePerDay: "5000",
-        maxBooks: "5",
-        depositPercentage: "10",
-        maxRenewals: "2",
-    },
-    features: {
-        aiSearch: true,
-        onlinePayments: true,
-        autoBackup: true,
-    },
-    localization: {
-        language: "vi",
-        timezone: "utc-plus-7",
-    },
-};
 
 const borrowingFields = [
     { key: "maxDays", label: SETTINGS.BORROWING.MAX_DAYS, suffix: undefined },
@@ -209,6 +172,7 @@ function GatewayRow({
     note,
     token,
     active,
+    onAction,
 }: {
     icon: ElementType;
     name: string;
@@ -216,6 +180,7 @@ function GatewayRow({
     note: string;
     token: string;
     active: boolean;
+    onAction: () => void;
 }) {
     return (
         <div className="flex flex-col gap-md rounded-lg border border-outline-variant/20 bg-surface-bright p-md transition-colors hover:border-primary/30">
@@ -248,6 +213,7 @@ function GatewayRow({
                 </span>
                 <button
                     type="button"
+                    onClick={onAction}
                     className={`focus-ring h-9 rounded-lg px-md text-body-sm font-semibold transition-colors ${
                         active
                             ? "border border-secondary bg-transparent text-secondary hover:bg-secondary/10"
@@ -293,6 +259,13 @@ function SelectField({
     );
 }
 
+const maskString = (str: string) => {
+    if (!str) return "";
+    if (str.length <= 4) return "*".repeat(str.length);
+    const half = Math.floor(str.length / 2);
+    return str.substring(0, half) + "*".repeat(str.length - half);
+};
+
 function ConfirmDiscardModal({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: () => void }) {
     if (!isOpen) {
         return null;
@@ -327,13 +300,79 @@ function ConfirmDiscardModal({ isOpen, onClose, onConfirm }: { isOpen: boolean; 
     );
 }
 
+function VNPayConfigModal({
+    isOpen,
+    onClose,
+    config,
+    onSave,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    config: { vnpayTmnCode: string; vnpayHashSecret: string; vnpayActive: boolean };
+    onSave: (config: { vnpayTmnCode: string; vnpayHashSecret: string; vnpayActive: boolean }) => void;
+}) {
+    const [localConfig, setLocalConfig] = useState(config);
+
+    useEffect(() => {
+        setLocalConfig(config);
+    }, [config, isOpen]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-md backdrop-blur-sm">
+            <section className="level-2-shadow w-full max-w-md rounded-lg border border-outline-variant/30 bg-surface-container-lowest p-lg">
+                <h2 className="mb-4 text-title-md font-semibold text-on-surface">{SETTINGS.PAYMENTS.VNPAY_CONFIG_TITLE}</h2>
+                <div className="flex flex-col gap-4">
+                    <label className="flex flex-col gap-1">
+                        <span className="text-sm font-medium">{SETTINGS.PAYMENTS.VNPAY_CONFIG_TMN_CODE}</span>
+                        <input
+                            className="h-10 w-full cursor-not-allowed rounded-lg border border-outline-variant bg-surface-container-high px-3 text-on-surface-variant focus:outline-none"
+                            value={maskString(localConfig.vnpayTmnCode)}
+                            readOnly
+                            disabled
+                        />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                        <span className="text-sm font-medium">{SETTINGS.PAYMENTS.VNPAY_CONFIG_HASH_SECRET}</span>
+                        <input
+                            className="h-10 w-full cursor-not-allowed rounded-lg border border-outline-variant bg-surface-container-high px-3 text-on-surface-variant focus:outline-none"
+                            value={maskString(localConfig.vnpayHashSecret)}
+                            readOnly
+                            disabled
+                        />
+                    </label>
+                    <div className="mt-2 flex items-center justify-between">
+                        <span className="text-sm font-medium">{SETTINGS.PAYMENTS.VNPAY_CONFIG_ACTIVE}</span>
+                        <Toggle
+                            id="vnpay-active"
+                            checked={localConfig.vnpayActive}
+                            onChange={(checked) => setLocalConfig({ ...localConfig, vnpayActive: checked })}
+                        />
+                    </div>
+                </div>
+                <div className="mt-6 flex justify-end gap-3">
+                    <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-surface-container-low">
+                        {SETTINGS.ACTION_BAR.CANCEL}
+                    </button>
+                    <button onClick={() => onSave(localConfig)} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary">
+                        {SETTINGS.ACTION_BAR.SAVE}
+                    </button>
+                </div>
+            </section>
+        </div>
+    );
+}
+
 export default function CaiDatPage() {
+    const { collapsed } = useSidebar();
     const [adminSettings, setAdminSettings] = useState(DEFAULT_SETTINGS);
     const [savedSettings, setSavedSettings] = useState(DEFAULT_SETTINGS);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showDiscardModal, setShowDiscardModal] = useState(false);
+    const [showVNPayModal, setShowVNPayModal] = useState(false);
 
     useEffect(() => {
         const loadSettings = async () => {
@@ -381,6 +420,17 @@ export default function CaiDatPage() {
                 [key]: value,
             },
         }));
+    };
+
+    const updatePayment = (config: { vnpayTmnCode: string; vnpayHashSecret: string; vnpayActive: boolean }) => {
+        setAdminSettings((current) => ({
+            ...current,
+            payment: {
+                ...current.payment,
+                ...config,
+            },
+        }));
+        setShowVNPayModal(false);
     };
 
     const handleSave = async () => {
@@ -472,20 +522,15 @@ export default function CaiDatPage() {
                             <SectionCard icon={WalletCards} title={SETTINGS.PAYMENTS.TITLE}>
                                 <div className="flex flex-col gap-md">
                                     <GatewayRow
-                                        icon={Landmark}
-                                        name={SETTINGS.PAYMENTS.MOMO_NAME}
-                                        description={SETTINGS.PAYMENTS.MOMO_DESC}
-                                        note={SETTINGS.PAYMENTS.MOMO_NOTE}
-                                        token={SETTINGS.PAYMENTS.MOMO_TOKEN}
-                                        active
-                                    />
-                                    <GatewayRow
                                         icon={CreditCard}
                                         name={SETTINGS.PAYMENTS.VNPAY_NAME}
                                         description={SETTINGS.PAYMENTS.VNPAY_DESC}
                                         note={SETTINGS.PAYMENTS.VNPAY_NOTE}
-                                        token={SETTINGS.PAYMENTS.VNPAY_TOKEN}
-                                        active={false}
+                                        token={maskString(
+                                            adminSettings.payment.vnpayTmnCode ? adminSettings.payment.vnpayTmnCode : SETTINGS.PAYMENTS.VNPAY_TOKEN,
+                                        )}
+                                        active={adminSettings.payment.vnpayActive}
+                                        onAction={() => setShowVNPayModal(true)}
                                     />
                                 </div>
                             </SectionCard>
@@ -515,7 +560,11 @@ export default function CaiDatPage() {
             </main>
 
             {hasChanges && (
-                <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-surface-container-high bg-white px-8 py-4 shadow-lg">
+                <div
+                    className={`fixed bottom-0 right-0 z-40 border-t border-surface-container-high bg-white px-8 py-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] transition-all duration-300 ${
+                        collapsed ? "left-[68px]" : "left-[280px] lg:left-sidebar-width"
+                    }`}
+                >
                     <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-md">
                         <p className="text-body-sm text-on-surface-variant">{SETTINGS.ACTION_BAR.WARNING}</p>
                         <div className="flex gap-sm">
@@ -543,6 +592,7 @@ export default function CaiDatPage() {
             <SuccessModal isOpen={showSuccessModal} message={SETTINGS.ACTION_BAR.SUCCESS} onClose={() => setShowSuccessModal(false)} />
 
             <ConfirmDiscardModal isOpen={showDiscardModal} onClose={() => setShowDiscardModal(false)} onConfirm={confirmDiscard} />
+            <VNPayConfigModal isOpen={showVNPayModal} onClose={() => setShowVNPayModal(false)} config={adminSettings.payment} onSave={updatePayment} />
         </div>
     );
 }

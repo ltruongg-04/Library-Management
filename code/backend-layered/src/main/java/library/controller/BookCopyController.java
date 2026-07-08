@@ -4,6 +4,7 @@ import library.dto.request.BookCopyRequest;
 import library.dto.response.BookCopyResponse;
 import library.service.BookCopyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class BookCopyController {
     }
 
     @PostMapping("/{bookId}/copies")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('books.edit-book')")
     public ResponseEntity<List<BookCopyResponse>> addCopies(@PathVariable Integer bookId, @RequestParam(defaultValue = "1") int quantity) {
         if (quantity <= 0) {
             return ResponseEntity.badRequest().build();
@@ -30,11 +32,13 @@ public class BookCopyController {
     }
 
     @PutMapping("/copies/{copyId}")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('books.edit-book')")
     public ResponseEntity<BookCopyResponse> updateCopy(@PathVariable Integer copyId, @RequestBody BookCopyRequest request) {
         return ResponseEntity.ok(bookCopyService.updateCopy(copyId, request));
     }
 
     @DeleteMapping("/copies/{copyId}")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('books.edit-book')")
     public ResponseEntity<Void> deleteCopy(@PathVariable Integer copyId) {
         bookCopyService.deleteCopy(copyId);
         return ResponseEntity.ok().build();

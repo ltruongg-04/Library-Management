@@ -12,6 +12,7 @@ function normalizeSettings(settings?: Partial<AdminSettingsState> | null): Admin
         borrowing: { ...DEFAULT_SETTINGS.borrowing, ...settings?.borrowing },
         features: { ...DEFAULT_SETTINGS.features, ...settings?.features },
         localization: { ...DEFAULT_SETTINGS.localization, ...settings?.localization },
+        payment: { ...DEFAULT_SETTINGS.payment, ...settings?.payment },
     };
 }
 

@@ -26,6 +26,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
     private final library.service.FeeCalculatorService feeCalculatorService;
     private final SystemLogService systemLogService;
+    private final library.service.CacheInvalidationService cacheInvalidationService;
     private final library.mapper.AdminBorrowOrderMapper adminBorrowOrderMapper;
     
     // Helpers
@@ -102,6 +103,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
         borrowOrderRepository.save(order);
         systemLogService.logAction("Cập nhật trạng thái đơn mượn", "Admin cập nhật đơn " + orderCode + " thành " + newStatus.name());
+        cacheInvalidationService.evictBookCaches();
     }
 
     @Override
@@ -158,6 +160,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
         String firstBookAuthor = bookInfos[1];
 
         systemLogService.logAction("Tạo đơn mượn", "Admin tạo đơn mượn: " + orderCode + " cho khách: " + customer.getPhone());
+        cacheInvalidationService.evictBookCaches();
 
         return AdminBorrowOrderDto.builder()
                 .id(savedOrder.getOrderCode())
@@ -225,5 +228,6 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
         borrowExtensionRepository.save(extension);
         borrowOrderRepository.save(order);
         systemLogService.logAction("Xử lý gia hạn đơn mượn", "Admin " + (request.isApproved() ? "duyệt" : "từ chối") + " gia hạn đơn " + orderCode);
+        cacheInvalidationService.evictDashboardCaches();
     }
 }

@@ -9,7 +9,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
             headers: {
                 "Content-Type": "application/json",
             },
-            cache: "no-store",
+            next: { revalidate: 60 },
         });
 
         const data = await response.json();
@@ -18,7 +18,11 @@ export async function GET(_request: Request, { params }: { params: { id: string 
             return NextResponse.json({ success: false, message: data.message || API_ERRORS.NOT_FOUND_BOOK }, { status: response.status });
         }
 
-        return NextResponse.json(data);
+        return NextResponse.json(data, {
+            headers: {
+                "Cache-Control": "s-maxage=60, stale-while-revalidate=30",
+            },
+        });
     } catch (error) {
         console.error(`Error proxying to backend /api/books/${params.id}:`, error);
         return NextResponse.json({ success: false, message: "Backend is unreachable" }, { status: 503 });
