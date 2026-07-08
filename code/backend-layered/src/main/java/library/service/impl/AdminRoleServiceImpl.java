@@ -32,20 +32,20 @@ public class AdminRoleServiceImpl implements AdminRoleService {
                     new PermissionCatalogItem("add-book", "Add New Books", "Allow user to input new entries into the main catalog."),
                     new PermissionCatalogItem("edit-book", "Edit Book Metadata", "Allow user to modify titles, authors and classification data."),
                     new PermissionCatalogItem("delete-book", "Delete Books", "Allow user to permanently remove items from the catalog.")
-            )),
+            ), Set.of(UserEntity.Role.ADMIN, UserEntity.Role.LIBRARIAN)),
             new PermissionCatalogModule("borrow", "Borrowing & Circulation", "sync_alt", List.of(
                     new PermissionCatalogItem("approve", "Approve Borrows", "Manually override or approve restricted borrowing requests."),
                     new PermissionCatalogItem("fine", "Waive Fines", "Authorize the removal of late fees from customer accounts.")
-            )),
+            ), Set.of(UserEntity.Role.ADMIN, UserEntity.Role.LIBRARIAN)),
             new PermissionCatalogModule("reviews", "Reviews Moderation", "rate_review", List.of(
                     new PermissionCatalogItem("moderate", "Moderate Reviews", "Hide, restore or remove user reviews.")
-            )),
+            ), Set.of(UserEntity.Role.ADMIN, UserEntity.Role.LIBRARIAN)),
             new PermissionCatalogModule("settings", "System Settings", "settings", List.of(
                     new PermissionCatalogItem("manage", "Manage Settings", "Update borrowing policies and system settings.")
-            )),
+            ), Set.of(UserEntity.Role.ADMIN)),
             new PermissionCatalogModule("roles", "Roles & Permissions", "admin_panel_settings", List.of(
                     new PermissionCatalogItem("manage", "Manage Roles", "Update permissions for system roles.")
-            ))
+            ), Set.of(UserEntity.Role.ADMIN))
     );
 
     @Override
@@ -67,7 +67,7 @@ public class AdminRoleServiceImpl implements AdminRoleService {
         rolePermissionRepository.deleteByRoleName(role);
 
         List<RolePermissionEntity> permissions = requestedPermissionIds.stream()
-                .filter(this::isKnownPermission)
+                .filter(permissionId -> isAllowedPermission(role, permissionId))
                 .map(permissionId -> RolePermissionEntity.builder()
                         .roleName(role)
                         .permissionId(permissionId)
@@ -86,6 +86,7 @@ public class AdminRoleServiceImpl implements AdminRoleService {
     public List<String> getPermissionIds(UserEntity.Role role) {
         return rolePermissionRepository.findByRoleName(role).stream()
                 .map(RolePermissionEntity::getPermissionId)
+                .filter(permissionId -> isAllowedPermission(role, permissionId))
                 .collect(Collectors.toList());
     }
 
@@ -93,6 +94,7 @@ public class AdminRoleServiceImpl implements AdminRoleService {
         Set<String> enabledPermissions = new LinkedHashSet<>(getPermissionIds(role));
 
         List<RoleResponse.PermissionModuleResponse> modules = PERMISSION_CATALOG.stream()
+                .filter(module -> module.allowedRoles().contains(role))
                 .map(module -> RoleResponse.PermissionModuleResponse.builder()
                         .id(module.id())
                         .name(module.name())
@@ -119,8 +121,9 @@ public class AdminRoleServiceImpl implements AdminRoleService {
                 .build();
     }
 
-    private boolean isKnownPermission(String permissionId) {
+    private boolean isAllowedPermission(UserEntity.Role role, String permissionId) {
         return PERMISSION_CATALOG.stream()
+                .filter(module -> module.allowedRoles().contains(role))
                 .flatMap(module -> module.permissions().stream().map(permission -> buildPermissionId(module.id(), permission.id())))
                 .anyMatch(permissionId::equals);
     }
@@ -145,7 +148,7 @@ public class AdminRoleServiceImpl implements AdminRoleService {
         };
     }
 
-    private record PermissionCatalogModule(String id, String name, String icon, List<PermissionCatalogItem> permissions) {
+    private record PermissionCatalogModule(String id, String name, String icon, List<PermissionCatalogItem> permissions, Set<UserEntity.Role> allowedRoles) {
     }
 
     private record PermissionCatalogItem(String id, String name, String description) {
