@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Loader2, Save, X } from "lucide-react";
 import Image from "next/image";
 import CreatableSelect from "react-select/creatable";
+import { DEFAULT_BACKEND_URL } from "@/config/env";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN } from "@/constants/ui-text/admin";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
@@ -134,7 +135,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
             const newCategories = selectedCategories.filter((c) => c.__isNew__).map((c) => c.label);
 
             let finalImageUrl = imageUrl;
-            if (finalImageUrl && finalImageUrl.startsWith("http") && !finalImageUrl.includes(process.env.NEXT_PUBLIC_API_URL || "localhost")) {
+            if (finalImageUrl && finalImageUrl.startsWith("http") && !finalImageUrl.includes(process.env.NEXT_PUBLIC_API_URL || DEFAULT_BACKEND_URL)) {
                 try {
                     finalImageUrl = await fileService.uploadFileFromUrl(finalImageUrl);
                 } catch (e) {

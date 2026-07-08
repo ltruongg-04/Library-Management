@@ -43,7 +43,7 @@ public class VnPayController {
     private final library.service.EmailService emailService;
     private final library.service.CacheInvalidationService cacheInvalidationService;
 
-    @Value("${vnpay.frontend-url:http://localhost:3000}")
+    @Value("${vnpay.frontend-url:https://library-management-lovat-theta.vercel.app}")
     private String frontendUrl;
 
     /**
