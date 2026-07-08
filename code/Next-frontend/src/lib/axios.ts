@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
 
@@ -34,6 +34,12 @@ axiosInstance.interceptors.response.use(
         return response;
     },
     (error) => {
+        // Automatically sign out user on 401 Unauthorized (invalid/expired token)
+        if (typeof window !== "undefined" && error.response?.status === 401 && !error.config.url?.includes("/api/auth/")) {
+            console.warn("Session expired or invalid, logging out...");
+            signOut({ callbackUrl: "/login" });
+        }
+
         // Có thể xử lý refresh token ở đây nếu cần gọi api trực tiếp qua axios thay vì NextAuth
         // Tuy nhiên NextAuth đang xử lý refresh token trong callbacks.jwt rồi.
         return Promise.reject(error);

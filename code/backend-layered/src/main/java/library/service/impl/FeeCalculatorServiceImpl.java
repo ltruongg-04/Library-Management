@@ -28,6 +28,7 @@ public class FeeCalculatorServiceImpl implements FeeCalculatorService {
                             .maxBorrowDays(14)
                             .rentalFeePerDay(new BigDecimal("5000")) // Phí thuê 5k/ngày/cuốn
                             .overdueFinePerDay(new BigDecimal("10000")) // Phạt trễ hạn 10k/ngày
+                            .rentalFeePerDay(new BigDecimal("5000"))
                             .lostBookMultiplier(new BigDecimal("2.0")) // Mất sách đền 200% cọc
                             .damageFeePercent(new BigDecimal("0.5")) // Hỏng đền 50% cọc
                             .maxExtensions(2)
@@ -46,7 +47,7 @@ public class FeeCalculatorServiceImpl implements FeeCalculatorService {
             days = 1;
         }
         BorrowingPolicyEntity policy = getActivePolicy();
-        BigDecimal feePerDay = policy.getRentalFeePerDay();
+        BigDecimal feePerDay = policy.getRentalFeePerDay() != null ? policy.getRentalFeePerDay() : new BigDecimal("5000");
         return feePerDay.multiply(new BigDecimal(days)).multiply(new BigDecimal(numberOfBooks));
     }
 

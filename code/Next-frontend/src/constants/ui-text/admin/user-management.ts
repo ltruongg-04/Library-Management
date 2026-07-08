@@ -30,7 +30,12 @@ export const ADMIN_USER_MANAGEMENT = {
         BTN_EDIT: "Edit",
         BTN_LOCK: "Lock",
         BTN_UNLOCK: "Unlock",
-        PAGINATION_INFO: "Showing 1 to 3 of 128 users",
+        PAGINATION: {
+            SHOWING: "Hiển thị",
+            TO: "-",
+            OF: "trong số",
+            ITEMS: "thành viên",
+        },
         EMPTY_STATE: "Không có dữ liệu thành viên",
     },
     MODAL: {

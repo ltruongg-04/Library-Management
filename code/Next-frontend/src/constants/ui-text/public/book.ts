@@ -72,8 +72,15 @@ export const BOOK_DETAIL = {
     ADD_WISHLIST: "Add to Wishlist",
     REMOVE_WISHLIST: "Remove from Wishlist",
     READ_AT_LIBRARY: "Đọc sách tại thư viện",
+    REVIEW_BOOK: "Đánh giá sách",
     AI_CHATBOT: {
         TITLE: "Lumina AI",
         SUBTITLE: "Book Summary & Reading Path",
+    },
+    LOGIN_PROMPT: {
+        TITLE: "Yêu cầu đăng nhập",
+        DESCRIPTION: "Bạn cần đăng nhập để sử dụng tính năng này. Vui lòng đăng nhập hoặc tiếp tục khám phá sách.",
+        LOGIN_BTN: "Đăng nhập ngay",
+        CONTINUE_BTN: "Tiếp tục khám phá",
     },
 };

@@ -366,3 +366,21 @@ ALTER TABLE `notifications` ADD FOREIGN KEY (`customer_id`) REFERENCES `customer
 ALTER TABLE `support_requests` ADD FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`);
 
 ALTER TABLE `support_requests` ADD FOREIGN KEY (`assigned_assistant_id`) REFERENCES `assistants` (`id`);
+
+CREATE TABLE `book_visits` (
+`id` int PRIMARY KEY AUTO_INCREMENT,
+`book_id` int,
+`full_name` varchar(255),
+`email` varchar(255),
+`phone` varchar(20),
+`visit_date` date,
+`visit_time` varchar(50),
+`purpose` varchar(255),
+`confirmation_code` varchar(50) UNIQUE,
+`status` varchar(20) DEFAULT 'PENDING',
+`is_reminded` boolean DEFAULT FALSE,
+`created_at` timestamp
+);
+
+ALTER TABLE `book_visits` ADD FOREIGN KEY (`book_id`) REFERENCES `books` (`id`);
+

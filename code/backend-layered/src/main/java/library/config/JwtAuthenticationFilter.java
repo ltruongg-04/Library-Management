@@ -15,11 +15,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.lang.NonNull;
 
 import library.repository.UserRepository;
+import library.service.AdminRoleService;
 import library.entity.UserEntity;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final AdminRoleService adminRoleService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -46,11 +49,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             if (jwtUtil.isTokenValid(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
                 userEmail = jwtUtil.extractEmail(jwt);
-                
                 // Check if user exists and is active
                 UserEntity user = userRepository.findByEmail(userEmail).orElse(null);
                 if (user == null || !user.isActive()) {
-                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.getWriter().write("User account is locked or deleted");
                     return;
                 }
@@ -63,10 +65,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                               ? "ROLE_" + roleString 
                               : roleString;
 
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                authorities.add(new SimpleGrantedAuthority(role));
+                adminRoleService.getPermissionIds(user.getRole()).stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .forEach(authorities::add);
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userEmail,
                         null,
-                        Collections.singletonList(new SimpleGrantedAuthority(role))
+                        authorities
                 );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

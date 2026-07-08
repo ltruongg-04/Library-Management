@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sách bạn đặt đã có sẵn</title>
+</head>
+<body style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+    <h2 style="color: #0275d8;">Sách bạn đặt đã có sẵn!</h2>
+    <p>Chào <span th:text="${fullName}">Bạn</span>,</p>
+    <p>Tin vui! Cuốn sách mà bạn đã đăng ký xếp hàng mượn hiện đã có sẵn tại thư viện.</p>
+    
+    <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; border-left: 4px solid #0275d8; margin: 20px 0;">
+        <p><strong>Tên sách:</strong> <span th:text="${bookTitle}"></span></p>
+        <p><strong>Giữ sách đến hết ngày:</strong> <span th:text="${holdUntilDate}"></span></p>
+    </div>
+
+    <p>Chúng tôi sẽ giữ sách này cho bạn đến ngày trên. Xin vui lòng đến thư viện trong thời gian sớm nhất để làm thủ tục mượn sách.</p>
+    <p>Nếu quá hạn giữ sách, lượt mượn sẽ tự động được chuyển cho người tiếp theo trong hàng đợi.</p>
+    
+    <p style="margin-top: 30px;">Trân trọng,<br>Ban quản trị Thư viện Lumina</p>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cập nhật trạng thái lịch hẹn</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-top: 4px solid #0056b3;">
+    <h2 style="color: #0056b3; margin-top: 0;">Xin chào <span th:text="${fullName}"></span>,</h2>
+    <p>Lịch hẹn đến thư viện của bạn đã được cập nhật trạng thái mới.</p>
+    
+    <div style="background-color: #ffffff; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745;">
+        <p style="margin: 0;"><strong>Trạng thái:</strong> <span th:text="${status}"></span></p>
+        <p style="margin: 10px 0 0 0;" th:if="${notes != null and !notes.isEmpty()}"><strong>Ghi chú từ quản trị viên:</strong> <span th:text="${notes}"></span></p>
+    </div>
+    
+    <p>Trân trọng,<br>Ban quản trị Thư viện Lumina</p>
+</div>
+</body>
+</html>

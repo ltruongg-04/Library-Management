@@ -38,6 +38,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     private final BookCopyRepository bookCopyRepository;
     private final VnPayService vnPayService;
     private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
+    private final library.repository.ReservationRepository reservationRepository;
 
     private final SystemLogService systemLogService;
     private final library.service.EmailService emailService;
@@ -66,11 +67,11 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
                 .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
 
         // 2. Validate dates and calculate fee
-        long borrowDays = validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
+        validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
         BigDecimal rentalFee = feeCalculatorService.calculateRentalFee(request.getPickupDate(), request.getReturnDate(), 1);
 
         // 3. Validate book availability and reserve a copy
-        BookCopyEntity availableCopy = reserveBookCopy(book.getId());
+        BookCopyEntity availableCopy = reserveBookCopy(book.getId(), customer);
 
         // 4. Create Order and generate Response
         BorrowResponseDto response = processBorrowOrderCreation(
@@ -94,6 +95,12 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
                 .orElseThrow(() -> new CustomBusinessException("Borrow order not found", HttpStatus.NOT_FOUND));
 
         validationHelper.validateRenewalConditions(order);
+        int maxBorrowDays = feeCalculatorService.getActivePolicy().getMaxBorrowDays() != null
+                ? feeCalculatorService.getActivePolicy().getMaxBorrowDays()
+                : 14;
+        if (request.getDurationInDays() > maxBorrowDays) {
+            throw new CustomBusinessException("Thời gian gia hạn không được vượt quá " + maxBorrowDays + " ngày", HttpStatus.BAD_REQUEST);
+        }
 
         // Determine base date for extension and calculate overdue penalty
         LocalDate baseDate = order.getDueDate();
@@ -167,11 +174,11 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
                 .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
 
         // Validate dates
-        long borrowDays = validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
+        validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
         BigDecimal rentalFee = feeCalculatorService.calculateRentalFee(request.getPickupDate(), request.getReturnDate(), 1);
 
         // Validate book availability and get a copy
-        BookCopyEntity availableCopy = reserveBookCopy(book.getId());
+        BookCopyEntity availableCopy = reserveBookCopy(book.getId(), customer);
 
         // Create Order and generate Response
         BorrowResponseDto response = processBorrowOrderCreation(
@@ -315,9 +322,33 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         });
     }
 
-    private BookCopyEntity reserveBookCopy(Integer bookId) {
-        BookCopyEntity availableCopy = bookCopyRepository.findFirstByBookIdAndStatus(bookId,
-                BookCopyStatus.AVAILABLE);
+    private BookCopyEntity reserveBookCopy(Integer bookId, CustomerEntity customer) {
+        boolean hasNotifiedReservation = false;
+        if (customer != null && customer.getId() != null) {
+            hasNotifiedReservation = reservationRepository.existsByCustomerIdAndBookIdAndStatus(
+                    customer.getId(), bookId, ReservationStatus.NOTIFIED);
+        }
+
+        BookCopyEntity availableCopy = null;
+
+        if (hasNotifiedReservation) {
+            availableCopy = bookCopyRepository.findFirstByBookIdAndStatus(bookId, BookCopyStatus.RESERVED);
+            if (availableCopy != null) {
+                java.util.List<ReservationEntity> reservations = reservationRepository.findByCustomerIdAndBookId(customer.getId(), bookId);
+                for (ReservationEntity res : reservations) {
+                    if (res.getStatus() == ReservationStatus.NOTIFIED) {
+                        res.setStatus(ReservationStatus.COMPLETED);
+                        reservationRepository.save(res);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (availableCopy == null) {
+            availableCopy = bookCopyRepository.findFirstByBookIdAndStatus(bookId, BookCopyStatus.AVAILABLE);
+        }
+
         if (availableCopy == null) {
             throw new CustomBusinessException("No copies of this book are currently available", HttpStatus.BAD_REQUEST);
         }

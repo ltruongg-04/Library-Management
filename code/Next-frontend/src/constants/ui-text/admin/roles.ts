@@ -8,6 +8,8 @@ export const ROLES = {
 
     ROLE_LIST_TITLE: "Danh sách vai trò",
 
+    VIEWING_ROLE: "Chi tiết vai trò",
+
     EDITING_ROLE: "Đang chỉnh sửa",
 
     SAVE_CHANGES: "Lưu thay đổi",
@@ -15,6 +17,10 @@ export const ROLES = {
     DISCARD_CHANGES: "Hủy",
 
     EMPTY_PERMISSION: "Không có quyền nào.",
+    LOADING: "Đang tải phân quyền...",
+    LOAD_ERROR: "Không thể tải danh sách phân quyền.",
+    SAVE_SUCCESS: "Đã lưu thay đổi phân quyền.",
+    SAVE_ERROR: "Không thể lưu thay đổi phân quyền.",
 
     SECURITY_POLICY_TITLE: "Chính sách bảo mật",
 

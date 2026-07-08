@@ -20,11 +20,15 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
 
     boolean existsByCustomerIdAndBookIdAndStatus(Integer customerId, Integer bookId, ReservationStatus status);
 
+    java.util.List<ReservationEntity> findByCustomerIdAndBookId(Integer customerId, Integer bookId);
+
     boolean existsByBookIdAndStatus(Integer bookId, ReservationStatus status);
 
     long countByBookIdAndStatusAndReservationDateBefore(Integer bookId, ReservationStatus status, LocalDateTime date);
 
     Optional<ReservationEntity> findFirstByBookIdAndStatusOrderByReservationDateAsc(Integer bookId, ReservationStatus status);
+
+    java.util.List<ReservationEntity> findByStatusAndNotifiedAtBefore(ReservationStatus status, LocalDateTime date);
 
     @Modifying
     @Query("DELETE FROM ReservationEntity r WHERE r.status = :status AND r.reservationDate < :date")

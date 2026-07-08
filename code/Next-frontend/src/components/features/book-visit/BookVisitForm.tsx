@@ -1,6 +1,7 @@
 import type { FormEvent } from "react";
 import { useMemo } from "react";
 import { Clock3, Info, User } from "lucide-react";
+import ReCAPTCHA from "react-google-recaptcha";
 import { BOOK_VISIT_INPUT_CLASS_NAME } from "@/constants/public/book-visit";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { SubmitStatus, VisitFormState } from "@/types/book-visit";
@@ -145,9 +146,17 @@ export function BookVisitForm({ formState, submitStatus, today, onFieldChange, o
                         <Info size={18} className="mt-0.5 shrink-0 text-secondary dark:text-secondary-300" />
                         <span>{UI_TEXT.BOOK_VISIT.FORM.NOTE}</span>
                     </p>
+
+                    <div className="flex w-full justify-center py-2 md:justify-start">
+                        <ReCAPTCHA
+                            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                            onChange={(token) => onFieldChange("captchaToken", token || "")}
+                        />
+                    </div>
+
                     <button
                         type="submit"
-                        disabled={submitStatus === "sending"}
+                        disabled={submitStatus === "sending" || !formState.captchaToken}
                         className="inline-flex w-full items-center justify-center whitespace-nowrap rounded-lg bg-primary px-10 py-3 font-title-md text-title-md text-on-primary shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-200 hover:bg-primary-container active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-primary-500 dark:hover:bg-primary-700 md:w-auto"
                     >
                         {submitStatus === "sending" ? UI_TEXT.BOOK_VISIT.FORM.TOAST_SENDING : UI_TEXT.BOOK_VISIT.FORM.SUBMIT}

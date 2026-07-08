@@ -30,4 +30,5 @@ public class BookCreateRequest {
     private LocalDate publicationDate;
     private Integer pages;
     private BigDecimal depositPrice;
+    private Integer initialQuantity;
 }

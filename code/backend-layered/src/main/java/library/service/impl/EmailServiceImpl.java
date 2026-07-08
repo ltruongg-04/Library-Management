@@ -164,4 +164,209 @@ public class EmailServiceImpl implements EmailService {
             log.error("Failed to send email via Resend: {}", e.getMessage());
         }
     }
+
+    @Override
+    @Async
+    public void sendOverdueReminderEmail(String toEmail, String fullName, String orderCode, List<String> bookList, LocalDate dueDate, String finePerDay) {
+        if (this.resend == null) return;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("orderCode", orderCode);
+            context.setVariable("bookList", bookList);
+            context.setVariable("dueDate", dueDate != null ? dueDate.format(formatter) : "N/A");
+            context.setVariable("finePerDay", finePerDay);
+
+            String htmlContent = templateEngine.process("email/overdue-reminder", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Cảnh báo: Sách quá hạn trả - " + orderCode)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent overdue reminder email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send overdue email to {}", toEmail, e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendPaymentSuccessEmail(String toEmail, String fullName, String orderCode, String amount, String transactionId, String payDate) {
+        if (this.resend == null) return;
+        try {
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("orderCode", orderCode);
+            context.setVariable("amount", amount);
+            context.setVariable("transactionId", transactionId);
+            context.setVariable("payDate", payDate);
+
+            String htmlContent = templateEngine.process("email/payment-success", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Xác nhận thanh toán thành công - Thư viện Lumina")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent payment success email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send payment success email to {}", toEmail, e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendReservationAvailableEmail(String toEmail, String fullName, String bookTitle, LocalDate holdUntilDate) {
+        if (this.resend == null) return;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("bookTitle", bookTitle);
+            context.setVariable("holdUntilDate", holdUntilDate != null ? holdUntilDate.format(formatter) : "N/A");
+
+            String htmlContent = templateEngine.process("email/reservation-available", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Thông báo: Sách bạn đặt trước đã có sẵn")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent reservation available email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send reservation available email to {}", toEmail, e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendBookVisitConfirmationEmail(String toEmail, String fullName, String bookTitle, String confirmationCode, String visitDate, String visitTime, String phone) {
+        if (this.resend == null) return;
+        try {
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("bookTitle", bookTitle);
+            context.setVariable("confirmationCode", confirmationCode);
+            context.setVariable("visitDate", visitDate);
+            context.setVariable("visitTime", visitTime);
+            context.setVariable("phone", phone);
+
+            String htmlContent = templateEngine.process("email/book-visit-confirmation", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Xác nhận lịch đọc sách tại Lumina Library")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent book visit confirmation email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send book visit confirmation email to {}", toEmail, e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendBookVisitReminderEmail(String toEmail, String fullName, String bookTitle, String visitDate, String visitTime) {
+        if (this.resend == null) return;
+        try {
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("bookTitle", bookTitle);
+            context.setVariable("visitDate", visitDate);
+            context.setVariable("visitTime", visitTime);
+
+            String htmlContent = templateEngine.process("email/book-visit-reminder", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Nhắc nhở: Lịch đọc sách ngày mai tại Lumina Library")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent book visit reminder email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send book visit reminder email to {}", toEmail, e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendWelcomeEmail(String toEmail, String fullName, String rawPassword) {
+        if (this.resend == null) {
+            log.warn("Resend API key is not configured. Email will not be sent to {}", toEmail);
+            return;
+        }
+
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        context.setVariable("email", toEmail);
+        context.setVariable("password", rawPassword);
+        
+        String htmlContent = templateEngine.process("email/welcome-user", context);
+
+        try {
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Chào mừng bạn đến với Thư viện Lumina")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Welcome email sent successfully to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send welcome email to {}: {}", toEmail, e.getMessage());
+        }
+    }
+
+    @Override
+    @Async
+    public void sendBookVisitStatusEmail(String toEmail, String fullName, String status, String notes) {
+        if (this.resend == null) {
+            log.warn("Resend API key is not configured. Email will not be sent to {}", toEmail);
+            return;
+        }
+
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        
+        String statusText = status;
+        if ("APPROVED".equals(status)) statusText = "Đã được duyệt (APPROVED)";
+        else if ("REJECTED".equals(status)) statusText = "Đã bị từ chối (REJECTED)";
+        
+        context.setVariable("status", statusText);
+        context.setVariable("notes", notes);
+        
+        String htmlContent = templateEngine.process("email/book-visit-status", context);
+
+        try {
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Thông báo cập nhật trạng thái Lịch Hẹn")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Book visit status email sent successfully to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send book visit status email to {}: {}", toEmail, e.getMessage());
+        }
+    }
 }

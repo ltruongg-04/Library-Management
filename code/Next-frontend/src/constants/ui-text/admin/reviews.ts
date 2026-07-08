@@ -19,6 +19,7 @@ export const ADMIN_REVIEWS = {
     REVIEW_FOR: "Đánh giá cho",
     HIDDEN_BY_ADMIN: "Ẩn bởi Admin",
     REASON: "Lý do",
+    LOADING_REVIEWS: "Đang tải đánh giá...",
     EMPTY_STATE: "Không có đánh giá phù hợp với bộ lọc hiện tại.",
     STATS: {
         TOTAL: "Tổng phản hồi",

@@ -3,6 +3,7 @@
 import {
     BarChart3,
     BookOpen,
+    Calendar,
     CircleHelp,
     ClipboardList,
     Feather,
@@ -19,7 +20,7 @@ import {
     Users,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { UI_TEXT } from "@/constants/ui-text";
 import { useSidebar } from "@/providers/SidebarContext";
 import { useAuth } from "@/providers/auth";
@@ -27,23 +28,29 @@ import { useAuth } from "@/providers/auth";
 const { SIDEBAR } = UI_TEXT.ADMIN;
 
 const NAV_ITEMS = [
-    { label: SIDEBAR.NAV_OVERVIEW, icon: LayoutDashboard, href: "/admin" },
-    { label: SIDEBAR.NAV_BOOKS, icon: BookOpen, href: "/admin/kho-sach" },
-    { label: SIDEBAR.NAV_CATEGORIES, icon: Tags, href: "/admin/the-loai" },
-    { label: SIDEBAR.NAV_AUTHORS, icon: Feather, href: "/admin/tac-gia" },
-    { label: SIDEBAR.NAV_BORROWS, icon: ClipboardList, href: "/admin/luot-muon" },
-    { label: SIDEBAR.NAV_REVIEWS, icon: MessageSquare, href: "/admin/danh-gia" },
-    { label: SIDEBAR.NAV_MEMBERS, icon: Users, href: "/admin/thanh-vien" },
-    { label: SIDEBAR.NAV_ROLES, icon: ShieldCheck, href: "/admin/vai-tro" },
-    { label: SIDEBAR.NAV_SETTINGS, icon: Settings, href: "/admin/cai-dat" },
-    { label: SIDEBAR.NAV_AUDIT_LOGS, icon: History, href: "/admin/nhat-ky" },
-    { label: SIDEBAR.NAV_STATS, icon: BarChart3, href: "/admin/thong-ke" },
+    { label: SIDEBAR.NAV_OVERVIEW, icon: LayoutDashboard, href: "/admin", roles: ["ADMIN", "LIBRARIAN"] },
+    { label: SIDEBAR.NAV_BOOKS, icon: BookOpen, href: "/admin/kho-sach", roles: ["ADMIN", "LIBRARIAN"] },
+    { label: SIDEBAR.NAV_CATEGORIES, icon: Tags, href: "/admin/the-loai", roles: ["ADMIN", "LIBRARIAN"] },
+    { label: SIDEBAR.NAV_AUTHORS, icon: Feather, href: "/admin/tac-gia", roles: ["ADMIN", "LIBRARIAN"] },
+    { label: SIDEBAR.NAV_BORROWS, icon: ClipboardList, href: "/admin/luot-muon", roles: ["ADMIN", "LIBRARIAN"] },
+    { label: SIDEBAR.NAV_VISITS, icon: Calendar, href: "/admin/lich-hen", roles: ["ADMIN", "LIBRARIAN"] },
+    { label: SIDEBAR.NAV_REVIEWS, icon: MessageSquare, href: "/admin/danh-gia", roles: ["ADMIN", "LIBRARIAN"] },
+    { label: SIDEBAR.NAV_MEMBERS, icon: Users, href: "/admin/thanh-vien", roles: ["ADMIN"] },
+    { label: SIDEBAR.NAV_ROLES, icon: ShieldCheck, href: "/admin/vai-tro", roles: ["ADMIN"] },
+    { label: SIDEBAR.NAV_SETTINGS, icon: Settings, href: "/admin/cai-dat", roles: ["ADMIN"] },
+    { label: SIDEBAR.NAV_AUDIT_LOGS, icon: History, href: "/admin/nhat-ky", roles: ["ADMIN"] },
+    { label: SIDEBAR.NAV_STATS, icon: BarChart3, href: "/admin/thong-ke", roles: ["ADMIN"] },
 ];
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const { logout } = useAuth();
+    const params = useParams();
+    const portal = (params?.portal as string) || "admin";
+    const { logout, user } = useAuth();
     const { collapsed, toggleCollapsed } = useSidebar();
+
+    const userRole = user?.role?.toUpperCase().replace(/^ROLE_/, "") || "";
+    const filteredNavItems = NAV_ITEMS.filter((item) => item.roles.includes(userRole));
 
     return (
         <aside
@@ -79,12 +86,13 @@ export default function Sidebar() {
             {/* Navigation */}
             <nav className={`hide-scrollbar flex-1 overflow-y-auto py-md ${collapsed ? "px-xs" : "px-sm"}`} aria-label={SIDEBAR.HEADING_NAV}>
                 <ul className="flex flex-col gap-xs">
-                    {NAV_ITEMS.map((item) => {
-                        const isActive = item.href === "/admin" ? pathname === "/admin" : pathname?.startsWith(item.href);
+                    {filteredNavItems.map((item) => {
+                        const dynamicHref = item.href.replace("/admin", `/${portal}`);
+                        const isActive = dynamicHref === `/${portal}` ? pathname === `/${portal}` : pathname?.startsWith(dynamicHref);
                         return (
                             <li key={item.label}>
                                 <Link
-                                    href={item.href}
+                                    href={dynamicHref}
                                     title={collapsed ? item.label : undefined}
                                     className={`focus-ring flex min-h-12 items-center gap-md rounded-lg transition-colors ${
                                         collapsed ? "justify-center px-sm py-sm" : "px-lg py-sm"

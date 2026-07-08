@@ -7,6 +7,7 @@ export type VisitFormState = {
     visitMinute: string;
     visitPeriod: string;
     purpose: string;
+    captchaToken: string;
 };
 
 export type SubmitStatus = "idle" | "sending" | "success" | "warning" | "error";
@@ -15,6 +16,7 @@ export type BookVisitSubmitPayload = VisitFormState & {
     bookId: number;
     bookTitle: string;
     confirmationCode: string;
+    captchaToken?: string;
 };
 
 export type BookVisitPageContentProps = {

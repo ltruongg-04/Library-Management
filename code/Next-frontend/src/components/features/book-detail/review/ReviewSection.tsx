@@ -1,25 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { REVIEW } from "@/constants/ui-text/review";
+import { useBookReviews } from "@/hooks/useBookReviews";
 import CommunityReviews from "./CommunityReviews";
 import DeleteReviewModal from "./DeleteReviewModal";
 import EditReviewModal from "./EditReviewModal";
 import ReportReviewModal from "./ReportReviewModal";
 import type { Review } from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
+import ReviewModal from "./ReviewModal";
 import SuccessReviewModal from "./SuccessReviewModal";
-import { MOCK_REVIEWS } from "./mockData";
 
 interface ReviewSectionProps {
-    initialReviews: Review[];
-    loading?: boolean;
+    bookId: number;
+    isReviewModalOpen: boolean;
+    onCloseReviewModal: () => void;
 }
 
-export default function ReviewSection({ initialReviews, loading = false }: ReviewSectionProps) {
-    const [reviews, setReviews] = useState<Review[]>(initialReviews);
+export default function ReviewSection({ bookId, isReviewModalOpen, onCloseReviewModal }: ReviewSectionProps) {
+    const { reviews, loading, hasMore, loadMore, submitReview, updateReview, deleteReview, reportReview } = useBookReviews(bookId);
+
+    // UI state
     const [editing, setEditing] = useState<Review | null>(null);
-    const [showForm, setShowForm] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -28,43 +33,24 @@ export default function ReviewSection({ initialReviews, loading = false }: Revie
     const [reportingReview, setReportingReview] = useState<Review | null>(null);
     const [openReportDialog, setOpenReportDialog] = useState(false);
 
-    useEffect(() => {
-        if (initialReviews.length === 0) {
-            setReviews(MOCK_REVIEWS);
-        } else {
-            setReviews(initialReviews);
+    const handleSubmit = async (rating: number, comment: string) => {
+        setIsSubmitting(true);
+        setSubmitError(null);
+        try {
+            if (editing) {
+                await updateReview(editing.id, rating, comment);
+                setEditing(null);
+                setOpenEditDialog(false);
+            } else {
+                await submitReview(rating, comment);
+                onCloseReviewModal();
+                setOpenSuccessDialog(true);
+            }
+        } catch (err: any) {
+            setSubmitError(err.message || "Failed to submit review");
+        } finally {
+            setIsSubmitting(false);
         }
-    }, [initialReviews]);
-
-    const handleSubmit = (rating: number, comment: string) => {
-        if (editing) {
-            setReviews((prev) =>
-                prev.map((review) =>
-                    review.id === editing.id
-                        ? {
-                              ...review,
-                              rating,
-                              comment,
-                          }
-                        : review,
-                ),
-            );
-
-            setEditing(null);
-            setOpenEditDialog(false);
-        } else {
-            const newReview: Review = {
-                id: Date.now(),
-                userName: "You",
-                rating,
-                comment,
-                createdAt: new Date().toISOString(),
-            };
-
-            setReviews((prev) => [newReview, ...prev]);
-        }
-
-        setShowForm(false);
     };
 
     const handleEdit = (review: Review) => {
@@ -77,18 +63,22 @@ export default function ReviewSection({ initialReviews, loading = false }: Revie
         setOpenDeleteDialog(true);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (reviewToDelete === null) return;
 
-        setReviews((prev) => prev.filter((review) => review.id !== reviewToDelete));
+        try {
+            await deleteReview(reviewToDelete);
+        } catch (e) {
+            console.error("Failed to delete review", e);
+        }
 
         setReviewToDelete(null);
         setOpenDeleteDialog(false);
         setEditing(null);
-        setShowForm(true);
     };
-    if (loading) {
-        return <div>Loading reviews...</div>;
+
+    if (loading && reviews.length === 0) {
+        return <div className="py-12 text-center text-on-surface-variant dark:text-slate-300">{REVIEW.LOADING}</div>;
     }
 
     const handleOpenReport = (review: Review) => {
@@ -96,45 +86,49 @@ export default function ReviewSection({ initialReviews, loading = false }: Revie
         setOpenReportDialog(true);
     };
 
-    const handleReport = (reviewId: number | undefined, reason: string) => {
-        // TODO: Gọi API báo cáo
-        console.log({
-            reviewId,
-            reason,
-        });
-
-        setOpenReportDialog(false);
+    const handleReport = async (reviewId: number | undefined, reason: string) => {
+        if (!reviewId) return;
+        try {
+            await reportReview(reviewId, reason);
+        } catch (e) {
+            console.error("Failed to report review", e);
+        }
         setReportingReview(null);
-        setOpenSuccessDialog(true);
+        setOpenReportDialog(false);
     };
 
     return (
         <>
-            <div className="mt-6 space-y-6">
+            <div className="mt-8">
+                <h2 className="font-title-lg text-title-lg mb-6 text-on-surface dark:text-white">
+                    {REVIEW.TITLE} ({reviews.length})
+                </h2>
+
                 <CommunityReviews reviews={reviews} onEdit={handleEdit} onDelete={handleDelete} onReport={handleOpenReport} />
 
-                {showForm ? (
-                    <ReviewForm onSubmit={handleSubmit} />
-                ) : (
-                    <div className="flex justify-end">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                const myReview = reviews.find((review) => review.userName === "You");
-
-                                if (myReview) {
-                                    handleEdit(myReview);
-                                } else {
-                                    setShowForm(true);
-                                }
-                            }}
-                            className="text-sm font-medium text-primary hover:underline dark:text-primary-300"
-                        >
-                            {REVIEW.EDIT_MY_REVIEW}
-                        </button>
-                    </div>
+                {hasMore && (
+                    <button
+                        onClick={loadMore}
+                        disabled={loading}
+                        className="dark:text-primary-400 mt-4 w-full rounded-lg border border-outline-variant/30 py-2 font-medium text-primary hover:bg-primary/5 disabled:opacity-50 dark:border-white/10 dark:hover:bg-primary-900/20"
+                    >
+                        {loading ? REVIEW.LOADING_MORE : REVIEW.LOAD_MORE}
+                    </button>
                 )}
             </div>
+
+            <ReviewModal
+                open={isReviewModalOpen}
+                title={REVIEW.WRITE_REVIEW}
+                onClose={() => {
+                    setSubmitError(null);
+                    onCloseReviewModal();
+                }}
+            >
+                {submitError && <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">{submitError}</div>}
+                <ReviewForm onSubmit={handleSubmit} />
+                {isSubmitting && <p className="mt-2 text-sm text-on-surface-variant dark:text-slate-300">{REVIEW.SUBMITTING_REVIEW}</p>}
+            </ReviewModal>
 
             <EditReviewModal
                 open={openEditDialog}
@@ -165,7 +159,12 @@ export default function ReviewSection({ initialReviews, loading = false }: Revie
                 onSubmit={handleReport}
             />
 
-            <SuccessReviewModal open={openSuccessDialog} onClose={() => setOpenSuccessDialog(false)} />
+            <SuccessReviewModal
+                open={openSuccessDialog}
+                onClose={() => setOpenSuccessDialog(false)}
+                title={REVIEW.SUBMIT_SUCCESS_DIALOG.TITLE}
+                description={REVIEW.SUBMIT_SUCCESS_DIALOG.DESCRIPTION}
+            />
         </>
     );
 }

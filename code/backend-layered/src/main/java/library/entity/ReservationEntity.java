@@ -35,4 +35,7 @@ public class ReservationEntity extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default
     private boolean isDeleted = false;
+
+    @Column(name = "notified_at")
+    private LocalDateTime notifiedAt;
 }

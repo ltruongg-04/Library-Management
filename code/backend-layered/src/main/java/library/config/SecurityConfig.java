@@ -13,6 +13,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
@@ -33,16 +34,22 @@ public class SecurityConfig {
                         // Cho phép truy cập không cần auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/db-health").permitAll()
-                        .requestMatchers("/api/books/**").permitAll()
-                        .requestMatchers("/api/categories/**").permitAll()
-                        .requestMatchers("/api/authors/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/authors/**").permitAll()
                         .requestMatchers("/api/vnpay/**").permitAll()
                         .requestMatchers("/api/public/borrow/**").permitAll()
+                        .requestMatchers("/api/public/book-visits/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/public/books/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/policies/**").permitAll()
                         // Các request khác yêu cầu authenticated
                         .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Unauthorized");
+                }))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

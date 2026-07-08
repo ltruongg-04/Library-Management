@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán thành công</title>
+</head>
+<body style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+    <h2 style="color: #28a745;">Thanh toán thành công</h2>
+    <p>Chào <span th:text="${fullName}">Bạn</span>,</p>
+    <p>Cảm ơn bạn đã thực hiện thanh toán tại Thư viện Lumina.</p>
+    
+    <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; border-left: 4px solid #28a745; margin: 20px 0;">
+        <p><strong>Mã đơn / Mã giao dịch:</strong> <span th:text="${orderCode}"></span></p>
+        <p><strong>Số tiền:</strong> <span th:text="${amount}"></span> VNĐ</p>
+        <p><strong>Mã tham chiếu (VNPAY):</strong> <span th:text="${transactionId}"></span></p>
+        <p><strong>Thời gian thanh toán:</strong> <span th:text="${payDate}"></span></p>
+    </div>
+
+    <p>Khoản thanh toán của bạn đã được hệ thống ghi nhận thành công.</p>
+    <p>Chúc bạn có những trải nghiệm đọc sách tuyệt vời cùng Lumina!</p>
+    
+    <p style="margin-top: 30px;">Trân trọng,<br>Ban quản trị Thư viện Lumina</p>
+</body>
+</html>
