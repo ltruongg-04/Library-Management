@@ -10,7 +10,7 @@ export async function GET(request: Request) {
             headers: {
                 "Content-Type": "application/json",
             },
-            cache: "no-store",
+            next: { revalidate: 45 },
         });
 
         const data = await response.json();
@@ -19,7 +19,11 @@ export async function GET(request: Request) {
             return NextResponse.json({ success: false, message: data.message || "Failed to fetch from backend" }, { status: response.status });
         }
 
-        return NextResponse.json(data);
+        return NextResponse.json(data, {
+            headers: {
+                "Cache-Control": "s-maxage=45, stale-while-revalidate=30",
+            },
+        });
     } catch (error) {
         console.error("Error proxying to backend /api/books:", error);
         return NextResponse.json({ success: false, message: "Backend is unreachable" }, { status: 503 });

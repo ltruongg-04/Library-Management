@@ -23,7 +23,7 @@ public class AdminReviewController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('reviews.moderate')")
     public ResponseEntity<Void> updateReviewStatus(
             @PathVariable Integer id,
             @RequestParam library.entity.ReviewStatus status,
@@ -33,7 +33,7 @@ public class AdminReviewController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('reviews.moderate')")
     public ResponseEntity<Void> deleteReview(@PathVariable Integer id) {
         reviewService.deleteReview(id);
         return ResponseEntity.ok().build();

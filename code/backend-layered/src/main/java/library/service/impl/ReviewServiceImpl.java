@@ -8,6 +8,7 @@ import library.entity.UserEntity;
 import library.repository.BookRepository;
 import library.repository.ReviewRepository;
 import library.repository.UserRepository;
+import library.service.CacheInvalidationService;
 import library.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     @Override
     @Transactional
@@ -51,6 +53,7 @@ public class ReviewServiceImpl implements ReviewService {
         review = reviewRepository.save(review);
 
         updateBookRating(book);
+        cacheInvalidationService.evictBookDetailCaches();
 
         return mapToResponse(review);
     }
@@ -75,6 +78,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setComment(request.getComment());
         reviewRepository.save(review);
         updateBookRating(review.getBook());
+        cacheInvalidationService.evictBookDetailCaches();
         
         return mapToResponse(review);
     }
@@ -118,6 +122,7 @@ public class ReviewServiceImpl implements ReviewService {
         
         reviewRepository.save(review);
         updateBookRating(review.getBook());
+        cacheInvalidationService.evictBookDetailCaches();
     }
 
     @Override
@@ -130,6 +135,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (review.getStatus() == ReviewStatus.VISIBLE) {
             review.setStatus(ReviewStatus.REPORTED);
             reviewRepository.save(review);
+            cacheInvalidationService.evictBookDetailCaches();
         }
     }
 
@@ -142,6 +148,7 @@ public class ReviewServiceImpl implements ReviewService {
         BookEntity book = review.getBook();
         reviewRepository.delete(review);
         updateBookRating(book);
+        cacheInvalidationService.evictBookDetailCaches();
     }
     
     @Override
@@ -158,6 +165,7 @@ public class ReviewServiceImpl implements ReviewService {
         BookEntity book = review.getBook();
         reviewRepository.delete(review);
         updateBookRating(book);
+        cacheInvalidationService.evictBookDetailCaches();
     }
 
     @Override
