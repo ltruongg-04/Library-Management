@@ -259,6 +259,13 @@ function SelectField({
     );
 }
 
+const maskString = (str: string) => {
+    if (!str) return "";
+    if (str.length <= 4) return "*".repeat(str.length);
+    const half = Math.floor(str.length / 2);
+    return str.substring(0, half) + "*".repeat(str.length - half);
+};
+
 function ConfirmDiscardModal({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: () => void }) {
     if (!isOpen) {
         return null;
@@ -320,17 +327,19 @@ function VNPayConfigModal({
                     <label className="flex flex-col gap-1">
                         <span className="text-sm font-medium">{SETTINGS.PAYMENTS.VNPAY_CONFIG_TMN_CODE}</span>
                         <input
-                            className="h-10 w-full rounded-lg border border-outline-variant bg-surface-bright px-3 focus:border-primary focus:outline-none"
-                            value={localConfig.vnpayTmnCode}
-                            onChange={(e) => setLocalConfig({ ...localConfig, vnpayTmnCode: e.target.value })}
+                            className="h-10 w-full cursor-not-allowed rounded-lg border border-outline-variant bg-surface-container-high px-3 text-on-surface-variant focus:outline-none"
+                            value={maskString(localConfig.vnpayTmnCode)}
+                            readOnly
+                            disabled
                         />
                     </label>
                     <label className="flex flex-col gap-1">
                         <span className="text-sm font-medium">{SETTINGS.PAYMENTS.VNPAY_CONFIG_HASH_SECRET}</span>
                         <input
-                            className="h-10 w-full rounded-lg border border-outline-variant bg-surface-bright px-3 focus:border-primary focus:outline-none"
-                            value={localConfig.vnpayHashSecret}
-                            onChange={(e) => setLocalConfig({ ...localConfig, vnpayHashSecret: e.target.value })}
+                            className="h-10 w-full cursor-not-allowed rounded-lg border border-outline-variant bg-surface-container-high px-3 text-on-surface-variant focus:outline-none"
+                            value={maskString(localConfig.vnpayHashSecret)}
+                            readOnly
+                            disabled
                         />
                     </label>
                     <div className="mt-2 flex items-center justify-between">
@@ -517,7 +526,9 @@ export default function CaiDatPage() {
                                         name={SETTINGS.PAYMENTS.VNPAY_NAME}
                                         description={SETTINGS.PAYMENTS.VNPAY_DESC}
                                         note={SETTINGS.PAYMENTS.VNPAY_NOTE}
-                                        token={adminSettings.payment.vnpayTmnCode ? adminSettings.payment.vnpayTmnCode : SETTINGS.PAYMENTS.VNPAY_TOKEN}
+                                        token={maskString(
+                                            adminSettings.payment.vnpayTmnCode ? adminSettings.payment.vnpayTmnCode : SETTINGS.PAYMENTS.VNPAY_TOKEN,
+                                        )}
                                         active={adminSettings.payment.vnpayActive}
                                         onAction={() => setShowVNPayModal(true)}
                                     />
