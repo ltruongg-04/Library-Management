@@ -8,13 +8,13 @@ const nextConfig = {
         return [
             // Proxy backend auth endpoints (login, register, google) — nhưng KHÔNG proxy NextAuth routes
             {
-                source: "/api/auth/:slug(login|register|google|forgot-password|verify-otp|reset-password|change-password)",
-                destination: `${process.env.BACKEND_INTERNAL_URL || "http://127.0.0.1:8081"}/api/auth/:slug`,
+                source: "/api/auth/:slug(login|register|activate|resend-activation|google|forgot-password|verify-otp|reset-password|change-password|refresh-token|logout)",
+                destination: `${process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || "http://127.0.0.1:8081"}/api/auth/:slug`,
             },
             // Proxy tất cả API khác (không phải /api/auth/*)
             {
                 source: "/api/:path((?!auth(?:/|$)).*)",
-                destination: `${process.env.BACKEND_INTERNAL_URL || "http://127.0.0.1:8081"}/api/:path*`,
+                destination: `${process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || "http://127.0.0.1:8081"}/api/:path*`,
             },
         ];
     },

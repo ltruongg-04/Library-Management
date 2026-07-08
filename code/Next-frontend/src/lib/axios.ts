@@ -1,10 +1,30 @@
 import axios from "axios";
 import { getSession, signOut } from "next-auth/react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8081";
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+
+const resolveApiUrl = () => {
+    if (typeof window === "undefined") {
+        return process.env.BACKEND_INTERNAL_URL || configuredApiUrl || "http://127.0.0.1:8081";
+    }
+
+    if (!configuredApiUrl) {
+        return "";
+    }
+
+    try {
+        const apiUrl = new URL(configuredApiUrl);
+        const isLocalBackend = ["localhost", "127.0.0.1"].includes(apiUrl.hostname);
+        const isLocalFrontend = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+
+        return isLocalBackend && !isLocalFrontend ? "" : configuredApiUrl;
+    } catch {
+        return configuredApiUrl;
+    }
+};
 
 export const axiosInstance = axios.create({
-    baseURL: API_URL,
+    baseURL: resolveApiUrl(),
     headers: {
         "Content-Type": "application/json",
     },

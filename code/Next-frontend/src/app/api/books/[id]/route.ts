@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
 
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8081";
+const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || "http://127.0.0.1:8081";
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
     try {

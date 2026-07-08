@@ -14,8 +14,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -25,6 +28,12 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+
+    @Value("${FRONTEND_URL:http://localhost:3000}")
+    private String frontendUrl;
+
+    @Value("${CORS_ALLOWED_ORIGIN_PATTERNS:}")
+    private String corsAllowedOriginPatterns;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -60,8 +69,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOriginPatterns(buildAllowedOriginPatterns());
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
@@ -69,6 +78,23 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    private List<String> buildAllowedOriginPatterns() {
+        List<String> origins = new ArrayList<>(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
+
+        if (frontendUrl != null && !frontendUrl.isBlank()) {
+            origins.add(frontendUrl.trim());
+        }
+
+        if (corsAllowedOriginPatterns != null && !corsAllowedOriginPatterns.isBlank()) {
+            Arrays.stream(corsAllowedOriginPatterns.split(","))
+                    .map(String::trim)
+                    .filter(origin -> !origin.isBlank())
+                    .forEach(origins::add);
+        }
+
+        return origins.stream().distinct().toList();
     }
 
     @Bean
