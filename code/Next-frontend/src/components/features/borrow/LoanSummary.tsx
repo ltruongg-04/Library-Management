@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { BorrowingPolicyDto, getActivePolicy } from "@/services/policy";
 
 interface LoanSummaryProps {
     book?: any;
@@ -16,6 +18,22 @@ interface LoanSummaryProps {
 export default function LoanSummary({ book, pickupDate, returnDate, userFullName, isSubmitting, isSuccess, onSubmit }: LoanSummaryProps) {
     const { BORROW } = UI_TEXT;
 
+    const [policy, setPolicy] = useState<BorrowingPolicyDto | null>(null);
+
+    useEffect(() => {
+        const fetchPolicy = async () => {
+            try {
+                const data = await getActivePolicy();
+                if (data && data.data) {
+                    setPolicy(data.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch policy:", error);
+            }
+        };
+        fetchPolicy();
+    }, []);
+
     let days = 14;
     if (pickupDate && returnDate) {
         const pDate = new Date(pickupDate);
@@ -29,7 +47,9 @@ export default function LoanSummary({ book, pickupDate, returnDate, userFullName
         }
     }
 
-    const rentalFee = days * 5000;
+    const rentalFeeRate = policy?.rentalFeePerDay || 5000;
+    const lateFeeRate = policy?.overdueFinePerDay || 10000;
+    const rentalFee = days * rentalFeeRate;
     const deposit = book?.depositPrice || 10000;
 
     return (
@@ -47,11 +67,11 @@ export default function LoanSummary({ book, pickupDate, returnDate, userFullName
                     </div>
                     <div className="flex items-center justify-between">
                         <span className="font-body-sm text-on-primary/70">{BORROW.SUMMARY.RENTAL_FEE_RATE}</span>
-                        <span className="font-semibold">{BORROW.SUMMARY.RENTAL_FEE_RATE_VALUE}</span>
+                        <span className="font-semibold">{`${rentalFeeRate.toLocaleString("vi-VN")}${BORROW.SUMMARY.CURRENCY}/${BORROW.SUMMARY.DAYS_SUFFIX}`}</span>
                     </div>
                     <div className="flex items-center justify-between">
                         <span className="font-body-sm text-on-primary/70">{BORROW.SUMMARY.LATE_FEE_RATE}</span>
-                        <span className="font-semibold">{BORROW.SUMMARY.LATE_FEE_RATE_VALUE}</span>
+                        <span className="font-semibold">{`${lateFeeRate.toLocaleString("vi-VN")}${BORROW.SUMMARY.CURRENCY}/${BORROW.SUMMARY.DAYS_SUFFIX}`}</span>
                     </div>
                 </div>
                 <div className="mt-6 rounded-lg bg-on-primary/10 p-4">

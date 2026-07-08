@@ -47,4 +47,5 @@ export const API_ERRORS = {
     SAVE_USER_FAILED: "Lưu thông tin thất bại",
     UPDATE_STATUS_FAILED: "Cập nhật trạng thái thất bại. Vui lòng thử lại!",
     RENEW_APPROVE_FAILED: "Xử lý duyệt gia hạn thất bại. Vui lòng thử lại!",
+    SAVE_POLICY_FAILED: "Lưu chính sách thất bại",
 };

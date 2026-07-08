@@ -4,6 +4,7 @@ import { AlertTriangle, BarChart3, CheckCircle2, ClipboardList, LibraryBig, Shop
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import AnalyticsExportControls, { type AnalyticsExportData } from "@/components/features/admin/analytics/AnalyticsExportControls";
 import { ANALYTICS_TEXT, CURRENT_MONTH_RANGE } from "@/constants/admin/analytics";
+import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN_UI } from "@/constants/ui-text/admin";
 import { type DashboardStats, adminDashboardService } from "@/services/adminDashboard";
 import type { AnalyticsData, MonthRangeSelection } from "@/types/admin-analytics";
@@ -13,12 +14,12 @@ import { AiInsights, BorrowingTrend, LibraryStatus, MostBorrowedBooks, RecentAct
 const ACTIVITY_COLORS = ["border-blue-500", "border-green-500", "border-red-500", "border-yellow-500", "border-purple-500"];
 
 const STATUS_TITLE_MAP: Record<string, string> = {
-    PENDING: "Yêu cầu mượn mới",
-    BORROWED: "Đang mượn",
-    RETURNED: "Trả sách",
-    OVERDUE: "Quá hạn",
-    CANCELLED: "Đã huỷ",
-    READY: "Sẵn sàng lấy",
+    PENDING: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_PENDING,
+    BORROWED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_BORROWED,
+    RETURNED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_RETURNED,
+    OVERDUE: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_OVERDUE,
+    CANCELLED: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_CANCELLED,
+    READY: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_READY,
 };
 
 function buildAnalyticsFromStats(stats: DashboardStats): AnalyticsData {

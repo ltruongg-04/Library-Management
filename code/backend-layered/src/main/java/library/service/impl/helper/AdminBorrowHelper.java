@@ -70,7 +70,7 @@ public class AdminBorrowHelper {
         return copiesToBorrow;
     }
 
-    public String[] processBookCopiesForOrder(List<BookCopyEntity> copiesToBorrow, BorrowOrderEntity savedOrder) {
+    public String[] processBookCopiesForOrder(List<BookCopyEntity> copiesToBorrow, BorrowOrderEntity savedOrder, BigDecimal rentalFeePerBook) {
         String firstBookTitle = "N/A";
         String firstBookAuthor = "N/A";
 
@@ -85,7 +85,7 @@ public class AdminBorrowHelper {
             BorrowOrderDetailEntity detail = BorrowOrderDetailEntity.builder()
                     .borrowOrder(savedOrder)
                     .bookCopy(copy)
-                    .rentalFee(BigDecimal.ZERO)
+                    .rentalFee(rentalFeePerBook)
                     .depositPrice(depositPrice)
                     .status(BorrowOrderDetailStatus.BORROWING)
                     .build();

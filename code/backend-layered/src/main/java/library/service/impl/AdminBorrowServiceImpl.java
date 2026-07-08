@@ -66,7 +66,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
             if (actualDays <= 0) actualDays = 1;
             
             List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
-            java.math.BigDecimal rentalFeePerBook = java.math.BigDecimal.valueOf(actualDays * 5000L);
+            java.math.BigDecimal rentalFeePerBook = feeCalculatorService.calculateRentalFee(feeStartDate, LocalDate.now(), 1);
             java.math.BigDecimal totalRentalFee = rentalFeePerBook.multiply(new java.math.BigDecimal(details.size()));
             
             for (BorrowOrderDetailEntity detail : details) {
@@ -125,8 +125,9 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
         String orderCode = "BO-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-        // Phí thuê = 0 khi tạo đơn, sẽ tính theo ngày thực tế khi trả sách
-        java.math.BigDecimal totalRentalFee = java.math.BigDecimal.ZERO;
+        // Tính phí thuê dựa trên ngày mượn đến ngày hẹn trả
+        int numberOfBooks = copiesToBorrow.size();
+        java.math.BigDecimal totalRentalFee = feeCalculatorService.calculateRentalFee(LocalDate.now(), request.getDueDate(), numberOfBooks);
 
         BorrowOrderEntity borrowOrder = BorrowOrderEntity.builder()
                 .orderCode(orderCode)
@@ -144,7 +145,9 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
         BorrowOrderEntity savedOrder = borrowOrderRepository.save(borrowOrder);
 
-        String[] bookInfos = adminBorrowHelper.processBookCopiesForOrder(copiesToBorrow, savedOrder);
+        // Tính phí thuê per book = totalRentalFee / numberOfBooks
+        java.math.BigDecimal rentalFeePerBook = feeCalculatorService.calculateRentalFee(LocalDate.now(), request.getDueDate(), 1);
+        String[] bookInfos = adminBorrowHelper.processBookCopiesForOrder(copiesToBorrow, savedOrder, rentalFeePerBook);
         String firstBookTitle = bookInfos[0];
         String firstBookAuthor = bookInfos[1];
 

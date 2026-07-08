@@ -23,6 +23,7 @@ public class AdminBorrowOrderDetailDto {
     private BorrowOrderStatus status;
     private BigDecimal subtotalFee;
     private BigDecimal discountAmount;
+    private BigDecimal overdueFee;
     private BigDecimal totalFee;
     private BigDecimal totalDeposit;
     private BigDecimal totalPaidOnline;
