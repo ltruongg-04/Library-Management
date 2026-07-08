@@ -28,6 +28,10 @@ export const ADMIN_SETTINGS = {
         VNPAY_NAME: "VNPay",
         VNPAY_DESC: "Tích hợp chuyển khoản ngân hàng & QR",
         VNPAY_NOTE: "Cần nhập TmnCode, HashSecret và URL callback trước khi bật.",
+        VNPAY_CONFIG_TITLE: "Cấu hình VNPay",
+        VNPAY_CONFIG_TMN_CODE: "TmnCode",
+        VNPAY_CONFIG_HASH_SECRET: "HashSecret",
+        VNPAY_CONFIG_ACTIVE: "Kích hoạt cổng thanh toán",
     },
     FEATURES: {
         TITLE: "Tính năng hệ thống",
@@ -97,5 +101,6 @@ export const ADMIN_SETTINGS = {
         DISCARD_CONFIRM_MESSAGE: "Các thay đổi chưa lưu trên trang cài đặt sẽ bị mất. Bạn muốn tiếp tục chỉnh sửa hay hủy toàn bộ thay đổi?",
         KEEP_EDITING: "Tiếp tục chỉnh sửa",
         CONFIRM_DISCARD: "Hủy thay đổi",
+        CANCEL: "Hủy",
     },
 };

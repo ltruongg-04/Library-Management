@@ -13,6 +13,7 @@ public class AdminSettingsResponse {
     private Borrowing borrowing;
     private Features features;
     private Localization localization;
+    private Payment payment;
 
     @Data
     @Builder
@@ -43,5 +44,15 @@ public class AdminSettingsResponse {
     public static class Localization {
         private String language;
         private String timezone;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Payment {
+        private String vnpayTmnCode;
+        private String vnpayHashSecret;
+        private boolean vnpayActive;
     }
 }
