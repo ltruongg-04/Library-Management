@@ -31,7 +31,7 @@ export default function LoanDetailPage() {
     const [error, setError] = useState<string | null>(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
 
-    const { MY_BOOKS_PAGE } = UI_TEXT;
+    const { MY_BOOKS_PAGE, RENEW_PAGE } = UI_TEXT;
     const { LOAN_DETAIL } = UI_TEXT.BORROW;
 
     const fetchDetail = useCallback(async () => {
@@ -155,7 +155,7 @@ export default function LoanDetailPage() {
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-sm">
-                    <button className="dark:border-secondary-400 dark:text-secondary-400 flex items-center gap-2 rounded-lg border-2 border-secondary px-6 py-2 font-body-md text-body-md font-medium text-secondary transition-colors hover:bg-secondary/5">
+                    <button className="dark:border-primary-400 dark:text-primary-400 flex items-center gap-2 rounded-lg border border-primary px-6 py-2 font-body-md text-body-md font-medium text-primary transition-colors hover:bg-primary/5">
                         <MaterialIcon name="contact_support" className="text-sm" />
                         {LOAN_DETAIL.CONTACT_LIBRARIAN}
                     </button>
@@ -168,8 +168,9 @@ export default function LoanDetailPage() {
                                     router.push(`/lich-su/${loan.id}/gia-han`);
                                 }
                             }}
-                            className={`rounded-lg px-6 py-2 font-body-md text-body-md font-medium shadow-sm transition-colors ${loan.status === "overdue" ? "bg-error text-on-error hover:bg-error/90" : "dark:bg-secondary-400 bg-secondary text-on-secondary hover:bg-secondary/90 dark:text-slate-900"}`}
+                            className={`flex items-center gap-2 rounded-lg border px-6 py-2 font-body-md text-body-md font-medium transition-colors ${loan.status === "overdue" ? "border-error text-error hover:bg-error/5" : "dark:border-primary-400 dark:text-primary-400 border-primary text-primary hover:bg-primary/5"}`}
                         >
+                            <MaterialIcon name="autorenew" className="text-sm" />
                             {LOAN_DETAIL.RENEW_LOAN}
                         </button>
                     )}
@@ -214,7 +215,7 @@ export default function LoanDetailPage() {
                                 >
                                     {loan.status === "overdue" && <MaterialIcon name="warning" className="text-sm" />}
                                     {loan.status === "overdue"
-                                        ? `Quá hạn ${loan.overdueDays} ngày`
+                                        ? `${LOAN_DETAIL.OVERDUE} ${loan.overdueDays} ${RENEW_PAGE.OVERDUE_DAYS_SUFFIX}`
                                         : loan.status === "borrowed"
                                           ? MY_BOOKS_PAGE.CARD.STATUS_BORROWING
                                           : loan.status === "returned"
@@ -284,10 +285,8 @@ export default function LoanDetailPage() {
                         <h2 className="mb-md font-title-md text-title-md text-primary dark:text-primary-300">{LOAN_DETAIL.FINANCIALS}</h2>
                         <div className="space-y-sm font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
                             <div className="flex items-center justify-between border-b border-primary/10 py-2 text-on-surface dark:text-slate-300">
-                                <span>
-                                    {LOAN_DETAIL.DEPOSIT} {isOverdue ? LOAN_DETAIL.DEPOSIT_FORFEITED : LOAN_DETAIL.DEPOSIT_PAID}
-                                </span>
-                                <span className={isOverdue ? "font-medium text-error line-through" : "font-medium"}>{loan.deposit}</span>
+                                <span>{LOAN_DETAIL.DEPOSIT}</span>
+                                <span className="font-medium">{loan.deposit}</span>
                             </div>
                             <div className="flex items-center justify-between border-b border-primary/10 py-2">
                                 <span>{LOAN_DETAIL.TOTAL_BORROW_FEE}</span>
@@ -300,13 +299,33 @@ export default function LoanDetailPage() {
                             {loan.paidOnline && loan.paidOnline !== "0 đ" && (
                                 <div className="flex items-center justify-between border-b border-primary/10 py-2 text-primary dark:text-primary-300">
                                     <span>{LOAN_DETAIL.PAID_ONLINE}</span>
-                                    <span className="font-medium">-{loan.paidOnline}</span>
+                                    <span className="font-medium">{loan.paidOnline}</span>
                                 </div>
                             )}
                         </div>
                         <div className="mt-md flex items-end justify-between border-t-2 border-primary/20 pt-md">
-                            <span className="font-body-md text-body-md font-medium text-on-surface dark:text-white">{LOAN_DETAIL.TO_PAY}</span>
-                            <span className="font-title-md text-title-md font-bold text-error">{loan.total}</span>
+                            <span className="font-body-md text-body-md font-medium text-on-surface dark:text-white">
+                                {loan.settlementType === "COLLECT"
+                                    ? LOAN_DETAIL.SETTLEMENT_COLLECT
+                                    : loan.settlementType === "REFUND"
+                                      ? LOAN_DETAIL.SETTLEMENT_REFUND
+                                      : loan.settlementType === "SETTLED"
+                                        ? loan.status === "cancelled"
+                                            ? MY_BOOKS_PAGE.CARD.STATUS_CANCELLED
+                                            : LOAN_DETAIL.SETTLEMENT_SETTLED
+                                        : LOAN_DETAIL.TO_PAY}
+                            </span>
+                            <span
+                                className={`font-title-md text-title-md font-bold ${
+                                    loan.settlementType === "REFUND"
+                                        ? "text-primary dark:text-primary-300"
+                                        : loan.settlementType === "SETTLED"
+                                          ? "dark:text-secondary-400 text-secondary"
+                                          : "text-error"
+                                }`}
+                            >
+                                {loan.settlementType === "SETTLED" ? "" : loan.settlementAmount || loan.total}
+                            </span>
                         </div>
                     </section>
 

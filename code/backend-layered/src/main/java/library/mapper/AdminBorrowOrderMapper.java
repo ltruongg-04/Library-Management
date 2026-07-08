@@ -26,6 +26,7 @@ public class AdminBorrowOrderMapper {
 
     private final BorrowOrderDetailRepository borrowOrderDetailRepository;
     private final PaymentRepository paymentRepository;
+    private final library.service.FeeCalculatorService feeCalculatorService;
 
     public AdminBorrowOrderDto toAdminBorrowOrderDto(BorrowOrderEntity order) {
         if (order == null) return null;
@@ -122,9 +123,64 @@ public class AdminBorrowOrderMapper {
         }
 
         BigDecimal currentTotal = order.getTotalFee() != null ? order.getTotalFee() : (order.getSubtotalFee() != null ? order.getSubtotalFee() : BigDecimal.ZERO);
+        BigDecimal overdueFeeToDisplay = BigDecimal.ZERO;
+        BigDecimal subtotalFeeToDisplay = order.getSubtotalFee() != null ? order.getSubtotalFee() : BigDecimal.ZERO;
+        BigDecimal discountAmountToDisplay = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
+
+        if (order.getStatus() == BorrowOrderStatus.CANCELLED) {
+            currentTotal = BigDecimal.ZERO;
+            overdueFeeToDisplay = BigDecimal.ZERO;
+            subtotalFeeToDisplay = BigDecimal.ZERO;
+            discountAmountToDisplay = BigDecimal.ZERO;
+        } else if ((order.getStatus() == BorrowOrderStatus.BORROWED || order.getStatus() == BorrowOrderStatus.OVERDUE) 
+                && order.getDueDate() != null && LocalDate.now().isAfter(order.getDueDate())) {
+            
+            long unreturnedBooksCount = details.stream()
+                .filter(d -> d.getStatus() == library.entity.BorrowOrderDetailStatus.BORROWING 
+                          || d.getStatus() == library.entity.BorrowOrderDetailStatus.OVERDUE)
+                .count();
+
+            if (unreturnedBooksCount > 0) {
+                BigDecimal overdueFeePerBook = feeCalculatorService.calculateOverdueFee(order.getDueDate(), LocalDate.now());
+                BigDecimal totalOverdueFee = overdueFeePerBook.multiply(new BigDecimal(unreturnedBooksCount));
+                currentTotal = currentTotal.add(totalOverdueFee);
+                overdueFeeToDisplay = totalOverdueFee;
+            }
+        }
+
         BigDecimal actualAmountToPay = currentTotal.subtract(totalPaidOnline);
         if (actualAmountToPay.compareTo(BigDecimal.ZERO) < 0) {
             actualAmountToPay = BigDecimal.ZERO;
+        }
+
+        BigDecimal onlineDeposit = BigDecimal.ZERO;
+        for (PaymentEntity p : successfulPayments) {
+            if (p.getPaymentType() == PaymentType.DEPOSIT) {
+                onlineDeposit = onlineDeposit.add(p.getAmount());
+            }
+        }
+
+        BigDecimal actualDepositHeld;
+        if (order.getStatus() == BorrowOrderStatus.CANCELLED || order.getStatus() == BorrowOrderStatus.PENDING || order.getStatus() == BorrowOrderStatus.READY) {
+            actualDepositHeld = onlineDeposit;
+        } else {
+            actualDepositHeld = order.getTotalDeposit() != null ? order.getTotalDeposit() : BigDecimal.ZERO;
+        }
+
+        BigDecimal libraryHolds = actualDepositHeld.add(totalPaidOnline);
+
+        BigDecimal settlementAmount;
+        String settlementType;
+
+        if (currentTotal.compareTo(libraryHolds) > 0) {
+            settlementType = "COLLECT";
+            settlementAmount = currentTotal.subtract(libraryHolds);
+        } else if (currentTotal.compareTo(libraryHolds) < 0) {
+            settlementType = "REFUND";
+            settlementAmount = libraryHolds.subtract(currentTotal);
+        } else {
+            settlementType = "SETTLED";
+            settlementAmount = BigDecimal.ZERO;
         }
 
         String customerName = "Unknown";
@@ -147,12 +203,15 @@ public class AdminBorrowOrderMapper {
                 .pickupDate(order.getPickupDate())
                 .dueDate(order.getDueDate())
                 .status(order.getStatus())
-                .subtotalFee(order.getSubtotalFee())
-                .discountAmount(order.getDiscountAmount())
-                .totalFee(order.getTotalFee())
-                .totalDeposit(order.getTotalDeposit())
+                .subtotalFee(subtotalFeeToDisplay)
+                .discountAmount(discountAmountToDisplay)
+                .overdueFee(overdueFeeToDisplay)
+                .totalFee(currentTotal)
+                .totalDeposit(actualDepositHeld)
                 .totalPaidOnline(totalPaidOnline)
                 .actualAmountToPay(actualAmountToPay)
+                .settlementAmount(settlementAmount)
+                .settlementType(settlementType)
                 .customerName(customerName)
                 .customerCode(customerCode)
                 .customerPhone(customerPhone)

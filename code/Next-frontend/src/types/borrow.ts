@@ -33,7 +33,9 @@ export interface BorrowOrderDetailResponseDto {
     lateFee: string;
     paidOnline: string;
     total: string;
-    customerName?: string;
+    settlementAmount?: string;
+    settlementType?: "COLLECT" | "REFUND" | "SETTLED";
+    customerName: string;
     customerPhone?: string;
     status: string;
     overdueDays: number;

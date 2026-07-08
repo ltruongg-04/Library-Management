@@ -152,37 +152,27 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                             </div>
                         </div>
                     </div>
-                    <div className="mt-md flex flex-col justify-end border-t border-outline-variant/30 pt-md dark:border-slate-700 md:mt-0 md:border-l md:border-t-0 md:pl-lg md:pt-0 md:text-right">
-                        {displayStatus === "pending" ? (
-                            <div className="mt-4 flex items-center justify-end gap-2">
-                                <button
-                                    onClick={onCancel}
-                                    className="group mr-4 mt-md flex items-center justify-end gap-xs text-body-sm font-medium text-error decoration-2 dark:text-error-300"
-                                >
-                                    <span className="group-hover:underline">{MY_BOOKS_PAGE.CARD.CANCEL_RESERVATION}</span>
-                                </button>
-                                <Link
-                                    href={`/lich-su/${loan.orderCode}`}
-                                    className="mt-md rounded-lg bg-primary px-md py-2 font-body-md text-body-sm text-on-primary transition-all hover:opacity-90"
-                                >
-                                    {MY_BOOKS_PAGE.CARD.VIEW_DETAIL}
-                                </Link>
-                            </div>
-                        ) : (
-                            <Link
-                                href={`/lich-su/${loan.orderCode}`}
-                                className="group mt-md flex items-center justify-end gap-xs text-body-sm font-medium text-primary dark:text-primary-300"
+                    <div className="mt-md flex flex-col justify-end gap-3 border-t border-outline-variant/30 pt-md dark:border-slate-700 md:mt-0 md:flex-row md:items-center md:border-l md:border-t-0 md:pl-lg md:pt-0">
+                        {displayStatus === "pending" && (
+                            <button
+                                onClick={onCancel}
+                                className="flex items-center justify-center gap-2 rounded-lg border border-error px-5 py-2 text-sm font-medium text-error transition-colors hover:bg-error/5 dark:border-error-400 dark:text-error-400"
                             >
-                                <span className="group-hover:underline">
-                                    {displayStatus === "returned" ? MY_BOOKS_PAGE.CARD.VIEW_RECEIPT : MY_BOOKS_PAGE.CARD.VIEW_DETAIL}
-                                </span>
-                                {displayStatus === "returned" ? (
-                                    <MaterialIcon name="receipt_long" className="text-[18px]" />
-                                ) : (
-                                    <MaterialIcon name="arrow_forward" className="text-[18px]" />
-                                )}
-                            </Link>
+                                <MaterialIcon name="cancel" className="text-[18px]" />
+                                <span>{MY_BOOKS_PAGE.CARD.CANCEL_RESERVATION}</span>
+                            </button>
                         )}
+                        <Link
+                            href={`/lich-su/${loan.orderCode}`}
+                            className="dark:border-primary-400 dark:text-primary-400 flex items-center justify-center gap-2 rounded-lg border border-primary px-5 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
+                        >
+                            {displayStatus === "returned" ? (
+                                <MaterialIcon name="receipt_long" className="text-[18px]" />
+                            ) : (
+                                <MaterialIcon name="visibility" className="text-[18px]" />
+                            )}
+                            <span>{displayStatus === "returned" ? MY_BOOKS_PAGE.CARD.VIEW_RECEIPT : MY_BOOKS_PAGE.CARD.VIEW_DETAIL}</span>
+                        </Link>
                     </div>
                 </div>
             </div>

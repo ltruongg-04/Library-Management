@@ -13,8 +13,8 @@ async function refreshAccessToken(token: any) {
     }
 
     try {
-        const res = await axios.post(`${API_URL}/api/auth/refresh`, {
-            refreshToken: token.refreshToken,
+        const res = await axios.post(`${API_URL}/api/auth/refresh-token`, null, {
+            params: { token: token.refreshToken },
         });
 
         const data = res.data;

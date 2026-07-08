@@ -10,6 +10,7 @@ import { UI_TEXT } from "@/constants/ui-text";
 import { RENEW_PAGE } from "@/constants/ui-text/public";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { getBorrowOrderDetail, renewBorrowOrder } from "@/services/borrow";
+import { BorrowingPolicyDto, getActivePolicy } from "@/services/policy";
 import { BorrowOrderDetailResponseDto } from "@/types/borrow";
 
 const formatCurrency = (amount: number) => {
@@ -21,12 +22,9 @@ const parseCurrency = (amountStr: string | null | undefined) => {
     return parseInt(amountStr.replace(/\D/g, ""), 10) || 0;
 };
 
-// Đơn giá gia hạn: 5.000đ/ngày (khớp với Backend)
-const EXTENSION_FEE_PER_DAY = 5000;
-const RENEWAL_OPTIONS = [
-    { days: 5, fee: EXTENSION_FEE_PER_DAY * 5 },
-    { days: 7, fee: EXTENSION_FEE_PER_DAY * 7 },
-];
+// Đơn giá gia hạn mặc định nếu API lỗi
+const DEFAULT_EXTENSION_FEE = 5000;
+const DEFAULT_LATE_FEE = 10000;
 
 export default function RenewBookPage() {
     const params = useParams();
@@ -34,10 +32,11 @@ export default function RenewBookPage() {
     const orderId = params?.id as string;
 
     const [orderData, setOrderData] = useState<BorrowOrderDetailResponseDto | null>(null);
+    const [policyData, setPolicyData] = useState<BorrowingPolicyDto | null>(null);
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [selectedDuration, setSelectedDuration] = useState(RENEWAL_OPTIONS[0].days);
+    const [selectedDuration, setSelectedDuration] = useState(5); // Default to 5 days
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
@@ -45,11 +44,19 @@ export default function RenewBookPage() {
         const fetchData = async () => {
             try {
                 setIsFetching(true);
-                const res = await getBorrowOrderDetail(orderId);
+                const [res, policyRes] = await Promise.all([
+                    getBorrowOrderDetail(orderId),
+                    getActivePolicy().catch(() => null), // Fallback if policy fetch fails
+                ]);
+
                 if (res.success && res.data) {
                     setOrderData(res.data);
                 } else {
                     setError(res.message || API_ERRORS.FETCH_ERROR);
+                }
+
+                if (policyRes && policyRes.data) {
+                    setPolicyData(policyRes.data);
                 }
             } catch (err) {
                 setError(API_ERRORS.GENERIC_FETCH_ERROR);
@@ -86,11 +93,18 @@ export default function RenewBookPage() {
 
     const book = orderData.books[0];
 
-    // Tính phí quá hạn (chỉ để hiển thị cho rõ ràng)
-    const LATE_FEE_PER_DAY = 10000;
-    const currentLateFee = (orderData.overdueDays || 0) * LATE_FEE_PER_DAY;
+    const extensionFeePerDay = policyData?.rentalFeePerDay || DEFAULT_EXTENSION_FEE;
+    const lateFeePerDay = policyData?.overdueFinePerDay || DEFAULT_LATE_FEE;
 
-    const selectedOption = RENEWAL_OPTIONS.find((opt) => opt.days === selectedDuration)!;
+    const renewalOptions = [
+        { days: 5, fee: extensionFeePerDay * 5 },
+        { days: 7, fee: extensionFeePerDay * 7 },
+    ];
+
+    // Tính phí quá hạn (chỉ để hiển thị cho rõ ràng)
+    const currentLateFee = (orderData.overdueDays || 0) * lateFeePerDay;
+
+    const selectedOption = renewalOptions.find((opt) => opt.days === selectedDuration) || renewalOptions[0];
 
     // Tổng tiền phải trả ngay VNPay = Khoản nợ cũ (Tiền mượn cũ + Phạt quá hạn)
     // Dữ liệu này đã được Backend trừ đi số tiền từng thanh toán online
@@ -203,7 +217,7 @@ export default function RenewBookPage() {
                     <div>
                         <h3 className="mb-md font-title-md text-title-md text-on-surface dark:text-white">{RENEW_PAGE.DURATION.HEADING}</h3>
                         <div className="space-y-md">
-                            {RENEWAL_OPTIONS.map((option) => (
+                            {renewalOptions.map((option) => (
                                 <label key={option.days} className="flex cursor-pointer items-center gap-md" htmlFor={`duration-${option.days}`}>
                                     <input
                                         type="radio"

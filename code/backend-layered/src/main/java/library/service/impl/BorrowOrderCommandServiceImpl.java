@@ -41,6 +41,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
 
     private final SystemLogService systemLogService;
     private final library.service.EmailService emailService;
+    private final library.service.FeeCalculatorService feeCalculatorService;
 
 
     // Helpers
@@ -66,7 +67,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
 
         // 2. Validate dates and calculate fee
         long borrowDays = validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
-        BigDecimal rentalFee = BigDecimal.valueOf(borrowDays * 5000L);
+        BigDecimal rentalFee = feeCalculatorService.calculateRentalFee(request.getPickupDate(), request.getReturnDate(), 1);
 
         // 3. Validate book availability and reserve a copy
         BookCopyEntity availableCopy = reserveBookCopy(book.getId());
@@ -107,7 +108,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         // Create extension
         createBorrowExtension(order, baseDate.plusDays(request.getDurationInDays()));
 
-        BigDecimal overdueFee = overdueDaysForPenalty > 0 ? new BigDecimal("10000").multiply(new BigDecimal(overdueDaysForPenalty)) : BigDecimal.ZERO;
+        BigDecimal overdueFee = overdueDaysForPenalty > 0 ? feeCalculatorService.calculateOverdueFee(order.getDueDate(), LocalDate.now()) : BigDecimal.ZERO;
         
         BigDecimal totalPaidOnline = paymentRepository.findByBorrowOrderIdAndPaymentStatus(order.getId(), PaymentStatus.SUCCESS)
                 .stream()
@@ -167,7 +168,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
 
         // Validate dates
         long borrowDays = validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
-        BigDecimal rentalFee = BigDecimal.valueOf(borrowDays * 5000L);
+        BigDecimal rentalFee = feeCalculatorService.calculateRentalFee(request.getPickupDate(), request.getReturnDate(), 1);
 
         // Validate book availability and get a copy
         BookCopyEntity availableCopy = reserveBookCopy(book.getId());

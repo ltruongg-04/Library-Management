@@ -22,6 +22,8 @@ import { SuccessModal } from "@/components/base/success-modal";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN_UI } from "@/constants/ui-text/admin";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
+import { getActivePolicy, updateActivePolicy } from "@/services/policy";
 
 const SETTINGS = UI_TEXT.ADMIN_SETTINGS;
 const STORAGE_KEY = "lumina_admin_business_policies";
@@ -135,53 +137,6 @@ const timezoneOptions = [
     { value: "utc-plus-13", label: "(UTC+13:00) Apia, Nukuʻalofa, Fakaofo" },
     { value: "utc-plus-14", label: "(UTC+14:00) Kiritimati / Christmas Island, Line Islands" },
 ];
-
-function normalizeTimezoneValue(value?: string) {
-    if (!value) {
-        return DEFAULT_SETTINGS.localization.timezone;
-    }
-
-    if (value.startsWith("utc-plus-") || value.startsWith("utc-minus-")) {
-        return value;
-    }
-
-    if (value === "utc") {
-        return "utc-plus-0";
-    }
-
-    const legacyOffset = value.match(/^utc-(\d+)$/)?.[1];
-    if (legacyOffset) {
-        return `utc-plus-${legacyOffset}`;
-    }
-
-    return DEFAULT_SETTINGS.localization.timezone;
-}
-
-function readSavedSettings() {
-    if (typeof window === "undefined") {
-        return DEFAULT_SETTINGS;
-    }
-
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (!saved) {
-        return DEFAULT_SETTINGS;
-    }
-
-    try {
-        const parsed = JSON.parse(saved) as Partial<AdminSettingsState>;
-        return {
-            borrowing: { ...DEFAULT_SETTINGS.borrowing, ...parsed.borrowing },
-            features: { ...DEFAULT_SETTINGS.features, ...parsed.features },
-            localization: {
-                ...DEFAULT_SETTINGS.localization,
-                ...parsed.localization,
-                timezone: normalizeTimezoneValue(parsed.localization?.timezone),
-            },
-        };
-    } catch {
-        return DEFAULT_SETTINGS;
-    }
-}
 
 function SectionCard({ icon: Icon, title, children }: { icon: ElementType; title: string; children: ReactNode }) {
     return (
@@ -375,15 +330,38 @@ function ConfirmDiscardModal({ isOpen, onClose, onConfirm }: { isOpen: boolean; 
 }
 
 export default function CaiDatPage() {
-    const [adminSettings, setAdminSettings] = useState(DEFAULT_SETTINGS);
-    const [savedSettings, setSavedSettings] = useState(DEFAULT_SETTINGS);
+    const [adminSettings, setAdminSettings] = useState<AdminSettingsState>(DEFAULT_SETTINGS);
+    const [savedSettings, setSavedSettings] = useState<AdminSettingsState>(DEFAULT_SETTINGS);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showDiscardModal, setShowDiscardModal] = useState(false);
 
     useEffect(() => {
-        const loaded = readSavedSettings();
-        setAdminSettings(loaded);
-        setSavedSettings(loaded);
+        const fetchPolicy = async () => {
+            try {
+                const res = await getActivePolicy();
+                if (res && res.data) {
+                    const policy = res.data;
+                    setAdminSettings((current) => {
+                        const newSettings = {
+                            ...current,
+                            borrowing: {
+                                maxDays: String(policy.maxBorrowDays || 14),
+                                maxBooks: String(policy.maxBooks || 5),
+                                finePerDay: String(policy.rentalFeePerDay || 5000), // Note: mapping rentalFeePerDay to finePerDay on UI
+                                depositPercentage: String(policy.damageFeePercent ? policy.damageFeePercent * 100 : 10),
+                                maxRenewals: String(policy.maxExtensions || 2),
+                            },
+                        };
+                        setSavedSettings(newSettings);
+                        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
+                        return newSettings;
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to load active policy from server", error);
+            }
+        };
+        fetchPolicy();
     }, []);
 
     const hasChanges = JSON.stringify(adminSettings) !== JSON.stringify(savedSettings);
@@ -418,11 +396,26 @@ export default function CaiDatPage() {
         }));
     };
 
-    const handleSave = () => {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(adminSettings));
-        setSavedSettings(adminSettings);
-        setShowSuccessModal(true);
-        window.setTimeout(() => setShowSuccessModal(false), 3000);
+    const handleSave = async () => {
+        try {
+            // Update the backend
+            await updateActivePolicy({
+                maxBorrowDays: parseInt(adminSettings.borrowing.maxDays) || 14,
+                maxBooks: parseInt(adminSettings.borrowing.maxBooks) || 5,
+                rentalFeePerDay: parseInt(adminSettings.borrowing.finePerDay) || 5000,
+                damageFeePercent: (parseInt(adminSettings.borrowing.depositPercentage) || 10) / 100,
+                maxExtensions: parseInt(adminSettings.borrowing.maxRenewals) || 2,
+            });
+
+            // Update local storage
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(adminSettings));
+            setSavedSettings(adminSettings);
+            setShowSuccessModal(true);
+            window.setTimeout(() => setShowSuccessModal(false), 3000);
+        } catch (error) {
+            console.error("Failed to update policy", error);
+            alert(API_ERRORS.SAVE_POLICY_FAILED);
+        }
     };
 
     const confirmDiscard = () => {

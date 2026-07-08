@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/borrow/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/policies/**").permitAll()
                         // Các request khác yêu cầu authenticated
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
