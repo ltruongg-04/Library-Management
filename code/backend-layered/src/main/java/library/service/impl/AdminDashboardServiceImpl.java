@@ -11,6 +11,7 @@ import library.repository.BorrowOrderRepository;
 import library.repository.CustomerRepository;
 import library.service.AdminDashboardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,31 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 })
                 .collect(Collectors.toList());
 
+        List<DashboardStatsResponse.CategoryStatDto> categories = borrowOrderRepository.findTopCategoryBorrowStats(PageRequest.of(0, 5)).stream()
+                .map(row -> DashboardStatsResponse.CategoryStatDto.builder()
+                        .label((String) row[0])
+                        .value(toLong(row[1]))
+                        .build())
+                .collect(Collectors.toList());
+
+        List<DashboardStatsResponse.BorrowedBookDto> borrowedBooks = borrowOrderRepository.findTopBorrowedBookStats(PageRequest.of(0, 5)).stream()
+                .map(row -> DashboardStatsResponse.BorrowedBookDto.builder()
+                        .title((String) row[0])
+                        .author((String) row[1])
+                        .borrows(toLong(row[2]))
+                        .status(toLong(row[3]) > 0 ? "Còn sách" : "Hết sách")
+                        .build())
+                .collect(Collectors.toList());
+
+        List<DashboardStatsResponse.MonthlyTrendDto> monthlyTrends = borrowOrderRepository.findMonthlyBorrowTrends().stream()
+                .map(row -> DashboardStatsResponse.MonthlyTrendDto.builder()
+                        .month(String.format("%04d-%02d", toLong(row[0]), toLong(row[1])))
+                        .borrowed(toLong(row[2]))
+                        .returned(toLong(row[3]))
+                        .overdue(toLong(row[4]))
+                        .build())
+                .collect(Collectors.toList());
+
         return DashboardStatsResponse.builder()
                 .booksBorrowedToday(booksBorrowedToday)
                 .pendingApprovals(pendingApprovals)
@@ -71,7 +97,17 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 .totalCustomers(totalCustomers)
                 .totalBorrowOrders(totalBorrowOrders)
                 .recentActivities(recentActivities)
+                .categories(categories)
+                .borrowedBooks(borrowedBooks)
+                .monthlyTrends(monthlyTrends)
                 .build();
+    }
+
+    private long toLong(Object value) {
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        return 0L;
     }
 }
 

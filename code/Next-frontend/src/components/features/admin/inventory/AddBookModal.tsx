@@ -56,6 +56,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
     const [publicationDate, setPublicationDate] = useState("");
     const [pages, setPages] = useState<number | "">("");
     const [depositPrice, setDepositPrice] = useState<number | "">("");
+    const [initialQuantity, setInitialQuantity] = useState<number | "">("");
 
     const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
     const [availableAuthors, setAvailableAuthors] = useState<Author[]>([]);
@@ -105,6 +106,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
 
             setShelfLocation("");
             setDepositPrice("");
+            setInitialQuantity("");
             setError(null);
 
             // If there's an image URL, we might want to auto-upload it?
@@ -154,6 +156,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
                 publicationDate: publicationDate || undefined,
                 pages: pages === "" ? undefined : Number(pages),
                 depositPrice: depositPrice === "" ? undefined : Number(depositPrice),
+                initialQuantity: initialQuantity === "" ? undefined : Number(initialQuantity),
             };
 
             await bookService.createBook(createData);
@@ -324,6 +327,17 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
                                         type="number"
                                         value={depositPrice}
                                         onChange={(e) => setDepositPrice(e.target.value === "" ? "" : Number(e.target.value))}
+                                        className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                    />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-[13px] font-medium text-on-surface-variant">{textUI.INITIAL_QUANTITY_INPUT}</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={initialQuantity}
+                                        onChange={(e) => setInitialQuantity(e.target.value === "" ? "" : Number(e.target.value))}
                                         className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                     />
                                 </div>

@@ -20,6 +20,9 @@ public class DashboardStatsResponse {
     private long totalCustomers;
     private long totalBorrowOrders;
     private List<RecentActivityDto> recentActivities;
+    private List<CategoryStatDto> categories;
+    private List<BorrowedBookDto> borrowedBooks;
+    private List<MonthlyTrendDto> monthlyTrends;
 
     @Data
     @Builder
@@ -32,5 +35,35 @@ public class DashboardStatsResponse {
         private String status;
         private String createdAt;
     }
-}
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CategoryStatDto {
+        private String label;
+        private long value;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BorrowedBookDto {
+        private String title;
+        private String author;
+        private long borrows;
+        private String status;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MonthlyTrendDto {
+        private String month;
+        private long borrowed;
+        private long returned;
+        private long overdue;
+    }
+}

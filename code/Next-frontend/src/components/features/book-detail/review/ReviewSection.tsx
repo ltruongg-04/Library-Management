@@ -9,18 +9,20 @@ import EditReviewModal from "./EditReviewModal";
 import ReportReviewModal from "./ReportReviewModal";
 import type { Review } from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
+import ReviewModal from "./ReviewModal";
 import SuccessReviewModal from "./SuccessReviewModal";
 
 interface ReviewSectionProps {
     bookId: number;
+    isReviewModalOpen: boolean;
+    onCloseReviewModal: () => void;
 }
 
-export default function ReviewSection({ bookId }: ReviewSectionProps) {
+export default function ReviewSection({ bookId, isReviewModalOpen, onCloseReviewModal }: ReviewSectionProps) {
     const { reviews, loading, hasMore, loadMore, submitReview, updateReview, deleteReview, reportReview } = useBookReviews(bookId);
 
     // UI state
     const [editing, setEditing] = useState<Review | null>(null);
-    const [showForm, setShowForm] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -41,9 +43,9 @@ export default function ReviewSection({ bookId }: ReviewSectionProps) {
                 setOpenEditDialog(false);
             } else {
                 await submitReview(rating, comment);
+                onCloseReviewModal();
                 setOpenSuccessDialog(true);
             }
-            setShowForm(false);
         } catch (err: any) {
             setSubmitError(err.message || "Failed to submit review");
         } finally {
@@ -73,11 +75,10 @@ export default function ReviewSection({ bookId }: ReviewSectionProps) {
         setReviewToDelete(null);
         setOpenDeleteDialog(false);
         setEditing(null);
-        setShowForm(true);
     };
 
     if (loading && reviews.length === 0) {
-        return <div className="py-12 text-center text-on-surface-variant">Loading reviews...</div>;
+        return <div className="py-12 text-center text-on-surface-variant dark:text-slate-300">{REVIEW.LOADING}</div>;
     }
 
     const handleOpenReport = (review: Review) => {
@@ -103,47 +104,31 @@ export default function ReviewSection({ bookId }: ReviewSectionProps) {
                     {REVIEW.TITLE} ({reviews.length})
                 </h2>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-12">
-                    <div className="col-span-1 lg:col-span-7">
-                        {submitError && (
-                            <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">{submitError}</div>
-                        )}
-                        {showForm ? (
-                            <div>
-                                <ReviewForm onSubmit={handleSubmit} />
-                                {isSubmitting && <p className="mt-2 text-sm text-on-surface-variant">{REVIEW.SUBMITTING_REVIEW}</p>}
-                            </div>
-                        ) : (
-                            <div className="rounded-lg border border-outline-variant/30 bg-surface-container-low p-6 text-center dark:border-white/10 dark:bg-zinc-900">
-                                <p className="mb-4 font-body-md text-body-md text-on-surface dark:text-white">
-                                    {editing ? REVIEW.REVIEW_UPDATED : REVIEW.ALREADY_REVIEWED}
-                                </p>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowForm(true)}
-                                    className="dark:text-primary-400 font-body-md text-body-md font-medium text-primary hover:text-primary-700 dark:hover:text-primary-300"
-                                >
-                                    {editing ? REVIEW.RE_EDIT_REVIEW : REVIEW.WRITE_ANOTHER_REVIEW}
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                <CommunityReviews reviews={reviews} onEdit={handleEdit} onDelete={handleDelete} onReport={handleOpenReport} />
 
-                    <div className="col-span-1 lg:col-span-5">
-                        <CommunityReviews reviews={reviews} onEdit={handleEdit} onDelete={handleDelete} onReport={handleOpenReport} />
-
-                        {hasMore && (
-                            <button
-                                onClick={loadMore}
-                                disabled={loading}
-                                className="dark:text-primary-400 mt-4 w-full rounded-lg border border-outline-variant/30 py-2 font-medium text-primary hover:bg-primary/5 disabled:opacity-50 dark:border-white/10 dark:hover:bg-primary-900/20"
-                            >
-                                {loading ? REVIEW.LOADING_MORE : REVIEW.LOAD_MORE}
-                            </button>
-                        )}
-                    </div>
-                </div>
+                {hasMore && (
+                    <button
+                        onClick={loadMore}
+                        disabled={loading}
+                        className="dark:text-primary-400 mt-4 w-full rounded-lg border border-outline-variant/30 py-2 font-medium text-primary hover:bg-primary/5 disabled:opacity-50 dark:border-white/10 dark:hover:bg-primary-900/20"
+                    >
+                        {loading ? REVIEW.LOADING_MORE : REVIEW.LOAD_MORE}
+                    </button>
+                )}
             </div>
+
+            <ReviewModal
+                open={isReviewModalOpen}
+                title={REVIEW.WRITE_REVIEW}
+                onClose={() => {
+                    setSubmitError(null);
+                    onCloseReviewModal();
+                }}
+            >
+                {submitError && <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">{submitError}</div>}
+                <ReviewForm onSubmit={handleSubmit} />
+                {isSubmitting && <p className="mt-2 text-sm text-on-surface-variant dark:text-slate-300">{REVIEW.SUBMITTING_REVIEW}</p>}
+            </ReviewModal>
 
             <EditReviewModal
                 open={openEditDialog}

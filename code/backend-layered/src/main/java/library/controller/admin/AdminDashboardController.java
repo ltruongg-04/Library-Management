@@ -17,7 +17,7 @@ public class AdminDashboardController {
     private final AdminDashboardService adminDashboardService;
 
     @GetMapping("/stats")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<DashboardStatsResponse> getDashboardStats() {
         return ResponseEntity.ok(adminDashboardService.getDashboardStats());
     }

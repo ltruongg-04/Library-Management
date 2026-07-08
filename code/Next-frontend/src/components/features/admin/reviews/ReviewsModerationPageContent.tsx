@@ -1,20 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
-import type { Review, ReviewFilter, ReviewFilterCounts } from "@/types/admin-review";
-import { getFilteredReviews } from "@/utils/admin-review-filters";
-import { STORAGE_KEY, createInitialReviews, readSavedReviews } from "@/utils/admin-review-storage";
+import { useAdminReviews } from "@/hooks/useAdminReviews";
+import type { ReviewFilter } from "@/types/admin-review";
 import HideReasonDialog from "./HideReasonDialog";
 import ReviewCard from "./ReviewCard";
 import ReviewFilterBar from "./ReviewFilterBar";
 import ReviewsHeader from "./ReviewsHeader";
 
 const TEXT = UI_TEXT.ADMIN_REVIEWS;
-const PAGE_SIZE = 5;
-const TEMPORARY_TOTAL_PAGES = 100;
 const DEFAULT_HIDE_REASON = TEXT.HIDE_REASON_OPTIONS[0];
 
 function getPaginationItems(currentPage: number, totalPages: number) {
@@ -43,50 +40,23 @@ function getPaginationItems(currentPage: number, totalPages: number) {
 }
 
 export default function ReviewsModerationPageContent() {
-    const [reviews, setReviews] = useState<Review[]>(createInitialReviews);
+    const { reviews, loading, totalPages, filterCounts, fetchReviews, updateStatus, deleteReview: deleteReviewApi } = useAdminReviews();
+
     const [activeFilter, setActiveFilter] = useState<ReviewFilter>("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+
     const [reasonReviewId, setReasonReviewId] = useState<string | null>(null);
     const [selectedHideReason, setSelectedHideReason] = useState<string>(DEFAULT_HIDE_REASON);
-    const [reasonDrafts, setReasonDrafts] = useState<Record<string, string>>(Object.fromEntries(reviews.map((review) => [review.id, review.hideReason])));
-    const [hasLoadedSavedReviews, setHasLoadedSavedReviews] = useState(false);
+    const [reasonDrafts, setReasonDrafts] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        const savedReviews = readSavedReviews();
+        fetchReviews(activeFilter, searchQuery, currentPage - 1);
+    }, [activeFilter, searchQuery, currentPage, fetchReviews]);
 
-        setReviews(savedReviews);
-        setReasonDrafts(Object.fromEntries(savedReviews.map((review) => [review.id, review.hideReason])));
-        setHasLoadedSavedReviews(true);
-    }, []);
-
-    useEffect(() => {
-        if (!hasLoadedSavedReviews) {
-            return;
-        }
-
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
-    }, [hasLoadedSavedReviews, reviews]);
-
-    const filteredReviews = getFilteredReviews(reviews, activeFilter, searchQuery);
-    const totalPages = Math.max(TEMPORARY_TOTAL_PAGES, Math.ceil(filteredReviews.length / PAGE_SIZE));
-    const visiblePage = Math.min(currentPage, totalPages);
-    const paginationItems = getPaginationItems(visiblePage, totalPages);
-    const paginatedReviews = filteredReviews.slice((visiblePage - 1) * PAGE_SIZE, visiblePage * PAGE_SIZE);
-    const filterCounts = useMemo<ReviewFilterCounts>(
-        () => ({
-            all: String(reviews.length),
-            recent: String(reviews.filter((review) => review.createdDaysAgo <= 3).length),
-            reported: String(reviews.filter((review) => review.status === "reported").length),
-            "rating-5": String(reviews.filter((review) => review.rating === 5).length),
-            "rating-4": String(reviews.filter((review) => review.rating === 4).length),
-            "rating-3": String(reviews.filter((review) => review.rating === 3).length),
-            "rating-2": String(reviews.filter((review) => review.rating === 2).length),
-            "rating-1": String(reviews.filter((review) => review.rating === 1).length),
-            hidden: String(reviews.filter((review) => review.status === "hidden").length),
-        }),
-        [reviews],
-    );
+    const visiblePage = Math.min(currentPage, Math.max(1, totalPages));
+    const paginationItems = getPaginationItems(visiblePage, Math.max(1, totalPages));
+    const paginatedReviews = reviews;
 
     useEffect(() => {
         setCurrentPage(1);
@@ -103,30 +73,36 @@ export default function ReviewsModerationPageContent() {
         }));
     };
 
-    const confirmHideReview = (reviewId: string) => {
+    const confirmHideReview = async (reviewId: string) => {
         const reason = selectedHideReason === TEXT.CUSTOM_HIDE_REASON ? reasonDrafts[reviewId]?.trim() : selectedHideReason;
 
-        if (!reason) {
-            return;
+        if (!reason) return;
+
+        try {
+            await updateStatus(reviewId, "hidden", reason);
+            setReasonReviewId(null);
+            setSelectedHideReason(DEFAULT_HIDE_REASON);
+        } catch (err) {
+            console.error("Failed to hide review:", err);
         }
-
-        setReviews((current) =>
-            current.map((review) => (review.id === reviewId ? { ...review, status: "hidden", hideReason: reason, accent: "muted" } : review)),
-        );
-        setReasonReviewId(null);
-        setSelectedHideReason(DEFAULT_HIDE_REASON);
     };
 
-    const restoreReview = (reviewId: string) => {
-        setReviews((current) =>
-            current.map((review) => (review.id === reviewId ? { ...review, status: "visible", hideReason: "", accent: "secondary" } : review)),
-        );
-        updateReasonDraft(reviewId, "");
+    const restoreReview = async (reviewId: string) => {
+        try {
+            await updateStatus(reviewId, "visible");
+            updateReasonDraft(reviewId, "");
+        } catch (err) {
+            console.error("Failed to restore review:", err);
+        }
     };
 
-    const deleteReview = (reviewId: string) => {
-        setReviews((current) => current.filter((review) => review.id !== reviewId));
-        setReasonReviewId((current) => (current === reviewId ? null : current));
+    const deleteReview = async (reviewId: string) => {
+        try {
+            await deleteReviewApi(reviewId);
+            setReasonReviewId((current) => (current === reviewId ? null : current));
+        } catch (err) {
+            console.error("Failed to delete review:", err);
+        }
     };
 
     const openHideReasonDialog = (reviewId: string) => {
@@ -153,7 +129,9 @@ export default function ReviewsModerationPageContent() {
                     />
 
                     <section className="grid w-full grid-cols-1 items-start gap-md">
-                        {paginatedReviews.length > 0 ? (
+                        {loading ? (
+                            <div className="py-12 text-center text-on-surface-variant dark:text-slate-300">{TEXT.LOADING_REVIEWS}</div>
+                        ) : paginatedReviews.length > 0 ? (
                             paginatedReviews.map((review) => (
                                 <ReviewCard
                                     key={review.id}

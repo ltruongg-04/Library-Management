@@ -5,7 +5,7 @@ import library.common.exception.CustomBusinessException;
 import library.dto.response.BookResponse;
 import library.entity.BookEntity;
 import library.repository.BookRepository;
-
+import library.service.BookCopyService;
 import library.service.SystemLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +25,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     private final library.repository.CategoryRepository categoryRepository;
     private final library.repository.AuthorRepository authorRepository;
     private final SystemLogService systemLogService;
+    private final BookCopyService bookCopyService;
     private final library.mapper.BookMapper bookMapper;
 
 
@@ -58,6 +59,14 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         book.setCategories(processCategories(request.getCategoryIds(), request.getNewCategories()));
 
         BookEntity savedBook = bookRepository.save(book);
+        
+        if (request.getInitialQuantity() != null && request.getInitialQuantity() > 0) {
+            bookCopyService.addCopies(savedBook.getId(), request.getInitialQuantity());
+            // Update book's calculated properties temporarily for the response or reload if necessary
+            // Note: Since @Formula values are evaluated on select, we don't strictly need to do anything here for the DB,
+            // but the response might show 0 unless re-fetched. This is fine for admin creation response.
+        }
+        
         systemLogService.logAction("Thêm sách mới", "Admin đã thêm sách mới: " + savedBook.getTitle());
         return bookMapper.toBookResponse(savedBook);
     }

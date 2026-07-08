@@ -26,6 +26,10 @@ public class BorrowingPolicyEntity extends BaseEntity {
     @Column(name = "overdue_fine_per_day", precision = 10, scale = 2)
     private BigDecimal overdueFinePerDay;
 
+    @Column(name = "rental_fee_per_day", precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal rentalFeePerDay = new BigDecimal("5000");
+
     @Column(name = "damage_fee_percent", precision = 5, scale = 2)
     private BigDecimal damageFeePercent;
 

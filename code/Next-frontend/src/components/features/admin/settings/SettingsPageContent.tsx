@@ -22,9 +22,9 @@ import { SuccessModal } from "@/components/base/success-modal";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN_UI } from "@/constants/ui-text/admin";
+import { adminSettingsService } from "@/services/adminSettings";
 
 const SETTINGS = UI_TEXT.ADMIN_SETTINGS;
-const STORAGE_KEY = "lumina_admin_business_policies";
 
 type AdminSettingsState = {
     borrowing: {
@@ -135,53 +135,6 @@ const timezoneOptions = [
     { value: "utc-plus-13", label: "(UTC+13:00) Apia, Nukuʻalofa, Fakaofo" },
     { value: "utc-plus-14", label: "(UTC+14:00) Kiritimati / Christmas Island, Line Islands" },
 ];
-
-function normalizeTimezoneValue(value?: string) {
-    if (!value) {
-        return DEFAULT_SETTINGS.localization.timezone;
-    }
-
-    if (value.startsWith("utc-plus-") || value.startsWith("utc-minus-")) {
-        return value;
-    }
-
-    if (value === "utc") {
-        return "utc-plus-0";
-    }
-
-    const legacyOffset = value.match(/^utc-(\d+)$/)?.[1];
-    if (legacyOffset) {
-        return `utc-plus-${legacyOffset}`;
-    }
-
-    return DEFAULT_SETTINGS.localization.timezone;
-}
-
-function readSavedSettings() {
-    if (typeof window === "undefined") {
-        return DEFAULT_SETTINGS;
-    }
-
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (!saved) {
-        return DEFAULT_SETTINGS;
-    }
-
-    try {
-        const parsed = JSON.parse(saved) as Partial<AdminSettingsState>;
-        return {
-            borrowing: { ...DEFAULT_SETTINGS.borrowing, ...parsed.borrowing },
-            features: { ...DEFAULT_SETTINGS.features, ...parsed.features },
-            localization: {
-                ...DEFAULT_SETTINGS.localization,
-                ...parsed.localization,
-                timezone: normalizeTimezoneValue(parsed.localization?.timezone),
-            },
-        };
-    } catch {
-        return DEFAULT_SETTINGS;
-    }
-}
 
 function SectionCard({ icon: Icon, title, children }: { icon: ElementType; title: string; children: ReactNode }) {
     return (
@@ -377,13 +330,25 @@ function ConfirmDiscardModal({ isOpen, onClose, onConfirm }: { isOpen: boolean; 
 export default function CaiDatPage() {
     const [adminSettings, setAdminSettings] = useState(DEFAULT_SETTINGS);
     const [savedSettings, setSavedSettings] = useState(DEFAULT_SETTINGS);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showDiscardModal, setShowDiscardModal] = useState(false);
 
     useEffect(() => {
-        const loaded = readSavedSettings();
-        setAdminSettings(loaded);
-        setSavedSettings(loaded);
+        const loadSettings = async () => {
+            try {
+                const loaded = await adminSettingsService.getSettings();
+                setAdminSettings(loaded);
+                setSavedSettings(loaded);
+            } catch (error) {
+                console.error("Failed to load admin settings", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadSettings();
     }, []);
 
     const hasChanges = JSON.stringify(adminSettings) !== JSON.stringify(savedSettings);
@@ -418,11 +383,19 @@ export default function CaiDatPage() {
         }));
     };
 
-    const handleSave = () => {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(adminSettings));
-        setSavedSettings(adminSettings);
-        setShowSuccessModal(true);
-        window.setTimeout(() => setShowSuccessModal(false), 3000);
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const saved = await adminSettingsService.updateSettings(adminSettings);
+            setAdminSettings(saved);
+            setSavedSettings(saved);
+            setShowSuccessModal(true);
+            window.setTimeout(() => setShowSuccessModal(false), 3000);
+        } catch (error) {
+            console.error("Failed to save admin settings", error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const confirmDiscard = () => {
@@ -447,94 +420,98 @@ export default function CaiDatPage() {
             </div>
 
             <main className="flex-1 overflow-auto p-8">
-                <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-start gap-lg xl:grid-cols-12 xl:gap-xl">
-                    <div className="xl:col-span-7">
-                        <SectionCard icon={BookOpen} title={SETTINGS.BORROWING.TITLE}>
-                            <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
-                                {borrowingFields.map((field) => (
-                                    <PolicyField
-                                        key={field.key}
-                                        label={field.label}
-                                        value={adminSettings.borrowing[field.key]}
-                                        suffix={field.suffix}
-                                        onChange={(value) => updateBorrowing(field.key, value)}
-                                    />
-                                ))}
-                                <div className="md:col-span-2">
-                                    <div className="max-w-sm">
+                {isLoading ? (
+                    <div className="py-24 text-center text-on-surface-variant dark:text-slate-300">{UI_TEXT.COMMON.LOADING}</div>
+                ) : (
+                    <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-start gap-lg xl:grid-cols-12 xl:gap-xl">
+                        <div className="xl:col-span-7">
+                            <SectionCard icon={BookOpen} title={SETTINGS.BORROWING.TITLE}>
+                                <div className="grid grid-cols-1 gap-lg md:grid-cols-2">
+                                    {borrowingFields.map((field) => (
                                         <PolicyField
-                                            label={SETTINGS.BORROWING.MAX_RENEWALS}
-                                            value={adminSettings.borrowing.maxRenewals}
-                                            onChange={(value) => updateBorrowing("maxRenewals", value)}
+                                            key={field.key}
+                                            label={field.label}
+                                            value={adminSettings.borrowing[field.key]}
+                                            suffix={field.suffix}
+                                            onChange={(value) => updateBorrowing(field.key, value)}
                                         />
+                                    ))}
+                                    <div className="md:col-span-2">
+                                        <div className="max-w-sm">
+                                            <PolicyField
+                                                label={SETTINGS.BORROWING.MAX_RENEWALS}
+                                                value={adminSettings.borrowing.maxRenewals}
+                                                onChange={(value) => updateBorrowing("maxRenewals", value)}
+                                            />
+                                        </div>
+                                        <p className="mt-xs text-[13px] leading-5 text-on-surface-variant">* {SETTINGS.BORROWING.RENEWALS_HELP}</p>
                                     </div>
-                                    <p className="mt-xs text-[13px] leading-5 text-on-surface-variant">* {SETTINGS.BORROWING.RENEWALS_HELP}</p>
                                 </div>
-                            </div>
-                        </SectionCard>
-                    </div>
+                            </SectionCard>
+                        </div>
 
-                    <div className="xl:col-span-5">
-                        <SectionCard icon={ToggleRight} title={SETTINGS.FEATURES.TITLE}>
-                            <div className="flex flex-col gap-lg">
-                                {featureItems.map((item, index) => (
-                                    <FeatureToggle
-                                        key={item.title}
-                                        id={`feature-toggle-${index}`}
-                                        title={item.title}
-                                        description={item.description}
-                                        icon={item.icon}
-                                        checked={adminSettings.features[item.key]}
-                                        onChange={(checked) => updateFeature(item.key, checked)}
+                        <div className="xl:col-span-5">
+                            <SectionCard icon={ToggleRight} title={SETTINGS.FEATURES.TITLE}>
+                                <div className="flex flex-col gap-lg">
+                                    {featureItems.map((item, index) => (
+                                        <FeatureToggle
+                                            key={item.title}
+                                            id={`feature-toggle-${index}`}
+                                            title={item.title}
+                                            description={item.description}
+                                            icon={item.icon}
+                                            checked={adminSettings.features[item.key]}
+                                            onChange={(checked) => updateFeature(item.key, checked)}
+                                        />
+                                    ))}
+                                </div>
+                            </SectionCard>
+                        </div>
+
+                        <div className="xl:col-span-7">
+                            <SectionCard icon={WalletCards} title={SETTINGS.PAYMENTS.TITLE}>
+                                <div className="flex flex-col gap-md">
+                                    <GatewayRow
+                                        icon={Landmark}
+                                        name={SETTINGS.PAYMENTS.MOMO_NAME}
+                                        description={SETTINGS.PAYMENTS.MOMO_DESC}
+                                        note={SETTINGS.PAYMENTS.MOMO_NOTE}
+                                        token={SETTINGS.PAYMENTS.MOMO_TOKEN}
+                                        active
                                     />
-                                ))}
-                            </div>
-                        </SectionCard>
-                    </div>
+                                    <GatewayRow
+                                        icon={CreditCard}
+                                        name={SETTINGS.PAYMENTS.VNPAY_NAME}
+                                        description={SETTINGS.PAYMENTS.VNPAY_DESC}
+                                        note={SETTINGS.PAYMENTS.VNPAY_NOTE}
+                                        token={SETTINGS.PAYMENTS.VNPAY_TOKEN}
+                                        active={false}
+                                    />
+                                </div>
+                            </SectionCard>
+                        </div>
 
-                    <div className="xl:col-span-7">
-                        <SectionCard icon={WalletCards} title={SETTINGS.PAYMENTS.TITLE}>
-                            <div className="flex flex-col gap-md">
-                                <GatewayRow
-                                    icon={Landmark}
-                                    name={SETTINGS.PAYMENTS.MOMO_NAME}
-                                    description={SETTINGS.PAYMENTS.MOMO_DESC}
-                                    note={SETTINGS.PAYMENTS.MOMO_NOTE}
-                                    token={SETTINGS.PAYMENTS.MOMO_TOKEN}
-                                    active
+                        <div className="grid grid-cols-1 gap-lg md:grid-cols-2 xl:col-span-5 xl:grid-cols-1">
+                            <SectionCard icon={Globe2} title={SETTINGS.LOCALIZATION.LANGUAGE}>
+                                <SelectField
+                                    label=""
+                                    value={adminSettings.localization.language}
+                                    onChange={(value) => updateLocalization("language", value)}
+                                    options={languageOptions}
                                 />
-                                <GatewayRow
-                                    icon={CreditCard}
-                                    name={SETTINGS.PAYMENTS.VNPAY_NAME}
-                                    description={SETTINGS.PAYMENTS.VNPAY_DESC}
-                                    note={SETTINGS.PAYMENTS.VNPAY_NOTE}
-                                    token={SETTINGS.PAYMENTS.VNPAY_TOKEN}
-                                    active={false}
+                            </SectionCard>
+
+                            <SectionCard icon={Clock3} title={SETTINGS.LOCALIZATION.WORLD_CLOCK}>
+                                <SelectField
+                                    label=""
+                                    value={adminSettings.localization.timezone}
+                                    onChange={(value) => updateLocalization("timezone", value)}
+                                    options={timezoneOptions}
                                 />
-                            </div>
-                        </SectionCard>
+                            </SectionCard>
+                        </div>
                     </div>
-
-                    <div className="grid grid-cols-1 gap-lg md:grid-cols-2 xl:col-span-5 xl:grid-cols-1">
-                        <SectionCard icon={Globe2} title={SETTINGS.LOCALIZATION.LANGUAGE}>
-                            <SelectField
-                                label=""
-                                value={adminSettings.localization.language}
-                                onChange={(value) => updateLocalization("language", value)}
-                                options={languageOptions}
-                            />
-                        </SectionCard>
-
-                        <SectionCard icon={Clock3} title={SETTINGS.LOCALIZATION.WORLD_CLOCK}>
-                            <SelectField
-                                label=""
-                                value={adminSettings.localization.timezone}
-                                onChange={(value) => updateLocalization("timezone", value)}
-                                options={timezoneOptions}
-                            />
-                        </SectionCard>
-                    </div>
-                </div>
+                )}
             </main>
 
             {hasChanges && (
@@ -552,7 +529,8 @@ export default function CaiDatPage() {
                             <button
                                 type="button"
                                 onClick={handleSave}
-                                className="focus-ring flex h-10 items-center gap-sm rounded-lg bg-primary px-md text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container"
+                                disabled={isSaving}
+                                className="focus-ring flex h-10 items-center gap-sm rounded-lg bg-primary px-md text-body-md font-semibold text-on-primary shadow-md transition-colors hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 <Save size={16} />
                                 {SETTINGS.ACTION_BAR.SAVE}

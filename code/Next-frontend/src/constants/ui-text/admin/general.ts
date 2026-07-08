@@ -76,6 +76,7 @@ export const ADMIN = {
             OR_ENTER_URL: "Hoặc nhập URL ảnh:",
             PULL_FROM_URL: "Tải từ URL",
             DEPOSIT_PRICE_INPUT: "Giá cọc",
+            INITIAL_QUANTITY_INPUT: "Số lượng ban đầu",
             CANCEL: "Hủy bỏ",
             SUBMIT: "Thêm sách",
             SUCCESS: "Thêm sách thành công!",

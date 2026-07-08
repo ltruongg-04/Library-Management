@@ -20,6 +20,7 @@ public class BorrowOrderValidationHelper {
 
     private final ReservationRepository reservationRepository;
     private final BorrowExtensionRepository borrowExtensionRepository;
+    private final library.service.FeeCalculatorService feeCalculatorService;
 
     public long validateBorrowDatesAndGetDays(LocalDate pickupDate, LocalDate returnDate) {
         LocalDate today = LocalDate.now();
@@ -33,8 +34,11 @@ public class BorrowOrderValidationHelper {
         long borrowDays = java.time.temporal.ChronoUnit.DAYS.between(pickupDate, returnDate);
         if (borrowDays == 0)
             borrowDays = 1; // Borrow and return same day counts as 1 day
-        if (borrowDays > 14) {
-            throw new CustomBusinessException("Thời gian mượn sách không được vượt quá 14 ngày",
+        int maxBorrowDays = feeCalculatorService.getActivePolicy().getMaxBorrowDays() != null
+                ? feeCalculatorService.getActivePolicy().getMaxBorrowDays()
+                : 14;
+        if (borrowDays > maxBorrowDays) {
+            throw new CustomBusinessException("Thời gian mượn sách không được vượt quá " + maxBorrowDays + " ngày",
                     HttpStatus.BAD_REQUEST);
         }
         return borrowDays;
@@ -59,7 +63,10 @@ public class BorrowOrderValidationHelper {
 
         long extensionCount = borrowExtensionRepository.countByBorrowOrderIdAndStatus(order.getId(),
                 BorrowExtensionStatus.APPROVED);
-        if (extensionCount >= 2) {
+        int maxExtensions = feeCalculatorService.getActivePolicy().getMaxExtensions() != null
+                ? feeCalculatorService.getActivePolicy().getMaxExtensions()
+                : 2;
+        if (extensionCount >= maxExtensions) {
             throw new CustomBusinessException("Phiếu mượn đã vượt quá số lần gia hạn cho phép", HttpStatus.BAD_REQUEST);
         }
     }

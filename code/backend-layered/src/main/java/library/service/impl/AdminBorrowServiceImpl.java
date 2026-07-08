@@ -66,7 +66,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
             if (actualDays <= 0) actualDays = 1;
             
             List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
-            java.math.BigDecimal rentalFeePerBook = java.math.BigDecimal.valueOf(actualDays * 5000L);
+            java.math.BigDecimal rentalFeePerBook = feeCalculatorService.calculateRentalFee(feeStartDate, LocalDate.now(), 1);
             java.math.BigDecimal totalRentalFee = rentalFeePerBook.multiply(new java.math.BigDecimal(details.size()));
             
             for (BorrowOrderDetailEntity detail : details) {
@@ -118,6 +118,12 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     @Transactional
     public AdminBorrowOrderDto createBorrowOrder(library.dto.admin.AdminCreateBorrowOrderRequest request) {
         library.entity.CustomerEntity customer = adminBorrowHelper.getOrCreateCustomer(request.getPhone(), request.getFullName(), request.getEmail());
+
+        int maxBooks = feeCalculatorService.getActivePolicy().getMaxBooks() != null ? feeCalculatorService.getActivePolicy().getMaxBooks() : 5;
+        if (request.getBookBarcodes() != null && request.getBookBarcodes().size() > maxBooks) {
+            throw new library.common.exception.CustomBusinessException("Số sách mượn không được vượt quá " + maxBooks + " quyển",
+                    org.springframework.http.HttpStatus.BAD_REQUEST);
+        }
 
         java.math.BigDecimal[] depositRef = new java.math.BigDecimal[1];
         java.util.List<library.entity.BookCopyEntity> copiesToBorrow = adminBorrowHelper.validateAndGetBookCopies(request.getBookBarcodes(), depositRef);

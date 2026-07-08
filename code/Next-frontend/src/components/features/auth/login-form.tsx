@@ -12,7 +12,7 @@ import { GoogleIcon } from "@/components/icons/google-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { useAuth } from "@/providers/auth";
-import { isAdminRole } from "@/utils/role";
+import { isStaffOrAdmin, isSuperAdmin } from "@/utils/role";
 
 export function LoginForm() {
     const { login, loginWithGoogle } = useAuth();
@@ -59,10 +59,12 @@ export function LoginForm() {
         try {
             await login(email, password);
             const session = await getSession();
-            if (isAdminRole(session?.user?.role)) {
-                router.replace("/admin");
+            if (isSuperAdmin(session?.user?.role)) {
+                router.push("/admin");
+            } else if (isStaffOrAdmin(session?.user?.role)) {
+                router.push("/staff");
             } else {
-                router.replace("/");
+                router.push("/");
             }
         } catch (error) {
             setErrors({

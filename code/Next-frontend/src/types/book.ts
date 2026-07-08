@@ -126,6 +126,7 @@ export interface BookCreateRequest {
     publicationDate?: string;
     pages?: number;
     depositPrice?: number;
+    initialQuantity?: number;
 }
 
 /**
