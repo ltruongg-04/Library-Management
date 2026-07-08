@@ -2,11 +2,14 @@ package library.service.impl;
 
 import library.dto.admin.RolePermissionUpdateRequest;
 import library.dto.admin.RoleResponse;
+import library.common.constant.CacheNames;
 import library.entity.RolePermissionEntity;
 import library.entity.UserEntity;
 import library.repository.RolePermissionRepository;
 import library.service.AdminRoleService;
+import library.service.CacheInvalidationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 public class AdminRoleServiceImpl implements AdminRoleService {
 
     private final RolePermissionRepository rolePermissionRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     private static final List<PermissionCatalogModule> PERMISSION_CATALOG = List.of(
             new PermissionCatalogModule("books", "Books & Catalog", "library_books", List.of(
@@ -46,6 +50,7 @@ public class AdminRoleServiceImpl implements AdminRoleService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.ADMIN_ROLES, key = "'roles'")
     public List<RoleResponse> getRoles() {
         return Arrays.stream(UserEntity.Role.values())
                 .map(this::buildRoleResponse)
@@ -70,11 +75,14 @@ public class AdminRoleServiceImpl implements AdminRoleService {
                 .collect(Collectors.toList());
 
         rolePermissionRepository.saveAll(permissions);
-        return buildRoleResponse(role);
+        RoleResponse response = buildRoleResponse(role);
+        cacheInvalidationService.evictRoleCaches();
+        return response;
     }
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.ADMIN_ROLES, key = "'permissions:' + #role.name()")
     public List<String> getPermissionIds(UserEntity.Role role) {
         return rolePermissionRepository.findByRoleName(role).stream()
                 .map(RolePermissionEntity::getPermissionId)

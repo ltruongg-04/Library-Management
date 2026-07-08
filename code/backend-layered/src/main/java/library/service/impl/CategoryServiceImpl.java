@@ -3,9 +3,12 @@ package library.service.impl;
 import library.dto.request.CategoryRequest;
 import library.dto.response.CategoryResponse;
 import library.entity.CategoryEntity;
+import library.common.constant.CacheNames;
 import library.repository.CategoryRepository;
+import library.service.CacheInvalidationService;
 import library.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +20,10 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     @Override
+    @Cacheable(value = CacheNames.CATEGORIES_ALL, key = "'all'")
     public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream()
                 .map(this::mapToResponse)
@@ -26,6 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = CacheNames.CATEGORIES_WITH_BOOKS, key = "'all'")
     public List<CategoryResponse> getAllCategoriesWithBooks() {
         return categoryRepository.findAllWithBooks().stream()
                 .map(this::mapToResponse)
@@ -44,7 +50,9 @@ public class CategoryServiceImpl implements CategoryService {
                 .description(request.getDescription())
                 .build();
 
-        return mapToResponse(categoryRepository.save(category));
+        CategoryResponse response = mapToResponse(categoryRepository.save(category));
+        cacheInvalidationService.evictCatalogCaches();
+        return response;
     }
 
     @Override
@@ -60,7 +68,9 @@ public class CategoryServiceImpl implements CategoryService {
         category.setName(request.getName());
         category.setDescription(request.getDescription());
 
-        return mapToResponse(categoryRepository.save(category));
+        CategoryResponse response = mapToResponse(categoryRepository.save(category));
+        cacheInvalidationService.evictCatalogCaches();
+        return response;
     }
 
     @Override
@@ -72,6 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
         
         categoryRepository.deleteCategoryAssociations(id);
         categoryRepository.deleteById(id);
+        cacheInvalidationService.evictCatalogCaches();
     }
 
     private CategoryResponse mapToResponse(CategoryEntity entity) {

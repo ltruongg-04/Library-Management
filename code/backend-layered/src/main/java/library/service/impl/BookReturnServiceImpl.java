@@ -34,6 +34,7 @@ public class BookReturnServiceImpl implements BookReturnService {
     private final library.service.VnPayService vnPayService;
     private final library.repository.PaymentRepository paymentRepository;
     private final library.service.FeeCalculatorService feeCalculatorService;
+    private final library.service.CacheInvalidationService cacheInvalidationService;
     private final library.mapper.BookReturnMapper bookReturnMapper;
     private final library.repository.ReservationRepository reservationRepository;
     private final library.service.EmailService emailService;
@@ -142,6 +143,7 @@ public class BookReturnServiceImpl implements BookReturnService {
 
         FineEntity fine = paymentHelper.createFineRecord(totalFineAmount, borrowOrder, bookReturn, requiresPayment,
                 assistant);
+        cacheInvalidationService.evictBookCaches();
 
         return bookReturnMapper.toAdminReturnBookResponseDto(bookReturn, fine);
     }
@@ -248,6 +250,7 @@ public class BookReturnServiceImpl implements BookReturnService {
         if (paymentType == PaymentType.FINE) {
             finalizeReturnStatus(bookReturnId);
         }
+        cacheInvalidationService.evictBookCaches();
     }
 
     @Override
@@ -327,6 +330,7 @@ public class BookReturnServiceImpl implements BookReturnService {
             borrowOrder.setStatus(BorrowOrderStatus.PARTIALLY_RETURNED);
         }
         borrowOrderRepository.save(borrowOrder);
+        cacheInvalidationService.evictBookCaches();
     }
 
     @Override
@@ -346,5 +350,6 @@ public class BookReturnServiceImpl implements BookReturnService {
         if (fine.getBookReturn() != null) {
             finalizeReturnStatus(fine.getBookReturn().getId());
         }
+        cacheInvalidationService.evictBookCaches();
     }
 }

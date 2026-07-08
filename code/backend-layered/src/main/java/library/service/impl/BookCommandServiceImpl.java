@@ -5,6 +5,7 @@ import library.common.exception.CustomBusinessException;
 import library.dto.response.BookResponse;
 import library.entity.BookEntity;
 import library.repository.BookRepository;
+import library.service.CacheInvalidationService;
 import library.service.BookCopyService;
 import library.service.SystemLogService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     private final library.repository.AuthorRepository authorRepository;
     private final SystemLogService systemLogService;
     private final BookCopyService bookCopyService;
+    private final CacheInvalidationService cacheInvalidationService;
     private final library.mapper.BookMapper bookMapper;
 
 
@@ -68,6 +70,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         }
         
         systemLogService.logAction("Thêm sách mới", "Admin đã thêm sách mới: " + savedBook.getTitle());
+        cacheInvalidationService.evictCatalogCaches();
         return bookMapper.toBookResponse(savedBook);
     }
 
@@ -94,6 +97,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
 
         bookRepository.save(book);
         systemLogService.logAction("Cập nhật sách", "Admin đã cập nhật thông tin sách: " + book.getTitle());
+        cacheInvalidationService.evictCatalogCaches();
         return bookMapper.toBookResponse(book);
     }
 

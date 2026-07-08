@@ -8,6 +8,7 @@ import library.entity.BookEntity;
 import library.repository.BookCopyRepository;
 import library.repository.BookRepository;
 import library.service.BookCopyService;
+import library.service.CacheInvalidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class BookCopyServiceImpl implements BookCopyService {
 
     private final BookCopyRepository bookCopyRepository;
     private final BookRepository bookRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     @Override
     public List<BookCopyResponse> getCopiesByBookId(Integer bookId) {
@@ -58,6 +60,7 @@ public class BookCopyServiceImpl implements BookCopyService {
         }
 
         List<BookCopyEntity> savedCopies = bookCopyRepository.saveAll(newCopies);
+        cacheInvalidationService.evictBookCaches();
         return savedCopies.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
@@ -80,6 +83,7 @@ public class BookCopyServiceImpl implements BookCopyService {
         }
 
         copy = bookCopyRepository.save(copy);
+        cacheInvalidationService.evictBookCaches();
         return mapToResponse(copy);
     }
 
@@ -89,6 +93,7 @@ public class BookCopyServiceImpl implements BookCopyService {
         BookCopyEntity copy = bookCopyRepository.findById(copyId)
                 .orElseThrow(() -> new RuntimeException("Book copy not found"));
         bookCopyRepository.delete(copy);
+        cacheInvalidationService.evictBookCaches();
     }
 
     private BookCopyResponse mapToResponse(BookCopyEntity entity) {

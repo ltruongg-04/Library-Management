@@ -1,14 +1,17 @@
 package library.service.impl;
 
 import library.dto.admin.AdminSettingsResponse;
+import library.common.constant.CacheNames;
 import library.entity.BorrowingPolicyEntity;
 import library.entity.SystemSettingEntity;
 import library.repository.BorrowingPolicyRepository;
 import library.repository.SystemSettingRepository;
 import library.service.AdminSettingsService;
+import library.service.CacheInvalidationService;
 import library.config.VnPayConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -30,9 +33,11 @@ public class AdminSettingsServiceImpl implements AdminSettingsService {
     private final BorrowingPolicyRepository borrowingPolicyRepository;
     private final SystemSettingRepository systemSettingRepository;
     private final VnPayConfig vnPayConfig;
+    private final CacheInvalidationService cacheInvalidationService;
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.ADMIN_SETTINGS, key = "'settings'")
     public AdminSettingsResponse getSettings() {
         BorrowingPolicyEntity policy = getActivePolicy();
         Map<String, String> settings = systemSettingRepository.findAll().stream()
@@ -109,6 +114,7 @@ public class AdminSettingsServiceImpl implements AdminSettingsService {
             saveSetting(VNPAY_ACTIVE, String.valueOf(payment.isVnpayActive()));
         }
 
+        cacheInvalidationService.evictSettingsCaches();
         return getSettings();
     }
 

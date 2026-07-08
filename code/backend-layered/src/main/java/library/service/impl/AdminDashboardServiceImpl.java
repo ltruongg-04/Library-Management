@@ -1,6 +1,7 @@
 package library.service.impl;
 
 import library.dto.response.DashboardStatsResponse;
+import library.common.constant.CacheNames;
 import library.entity.BorrowOrderEntity;
 import library.entity.BorrowOrderDetailEntity;
 import library.entity.BorrowOrderStatus;
@@ -13,6 +14,7 @@ import library.service.AdminDashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -31,6 +33,7 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.ADMIN_DASHBOARD, key = "'stats'")
     public DashboardStatsResponse getDashboardStats() {
         LocalDate today = LocalDate.now();
 

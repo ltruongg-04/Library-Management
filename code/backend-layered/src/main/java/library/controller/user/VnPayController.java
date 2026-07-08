@@ -41,6 +41,7 @@ public class VnPayController {
     private final SystemLogService systemLogService;
     private final library.service.BookReturnService bookReturnService;
     private final library.service.EmailService emailService;
+    private final library.service.CacheInvalidationService cacheInvalidationService;
 
     @Value("${vnpay.frontend-url:http://localhost:3000}")
     private String frontendUrl;
@@ -139,6 +140,7 @@ public class VnPayController {
                     log.error("Failed to complete fine payment", e);
                 }
             }
+            cacheInvalidationService.evictBookCaches();
         } else {
             // Payment failed — auto cancel the borrow order
             handlePaymentFailure(payment, orderCode);
@@ -229,6 +231,7 @@ public class VnPayController {
                     }
                 }
             }
+            cacheInvalidationService.evictBookCaches();
         } else {
             status = "failed";
 
@@ -317,5 +320,6 @@ public class VnPayController {
                 }
             }
         }
+        cacheInvalidationService.evictBookCaches();
     }
 }

@@ -1,11 +1,14 @@
 package library.service.impl;
 
 import library.dto.admin.BorrowingPolicyDto;
+import library.common.constant.CacheNames;
 import library.entity.BorrowingPolicyEntity;
 import library.entity.ConditionStatus;
 import library.repository.BorrowingPolicyRepository;
+import library.service.CacheInvalidationService;
 import library.service.FeeCalculatorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +21,10 @@ import java.time.temporal.ChronoUnit;
 public class FeeCalculatorServiceImpl implements FeeCalculatorService {
 
     private final BorrowingPolicyRepository borrowingPolicyRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     @Override
+    @Cacheable(value = CacheNames.POLICIES_ACTIVE, key = "'active'")
     public BorrowingPolicyEntity getActivePolicy() {
         return borrowingPolicyRepository.findAll().stream().findFirst()
                 .orElseGet(() -> {
@@ -103,6 +108,7 @@ public class FeeCalculatorServiceImpl implements FeeCalculatorService {
         }
 
         BorrowingPolicyEntity saved = borrowingPolicyRepository.save(policy);
+        cacheInvalidationService.evictPolicyCaches();
 
         return BorrowingPolicyDto.builder()
                 .id(saved.getId())

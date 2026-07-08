@@ -3,9 +3,12 @@ package library.service.impl;
 import library.dto.request.AuthorRequest;
 import library.dto.response.AuthorResponse;
 import library.entity.AuthorEntity;
+import library.common.constant.CacheNames;
 import library.repository.AuthorRepository;
 import library.service.AuthorService;
+import library.service.CacheInvalidationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +21,10 @@ import java.util.stream.Collectors;
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
+    private final CacheInvalidationService cacheInvalidationService;
 
     @Override
+    @Cacheable(value = CacheNames.AUTHORS_ALL, key = "'all'")
     public List<AuthorResponse> getAllAuthors() {
         return authorRepository.findAll().stream()
                 .map(this::mapToResponse)
@@ -38,7 +43,9 @@ public class AuthorServiceImpl implements AuthorService {
                 .biography(request.getBiography())
                 .build();
 
-        return mapToResponse(authorRepository.save(author));
+        AuthorResponse response = mapToResponse(authorRepository.save(author));
+        cacheInvalidationService.evictCatalogCaches();
+        return response;
     }
 
     @Override
@@ -54,7 +61,9 @@ public class AuthorServiceImpl implements AuthorService {
         author.setName(request.getName());
         author.setBiography(request.getBiography());
 
-        return mapToResponse(authorRepository.save(author));
+        AuthorResponse response = mapToResponse(authorRepository.save(author));
+        cacheInvalidationService.evictCatalogCaches();
+        return response;
     }
 
     @Override
@@ -64,6 +73,7 @@ public class AuthorServiceImpl implements AuthorService {
             throw new RuntimeException("Không tìm thấy tác giả");
         }
         authorRepository.deleteById(id);
+        cacheInvalidationService.evictCatalogCaches();
     }
 
     private AuthorResponse mapToResponse(AuthorEntity entity) {

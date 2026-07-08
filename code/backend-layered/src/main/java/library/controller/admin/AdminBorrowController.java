@@ -6,6 +6,7 @@ import library.service.AdminBorrowService;
 import lombok.RequiredArgsConstructor;
 import library.entity.BorrowOrderStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class AdminBorrowController {
     }
 
     @PutMapping("/{orderCode}/status")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('borrow.approve')")
     public ResponseEntity<ApiResponse<Void>> updateBorrowStatus(
             @PathVariable String orderCode,
             @RequestParam String status) {
@@ -42,12 +44,14 @@ public class AdminBorrowController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('borrow.approve')")
     public ResponseEntity<ApiResponse<AdminBorrowOrderDto>> createBorrowOrder(@RequestBody library.dto.admin.AdminCreateBorrowOrderRequest request) {
         AdminBorrowOrderDto newOrder = adminBorrowService.createBorrowOrder(request);
         return ResponseEntity.ok(ApiResponse.success("Tạo phiếu mượn thành công", newOrder));
     }
 
     @PutMapping("/{orderCode}/renew")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('borrow.approve')")
     public ResponseEntity<ApiResponse<Void>> processRenewal(
             @PathVariable String orderCode,
             @RequestBody library.dto.admin.AdminRenewalRequestDto request) {
