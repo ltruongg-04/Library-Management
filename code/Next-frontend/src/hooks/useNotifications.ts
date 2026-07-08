@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { notifications as initialNotifications } from "@/mocks/notifications";
+import { notificationService } from "@/services/notification";
 import { Notification } from "@/types/notification";
 import {
     NOTIFICATION_SETTINGS_STORAGE_KEY,
@@ -13,17 +13,33 @@ import {
 
 export function useNotifications() {
     const [allItems, setAllItems] = useState<Notification[]>([]);
+    const [serverUnreadCount, setServerUnreadCount] = useState(0);
     const [settings, setSettings] = useState<NotificationSettings>(() => readNotificationSettings());
 
     useEffect(() => {
-        const saved = localStorage.getItem("notifications");
+        let mounted = true;
 
-        if (saved) {
-            setAllItems(JSON.parse(saved));
-        } else {
-            setAllItems(initialNotifications);
-            localStorage.setItem("notifications", JSON.stringify(initialNotifications));
-        }
+        const loadNotifications = async () => {
+            try {
+                const [items, unreadCount] = await Promise.all([notificationService.list(), notificationService.unreadCount()]);
+
+                if (mounted) {
+                    setAllItems(items);
+                    setServerUnreadCount(unreadCount);
+                }
+            } catch {
+                if (mounted) {
+                    setAllItems([]);
+                    setServerUnreadCount(0);
+                }
+            }
+        };
+
+        loadNotifications();
+
+        return () => {
+            mounted = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -48,11 +64,10 @@ export function useNotifications() {
 
     const saveNotifications = (updatedItems: Notification[]) => {
         setAllItems(updatedItems);
-
-        localStorage.setItem("notifications", JSON.stringify(updatedItems));
     };
 
     const markAsRead = (id: number) => {
+        const shouldMark = allItems.some((item) => item.id === id && !item.isRead);
         const updatedItems = allItems.map((item) =>
             item.id === id
                 ? {
@@ -63,6 +78,13 @@ export function useNotifications() {
         );
 
         saveNotifications(updatedItems);
+        if (shouldMark) {
+            setServerUnreadCount((count) => Math.max(count - 1, 0));
+        }
+        notificationService.markAsRead(id).catch(() => {
+            setAllItems(allItems);
+            setServerUnreadCount(allItems.filter((item) => !item.isRead).length);
+        });
     };
 
     const markAllAsRead = () => {
@@ -76,10 +98,15 @@ export function useNotifications() {
         );
 
         saveNotifications(updatedItems);
+        setServerUnreadCount(0);
+        notificationService.markAllAsRead().catch(() => {
+            setAllItems(allItems);
+            setServerUnreadCount(allItems.filter((item) => !item.isRead).length);
+        });
     };
 
     const items = allItems.filter((item) => isNotificationEnabled(item, settings));
-    const unreadCount = items.filter((item) => !item.isRead).length;
+    const unreadCount = items.length === allItems.length ? serverUnreadCount : items.filter((item) => !item.isRead).length;
 
     return {
         items,
