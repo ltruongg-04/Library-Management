@@ -58,21 +58,21 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
     if (!isOpen) return null;
 
     const TRANSLATE_ORDER_STATUS: Record<string, string> = {
-        PENDING: "Chờ xử lý",
-        READY: "Chờ lấy sách",
-        BORROWED: "Đang mượn",
-        OVERDUE: "Quá hạn",
-        RETURNED: "Đã trả",
-        CANCELLED: "Đã hủy",
+        PENDING: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_PENDING,
+        READY: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_READY,
+        BORROWED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_BORROWED,
+        OVERDUE: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_OVERDUE,
+        RETURNED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_RETURNED,
+        CANCELLED: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_CANCELLED,
     };
 
     const TRANSLATE_BOOK_STATUS: Record<string, string> = {
-        BORROWING: "Đang mượn",
-        RETURNED: "Đã trả",
-        OVERDUE: "Quá hạn",
-        LOST: "Đã mất",
-        CANCELLED: "Đã hủy",
-        DAMAGED: "Hư hỏng",
+        BORROWING: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_BORROWED,
+        RETURNED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_RETURNED,
+        OVERDUE: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_OVERDUE,
+        LOST: UI_TEXT.ADMIN_BORROW_MANAGEMENT.RETURN_BOOK_MODAL.COND_LOST,
+        CANCELLED: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_CANCELLED,
+        DAMAGED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.RETURN_BOOK_MODAL.COND_DAMAGED,
     };
 
     const formatDate = (dateStr: string | null) => {
@@ -229,6 +229,12 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                                             <span>-{formatMoney(detail.discountAmount)}</span>
                                         </div>
                                     )}
+                                    {detail.overdueFee > 0 && (
+                                        <div className="flex justify-between">
+                                            <span className="text-on-surface-variant">{T.FEE_OVERDUE}</span>
+                                            <span className="text-error">{formatMoney(detail.overdueFee)}</span>
+                                        </div>
+                                    )}
                                     <div className="flex justify-between">
                                         <span className="text-on-surface-variant">{T.FEE_TOTAL}</span>
                                         <span className="font-medium">{formatMoney(detail.totalFee)}</span>
@@ -256,10 +262,7 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                                                 <span className="text-green-600 dark:text-green-400">{formatMoney(detail.settlementAmount)}</span>
                                             </>
                                         ) : (
-                                            <>
-                                                <span className="text-on-surface">{T.FEE_SETTLED}</span>
-                                                <span className="text-primary">{formatMoney(0)}</span>
-                                            </>
+                                            <span className="w-full text-center text-primary">{T.FEE_SETTLED}</span>
                                         )}
                                     </div>
                                 </div>

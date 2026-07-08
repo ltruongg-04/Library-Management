@@ -1,5 +1,6 @@
 package library.service;
 
+import library.dto.admin.BorrowingPolicyDto;
 import library.entity.BorrowingPolicyEntity;
 import library.entity.ConditionStatus;
 
@@ -10,7 +11,7 @@ public interface FeeCalculatorService {
 
     /**
      * Tính phí thuê sách dựa trên ngày bắt đầu và kết thúc
-     * Công thức chung: (endDate - startDate) * 5.000đ * số lượng sách
+     * Công thức chung: (endDate - startDate) * rentalFeePerDay (từ chính sách) * số lượng sách
      * Mặc định tối thiểu tính 1 ngày.
      */
     BigDecimal calculateRentalFee(LocalDate startDate, LocalDate endDate, int numberOfBooks);
@@ -32,4 +33,9 @@ public interface FeeCalculatorService {
      * Lấy chính sách mượn sách hiện hành (có thể tạo mặc định nếu chưa có)
      */
     BorrowingPolicyEntity getActivePolicy();
+
+    /**
+     * Cập nhật chính sách mượn sách từ DTO (đồng bộ từ frontend/admin)
+     */
+    BorrowingPolicyDto updatePolicy(BorrowingPolicyDto dto);
 }

@@ -96,9 +96,8 @@ public class BookReturnServiceImpl implements BookReturnService {
             BigDecimal overdueFinePerBook = BigDecimal.ZERO;
 
             if (overdueDays > 0) {
-                // Áp dụng phí phạt trễ hạn cho cuốn sách này dựa trên policy
-                overdueFinePerBook = feeCalculatorService.getActivePolicy().getOverdueFinePerDay()
-                        .multiply(new BigDecimal(overdueDays));
+                // Dùng FeeCalculatorService để tính phí phạt trễ hạn
+                overdueFinePerBook = feeCalculatorService.calculateOverdueFee(borrowOrder.getDueDate(), LocalDate.now());
             }
             totalOverdueFine = totalOverdueFine.add(overdueFinePerBook);
 

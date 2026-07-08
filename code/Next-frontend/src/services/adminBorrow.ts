@@ -52,6 +52,7 @@ export interface AdminBorrowOrderDetailResponse {
     status: string;
     subtotalFee: number;
     discountAmount: number;
+    overdueFee: number;
     totalFee: number;
     totalDeposit: number;
     totalPaidOnline: number;

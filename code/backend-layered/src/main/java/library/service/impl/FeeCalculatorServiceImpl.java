@@ -1,11 +1,13 @@
 package library.service.impl;
 
+import library.dto.admin.BorrowingPolicyDto;
 import library.entity.BorrowingPolicyEntity;
 import library.entity.ConditionStatus;
 import library.repository.BorrowingPolicyRepository;
 import library.service.FeeCalculatorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,6 +26,7 @@ public class FeeCalculatorServiceImpl implements FeeCalculatorService {
                     BorrowingPolicyEntity defaultPolicy = BorrowingPolicyEntity.builder()
                             .maxBooks(5)
                             .maxBorrowDays(14)
+                            .rentalFeePerDay(new BigDecimal("5000")) // Phí thuê 5k/ngày/cuốn
                             .overdueFinePerDay(new BigDecimal("10000")) // Phạt trễ hạn 10k/ngày
                             .rentalFeePerDay(new BigDecimal("5000"))
                             .lostBookMultiplier(new BigDecimal("2.0")) // Mất sách đền 200% cọc
@@ -70,5 +73,46 @@ public class FeeCalculatorServiceImpl implements FeeCalculatorService {
             return depositPrice.multiply(policy.getLostBookMultiplier());
         }
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    @Transactional
+    public BorrowingPolicyDto updatePolicy(BorrowingPolicyDto dto) {
+        BorrowingPolicyEntity policy = getActivePolicy();
+
+        if (dto.getMaxBorrowDays() != null) {
+            policy.setMaxBorrowDays(dto.getMaxBorrowDays());
+        }
+        if (dto.getMaxBooks() != null) {
+            policy.setMaxBooks(dto.getMaxBooks());
+        }
+        if (dto.getRentalFeePerDay() != null) {
+            policy.setRentalFeePerDay(dto.getRentalFeePerDay());
+        }
+        if (dto.getOverdueFinePerDay() != null) {
+            policy.setOverdueFinePerDay(dto.getOverdueFinePerDay());
+        }
+        if (dto.getDamageFeePercent() != null) {
+            policy.setDamageFeePercent(dto.getDamageFeePercent());
+        }
+        if (dto.getLostBookMultiplier() != null) {
+            policy.setLostBookMultiplier(dto.getLostBookMultiplier());
+        }
+        if (dto.getMaxExtensions() != null) {
+            policy.setMaxExtensions(dto.getMaxExtensions());
+        }
+
+        BorrowingPolicyEntity saved = borrowingPolicyRepository.save(policy);
+
+        return BorrowingPolicyDto.builder()
+                .id(saved.getId())
+                .maxBorrowDays(saved.getMaxBorrowDays())
+                .maxBooks(saved.getMaxBooks())
+                .rentalFeePerDay(saved.getRentalFeePerDay())
+                .overdueFinePerDay(saved.getOverdueFinePerDay())
+                .damageFeePercent(saved.getDamageFeePercent())
+                .lostBookMultiplier(saved.getLostBookMultiplier())
+                .maxExtensions(saved.getMaxExtensions())
+                .build();
     }
 }

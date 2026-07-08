@@ -23,6 +23,10 @@ public class BorrowingPolicyEntity extends BaseEntity {
     @Column(name = "max_books")
     private Integer maxBooks;
 
+    @Column(name = "rental_fee_per_day", precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal rentalFeePerDay = new BigDecimal("5000");
+
     @Column(name = "overdue_fine_per_day", precision = 10, scale = 2)
     private BigDecimal overdueFinePerDay;
 

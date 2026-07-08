@@ -23,6 +23,8 @@ public class BorrowOrderDetailResponseDto {
     private String lateFee;
     private String total;
     private String paidOnline;
+    private String settlementAmount;
+    private String settlementType;
     private String customerName;
     private String customerPhone;
     private String status;

@@ -79,8 +79,11 @@ public class BorrowOrderMapper {
 
         if (order.getDueDate() != null && LocalDate.now().isAfter(order.getDueDate())
                 && order.getStatus() != BorrowOrderStatus.RETURNED && order.getStatus() != BorrowOrderStatus.CANCELLED) {
-            BigDecimal lateFee = feeCalculatorService.calculateOverdueFee(order.getDueDate(), LocalDate.now());
-            builder.lateFee(lateFee);
+            long unreturnedBooksCount = order.getOrderDetails() != null ? order.getOrderDetails().stream()
+                .filter(d -> d.getStatus() == BorrowOrderDetailStatus.BORROWING || d.getStatus() == BorrowOrderDetailStatus.OVERDUE)
+                .count() : 0;
+            BigDecimal lateFeePerBook = feeCalculatorService.calculateOverdueFee(order.getDueDate(), LocalDate.now());
+            builder.lateFee(lateFeePerBook.multiply(new BigDecimal(unreturnedBooksCount)));
         } else {
             builder.lateFee(BigDecimal.ZERO);
         }
@@ -102,10 +105,13 @@ public class BorrowOrderMapper {
         String reminderDateStr = order.getDueDate() != null ? order.getDueDate().minusDays(1).format(formatter) : "";
 
         BigDecimal totalPaidOnline = BigDecimal.ZERO;
+        BigDecimal onlineDeposit = BigDecimal.ZERO;
         List<PaymentEntity> successfulPayments = paymentRepository.findByBorrowOrderIdAndPaymentStatus(order.getId(), PaymentStatus.SUCCESS);
         for (PaymentEntity p : successfulPayments) {
             if (p.getPaymentType() == PaymentType.RENTAL_FEE || p.getPaymentType() == PaymentType.FINE) {
                 totalPaidOnline = totalPaidOnline.add(p.getAmount());
+            } else if (p.getPaymentType() == PaymentType.DEPOSIT) {
+                onlineDeposit = onlineDeposit.add(p.getAmount());
             }
         }
 
@@ -115,14 +121,48 @@ public class BorrowOrderMapper {
 
         BigDecimal dynamicLateFee = BigDecimal.ZERO;
         if ((order.getStatus() == BorrowOrderStatus.OVERDUE || order.getStatus() == BorrowOrderStatus.PENDING_RENEWAL) && order.getDueDate() != null) {
-            dynamicLateFee = feeCalculatorService.calculateOverdueFee(order.getDueDate(), LocalDate.now());
+            long unreturnedBooksCount = order.getOrderDetails() != null ? order.getOrderDetails().stream()
+                .filter(d -> d.getStatus() == BorrowOrderDetailStatus.BORROWING || d.getStatus() == BorrowOrderDetailStatus.OVERDUE)
+                .count() : 0;
+            BigDecimal lateFeePerBook = feeCalculatorService.calculateOverdueFee(order.getDueDate(), LocalDate.now());
+            dynamicLateFee = lateFeePerBook.multiply(new BigDecimal(unreturnedBooksCount));
         }
 
         BigDecimal totalLateFee = storedLateFee.add(dynamicLateFee);
-        String lateFeeFormatted = totalLateFee.compareTo(BigDecimal.ZERO) > 0 ? "+" + currencyFormatter.format(totalLateFee) : "0 đ";
+        String lateFeeFormatted = totalLateFee.compareTo(BigDecimal.ZERO) > 0 ? currencyFormatter.format(totalLateFee) : "0 đ";
 
-        BigDecimal totalToDisplay = order.getTotalFee() != null ? order.getTotalFee() : BigDecimal.ZERO;
-        totalToDisplay = totalToDisplay.add(dynamicLateFee).subtract(totalPaidOnline).max(BigDecimal.ZERO);
+        BigDecimal currentTotal = (order.getTotalFee() != null ? order.getTotalFee() : BigDecimal.ZERO).add(dynamicLateFee);
+        String rentalFeeFormatted = order.getSubtotalFee() != null ? currencyFormatter.format(order.getSubtotalFee()) : "0 đ";
+
+        BigDecimal actualDepositHeld;
+        if (order.getStatus() == BorrowOrderStatus.CANCELLED || order.getStatus() == BorrowOrderStatus.PENDING || order.getStatus() == BorrowOrderStatus.READY) {
+            actualDepositHeld = onlineDeposit;
+        } else {
+            actualDepositHeld = order.getTotalDeposit() != null ? order.getTotalDeposit() : BigDecimal.ZERO;
+        }
+
+        if (order.getStatus() == BorrowOrderStatus.CANCELLED) {
+            currentTotal = BigDecimal.ZERO;
+            lateFeeFormatted = "0 đ";
+            rentalFeeFormatted = "0 đ";
+        }
+
+        BigDecimal libraryHolds = actualDepositHeld.add(totalPaidOnline);
+        BigDecimal totalToDisplay = currentTotal.subtract(libraryHolds).max(BigDecimal.ZERO);
+
+        BigDecimal settlementAmount;
+        String settlementType;
+
+        if (currentTotal.compareTo(libraryHolds) > 0) {
+            settlementType = "COLLECT";
+            settlementAmount = currentTotal.subtract(libraryHolds);
+        } else if (currentTotal.compareTo(libraryHolds) < 0) {
+            settlementType = "REFUND";
+            settlementAmount = libraryHolds.subtract(currentTotal);
+        } else {
+            settlementType = "SETTLED";
+            settlementAmount = BigDecimal.ZERO;
+        }
 
         List<BorrowOrderDetailResponseDto.BookItemDto> bookItems = new ArrayList<>();
         if (order.getOrderDetails() != null) {
@@ -146,6 +186,14 @@ public class BorrowOrderMapper {
 
         long extensionCount = borrowExtensionRepository.countByBorrowOrderIdAndStatus(order.getId(), BorrowExtensionStatus.APPROVED);
 
+        int overdueDays = 0;
+        if (order.getDueDate() != null) {
+            LocalDate compareDate = order.getActualReturnDate() != null ? order.getActualReturnDate() : LocalDate.now();
+            if (compareDate.isAfter(order.getDueDate())) {
+                overdueDays = (int) java.time.temporal.ChronoUnit.DAYS.between(order.getDueDate(), compareDate);
+            }
+        }
+
         return BorrowOrderDetailResponseDto.builder()
                 .id(order.getOrderCode())
                 .borrowDate(borrowDateStr)
@@ -157,14 +205,16 @@ public class BorrowOrderMapper {
                 .status(order.getStatus().name().toLowerCase())
                 .customerName(customerName)
                 .customerPhone(customerPhone)
-                .deposit(order.getTotalDeposit() != null ? currencyFormatter.format(order.getTotalDeposit()) : "0 đ")
-                .rentalFee(order.getSubtotalFee() != null ? currencyFormatter.format(order.getSubtotalFee()) : "0 đ")
+                .deposit(actualDepositHeld != null ? currencyFormatter.format(actualDepositHeld) : "0 đ")
+                .rentalFee(rentalFeeFormatted)
                 .lateFee(lateFeeFormatted)
                 .paidOnline(currencyFormatter.format(totalPaidOnline))
                 .total(currencyFormatter.format(totalToDisplay))
+                .settlementAmount(currencyFormatter.format(settlementAmount))
+                .settlementType(settlementType)
                 .books(bookItems)
                 .extensionCount((int) extensionCount)
-                .overdueDays(0) // Mặc định hoặc tính toán nếu cần thiết, tạm thời để 0 vì đã có phí trễ
+                .overdueDays(overdueDays)
                 .build();
     }
 
@@ -198,7 +248,11 @@ public class BorrowOrderMapper {
         if (order.getStatus() == BorrowOrderStatus.OVERDUE || order.getStatus() == BorrowOrderStatus.PENDING_RENEWAL ||
                 (order.getStatus() == BorrowOrderStatus.BORROWED && order.getDueDate() != null && LocalDate.now().isAfter(order.getDueDate()))) {
             LocalDate compareDate = order.getActualReturnDate() != null ? order.getActualReturnDate() : LocalDate.now();
-            dynamicLateFee = feeCalculatorService.calculateOverdueFee(order.getDueDate(), compareDate);
+            long unreturnedBooksCount = order.getOrderDetails() != null ? order.getOrderDetails().stream()
+                .filter(d -> d.getStatus() == BorrowOrderDetailStatus.BORROWING || d.getStatus() == BorrowOrderDetailStatus.OVERDUE)
+                .count() : 0;
+            BigDecimal lateFeePerBook = feeCalculatorService.calculateOverdueFee(order.getDueDate(), compareDate);
+            dynamicLateFee = lateFeePerBook.multiply(new BigDecimal(unreturnedBooksCount));
         }
         
         BigDecimal totalLateFee = storedLateFee.add(dynamicLateFee);

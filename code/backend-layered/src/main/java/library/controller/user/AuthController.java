@@ -13,7 +13,6 @@ import library.service.AuthService;
 import library.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import library.dto.request.ChangePasswordRequest;
 import library.dto.request.ForgotPasswordRequest;
@@ -24,6 +23,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import library.common.exception.CustomBusinessException;
 import org.springframework.http.HttpStatus;
+
+import library.dto.request.RefreshTokenRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -54,10 +55,14 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            authService.logout(bearerToken.substring(7));
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestBody(required = false) RefreshTokenRequest requestBody, HttpServletRequest request) {
+        if (requestBody != null && org.springframework.util.StringUtils.hasText(requestBody.getRefreshToken())) {
+            authService.logout(requestBody.getRefreshToken());
+        } else {
+            String bearerToken = request.getHeader("Authorization");
+            if (org.springframework.util.StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+                authService.logout(bearerToken.substring(7));
+            }
         }
         return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công", null));
     }
