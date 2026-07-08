@@ -38,10 +38,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/authors/**").permitAll()
                         .requestMatchers("/api/vnpay/**").permitAll()
                         .requestMatchers("/api/public/borrow/**").permitAll()
+                        .requestMatchers("/api/public/book-visits/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         // Các request khác yêu cầu authenticated
                         .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Unauthorized");
+                }))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

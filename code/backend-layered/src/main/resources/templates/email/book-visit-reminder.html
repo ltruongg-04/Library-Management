@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhắc nhở: Lịch đọc sách ngày mai</title>
+</head>
+<body style="font-family: Inter, Arial, sans-serif; color: #191c1d; line-height: 1.6;">
+    <h1 style="color: #15157d;">Lumina Library</h1>
+    <p>Xin chào <span th:text="${fullName}"></span>,</p>
+    <p>Chúng tôi xin nhắc nhở bạn về lịch hẹn đọc sách tại thư viện vào ngày mai.</p>
+    <table style="border-collapse: collapse; margin-top: 16px;">
+        <tr>
+            <td style="padding: 6px 12px; font-weight: 600;">Sách</td>
+            <td style="padding: 6px 12px;" th:text="${bookTitle}"></td>
+        </tr>
+        <tr>
+            <td style="padding: 6px 12px; font-weight: 600;">Ngày đến</td>
+            <td style="padding: 6px 12px;" th:text="${visitDate}"></td>
+        </tr>
+        <tr>
+            <td style="padding: 6px 12px; font-weight: 600;">Giờ đến</td>
+            <td style="padding: 6px 12px;" th:text="${visitTime}"></td>
+        </tr>
+    </table>
+    <p style="margin-top: 20px;">Hẹn gặp lại bạn vào ngày mai!</p>
+</body>
+</html>

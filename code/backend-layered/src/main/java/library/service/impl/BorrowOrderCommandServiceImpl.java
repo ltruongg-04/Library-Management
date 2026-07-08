@@ -38,6 +38,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     private final BookCopyRepository bookCopyRepository;
     private final VnPayService vnPayService;
     private final library.repository.BorrowExtensionRepository borrowExtensionRepository;
+    private final library.repository.ReservationRepository reservationRepository;
 
     private final SystemLogService systemLogService;
     private final library.service.EmailService emailService;
@@ -69,7 +70,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         BigDecimal rentalFee = BigDecimal.valueOf(borrowDays * 5000L);
 
         // 3. Validate book availability and reserve a copy
-        BookCopyEntity availableCopy = reserveBookCopy(book.getId());
+        BookCopyEntity availableCopy = reserveBookCopy(book.getId(), customer);
 
         // 4. Create Order and generate Response
         BorrowResponseDto response = processBorrowOrderCreation(
@@ -170,7 +171,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         BigDecimal rentalFee = BigDecimal.valueOf(borrowDays * 5000L);
 
         // Validate book availability and get a copy
-        BookCopyEntity availableCopy = reserveBookCopy(book.getId());
+        BookCopyEntity availableCopy = reserveBookCopy(book.getId(), customer);
 
         // Create Order and generate Response
         BorrowResponseDto response = processBorrowOrderCreation(
@@ -314,9 +315,33 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         });
     }
 
-    private BookCopyEntity reserveBookCopy(Integer bookId) {
-        BookCopyEntity availableCopy = bookCopyRepository.findFirstByBookIdAndStatus(bookId,
-                BookCopyStatus.AVAILABLE);
+    private BookCopyEntity reserveBookCopy(Integer bookId, CustomerEntity customer) {
+        boolean hasNotifiedReservation = false;
+        if (customer != null && customer.getId() != null) {
+            hasNotifiedReservation = reservationRepository.existsByCustomerIdAndBookIdAndStatus(
+                    customer.getId(), bookId, ReservationStatus.NOTIFIED);
+        }
+
+        BookCopyEntity availableCopy = null;
+
+        if (hasNotifiedReservation) {
+            availableCopy = bookCopyRepository.findFirstByBookIdAndStatus(bookId, BookCopyStatus.RESERVED);
+            if (availableCopy != null) {
+                java.util.List<ReservationEntity> reservations = reservationRepository.findByCustomerIdAndBookId(customer.getId(), bookId);
+                for (ReservationEntity res : reservations) {
+                    if (res.getStatus() == ReservationStatus.NOTIFIED) {
+                        res.setStatus(ReservationStatus.COMPLETED);
+                        reservationRepository.save(res);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (availableCopy == null) {
+            availableCopy = bookCopyRepository.findFirstByBookIdAndStatus(bookId, BookCopyStatus.AVAILABLE);
+        }
+
         if (availableCopy == null) {
             throw new CustomBusinessException("No copies of this book are currently available", HttpStatus.BAD_REQUEST);
         }

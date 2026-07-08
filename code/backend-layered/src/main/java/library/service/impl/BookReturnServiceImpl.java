@@ -266,17 +266,19 @@ public class BookReturnServiceImpl implements BookReturnService {
                         .findFirst().orElse(null);
 
                 if (od != null && od.getStatus() == BorrowOrderDetailStatus.BORROWING) {
-                    if (rd.getConditionStatus() == ConditionStatus.NORMAL) {
-                        bc.setStatus(BookCopyStatus.AVAILABLE);
                         od.setStatus(BorrowOrderDetailStatus.RETURNED);
+                    if (rd.getConditionStatus() == ConditionStatus.NORMAL) {
 
                         // Check if there's any pending reservation for this book
                         java.util.Optional<ReservationEntity> nextReservation = reservationRepository.findFirstByBookIdAndStatusOrderByReservationDateAsc(
                                 bc.getBook().getId(), ReservationStatus.PENDING);
                                 
                         if (nextReservation.isPresent()) {
+                            bc.setStatus(BookCopyStatus.RESERVED);
+                            
                             ReservationEntity reservation = nextReservation.get();
                             reservation.setStatus(ReservationStatus.NOTIFIED);
+                            reservation.setNotifiedAt(LocalDateTime.now());
                             reservationRepository.save(reservation);
                             
                             // Send email
@@ -295,6 +297,9 @@ public class BookReturnServiceImpl implements BookReturnService {
                                 LocalDate holdUntil = LocalDate.now().plusDays(3); // Giữ sách trong 3 ngày
                                 emailService.sendReservationAvailableEmail(toEmail, fullName, bc.getBook().getTitle(), holdUntil);
                             }
+                        } else {
+                            // If no reservation, just make it available
+                            bc.setStatus(BookCopyStatus.AVAILABLE);
                         }
 
                     } else if (rd.getConditionStatus() == ConditionStatus.DAMAGED) {

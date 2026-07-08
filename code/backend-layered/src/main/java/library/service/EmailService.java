@@ -9,4 +9,6 @@ public interface EmailService {
     void sendOverdueReminderEmail(String toEmail, String fullName, String orderCode, java.util.List<String> bookList, LocalDate dueDate, String finePerDay);
     void sendPaymentSuccessEmail(String toEmail, String fullName, String orderCode, String amount, String transactionId, String payDate);
     void sendReservationAvailableEmail(String toEmail, String fullName, String bookTitle, LocalDate holdUntilDate);
+    void sendBookVisitConfirmationEmail(String toEmail, String fullName, String bookTitle, String confirmationCode, String visitDate, String visitTime, String phone);
+    void sendBookVisitReminderEmail(String toEmail, String fullName, String bookTitle, String visitDate, String visitTime);
 }

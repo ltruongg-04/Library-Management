@@ -100,6 +100,11 @@ export const BORROW = {
         LIMIT_MODAL_DESC: "Phiếu mượn này đã được gia hạn tối đa 2 lần. Bạn không thể tiếp tục gia hạn thêm. Vui lòng mang sách đến thư viện để trả đúng hạn.",
         LIMIT_MODAL_ACKNOWLEDGE: "Đã hiểu",
     },
+    OUT_OF_STOCK: {
+        TITLE: "Sách đã hết",
+        DESCRIPTION: "Hiện tại không còn cuốn nào có sẵn trong kho.",
+        BACK_TO_DETAIL: "Quay lại trang chi tiết",
+    },
     VNPAY_RESULT: {
         SUCCESS: {
             TITLE: "Thanh toán thành công!",

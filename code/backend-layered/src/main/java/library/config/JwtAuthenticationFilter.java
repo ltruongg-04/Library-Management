@@ -46,11 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             if (jwtUtil.isTokenValid(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
                 userEmail = jwtUtil.extractEmail(jwt);
-                
                 // Check if user exists and is active
                 UserEntity user = userRepository.findByEmail(userEmail).orElse(null);
                 if (user == null || !user.isActive()) {
-                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.getWriter().write("User account is locked or deleted");
                     return;
                 }

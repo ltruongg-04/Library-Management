@@ -248,4 +248,60 @@ public class EmailServiceImpl implements EmailService {
             log.error("Failed to send reservation available email to {}", toEmail, e);
         }
     }
+
+    @Override
+    @Async
+    public void sendBookVisitConfirmationEmail(String toEmail, String fullName, String bookTitle, String confirmationCode, String visitDate, String visitTime, String phone) {
+        if (this.resend == null) return;
+        try {
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("bookTitle", bookTitle);
+            context.setVariable("confirmationCode", confirmationCode);
+            context.setVariable("visitDate", visitDate);
+            context.setVariable("visitTime", visitTime);
+            context.setVariable("phone", phone);
+
+            String htmlContent = templateEngine.process("email/book-visit-confirmation", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Xác nhận lịch đọc sách tại Lumina Library")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent book visit confirmation email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send book visit confirmation email to {}", toEmail, e);
+        }
+    }
+
+    @Override
+    @Async
+    public void sendBookVisitReminderEmail(String toEmail, String fullName, String bookTitle, String visitDate, String visitTime) {
+        if (this.resend == null) return;
+        try {
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("bookTitle", bookTitle);
+            context.setVariable("visitDate", visitDate);
+            context.setVariable("visitTime", visitTime);
+
+            String htmlContent = templateEngine.process("email/book-visit-reminder", context);
+
+            CreateEmailOptions sendEmailRequest = CreateEmailOptions.builder()
+                    .from(senderEmail)
+                    .to(toEmail)
+                    .subject("Nhắc nhở: Lịch đọc sách ngày mai tại Lumina Library")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(sendEmailRequest);
+            log.info("Successfully sent book visit reminder email to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send book visit reminder email to {}", toEmail, e);
+        }
+    }
 }

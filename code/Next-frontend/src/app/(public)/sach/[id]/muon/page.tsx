@@ -132,6 +132,19 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
         );
     }
 
+    if (book.availableQuantity <= 0) {
+        return (
+            <div className="mx-auto flex w-full max-w-container-max flex-col items-center justify-center px-4 py-24 md:px-6">
+                <MaterialIcon name="event_busy" className="mb-4 text-[64px] text-error" />
+                <h2 className="mb-2 text-[24px] font-semibold text-on-surface dark:text-white">{UI_TEXT.BORROW.OUT_OF_STOCK.TITLE}</h2>
+                <p className="text-on-surface-variant dark:text-white/70">{UI_TEXT.BORROW.OUT_OF_STOCK.DESCRIPTION}</p>
+                <button onClick={() => router.push(`/sach/${book.id}`)} className="hover:bg-primary-600 mt-6 rounded-lg bg-primary-700 px-6 py-2 text-white">
+                    {UI_TEXT.BORROW.OUT_OF_STOCK.BACK_TO_DETAIL}
+                </button>
+            </div>
+        );
+    }
+
     return (
         <main className="relative mx-auto flex min-h-screen w-full max-w-container-max flex-col px-6 py-12">
             <div className="mb-6">

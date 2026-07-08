@@ -158,12 +158,21 @@ function MyBooksContent() {
                             />
                             {/* Overlay Actions (Hover) */}
                             <div className="absolute inset-0 flex items-center justify-center bg-surface-tint/20 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
-                                <button
-                                    onClick={() => router.push(`/sach/${book.id}/muon`)}
-                                    className="rounded-lg bg-primary px-lg py-sm font-title-md text-title-md text-on-primary shadow-md transition-colors hover:bg-primary-container hover:text-on-primary-container"
-                                >
-                                    {UI_TEXT.BOOK_DETAIL.BORROW_NOW}
-                                </button>
+                                {book.availableQuantity > 0 ? (
+                                    <button
+                                        onClick={() => router.push(`/sach/${book.id}/muon`)}
+                                        className="rounded-lg bg-primary px-lg py-sm font-title-md text-title-md text-on-primary shadow-md transition-colors hover:bg-primary-container hover:text-on-primary-container"
+                                    >
+                                        {UI_TEXT.BOOK_DETAIL.BORROW_NOW}
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => router.push(`/sach/${book.id}`)}
+                                        className="rounded-lg bg-secondary px-lg py-sm font-title-md text-title-md text-on-secondary shadow-md transition-colors hover:bg-secondary-container hover:text-on-secondary-container"
+                                    >
+                                        {UI_TEXT.FAVORITE.VIEW_DETAIL}
+                                    </button>
+                                )}
                             </div>
                         </div>
 

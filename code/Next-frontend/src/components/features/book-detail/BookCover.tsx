@@ -33,8 +33,10 @@ export default function BookCover({ book }: BookCoverProps) {
                 try {
                     const status = await favoriteService.checkFavorite(book.id);
                     setIsFavorite(status);
-                } catch (error) {
-                    console.error("Failed to check favorite status", error);
+                } catch (error: any) {
+                    if (error.response?.status !== 401 && error.response?.status !== 403) {
+                        console.error("Failed to check favorite status", error);
+                    }
                 }
             }
         };
@@ -48,8 +50,10 @@ export default function BookCover({ book }: BookCoverProps) {
                     } else {
                         setUserReservationId(null);
                     }
-                } catch (error) {
-                    console.error("Failed to check reservation status", error);
+                } catch (error: any) {
+                    if (error.response?.status !== 401 && error.response?.status !== 403) {
+                        console.error("Failed to check reservation status", error);
+                    }
                 }
             }
         };

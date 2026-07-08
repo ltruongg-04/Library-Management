@@ -184,6 +184,23 @@ public class VnPayController {
                     String.format(library.common.constant.SystemLogConstants.DETAIL_VNPAY_RETURN_SUCCESS, orderCode)
                 );
                 
+                // Gửi email biên lai điện tử (Dành cho trường hợp test localhost khi IPN không gọi được)
+                String toEmail = null;
+                String fullName = null;
+                if (payment.getBorrowOrder() != null && payment.getBorrowOrder().getCustomer() != null) {
+                    fullName = payment.getBorrowOrder().getCustomer().getFullName();
+                    if (payment.getBorrowOrder().getCustomer().getUser() != null) {
+                        toEmail = payment.getBorrowOrder().getCustomer().getUser().getEmail();
+                    } else {
+                        toEmail = payment.getBorrowOrder().getCustomer().getEmail();
+                    }
+                }
+                if (toEmail != null && !toEmail.isEmpty()) {
+                    String amountStr = params.get("vnp_Amount");
+                    String displayAmount = amountStr != null ? String.valueOf(Long.parseLong(amountStr) / 100) : "0";
+                    emailService.sendPaymentSuccessEmail(toEmail, fullName, orderCode, displayAmount, transactionNo, params.get("vnp_PayDate"));
+                }
+                
                 // Trigger auto-approve logic here as fallback (crucial for localhost testing where IPN is unreachable)
                 if (payment.getPaymentType() == PaymentType.RENTAL_FEE) {
                     log.info("Auto-approving renewal (via Return URL) for orderCode={}", orderCode);
