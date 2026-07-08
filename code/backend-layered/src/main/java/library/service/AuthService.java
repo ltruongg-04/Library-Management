@@ -15,6 +15,10 @@ public interface AuthService {
 
     LoginResponse loginWithGoogle(GoogleLoginRequest request);
 
+    void activateAccount(String token);
+
+    void resendActivation(String email);
+
     TokenRefreshResponse refreshToken(String refreshToken);
 
     void logout(String refreshToken);

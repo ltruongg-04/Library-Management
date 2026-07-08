@@ -8,5 +8,6 @@ public enum BorrowOrderStatus {
     PARTIALLY_RETURNED,
     RETURNED,
     OVERDUE,
-    CANCELLED
+    CANCELLED,
+    REJECTED
 }

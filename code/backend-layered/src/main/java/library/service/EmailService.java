@@ -13,4 +13,7 @@ public interface EmailService {
     void sendBookVisitReminderEmail(String toEmail, String fullName, String bookTitle, String visitDate, String visitTime);
     void sendWelcomeEmail(String toEmail, String fullName, String rawPassword);
     void sendBookVisitStatusEmail(String toEmail, String fullName, String status, String notes);
+    void sendAccountActivationEmail(String toEmail, String fullName, String activationToken);
+    void sendGuestBorrowStatusEmail(String toEmail, String fullName, String orderCode, String status, String reason);
+    void sendGuestReturnReceiptEmail(String toEmail, String fullName, String orderCode, String summary);
 }

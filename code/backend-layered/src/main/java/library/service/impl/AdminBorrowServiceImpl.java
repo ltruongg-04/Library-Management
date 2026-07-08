@@ -28,6 +28,10 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     private final SystemLogService systemLogService;
     private final library.service.CacheInvalidationService cacheInvalidationService;
     private final library.mapper.AdminBorrowOrderMapper adminBorrowOrderMapper;
+    private final library.repository.PaymentRepository paymentRepository;
+    private final library.repository.BookCopyRepository bookCopyRepository;
+    private final library.service.EmailService emailService;
+    private final library.service.NotificationService notificationService;
     
     // Helpers
     private final library.service.impl.helper.AdminBorrowHelper adminBorrowHelper;
@@ -43,6 +47,30 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
         });
 
         return orders.stream().map(adminBorrowOrderMapper::toAdminBorrowOrderDto).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AdminBorrowOrderDto> searchBorrowOrders(String status, String customerType, String keyword, int page, int size) {
+        String normalizedStatus = status != null ? status.trim().toUpperCase() : "";
+        String normalizedCustomerType = customerType != null ? customerType.trim().toUpperCase() : "ALL";
+        String normalizedKeyword = keyword != null ? keyword.trim().toLowerCase() : "";
+
+        return getAllBorrowOrders().stream()
+                .filter(order -> normalizedStatus.isEmpty() || order.getStatus().name().equals(normalizedStatus))
+                .filter(order -> {
+                    if ("GUEST".equals(normalizedCustomerType)) return Boolean.TRUE.equals(order.getIsGuest());
+                    if ("CUSTOMER".equals(normalizedCustomerType)) return !Boolean.TRUE.equals(order.getIsGuest());
+                    return true;
+                })
+                .filter(order -> normalizedKeyword.isEmpty()
+                        || safe(order.getId()).toLowerCase().contains(normalizedKeyword)
+                        || safe(order.getCustomerName()).toLowerCase().contains(normalizedKeyword)
+                        || safe(order.getCustomerCode()).toLowerCase().contains(normalizedKeyword)
+                        || safe(order.getBookTitle()).toLowerCase().contains(normalizedKeyword))
+                .skip((long) Math.max(page, 0) * Math.max(size, 1))
+                .limit(Math.max(size, 1))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -103,6 +131,72 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
         borrowOrderRepository.save(order);
         systemLogService.logAction("Cập nhật trạng thái đơn mượn", "Admin cập nhật đơn " + orderCode + " thành " + newStatus.name());
+        cacheInvalidationService.evictBookCaches();
+    }
+
+    @Override
+    @Transactional
+    public void approveBorrow(String orderCode) {
+        BorrowOrderEntity order = getOrder(orderCode);
+        if (order.getStatus() != BorrowOrderStatus.PENDING) {
+            throw new library.common.exception.CustomBusinessException("Chỉ phiếu chờ duyệt mới có thể duyệt",
+                    org.springframework.http.HttpStatus.BAD_REQUEST);
+        }
+
+        order.setStatus(BorrowOrderStatus.READY);
+        borrowOrderRepository.save(order);
+        notifyBorrowStatus(order, "Phiếu mượn đã được duyệt", "Sách đã sẵn sàng để lấy tại thư viện.", "READY", null);
+        systemLogService.logAction("Duyệt phiếu mượn", "Admin duyệt phiếu mượn: " + orderCode);
+        cacheInvalidationService.evictBookCaches();
+    }
+
+    @Override
+    @Transactional
+    public void rejectBorrow(String orderCode, String reason) {
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new library.common.exception.CustomBusinessException("Lý do từ chối là bắt buộc",
+                    org.springframework.http.HttpStatus.BAD_REQUEST);
+        }
+
+        BorrowOrderEntity order = getOrder(orderCode);
+        if (order.getStatus() != BorrowOrderStatus.PENDING && order.getStatus() != BorrowOrderStatus.READY) {
+            throw new library.common.exception.CustomBusinessException("Chỉ phiếu chờ duyệt hoặc chờ lấy mới có thể từ chối",
+                    org.springframework.http.HttpStatus.BAD_REQUEST);
+        }
+
+        order.setStatus(BorrowOrderStatus.REJECTED);
+        releaseCopies(order, library.entity.BorrowOrderDetailStatus.CANCELLED);
+        borrowOrderRepository.save(order);
+        notifyBorrowStatus(order, "Phiếu mượn đã bị từ chối", reason, "REJECTED", reason);
+        systemLogService.logAction("Từ chối phiếu mượn", "Admin từ chối phiếu mượn: " + orderCode + ". Lý do: " + reason);
+        cacheInvalidationService.evictBookCaches();
+    }
+
+    @Override
+    @Transactional
+    public void confirmPickup(String orderCode) {
+        BorrowOrderEntity order = getOrder(orderCode);
+        if (order.getStatus() != BorrowOrderStatus.READY) {
+            throw new library.common.exception.CustomBusinessException("Chỉ phiếu chờ lấy sách mới có thể xác nhận giao sách",
+                    org.springframework.http.HttpStatus.BAD_REQUEST);
+        }
+
+        order.setStatus(BorrowOrderStatus.BORROWED);
+        order.setBorrowDate(LocalDate.now());
+        for (BorrowOrderDetailEntity detail : borrowOrderDetailRepository.findByBorrowOrderId(order.getId())) {
+            if (detail.getBookCopy() != null) {
+                detail.getBookCopy().setStatus(library.entity.BookCopyStatus.BORROWED);
+                bookCopyRepository.save(detail.getBookCopy());
+            }
+        }
+
+        if (order.getCustomer() != null && order.getCustomer().getUser() == null) {
+            recordGuestCashDeposit(order);
+        }
+
+        borrowOrderRepository.save(order);
+        notifyBorrowStatus(order, "Đã xác nhận giao sách", "Phiếu mượn đã chuyển sang trạng thái đang mượn.", "BORROWED", null);
+        systemLogService.logAction("Xác nhận giao sách", "Admin xác nhận giao sách cho phiếu: " + orderCode);
         cacheInvalidationService.evictBookCaches();
     }
 
@@ -229,5 +323,70 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
         borrowOrderRepository.save(order);
         systemLogService.logAction("Xử lý gia hạn đơn mượn", "Admin " + (request.isApproved() ? "duyệt" : "từ chối") + " gia hạn đơn " + orderCode);
         cacheInvalidationService.evictDashboardCaches();
+    }
+
+    private BorrowOrderEntity getOrder(String orderCode) {
+        return borrowOrderRepository.findByOrderCode(orderCode)
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Borrow order not found",
+                        org.springframework.http.HttpStatus.NOT_FOUND));
+    }
+
+    private void releaseCopies(BorrowOrderEntity order, library.entity.BorrowOrderDetailStatus detailStatus) {
+        for (BorrowOrderDetailEntity detail : borrowOrderDetailRepository.findByBorrowOrderId(order.getId())) {
+            detail.setStatus(detailStatus);
+            borrowOrderDetailRepository.save(detail);
+            if (detail.getBookCopy() != null) {
+                detail.getBookCopy().setStatus(library.entity.BookCopyStatus.AVAILABLE);
+                bookCopyRepository.save(detail.getBookCopy());
+            }
+        }
+    }
+
+    private void recordGuestCashDeposit(BorrowOrderEntity order) {
+        java.math.BigDecimal deposit = order.getTotalDeposit() != null ? order.getTotalDeposit() : java.math.BigDecimal.ZERO;
+        if (deposit.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            return;
+        }
+
+        boolean alreadyRecorded = paymentRepository.findByBorrowOrderIdAndPaymentStatus(order.getId(), library.entity.PaymentStatus.SUCCESS)
+                .stream()
+                .anyMatch(payment -> payment.getPaymentType() == library.entity.PaymentType.DEPOSIT
+                        && payment.getPaymentMethod() == library.entity.PaymentMethod.CASH);
+        if (alreadyRecorded) {
+            return;
+        }
+
+        paymentRepository.save(library.entity.PaymentEntity.builder()
+                .borrowOrder(order)
+                .paymentMethod(library.entity.PaymentMethod.CASH)
+                .transactionCode("CASH_DEPOSIT_" + order.getOrderCode())
+                .amount(deposit)
+                .paymentType(library.entity.PaymentType.DEPOSIT)
+                .paymentStatus(library.entity.PaymentStatus.SUCCESS)
+                .paymentDate(java.time.LocalDateTime.now())
+                .build());
+    }
+
+    private void notifyBorrowStatus(BorrowOrderEntity order, String title, String content, String status, String reason) {
+        if (order.getCustomer() == null) {
+            return;
+        }
+
+        if (order.getCustomer().getUser() != null) {
+            notificationService.createForUser(order.getCustomer().getUser(), title, content, "BORROW");
+        }
+
+        if (order.getCustomer().getUser() == null && order.getCustomer().getEmail() != null) {
+            emailService.sendGuestBorrowStatusEmail(
+                    order.getCustomer().getEmail(),
+                    order.getCustomer().getFullName(),
+                    order.getOrderCode(),
+                    status,
+                    reason);
+        }
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value;
     }
 }

@@ -6,6 +6,8 @@ import library.common.base.ApiResponse;
 import library.dto.request.GoogleLoginRequest;
 import library.dto.request.LoginRequest;
 import library.dto.request.RegisterRequest;
+import library.dto.request.ActivateAccountRequest;
+import library.dto.request.ResendActivationRequest;
 import library.dto.response.LoginResponse;
 import library.dto.response.RegisterResponse;
 import library.dto.response.TokenRefreshResponse;
@@ -36,7 +38,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<RegisterResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Đăng ký thành công", authService.register(request)));
+        return ResponseEntity.ok(ApiResponse.success("Đăng ký thành công. Vui lòng kiểm tra email để kích hoạt tài khoản.", authService.register(request)));
+    }
+
+    @PostMapping("/activate")
+    public ResponseEntity<ApiResponse<Void>> activate(@Valid @RequestBody ActivateAccountRequest request) {
+        authService.activateAccount(request.getToken());
+        return ResponseEntity.ok(ApiResponse.success("Kích hoạt tài khoản thành công", null));
+    }
+
+    @PostMapping("/resend-activation")
+    public ResponseEntity<ApiResponse<Void>> resendActivation(@Valid @RequestBody ResendActivationRequest request) {
+        authService.resendActivation(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("Đã gửi lại email kích hoạt", null));
     }
 
     @PostMapping("/login")
