@@ -52,6 +52,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public void deleteBook(Integer id) {
+        bookCommandService.deleteBook(id);
+    }
+
+    @Override
     public BookPageResponse getBooks(String keyword, Integer categoryId, Integer authorId, String publisher, int page, int size, String sortBy, Double minRating, Boolean isAvailable) {
         return bookQueryService.getBooks(keyword, categoryId, authorId, publisher, page, size, sortBy, minRating, isAvailable);
     }

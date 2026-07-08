@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { SuccessModal } from "@/components/base/success-modal";
+import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import { UI_TEXT } from "@/constants/ui-text";
 import { RENEW_PAGE } from "@/constants/ui-text/public";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
@@ -92,6 +93,11 @@ export default function RenewBookPage() {
     }
 
     const book = orderData.books[0];
+    const breadcrumbItems = [
+        { label: RENEW_PAGE.BREADCRUMB_ACCOUNT, href: "/profile" },
+        { label: RENEW_PAGE.BREADCRUMB_HISTORY, href: "/lich-su" },
+        { label: RENEW_PAGE.BREADCRUMB_RENEW },
+    ];
 
     const extensionFeePerDay = policyData?.rentalFeePerDay || DEFAULT_EXTENSION_FEE;
     const lateFeePerDay = policyData?.overdueFinePerDay || DEFAULT_LATE_FEE;
@@ -142,17 +148,7 @@ export default function RenewBookPage() {
     return (
         <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
             {/* Breadcrumb */}
-            <nav className="mb-lg flex items-center gap-xs text-body-sm text-on-surface-variant dark:text-slate-400">
-                <Link href="/lich-su" className="transition-colors hover:text-primary dark:hover:text-primary-300">
-                    {RENEW_PAGE.BREADCRUMB_ACCOUNT}
-                </Link>
-                <MaterialIcon name="chevron_right" className="text-[16px]" />
-                <Link href="/lich-su" className="transition-colors hover:text-primary dark:hover:text-primary-300">
-                    {RENEW_PAGE.BREADCRUMB_HISTORY}
-                </Link>
-                <MaterialIcon name="chevron_right" className="text-[16px]" />
-                <span className="font-medium text-primary dark:text-primary-300">{RENEW_PAGE.BREADCRUMB_RENEW}</span>
-            </nav>
+            <Breadcrumb items={breadcrumbItems} />
 
             {/* Page Title */}
             <h1 className="mb-xl font-headline-lg text-headline-lg text-primary dark:text-white">{RENEW_PAGE.TITLE}</h1>

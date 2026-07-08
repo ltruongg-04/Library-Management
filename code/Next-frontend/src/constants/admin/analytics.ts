@@ -3,12 +3,20 @@ import type { MonthRangeSelection } from "@/types/admin-analytics";
 
 export const ANALYTICS_TEXT = UI_TEXT.ADMIN_ANALYTICS;
 
-export const CURRENT_MONTH_RANGE: MonthRangeSelection = {
-    startYear: 2026,
-    startMonth: 5,
-    endYear: 2026,
-    endMonth: 6,
-};
+export function getCurrentMonthRange(date = new Date()): MonthRangeSelection {
+    const endYear = date.getFullYear();
+    const endMonth = date.getMonth() + 1;
+    const previousMonthDate = new Date(endYear, endMonth - 2, 1);
+
+    return {
+        startYear: previousMonthDate.getFullYear(),
+        startMonth: previousMonthDate.getMonth() + 1,
+        endYear,
+        endMonth,
+    };
+}
+
+export const CURRENT_MONTH_RANGE: MonthRangeSelection = getCurrentMonthRange();
 
 export const MONTH_PICKER_OPTIONS = [
     { value: 1, label: UI_TEXT.ADMIN_ANALYTICS.MONTH_OPTIONS.M1 },
@@ -25,4 +33,9 @@ export const MONTH_PICKER_OPTIONS = [
     { value: 12, label: UI_TEXT.ADMIN_ANALYTICS.MONTH_OPTIONS.M12 },
 ] as const;
 
-export const YEAR_PICKER_OPTIONS = [2022, 2023, 2024, 2025, 2026] as const;
+export function getYearPickerOptions(date = new Date()) {
+    const currentYear = date.getFullYear();
+    return Array.from({ length: currentYear - 2022 + 1 }, (_, index) => 2022 + index);
+}
+
+export const YEAR_PICKER_OPTIONS = getYearPickerOptions();

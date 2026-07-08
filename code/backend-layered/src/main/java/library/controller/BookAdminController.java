@@ -42,4 +42,11 @@ public class BookAdminController {
         library.dto.response.BookResponse updatedBook = bookService.updateBook(id, request);
         return ResponseEntity.ok(updatedBook);
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('books.delete-book')")
+    public ResponseEntity<Void> deleteBook(@PathVariable Integer id) {
+        bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
+    }
 }

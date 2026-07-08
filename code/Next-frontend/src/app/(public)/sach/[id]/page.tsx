@@ -64,8 +64,8 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     }));
 
     const breadcrumbItems = [
-        { label: UI_TEXT.COMMON.CATALOG, href: "/" },
-        { label: book.categories?.[0]?.name || UI_TEXT.COMMON.BOOK_LABEL, href: "/sach" },
+        { label: UI_TEXT.BOOK_LIST.BREADCRUMB_HOME, href: "/" },
+        { label: UI_TEXT.BOOK_LIST.BREADCRUMB_LIST, href: "/sach" },
         { label: book.title },
     ];
 

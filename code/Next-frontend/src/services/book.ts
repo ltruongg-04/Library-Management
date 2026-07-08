@@ -110,6 +110,17 @@ export const bookService = {
         }
     },
 
+    async deleteBook(id: number): Promise<void> {
+        try {
+            await axiosInstance.delete(`/api/admin/books/${id}`);
+        } catch (error) {
+            if (error instanceof TypeError && error.message === "Failed to fetch") {
+                throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
+            }
+            throw error;
+        }
+    },
+
     async createBook(data: import("@/types/book").BookCreateRequest): Promise<Book> {
         try {
             const response = await axiosInstance.post(`/api/admin/books`, data);

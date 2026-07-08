@@ -1,7 +1,6 @@
 "use client";
 
 import {
-    BarChart3,
     BookOpen,
     Calendar,
     CircleHelp,
@@ -39,7 +38,6 @@ const NAV_ITEMS = [
     { label: SIDEBAR.NAV_ROLES, icon: ShieldCheck, href: "/admin/vai-tro", roles: ["ADMIN"] },
     { label: SIDEBAR.NAV_SETTINGS, icon: Settings, href: "/admin/cai-dat", roles: ["ADMIN"] },
     { label: SIDEBAR.NAV_AUDIT_LOGS, icon: History, href: "/admin/nhat-ky", roles: ["ADMIN"] },
-    { label: SIDEBAR.NAV_STATS, icon: BarChart3, href: "/admin/thong-ke", roles: ["ADMIN"] },
 ];
 
 export default function Sidebar() {

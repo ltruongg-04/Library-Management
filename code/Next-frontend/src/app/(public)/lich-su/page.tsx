@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
+import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import { LoanCard } from "@/components/features/history/LoanCard";
 import { LoanFilter } from "@/components/features/history/LoanFilter";
 import { MY_BOOKS_PAGE } from "@/constants/ui-text/public/my-books";
@@ -158,15 +159,13 @@ export default function MyBooksPage() {
         );
     }
 
+    const breadcrumbItems = [{ label: MY_BOOKS_PAGE.BREADCRUMB_ACCOUNT, href: "/profile" }, { label: MY_BOOKS_PAGE.TITLE }];
+
     return (
         <div className="mx-auto max-w-container-max px-lg pb-xl pt-6">
             {/* Title & Breadcrumb */}
             <div className="mb-lg">
-                <div className="mb-sm flex items-center gap-xs text-body-sm text-on-surface-variant dark:text-slate-400">
-                    <span>{MY_BOOKS_PAGE.BREADCRUMB_ACCOUNT}</span>
-                    <span className="material-symbols-outlined text-[16px]">{"chevron_right"}</span>
-                    <span className="font-medium text-primary dark:text-primary-300">{MY_BOOKS_PAGE.TITLE}</span>
-                </div>
+                <Breadcrumb items={breadcrumbItems} />
                 <h1 className="font-headline-lg text-headline-lg text-primary dark:text-white">{MY_BOOKS_PAGE.TITLE}</h1>
             </div>
 

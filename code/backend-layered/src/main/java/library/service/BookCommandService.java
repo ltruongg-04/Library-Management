@@ -7,4 +7,5 @@ import library.dto.response.BookResponse;
 public interface BookCommandService {
     BookResponse createBook(BookCreateRequest request);
     BookResponse updateBook(Integer id, BookUpdateRequest request);
+    void deleteBook(Integer id);
 }

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, BarChart3, CheckCircle2, ClipboardList, LibraryBig, ShoppingBasket, Users } from "lucide-react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import AnalyticsExportControls, { type AnalyticsExportData } from "@/components/features/admin/analytics/AnalyticsExportControls";
-import { ANALYTICS_TEXT, CURRENT_MONTH_RANGE } from "@/constants/admin/analytics";
+import { ANALYTICS_TEXT, getCurrentMonthRange } from "@/constants/admin/analytics";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN_UI } from "@/constants/ui-text/admin";
 import { type DashboardStats, adminDashboardService } from "@/services/adminDashboard";
@@ -12,6 +12,7 @@ import { MonthRangeControls, formatMonthPickerValue, monthToAbsoluteIndex, norma
 import { AiInsights, BorrowingTrend, LibraryStatus, MostBorrowedBooks, RecentActivities, StatCard, TopCategories } from "./AnalyticsSections";
 
 const ACTIVITY_COLORS = ["border-blue-500", "border-green-500", "border-red-500", "border-yellow-500", "border-purple-500"];
+const MONTH_RANGE_REFRESH_MS = 60_000;
 
 const STATUS_TITLE_MAP: Record<string, string> = {
     PENDING: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_PENDING,
@@ -21,6 +22,12 @@ const STATUS_TITLE_MAP: Record<string, string> = {
     CANCELLED: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_CANCELLED,
     READY: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_READY,
 };
+
+function areMonthRangesEqual(first: MonthRangeSelection, second: MonthRangeSelection) {
+    return (
+        first.startYear === second.startYear && first.startMonth === second.startMonth && first.endYear === second.endYear && first.endMonth === second.endMonth
+    );
+}
 
 function buildAnalyticsFromStats(stats: DashboardStats): AnalyticsData {
     const totalCopies = stats.totalBooks;
@@ -90,7 +97,8 @@ function buildTrendDataFromStats(monthRange: MonthRangeSelection, stats: Dashboa
 }
 
 export default function ThongKePage() {
-    const [monthRange, setMonthRange] = useState<MonthRangeSelection>(CURRENT_MONTH_RANGE);
+    const [monthRange, setMonthRange] = useState<MonthRangeSelection>(() => getCurrentMonthRange());
+    const [currentMonthRange, setCurrentMonthRange] = useState<MonthRangeSelection>(() => getCurrentMonthRange());
     const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -113,6 +121,22 @@ export default function ThongKePage() {
         fetchStats();
     }, [fetchStats]);
 
+    useEffect(() => {
+        const intervalId = window.setInterval(() => {
+            const nextCurrentRange = getCurrentMonthRange();
+            setCurrentMonthRange((previousCurrentRange) => {
+                if (areMonthRangesEqual(previousCurrentRange, nextCurrentRange)) {
+                    return previousCurrentRange;
+                }
+
+                setMonthRange((selectedRange) => (areMonthRangesEqual(selectedRange, previousCurrentRange) ? nextCurrentRange : selectedRange));
+                return nextCurrentRange;
+            });
+        }, MONTH_RANGE_REFRESH_MS);
+
+        return () => window.clearInterval(intervalId);
+    }, []);
+
     const activeData: AnalyticsData = dashboardStats
         ? buildAnalyticsFromStats(dashboardStats)
         : {
@@ -125,10 +149,10 @@ export default function ThongKePage() {
           };
 
     const isCurrentMonthRange =
-        monthRange.startYear === CURRENT_MONTH_RANGE.startYear &&
-        monthRange.endYear === CURRENT_MONTH_RANGE.endYear &&
-        monthRange.startMonth === CURRENT_MONTH_RANGE.startMonth &&
-        monthRange.endMonth === CURRENT_MONTH_RANGE.endMonth;
+        monthRange.startYear === currentMonthRange.startYear &&
+        monthRange.endYear === currentMonthRange.endYear &&
+        monthRange.startMonth === currentMonthRange.startMonth &&
+        monthRange.endMonth === currentMonthRange.endMonth;
 
     const exportData: AnalyticsExportData = {
         periodLabel: `${formatMonthPickerValue(normalizedMonthRange.startYear, normalizedMonthRange.startMonth)} - ${formatMonthPickerValue(

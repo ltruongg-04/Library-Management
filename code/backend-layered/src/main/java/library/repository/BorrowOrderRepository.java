@@ -46,6 +46,22 @@ public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, 
     List<BorrowOrderEntity> findTop5ByOrderByCreatedAtDesc();
 
     @Query("""
+            SELECT orderEntity.orderCode,
+                   COALESCE(customer.fullName, ''),
+                   COALESCE(MIN(book.title), ''),
+                   orderEntity.status,
+                   orderEntity.createdAt
+            FROM BorrowOrderEntity orderEntity
+            LEFT JOIN orderEntity.customer customer
+            LEFT JOIN orderEntity.orderDetails detail
+            LEFT JOIN detail.bookCopy copy
+            LEFT JOIN copy.book book
+            GROUP BY orderEntity.id, orderEntity.orderCode, customer.fullName, orderEntity.status, orderEntity.createdAt
+            ORDER BY orderEntity.createdAt DESC
+            """)
+    List<Object[]> findRecentActivityStats(Pageable pageable);
+
+    @Query("""
             SELECT c.name, COUNT(detail.id)
             FROM BorrowOrderDetailEntity detail
             JOIN detail.bookCopy copy

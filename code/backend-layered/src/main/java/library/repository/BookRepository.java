@@ -14,6 +14,12 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     boolean existsByIsbn(String isbn);
 
+    @Query("SELECT COUNT(b) > 0 FROM BookEntity b WHERE LOWER(TRIM(b.title)) = LOWER(TRIM(:title))")
+    boolean existsByNormalizedTitle(@Param("title") String title);
+
+    @Query("SELECT COUNT(b) > 0 FROM BookEntity b WHERE b.id <> :id AND LOWER(TRIM(b.title)) = LOWER(TRIM(:title))")
+    boolean existsByNormalizedTitleAndIdNot(@Param("title") String title, @Param("id") Integer id);
+
     List<BookEntity> findTop10ByOrderByRatingDesc();
 
     @Query("SELECT DISTINCT b FROM BookEntity b LEFT JOIN b.categories c LEFT JOIN b.authors a WHERE " +
