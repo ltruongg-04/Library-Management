@@ -32,11 +32,14 @@ axiosInstance.interceptors.response.use(
     (response) => {
         return response;
     },
-    (error) => {
+    async (error) => {
         // Automatically sign out user on 401 Unauthorized (invalid/expired token)
         if (typeof window !== "undefined" && error.response?.status === 401 && !error.config.url?.includes("/api/auth/")) {
-            console.warn("Session expired or invalid, logging out...");
-            signOut({ callbackUrl: "/login" });
+            const session = await getSession();
+            if (session) {
+                console.warn("Session expired or invalid, logging out...");
+                await signOut({ callbackUrl: "/login" });
+            }
         }
 
         // Có thể xử lý refresh token ở đây nếu cần gọi api trực tiếp qua axios thay vì NextAuth
