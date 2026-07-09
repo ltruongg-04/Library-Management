@@ -43,7 +43,7 @@ public class PublicBorrowController {
         
         return ResponseEntity.ok(ApiResponse.<BorrowResponseDto>builder()
                 .success(true)
-                .message("Guest borrow order created successfully")
+                .message("Tạo phiếu mượn cho khách thành công")
                 .data(response)
                 .build());
     }
@@ -59,7 +59,7 @@ public class PublicBorrowController {
             BorrowOrderDetailResponseDto response = borrowOrderService.getGuestBorrowOrder(orderCode, phone);
             return ResponseEntity.ok(ApiResponse.builder()
                     .success(true)
-                    .message("Borrow order retrieved successfully")
+                    .message("Tra cứu phiếu mượn thành công")
                     .data(response)
                     .build());
         }
@@ -89,7 +89,7 @@ public class PublicBorrowController {
         
         return ResponseEntity.ok(ApiResponse.<java.util.List<BorrowOrderDetailResponseDto>>builder()
                 .success(true)
-                .message("Borrow orders retrieved successfully")
+                .message("Tra cứu danh sách phiếu mượn thành công")
                 .data(response)
                 .build());
     }
@@ -101,7 +101,7 @@ public class PublicBorrowController {
         BorrowOrderDetailResponseDto response = borrowOrderService.getGuestBorrowOrder(orderCode, phone);
         return ResponseEntity.ok(ApiResponse.<BorrowOrderDetailResponseDto>builder()
                 .success(true)
-                .message("Borrow order retrieved successfully")
+                .message("Tra cứu phiếu mượn thành công")
                 .data(response)
                 .build());
     }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { REVIEW } from "@/constants/ui-text/review";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { useBookReviews } from "@/hooks/useBookReviews";
 import CommunityReviews from "./CommunityReviews";
 import DeleteReviewModal from "./DeleteReviewModal";
@@ -47,7 +48,7 @@ export default function ReviewSection({ bookId, isReviewModalOpen, onCloseReview
                 setOpenSuccessDialog(true);
             }
         } catch (err: any) {
-            setSubmitError(err.message || "Failed to submit review");
+            setSubmitError(err.message || API_ERRORS.REVIEW_SUBMIT_FAILED);
         } finally {
             setIsSubmitting(false);
         }

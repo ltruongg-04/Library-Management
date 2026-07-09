@@ -27,11 +27,11 @@ public class FavouriteController {
     private CustomerEntity getCurrentCustomer() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
         String email = authentication.getPrincipal().toString();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
 
         return customerRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new CustomBusinessException("Customer profile not found", HttpStatus.NOT_FOUND));

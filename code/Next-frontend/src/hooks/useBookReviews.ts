@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import axiosInstance from "@/lib/axios";
 
 export interface Review {
@@ -34,7 +35,7 @@ export function useBookReviews(bookId: number | null) {
                 setTotalPages(res.data.totalPages);
                 setPage(pageToFetch);
             } catch (err: any) {
-                setError(err.response?.data?.message || err.message || "Unknown error");
+                setError(err.response?.data?.message || err.message || API_ERRORS.UNKNOWN_ERROR);
             } finally {
                 setLoading(false);
             }
@@ -60,7 +61,7 @@ export function useBookReviews(bookId: number | null) {
             await fetchReviews(0);
             return true;
         } catch (err: any) {
-            throw new Error(err.response?.data?.message || err.message || "Failed to submit review");
+            throw new Error(err.response?.data?.message || err.message || API_ERRORS.REVIEW_SUBMIT_FAILED);
         }
     };
 
@@ -71,7 +72,7 @@ export function useBookReviews(bookId: number | null) {
             await fetchReviews(0);
             return true;
         } catch (err: any) {
-            throw new Error(err.response?.data?.message || err.message || "Failed to update review");
+            throw new Error(err.response?.data?.message || err.message || API_ERRORS.REVIEW_UPDATE_FAILED);
         }
     };
 
@@ -82,7 +83,7 @@ export function useBookReviews(bookId: number | null) {
             await fetchReviews(0);
             return true;
         } catch (err: any) {
-            throw new Error(err.response?.data?.message || err.message || "Failed to delete review");
+            throw new Error(err.response?.data?.message || err.message || API_ERRORS.REVIEW_DELETE_FAILED);
         }
     };
 
@@ -92,7 +93,7 @@ export function useBookReviews(bookId: number | null) {
             await axiosInstance.post(`/api/books/${bookId}/reviews/${reviewId}/report?reason=${encodeURIComponent(reason)}`);
             return true;
         } catch (err: any) {
-            throw new Error(err.response?.data?.message || err.message || "Failed to report review");
+            throw new Error(err.response?.data?.message || err.message || API_ERRORS.REVIEW_REPORT_FAILED);
         }
     };
 

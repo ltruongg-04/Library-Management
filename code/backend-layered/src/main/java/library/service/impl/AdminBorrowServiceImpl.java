@@ -77,7 +77,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     @Transactional
     public void updateBorrowStatus(String orderCode, BorrowOrderStatus newStatus) {
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCode(orderCode)
-                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Borrow order not found",
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy phiếu mượn",
                         org.springframework.http.HttpStatus.NOT_FOUND));
 
         order.setStatus(newStatus);
@@ -204,7 +204,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     @Transactional(readOnly = true)
     public library.dto.admin.AdminBorrowOrderDetailDto getBorrowOrderDetail(String orderCode) {
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCode(orderCode)
-                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Borrow order not found",
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy phiếu mượn",
                         org.springframework.http.HttpStatus.NOT_FOUND));
 
         return adminBorrowOrderMapper.toAdminBorrowOrderDetailDto(order);
@@ -274,7 +274,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     @Transactional
     public void processRenewal(String orderCode, library.dto.admin.AdminRenewalRequestDto request) {
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCode(orderCode)
-                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Borrow order not found",
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy phiếu mượn",
                         org.springframework.http.HttpStatus.NOT_FOUND));
 
         // Bỏ check PENDING_RENEWAL ở đây, chỉ cần có BorrowExtensionEntity trạng thái PENDING là đủ để duyệt gia hạn.
@@ -327,7 +327,7 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
 
     private BorrowOrderEntity getOrder(String orderCode) {
         return borrowOrderRepository.findByOrderCode(orderCode)
-                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Borrow order not found",
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy phiếu mượn",
                         org.springframework.http.HttpStatus.NOT_FOUND));
     }
 

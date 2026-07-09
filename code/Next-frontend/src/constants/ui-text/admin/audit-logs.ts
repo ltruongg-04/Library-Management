@@ -74,7 +74,7 @@ export const ADMIN_AUDIT_LOGS = {
         BTN_RETRY: "Thử lại",
         EMPTY_STATE: "Chưa có nhật ký hoạt động nào",
         GUEST: "Khách",
-        NA_IP: "N/A",
+        NA_IP: "Chưa ghi nhận",
         PAGE_INFO: "Trang",
         BTN_PREV: "Trước",
         BTN_NEXT: "Sau",

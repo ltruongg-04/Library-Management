@@ -50,7 +50,7 @@ function FeaturedBookCard({ book }: { book: Book }) {
                 {book.imageUrl ? (
                     <Image
                         src={book.imageUrl}
-                        alt={`Book cover: ${book.title}`}
+                        alt={`${UI_TEXT.BOOK_DETAIL.IMAGE_ALT} ${book.title}`}
                         width={200}
                         height={300}
                         className="h-64 w-auto rounded-xl object-cover shadow-2xl transition-transform duration-500 group-hover:scale-105"
@@ -80,7 +80,7 @@ function FeaturedBookCard({ book }: { book: Book }) {
                     <button
                         onClick={handleBookmark}
                         className="flex-shrink-0 text-primary-700 transition-colors hover:text-secondary-300 dark:text-white/50 dark:hover:text-secondary-300"
-                        aria-label={`Bookmark ${book.title}`}
+                        aria-label={`${UI_TEXT.BOOK_DETAIL.ADD_WISHLIST}: ${book.title}`}
                     >
                         <MaterialIcon name="bookmark_add" />
                     </button>
@@ -136,7 +136,7 @@ function SmallBookCard({ book, rank }: { book: Book; rank: number }) {
                 {book.imageUrl ? (
                     <Image
                         src={book.imageUrl}
-                        alt={`Book cover: ${book.title}`}
+                        alt={`${UI_TEXT.BOOK_DETAIL.IMAGE_ALT} ${book.title}`}
                         width={40}
                         height={56}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
@@ -166,7 +166,7 @@ function SmallBookCard({ book, rank }: { book: Book; rank: number }) {
             <button
                 onClick={handleBookmark}
                 className="flex-shrink-0 text-on-surface-variant/30 transition-colors hover:text-secondary-300 dark:text-white/20 dark:hover:text-secondary-300"
-                aria-label={`Bookmark ${book.title}`}
+                aria-label={`${UI_TEXT.BOOK_DETAIL.ADD_WISHLIST}: ${book.title}`}
             >
                 <MaterialIcon name="bookmark_add" className="text-[18px]" />
             </button>

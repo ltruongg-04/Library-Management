@@ -103,7 +103,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
         String email = authentication.getPrincipal().toString();
         userService.changePassword(email, request);
