@@ -19,6 +19,7 @@ public class ReviewEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
+    @org.hibernate.annotations.NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
     private BookEntity book;
 
     @Column(name = "rating", nullable = false)
