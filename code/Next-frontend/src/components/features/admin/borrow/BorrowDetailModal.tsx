@@ -63,7 +63,8 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
         BORROWED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_BORROWED,
         OVERDUE: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_OVERDUE,
         RETURNED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_RETURNED,
-        CANCELLED: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_CANCELLED,
+        CANCELLED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_CANCELLED,
+        REJECTED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_REJECTED,
     };
 
     const TRANSLATE_BOOK_STATUS: Record<string, string> = {
@@ -71,7 +72,7 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
         RETURNED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_RETURNED,
         OVERDUE: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_OVERDUE,
         LOST: UI_TEXT.ADMIN_BORROW_MANAGEMENT.RETURN_BOOK_MODAL.COND_LOST,
-        CANCELLED: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_CANCELLED,
+        CANCELLED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE.STATUS_CANCELLED,
         DAMAGED: UI_TEXT.ADMIN_BORROW_MANAGEMENT.RETURN_BOOK_MODAL.COND_DAMAGED,
     };
 
@@ -160,10 +161,12 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                                     </div>
                                     <div className="space-y-2 text-sm">
                                         <p>
-                                            <span className="text-on-surface-variant">{T.CREATED_AT}</span> <span>{formatDate(detail.borrowDate)}</span>
+                                            <span className="text-on-surface-variant">{T.CREATED_AT}</span>{" "}
+                                            <span>{detail.status === "CANCELLED" || detail.status === "REJECTED" ? "—" : formatDate(detail.borrowDate)}</span>
                                         </p>
                                         <p>
-                                            <span className="text-on-surface-variant">{T.DUE_DATE}</span> <span>{formatDate(detail.dueDate)}</span>
+                                            <span className="text-on-surface-variant">{T.DUE_DATE}</span>{" "}
+                                            <span>{detail.status === "CANCELLED" || detail.status === "REJECTED" ? "—" : formatDate(detail.dueDate)}</span>
                                         </p>
                                         <p>
                                             <span className="text-on-surface-variant">{T.STATUS}</span>{" "}

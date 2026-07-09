@@ -7,7 +7,7 @@ import { ADMIN_UI } from "@/constants/ui-text/admin";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.TABLE;
 
-export type BorrowStatus = "borrowed" | "overdue" | "ready" | "returned" | "pending" | "pending_renewal" | "partially_returned";
+export type BorrowStatus = "borrowed" | "overdue" | "ready" | "returned" | "pending" | "pending_renewal" | "partially_returned" | "cancelled" | "rejected";
 
 export type BorrowRecord = {
     id: string;
@@ -80,6 +80,20 @@ function StatusBadge({ status, overdayCount }: { status: BorrowStatus; overdayCo
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/50 bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                     {T.STATUS_PENDING_RENEWAL || ADMIN_UI.BORROW.PENDING_RENEWAL}
+                </span>
+            );
+        case "cancelled":
+            return (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container px-2.5 py-1 text-xs font-medium text-on-surface-variant">
+                    <span className="h-1.5 w-1.5 rounded-full bg-outline-variant" />
+                    {T.STATUS_CANCELLED}
+                </span>
+            );
+        case "rejected":
+            return (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-error-container bg-error-container/50 px-2.5 py-1 text-xs font-medium text-error">
+                    <span className="h-1.5 w-1.5 rounded-full bg-error" />
+                    {T.STATUS_REJECTED}
                 </span>
             );
         default:
@@ -313,8 +327,10 @@ export default function BorrowTable({
                                     </td>
 
                                     {/* Borrow date */}
-                                    <td className={`px-6 py-4 ${rec.borrowDate ? "text-on-surface" : "italic text-on-surface-variant"}`}>
-                                        {rec.borrowDate ?? T.NO_DATE}
+                                    <td
+                                        className={`px-6 py-4 ${rec.borrowDate && rec.status !== "cancelled" && rec.status !== "rejected" ? "text-on-surface" : "italic text-on-surface-variant"}`}
+                                    >
+                                        {rec.status === "cancelled" || rec.status === "rejected" ? T.NO_DATE : (rec.borrowDate ?? T.NO_DATE)}
                                     </td>
 
                                     {/* Due date */}
@@ -322,12 +338,12 @@ export default function BorrowTable({
                                         className={`px-6 py-4 ${
                                             rec.status === "overdue"
                                                 ? "font-medium text-error"
-                                                : rec.dueDate
+                                                : rec.dueDate && rec.status !== "cancelled" && rec.status !== "rejected"
                                                   ? "text-on-surface"
                                                   : "italic text-on-surface-variant"
                                         }`}
                                     >
-                                        {rec.dueDate ?? T.NO_DATE}
+                                        {rec.status === "cancelled" || rec.status === "rejected" ? T.NO_DATE : (rec.dueDate ?? T.NO_DATE)}
                                     </td>
 
                                     {/* Status */}

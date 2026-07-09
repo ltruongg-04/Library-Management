@@ -25,7 +25,6 @@ public class FavouriteEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("bookId")
     @JoinColumn(name = "book_id", insertable = false, updatable = false)
-    @org.hibernate.annotations.NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
     private BookEntity book;
 
     @Column(name = "created_at", updatable = false)

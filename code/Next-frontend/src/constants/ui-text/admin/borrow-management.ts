@@ -20,6 +20,8 @@ export const ADMIN_BORROW_MANAGEMENT = {
         LABEL_TO: "Đến:",
         PAGINATION_PAGE: "Trang",
         STATUS_PARTIALLY_RETURNED: "Trả một phần",
+        STATUS_CANCELLED: "Đã hủy",
+        STATUS_REJECTED: "Đã từ chối",
     },
     TABLE: {
         COL_MEMBER: "Thành viên",
@@ -43,6 +45,8 @@ export const ADMIN_BORROW_MANAGEMENT = {
         EMPTY_STATE: "Không có dữ liệu lượt mượn",
         GUEST_BADGE: "KHÁCH",
         STATUS_PARTIALLY_RETURNED: "Trả một phần",
+        STATUS_CANCELLED: "Đã hủy",
+        STATUS_REJECTED: "Đã từ chối",
     },
     MODAL: {
         CREATE_TITLE: "Tạo phiếu mượn mới",

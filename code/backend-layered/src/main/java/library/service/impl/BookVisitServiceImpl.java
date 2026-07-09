@@ -37,7 +37,7 @@ public class BookVisitServiceImpl implements BookVisitService {
             throw new RuntimeException("Xác thực CAPTCHA thất bại. Vui lòng thử lại.");
         }
 
-        BookEntity book = bookRepository.findById(request.getBookId())
+        BookEntity book = bookRepository.findByIdIncludingDeleted(request.getBookId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sách"));
 
         // 2. Handle User linking or creation
