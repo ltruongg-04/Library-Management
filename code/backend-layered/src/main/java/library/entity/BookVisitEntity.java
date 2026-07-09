@@ -28,6 +28,7 @@ public class BookVisitEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
+    @org.hibernate.annotations.NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
     private BookEntity book;
 
     @Column(name = "full_name", nullable = false)

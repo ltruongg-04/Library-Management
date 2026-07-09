@@ -16,6 +16,7 @@ public class BookCopyEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
+    @org.hibernate.annotations.NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
     private BookEntity book;
 
     @Column(name = "barcode", unique = true, nullable = false, length = 50)
