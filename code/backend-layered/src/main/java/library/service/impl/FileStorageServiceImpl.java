@@ -48,7 +48,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
             return minioUrl + "/" + bucketName + "/" + fileName;
         } catch (Exception e) {
-            throw new RuntimeException("Error occurred while uploading file to MinIO", e);
+            throw new RuntimeException("Đã xảy ra lỗi khi tải tệp lên MinIO", e);
         }
     }
 
@@ -62,7 +62,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             connection.connect();
 
             if (connection.getResponseCode() != 200) {
-                throw new RuntimeException("Failed to fetch image from URL, response code: " + connection.getResponseCode());
+                throw new RuntimeException("Không thể tải ảnh từ URL, mã phản hồi: " + connection.getResponseCode());
             }
 
             String contentType = connection.getContentType();
@@ -106,7 +106,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             return minioUrl + "/" + bucketName + "/" + fileName;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error occurred while uploading file from URL to MinIO: " + e.getMessage(), e);
+            throw new RuntimeException("Đã xảy ra lỗi khi tải tệp từ URL lên MinIO: " + e.getMessage(), e);
         }
     }
 }

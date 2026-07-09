@@ -31,7 +31,7 @@ public class AdminBookReturnController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
 
         String assistantEmail = authentication.getPrincipal().toString();
@@ -47,7 +47,7 @@ public class AdminBookReturnController {
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
 
         // Get IP Address
@@ -66,7 +66,7 @@ public class AdminBookReturnController {
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
 
         String assistantEmail = authentication.getPrincipal().toString();

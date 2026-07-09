@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BorrowExtensionRequestDto {
-    @NotNull(message = "Duration is required")
+    @NotNull(message = "Thời lượng gia hạn là bắt buộc")
     @Min(value = 1, message = "Duration must be at least 1 day")
     private Integer durationInDays;
 }

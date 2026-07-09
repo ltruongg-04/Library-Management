@@ -33,8 +33,8 @@ public class AdminBorrowOrderMapper {
 
         List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
 
-        String bookTitle = "N/A";
-        String bookAuthor = "N/A";
+        String bookTitle = "Chưa cập nhật";
+        String bookAuthor = "Chưa cập nhật";
 
         if (!details.isEmpty()) {
             BorrowOrderDetailEntity firstDetail = details.get(0);
@@ -56,8 +56,8 @@ public class AdminBorrowOrderMapper {
             if (days > 0) overdayCount = (int) days;
         }
 
-        String customerName = "Unknown";
-        String customerCode = "N/A";
+        String customerName = "Chưa cập nhật";
+        String customerCode = "Chưa cập nhật";
         boolean isGuest = false;
 
         if (order.getCustomer() != null) {
@@ -87,9 +87,9 @@ public class AdminBorrowOrderMapper {
         List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
 
         List<BorrowItemDto> items = details.stream().map(detail -> {
-            String title = "N/A";
-            String author = "N/A";
-            String barcode = "N/A";
+            String title = "Chưa cập nhật";
+            String author = "Chưa cập nhật";
+            String barcode = "Chưa cập nhật";
 
             if (detail.getBookCopy() != null) {
                 barcode = detail.getBookCopy().getBarcode();
@@ -183,16 +183,16 @@ public class AdminBorrowOrderMapper {
             settlementAmount = BigDecimal.ZERO;
         }
 
-        String customerName = "Unknown";
-        String customerCode = "N/A";
-        String customerPhone = "N/A";
+        String customerName = "Chưa cập nhật";
+        String customerCode = "Chưa cập nhật";
+        String customerPhone = "Chưa cập nhật";
         boolean isGuest = false;
 
         if (order.getCustomer() != null) {
             customerName = order.getCustomer().getFullName();
             customerCode = order.getCustomer().getLibraryCardNo() != null ? order.getCustomer().getLibraryCardNo()
                     : order.getCustomer().getPhone();
-            customerPhone = order.getCustomer().getPhone() != null ? order.getCustomer().getPhone() : "N/A";
+            customerPhone = order.getCustomer().getPhone() != null ? order.getCustomer().getPhone() : "Chưa cập nhật";
             isGuest = order.getCustomer().getUser() == null;
         }
 

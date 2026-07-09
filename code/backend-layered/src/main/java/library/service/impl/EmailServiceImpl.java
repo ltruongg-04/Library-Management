@@ -61,8 +61,8 @@ public class EmailServiceImpl implements EmailService {
             Context context = new Context();
             context.setVariable("fullName", fullName);
             context.setVariable("orderCode", orderCode);
-            context.setVariable("pickupDate", pickupDate != null ? pickupDate.format(formatter) : "N/A");
-            context.setVariable("dueDate", dueDate != null ? dueDate.format(formatter) : "N/A");
+            context.setVariable("pickupDate", pickupDate != null ? pickupDate.format(formatter) : "Chưa cập nhật");
+            context.setVariable("dueDate", dueDate != null ? dueDate.format(formatter) : "Chưa cập nhật");
             context.setVariable("bookTitle", bookTitle);
             context.setVariable("status", status);
             context.setVariable("rentalFee", rentalFee);
@@ -175,7 +175,7 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("fullName", fullName);
             context.setVariable("orderCode", orderCode);
             context.setVariable("bookList", bookList);
-            context.setVariable("dueDate", dueDate != null ? dueDate.format(formatter) : "N/A");
+            context.setVariable("dueDate", dueDate != null ? dueDate.format(formatter) : "Chưa cập nhật");
             context.setVariable("finePerDay", finePerDay);
 
             String htmlContent = templateEngine.process("email/overdue-reminder", context);
@@ -231,7 +231,7 @@ public class EmailServiceImpl implements EmailService {
             Context context = new Context();
             context.setVariable("fullName", fullName);
             context.setVariable("bookTitle", bookTitle);
-            context.setVariable("holdUntilDate", holdUntilDate != null ? holdUntilDate.format(formatter) : "N/A");
+            context.setVariable("holdUntilDate", holdUntilDate != null ? holdUntilDate.format(formatter) : "Chưa cập nhật");
 
             String htmlContent = templateEngine.process("email/reservation-available", context);
 

@@ -38,10 +38,10 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse createReview(Integer bookId, ReviewRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
         BookEntity book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sách"));
 
         ReviewEntity review = ReviewEntity.builder()
                 .user(user)
@@ -67,11 +67,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public ReviewResponse updateReview(Integer id, ReviewRequest request) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
         
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!review.getUser().getEmail().equals(email)) {
-            throw new RuntimeException("You can only edit your own review");
+            throw new RuntimeException("Bạn chỉ có thể chỉnh sửa đánh giá của chính mình");
         }
         
         review.setRating(request.getRating());
@@ -113,7 +113,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void updateReviewStatus(Integer id, ReviewStatus status, String hideReason) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
         
         review.setStatus(status);
         if (hideReason != null) {
@@ -129,7 +129,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void reportReview(Integer id, String reason) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
                 
         // Only mark as reported if it's currently visible
         if (review.getStatus() == ReviewStatus.VISIBLE) {
@@ -143,7 +143,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteReview(Integer id) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
         
         BookEntity book = review.getBook();
         reviewRepository.delete(review);
@@ -155,11 +155,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteMyReview(Integer id) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
                 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!review.getUser().getEmail().equals(email)) {
-            throw new RuntimeException("You can only delete your own review");
+            throw new RuntimeException("Bạn chỉ có thể xóa đánh giá của chính mình");
         }
         
         BookEntity book = review.getBook();
