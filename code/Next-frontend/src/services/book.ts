@@ -43,7 +43,7 @@ export const bookService = {
         const queryParams = new URLSearchParams();
 
         if (keyword) queryParams.append("keyword", keyword);
-        if (category && category !== "Tất cả" && category !== "all") queryParams.append("categoryId", category);
+        if (category && category !== "Tất cả" && category !== "all") queryParams.append("category", category);
         if (authorId) queryParams.append("authorId", authorId.toString());
         if (publisher) queryParams.append("publisher", publisher);
         if (minRating) queryParams.append("minRating", minRating.toString());

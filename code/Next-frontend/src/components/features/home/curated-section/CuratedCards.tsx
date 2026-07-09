@@ -15,7 +15,7 @@ export function FeaturedCollectionCard({ collection, onDismiss }: { collection: 
 
     const handleNavigate = (e: React.MouseEvent) => {
         e.preventDefault();
-        const query = collection.categoryId ? `/sach?categoryId=${collection.categoryId}` : `/sach?keyword=${encodeURIComponent(collection.categoryName)}`;
+        const query = collection.categoryId ? `/sach?category=${collection.categoryId}` : `/sach?keyword=${encodeURIComponent(collection.categoryName)}`;
         router.push(query);
     };
 
@@ -99,7 +99,7 @@ export function SmallCollectionCard({ collection, onDismiss, delay }: { collecti
     const [dismissed, setDismissed] = useState(false);
 
     const handleNavigate = () => {
-        const query = collection.categoryId ? `/sach?categoryId=${collection.categoryId}` : `/sach?keyword=${encodeURIComponent(collection.categoryName)}`;
+        const query = collection.categoryId ? `/sach?category=${collection.categoryId}` : `/sach?keyword=${encodeURIComponent(collection.categoryName)}`;
         router.push(query);
     };
 

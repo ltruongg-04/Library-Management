@@ -47,7 +47,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
                 <div className="flex flex-col items-center justify-center py-24 text-center">
                     <MaterialIcon name="error_outline" className="mb-4 text-[64px] text-red-400" />
                     <h2 className="mb-2 text-[24px] font-semibold text-on-surface dark:text-white">{UI_TEXT.COMMON.ERROR_LOAD_BOOK_DETAIL}</h2>
-                    <p className="text-on-surface-variant dark:text-white/70">{UI_TEXT.COMMON.BOOK_NOT_FOUND}</p>
+                    <p className="text-on-surface-variant dark:text-white/70">{error || UI_TEXT.COMMON.BOOK_NOT_FOUND}</p>
                 </div>
             </div>
         );

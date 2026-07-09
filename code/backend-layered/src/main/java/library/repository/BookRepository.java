@@ -14,6 +14,9 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     boolean existsByIsbn(String isbn);
 
+    @Query(value = "SELECT * FROM books WHERE id = :id", nativeQuery = true)
+    java.util.Optional<BookEntity> findByIdIncludingDeleted(@Param("id") Integer id);
+
     @Query("SELECT COUNT(b) > 0 FROM BookEntity b WHERE LOWER(TRIM(b.title)) = LOWER(TRIM(:title))")
     boolean existsByNormalizedTitle(@Param("title") String title);
 
