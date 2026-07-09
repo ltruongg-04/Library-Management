@@ -148,9 +148,9 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
     return (
         <main className="relative mx-auto flex min-h-screen w-full max-w-container-max flex-col px-6 py-12">
             <div className="mb-6">
-                <Link href={`/sach/${book.id}`} className="mb-4 flex items-center gap-1 text-primary-700 hover:underline dark:text-primary-300">
+                <Link href={`/sach/${book.id}`} className="mb-4 flex items-center gap-1 text-primary-700 dark:text-primary-300">
                     <MaterialIcon name="arrow_back" />
-                    <span className="font-title-md text-title-md">{UI_TEXT.BORROW.BACK_TO_CATALOG}</span>
+                    <span className="font-title-md text-title-md hover:underline">{UI_TEXT.BORROW.BACK_TO_CATALOG}</span>
                 </Link>
                 <h1 className="font-display-lg text-display-lg text-primary-700 dark:text-primary-300">{UI_TEXT.BORROW.TITLE}</h1>
                 <p className="mt-2 font-body-md text-on-surface-variant dark:text-slate-300">{UI_TEXT.BORROW.SUBTITLE}</p>
