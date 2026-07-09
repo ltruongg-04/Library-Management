@@ -87,6 +87,7 @@ export const RENEW_PAGE = {
         RENEWAL_FEE_LABEL: "Phí gia hạn:",
         POSTPAID_NOTE: "(Sẽ thu vào lần sau):",
         TOTAL_LABEL: "Tổng cộng:",
+        POSTPAID_NOTE_LONG: "* Lưu ý: Chi phí gia hạn và các phí khác sẽ được tổng hợp để thanh toán trực tiếp tại quầy thư viện khi trả sách.",
     },
     CONFIRM_BUTTON: "Xác nhận gia hạn",
 };
