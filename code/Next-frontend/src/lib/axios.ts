@@ -9,6 +9,25 @@ export const axiosInstance = axios.create({
     },
 });
 
+const PUBLIC_ENDPOINTS = ["/api/auth/", "/api/public/"];
+
+const isPublicEndpoint = (url?: string): boolean => {
+    if (!url) {
+        return false;
+    }
+
+    return PUBLIC_ENDPOINTS.some((endpoint) => url.includes(endpoint));
+};
+
+const isCaptchaError = (error: unknown): boolean => {
+    if (!axios.isAxiosError(error)) {
+        return false;
+    }
+
+    const message = error.response?.data?.message;
+    return typeof message === "string" && message.toLowerCase().includes("captcha");
+};
+
 // Thêm interceptor cho request để tự động gắn token
 axiosInstance.interceptors.request.use(
     async (config) => {
@@ -33,11 +52,12 @@ axiosInstance.interceptors.response.use(
         return response;
     },
     async (error) => {
-        // Automatically sign out user on 401 Unauthorized (invalid/expired token)
-        if (typeof window !== "undefined" && error.response?.status === 401 && !error.config.url?.includes("/api/auth/")) {
+        const shouldSignOut = typeof window !== "undefined" && error.response?.status === 401 && !isPublicEndpoint(error.config?.url) && !isCaptchaError(error);
+
+        if (shouldSignOut) {
             const session = await getSession();
             if (session) {
-                console.warn("Session expired or invalid, logging out...");
+                console.warn("Phiên đăng nhập hết hạn hoặc không hợp lệ, đang đăng xuất...");
                 await signOut({ callbackUrl: "/login" });
             }
         }

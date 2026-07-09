@@ -29,6 +29,7 @@ public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, 
     
     List<BorrowOrderEntity> findByStatusAndDueDateBefore(BorrowOrderStatus status, LocalDate date);
     
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"customer", "customer.user", "orderDetails", "orderDetails.bookCopy", "orderDetails.bookCopy.book", "orderDetails.bookCopy.book.authors"})
     java.util.Optional<BorrowOrderEntity> findByOrderCode(String orderCode);
 
     @Query("SELECT b FROM BorrowOrderEntity b WHERE b.customer.user.id = :userId ORDER BY b.createdAt DESC")
@@ -40,8 +41,10 @@ public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, 
 
     java.util.Optional<BorrowOrderEntity> findByOrderCodeAndCustomerId(String orderCode, Integer customerId);
 
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"customer", "customer.user", "orderDetails", "orderDetails.bookCopy", "orderDetails.bookCopy.book", "orderDetails.bookCopy.book.authors"})
     java.util.Optional<BorrowOrderEntity> findByOrderCodeAndCustomerPhone(String orderCode, String phone);
     
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"customer", "customer.user", "orderDetails", "orderDetails.bookCopy", "orderDetails.bookCopy.book", "orderDetails.bookCopy.book.authors"})
     java.util.List<BorrowOrderEntity> findByCustomerEmailOrderByCreatedAtDesc(String email);
 
     List<BorrowOrderEntity> findTop5ByOrderByCreatedAtDesc();

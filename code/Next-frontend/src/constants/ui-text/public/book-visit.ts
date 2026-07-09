@@ -10,6 +10,13 @@ export const BOOK_VISIT = {
         TITLE: "Đặt lịch đọc sách",
         DESCRIPTION: "Chọn thời gian đến Lumina Library để đọc sách trong không gian yên tĩnh, có sẵn khu vực học tập và hỗ trợ tại quầy.",
     },
+    UNAVAILABLE: {
+        TITLE: "Sách hiện đã hết",
+        DESCRIPTION: "Không thể đặt lịch đọc tại thư viện khi không còn bản sách sẵn sàng. Bạn có thể đặt giữ sách để được xếp hàng theo thứ tự đăng ký.",
+        RESERVE_ACTION: "Đặt giữ sách",
+        RESERVING_ACTION: "Đang đặt giữ sách...",
+        BACK_TO_DETAIL: "Quay lại chi tiết sách",
+    },
     FORM: {
         GUEST_SECTION: "Thông tin người đọc",
         LOGISTICS_SECTION: "Lịch đến thư viện",

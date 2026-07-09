@@ -5,11 +5,15 @@ export const ADMIN_SETTINGS = {
     BORROWING: {
         TITLE: "Chính sách mượn sách",
         MAX_DAYS: "Số ngày mượn tối đa",
+        RENTAL_FEE_PER_DAY: "Phí mượn mỗi ngày (VND)",
         FINE_PER_DAY: "Phạt mỗi ngày (VND)",
         MAX_BOOKS: "Số sách mượn đồng thời",
         DEPOSIT_PERCENTAGE: "Tỷ lệ đặt cọc",
         MAX_RENEWALS: "Số lần gia hạn tối đa",
         RENEWALS_HELP: "Số lần độc giả có thể gia hạn một lượt mượn trước khi trả sách.",
+        UNIT_DAYS: "ngày",
+        UNIT_BOOKS: "sách",
+        UNIT_TIMES: "lần",
     },
     PAYMENTS: {
         TITLE: "Cổng thanh toán",

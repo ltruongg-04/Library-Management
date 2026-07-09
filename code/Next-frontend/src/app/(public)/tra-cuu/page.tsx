@@ -10,6 +10,24 @@ import { useAuth } from "@/providers/auth";
 import { getGuestBorrowOrders, requestGuestLookupOtp } from "@/services/borrow";
 import type { BorrowOrderDetailResponseDto } from "@/types/borrow";
 
+const BORROW_STATUS_LABELS: Record<string, string> = {
+    BORROWED: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_BORROWING,
+    OVERDUE: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_OVERDUE,
+    RETURNED: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_RETURNED,
+    PENDING: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_PENDING,
+    READY: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_READY,
+    CANCELLED: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_CANCELLED,
+    PENDING_RENEWAL: UI_TEXT.MY_BOOKS_PAGE.CARD.STATUS_PENDING_RENEWAL,
+};
+
+const getBorrowStatusLabel = (status: string | undefined) => {
+    if (!status) {
+        return "—";
+    }
+
+    return BORROW_STATUS_LABELS[status.toUpperCase()] ?? status;
+};
+
 export default function GuestLookupPage() {
     const { isAuthenticated } = useAuth();
     const [lookupMethod, setLookupMethod] = useState<"ORDER_CODE" | "EMAIL">("ORDER_CODE");
@@ -69,7 +87,11 @@ export default function GuestLookupPage() {
             }
         } catch (err: any) {
             console.error("Lỗi tra cứu đơn mượn:", err);
-            setError(err.response?.data?.message || API_ERRORS.SEARCH_FAILED);
+            const serverMessage = err.response?.data?.message;
+            const isRequestingOtp = isEmail && !isOtpSent;
+            const fallbackMessage = isRequestingOtp ? UI_TEXT.BORROW.TRA_CUU.OTP_REQUEST_FAILED : API_ERRORS.SEARCH_FAILED;
+            const message = serverMessage === UI_TEXT.BORROW.TRA_CUU.SYSTEM_ERROR && isRequestingOtp ? fallbackMessage : serverMessage || fallbackMessage;
+            setError(message);
             if (!isOtpSent) setOrderList([]);
         } finally {
             setIsLoading(false);
@@ -229,7 +251,7 @@ export default function GuestLookupPage() {
                                     <span className="text-primary-700 dark:text-primary-300">{order.id}</span>
                                 </h3>
                                 <span className="font-label-md text-primary-800 rounded-full bg-primary-100 px-3 py-1 dark:bg-primary-900/30 dark:text-primary-300">
-                                    {order.status}
+                                    {getBorrowStatusLabel(order.status)}
                                 </span>
                             </div>
                             <div className="space-y-4 text-sm">

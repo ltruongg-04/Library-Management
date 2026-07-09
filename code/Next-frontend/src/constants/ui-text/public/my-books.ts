@@ -26,7 +26,7 @@ export const MY_BOOKS_PAGE = {
         LATE_FEE_LABEL: "Tiền phạt phát sinh",
         DEPOSIT_RETURN: "Hoàn trả cọc",
         VIEW_DETAIL: "Xem chi tiết",
-        CANCEL_RESERVATION: "Huỷ đặt giữ chỗ",
+        CANCEL_RESERVATION: "Hủy đặt giữ sách",
         VIEW_RECEIPT: "Xem biên lai",
         STATUS_BORROWING: "Đang mượn",
         STATUS_RETURNED: "Đã trả",
