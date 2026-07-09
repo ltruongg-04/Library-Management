@@ -285,14 +285,27 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
                 .paymentStatus(payment.getPaymentStatus());
 
         if (paymentMethod == PaymentMethod.VNPAY) {
-            String ipAddress = VnPayUtil.getIpAddress(httpRequest);
-            String paymentUrl = vnPayService.createPaymentUrl(
-                    payment.getTransactionCode(),
-                    "Thanh toan dat coc don hang " + borrowOrder.getOrderCode(),
-                    depositPrice,
-                    ipAddress);
-            responseBuilder.paymentUrl(paymentUrl);
-            log.info("VNPay payment URL generated for orderCode={}", orderCode);
+            if (depositPrice.compareTo(BigDecimal.ZERO) > 0) {
+                String ipAddress = VnPayUtil.getIpAddress(httpRequest);
+                String paymentUrl = vnPayService.createPaymentUrl(
+                        payment.getTransactionCode(),
+                        "Thanh toan dat coc don hang " + borrowOrder.getOrderCode(),
+                        depositPrice,
+                        ipAddress);
+                responseBuilder.paymentUrl(paymentUrl);
+                log.info("VNPay payment URL generated for orderCode={}", orderCode);
+            } else {
+                payment.setPaymentStatus(PaymentStatus.SUCCESS);
+                paymentRepository.save(payment);
+                responseBuilder.paymentStatus(PaymentStatus.SUCCESS);
+                
+                // Auto-approve the order since payment is technically "completed"
+                try {
+                    adminBorrowService.approveBorrow(orderCode);
+                } catch (Exception e) {
+                    log.error("Failed to auto-approve borrow order for 0 VND deposit", e);
+                }
+            }
         }
 
         return responseBuilder.build();

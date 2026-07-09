@@ -13,11 +13,11 @@ export const BORROW = {
         GUEST_INFO_TITLE: "Thông tin người mượn (Khách)",
         GUEST_NAME_LABEL: "Họ và tên *",
         GUEST_PHONE_LABEL: "Số điện thoại *",
-        GUEST_EMAIL_LABEL: "Email (Tùy chọn)",
+        GUEST_EMAIL_LABEL: "Email *",
         ERRORS: {
-            MISSING_DATES: "Vui lòng chọn đầy đủ ngày đến lấy và ngày hoàn trả.",
-            MISSING_GUEST_INFO: "Vui lòng nhập đầy đủ Họ tên và Số điện thoại.",
-            SUBMIT_FAILED: "Đã xảy ra lỗi khi đặt mượn sách",
+            MISSING_DATES: "Vui lòng chọn ngày lấy và trả sách.",
+            MISSING_GUEST_INFO: "Vui lòng nhập đầy đủ Họ tên, Số điện thoại và Email.",
+            SUBMIT_FAILED: "Không thể tạo đơn mượn sách. Vui lòng thử lại.",
         },
     },
     POLICY: {
@@ -113,7 +113,7 @@ export const BORROW = {
     VNPAY_RESULT: {
         SUCCESS: {
             TITLE: "Thanh toán thành công!",
-            DESCRIPTION: "Tiền đặt cọc đã được thanh toán qua VNPay. Yêu cầu mượn sách của bạn đang chờ phê duyệt.",
+            DESCRIPTION: "Thanh toán VNPay thành công. Yêu cầu mượn sách của bạn đã được duyệt tự động, vui lòng đến thư viện nhận sách.",
             ORDER_CODE: "Mã đơn mượn",
             VIEW_LOANS: "Xem lịch sử mượn",
             CONTINUE_BROWSING: "Tiếp tục tìm sách",
