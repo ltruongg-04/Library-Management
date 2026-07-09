@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ import java.util.Map;
 @RequestMapping("/api/vnpay")
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class VnPayController {
 
     private static final String RESPONSE_CODE_SUCCESS = "00";

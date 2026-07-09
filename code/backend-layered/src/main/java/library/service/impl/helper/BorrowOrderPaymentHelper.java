@@ -27,7 +27,7 @@ public class BorrowOrderPaymentHelper {
         PaymentEntity payment = PaymentEntity.builder()
                 .borrowOrder(borrowOrder)
                 .paymentMethod(paymentMethod)
-                .transactionCode(UUID.randomUUID().toString())
+                .transactionCode(borrowOrder.getOrderCode())
                 .amount(depositPrice)
                 .paymentType(PaymentType.DEPOSIT)
                 .paymentStatus(PaymentStatus.PENDING)

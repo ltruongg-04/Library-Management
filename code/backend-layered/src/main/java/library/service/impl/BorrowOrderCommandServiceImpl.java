@@ -117,31 +117,15 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         // Create extension
         createBorrowExtension(order, baseDate.plusDays(request.getDurationInDays()));
 
-        BigDecimal overdueFee = overdueDaysForPenalty > 0 ? feeCalculatorService.calculateOverdueFee(order.getDueDate(), LocalDate.now()) : BigDecimal.ZERO;
-        
-        BigDecimal totalPaidOnline = paymentRepository.findByBorrowOrderIdAndPaymentStatus(order.getId(), PaymentStatus.SUCCESS)
-                .stream()
-                .filter(p -> p.getPaymentType() == PaymentType.RENTAL_FEE || p.getPaymentType() == PaymentType.FINE)
-                .map(PaymentEntity::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal currentDebt = (order.getTotalFee() != null ? order.getTotalFee() : BigDecimal.ZERO).add(overdueFee);
-        BigDecimal amountToPayOnline = currentDebt.subtract(totalPaidOnline).max(BigDecimal.ZERO);
-
-        String paymentUrl = null;
-
-        if (amountToPayOnline.compareTo(BigDecimal.ZERO) > 0) {
-            paymentUrl = paymentHelper.handleRenewalPayment(order, amountToPayOnline, overdueFee, httpRequest);
-        } else {
-            adminBorrowService.processRenewal(order.getOrderCode(), new library.dto.admin.AdminRenewalRequestDto(true));
-        }
+        // Tự động duyệt gia hạn luôn (không qua bước thanh toán)
+        adminBorrowService.processRenewal(order.getOrderCode(), new library.dto.admin.AdminRenewalRequestDto(true));
 
         systemLogService.logAction("Yêu cầu gia hạn", "Người dùng yêu cầu gia hạn đơn mượn: " + order.getOrderCode() + " thêm " + request.getDurationInDays() + " ngày.");
         cacheInvalidationService.evictDashboardCaches();
 
         return BorrowResponseDto.builder()
                 .orderCode(order.getOrderCode())
-                .paymentUrl(paymentUrl)
+                .paymentUrl(null)
                 .build();
     }
 
