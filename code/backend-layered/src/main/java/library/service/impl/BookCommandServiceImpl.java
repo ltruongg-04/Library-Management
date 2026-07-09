@@ -28,6 +28,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     private final library.repository.TagRepository tagRepository;
     private final SystemLogService systemLogService;
     private final BookCopyService bookCopyService;
+    private final library.repository.BookCopyRepository bookCopyRepository;
     private final CacheInvalidationService cacheInvalidationService;
     private final library.mapper.BookMapper bookMapper;
 
@@ -126,8 +127,20 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
                         "Không tìm thấy sách với ID: " + id,
                         HttpStatus.NOT_FOUND));
 
-        bookRepository.delete(book);
-        systemLogService.logAction("Xóa sách", "Admin đã xóa sách: " + book.getTitle());
+        boolean hasActiveCopies = bookCopyRepository.existsByBookIdAndStatusIn(id, 
+                java.util.Arrays.asList(library.entity.BookCopyStatus.BORROWED, library.entity.BookCopyStatus.RESERVED));
+
+        if (hasActiveCopies) {
+            throw new CustomBusinessException(
+                    "Không thể xóa sách vì đang có bản sao được mượn hoặc đặt trước.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        bookCopyRepository.updateStatusByBookId(id, library.entity.BookCopyStatus.MAINTENANCE, "Sách đã bị ngừng lưu hành (xóa mềm)");
+        
+        bookRepository.softDeleteById(id);
+        
+        systemLogService.logAction("Xóa sách", "Admin đã xóa sách (xóa mềm): " + book.getTitle());
         cacheInvalidationService.evictBookCaches();
         cacheInvalidationService.evictCatalogCaches();
     }

@@ -55,6 +55,9 @@ class BookCommandServiceImplTest {
     @Mock
     private CacheInvalidationService cacheInvalidationService;
 
+    @Mock
+    private library.repository.BookCopyRepository bookCopyRepository;
+
     private BookCommandServiceImpl service;
 
     @BeforeEach
@@ -66,6 +69,7 @@ class BookCommandServiceImplTest {
                 tagRepository,
                 systemLogService,
                 bookCopyService,
+                bookCopyRepository,
                 cacheInvalidationService,
                 new BookMapper());
     }
@@ -120,5 +124,39 @@ class BookCommandServiceImplTest {
                 .hasMessageContaining("99");
 
         verify(bookRepository, never()).save(any(BookEntity.class));
+    }
+
+    @Test
+    void deleteBookThrowsExceptionWhenActiveCopiesExist() {
+        BookEntity book = BookEntity.builder().title("To Kill a Mockingbird").build();
+        book.setId(1);
+
+        when(bookRepository.findById(1)).thenReturn(Optional.of(book));
+        when(bookCopyRepository.existsByBookIdAndStatusIn(1, java.util.Arrays.asList(library.entity.BookCopyStatus.BORROWED, library.entity.BookCopyStatus.RESERVED)))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> service.deleteBook(1))
+                .isInstanceOf(CustomBusinessException.class)
+                .hasMessageContaining("đang có bản sao được mượn hoặc đặt trước");
+
+        verify(bookCopyRepository, never()).updateStatusByBookId(any(), any(), any());
+        verify(bookRepository, never()).softDeleteById(any());
+    }
+
+    @Test
+    void deleteBookSuccessUpdatesCopiesAndSoftDeletes() {
+        BookEntity book = BookEntity.builder().title("To Kill a Mockingbird").build();
+        book.setId(1);
+
+        when(bookRepository.findById(1)).thenReturn(Optional.of(book));
+        when(bookCopyRepository.existsByBookIdAndStatusIn(1, java.util.Arrays.asList(library.entity.BookCopyStatus.BORROWED, library.entity.BookCopyStatus.RESERVED)))
+                .thenReturn(false);
+
+        service.deleteBook(1);
+
+        verify(bookCopyRepository).updateStatusByBookId(1, library.entity.BookCopyStatus.MAINTENANCE, "Sách đã bị ngừng lưu hành (xóa mềm)");
+        verify(bookRepository).softDeleteById(1);
+        verify(systemLogService).logAction("Xóa sách", "Admin đã xóa sách (xóa mềm): To Kill a Mockingbird");
+        verify(cacheInvalidationService).evictBookCaches();
     }
 }

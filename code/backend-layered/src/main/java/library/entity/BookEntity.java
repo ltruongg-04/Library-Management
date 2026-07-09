@@ -53,6 +53,10 @@ public class BookEntity extends BaseEntity {
     @Builder.Default
     private int availableQuantity = 0;
 
+    @org.hibernate.annotations.Formula("CASE WHEN (SELECT COUNT(*) FROM book_copies bc WHERE bc.book_id = id AND bc.status = 'AVAILABLE') > 0 THEN 1 ELSE 0 END")
+    @Builder.Default
+    private int isAvailableFlag = 0;
+
     @org.hibernate.annotations.Formula("(SELECT COUNT(bod.id) FROM borrow_order_details bod JOIN book_copies bc ON bod.book_copy_id = bc.id WHERE bc.book_id = id)")
     @Builder.Default
     private int borrowCount = 0;

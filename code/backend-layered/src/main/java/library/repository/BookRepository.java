@@ -14,6 +14,10 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<BookEntity, Integer> {
     boolean existsByIsbn(String isbn);
 
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE BookEntity b SET b.isDeleted = true WHERE b.id = :id")
+    void softDeleteById(@Param("id") Integer id);
+
     @Query("SELECT COUNT(b) > 0 FROM BookEntity b WHERE LOWER(TRIM(b.title)) = LOWER(TRIM(:title))")
     boolean existsByNormalizedTitle(@Param("title") String title);
 
