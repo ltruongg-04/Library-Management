@@ -23,6 +23,8 @@ RUN set -eux; \
 FROM eclipse-temurin:24-jre-noble
 WORKDIR /app
 COPY --from=build /tmp/app.jar app.jar
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 ENV PORT=8080
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
