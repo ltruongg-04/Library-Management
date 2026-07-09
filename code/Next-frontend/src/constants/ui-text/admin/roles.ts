@@ -21,6 +21,8 @@ export const ROLES = {
     LOAD_ERROR: "Không thể tải danh sách phân quyền.",
     SAVE_SUCCESS: "Đã lưu thay đổi phân quyền.",
     SAVE_ERROR: "Không thể lưu thay đổi phân quyền.",
+    ENABLE_PERMISSION: "Bật quyền",
+    DISABLE_PERMISSION: "Tắt quyền",
 
     SECURITY_POLICY_TITLE: "Chính sách bảo mật",
 
@@ -53,6 +55,12 @@ export const ROLES = {
         BOOKS: "Sách & Danh mục",
 
         BORROWING: "Mượn trả",
+
+        REVIEWS: "Kiểm duyệt đánh giá",
+
+        SETTINGS: "Cài đặt hệ thống",
+
+        ROLES: "Vai trò & Phân quyền",
     },
 
     PERMISSION: {
@@ -84,6 +92,24 @@ export const ROLES = {
             TITLE: "Miễn phí phạt",
 
             DESCRIPTION: "Cho phép xóa hoặc miễn các khoản phí phạt trễ hạn cho độc giả.",
+        },
+
+        MODERATE_REVIEWS: {
+            TITLE: "Kiểm duyệt đánh giá",
+
+            DESCRIPTION: "Cho phép ẩn, khôi phục hoặc xóa đánh giá của người dùng.",
+        },
+
+        MANAGE_SETTINGS: {
+            TITLE: "Quản lý cài đặt",
+
+            DESCRIPTION: "Cho phép cập nhật chính sách mượn sách và cấu hình hệ thống.",
+        },
+
+        MANAGE_ROLES: {
+            TITLE: "Quản lý vai trò",
+
+            DESCRIPTION: "Cho phép cập nhật quyền hạn cho các vai trò trong hệ thống.",
         },
     },
 

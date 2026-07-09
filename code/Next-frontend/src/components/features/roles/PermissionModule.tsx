@@ -10,11 +10,11 @@ interface PermissionModuleProps {
 
 export default function PermissionModule({ module, onTogglePermission }: PermissionModuleProps) {
     return (
-        <div className="overflow-hidden rounded-xl border border-outline-variant/20 bg-white shadow-sm">
-            <div className="flex items-center gap-2 border-b border-outline-variant/20 bg-surface-container-low px-4 py-3">
-                <span className="material-symbols-outlined text-[20px] text-secondary">{module.icon}</span>
+        <div className="overflow-hidden rounded-xl border border-outline-variant/20 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <div className="flex items-center gap-2 border-b border-outline-variant/20 bg-surface-container-low px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+                <span className="material-symbols-outlined text-[20px] text-secondary dark:text-secondary-50">{module.icon}</span>
 
-                <h3 className="font-semibold text-on-surface">{module.name}</h3>
+                <h3 className="font-semibold text-on-surface dark:text-white">{module.name}</h3>
             </div>
 
             <div>
