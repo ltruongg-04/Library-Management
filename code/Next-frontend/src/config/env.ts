@@ -1,4 +1,4 @@
-export const DEFAULT_BACKEND_URL = "https://lms-backend-345298684510.us-central1.run.app";
+export const DEFAULT_BACKEND_URL = "https://lms-backend-345298684510.europe-west1.run.app";
 export const DEFAULT_FRONTEND_URL = "https://library-management-lovat-theta.vercel.app";
 
 const LOCAL_HOSTS = ["localhost", "127.0.0.1"];

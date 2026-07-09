@@ -64,14 +64,14 @@ services:
       - MINIO_ACCESS_KEY=replace-with-local-minio-credential
       - MINIO_SECRET_KEY=replace-with-local-minio-credential
       - MINIO_BUCKET_NAME=library-bucket
-      - BACKEND_URL=${BACKEND_URL:-https://lms-backend-345298684510.us-central1.run.app}
+      - BACKEND_URL=${BACKEND_URL:-https://lms-backend-345298684510.europe-west1.run.app}
       - FRONTEND_URL=${FRONTEND_URL:-https://library-management-lovat-theta.vercel.app}
       - CORS_ALLOWED_ORIGIN_PATTERNS=${CORS_ALLOWED_ORIGIN_PATTERNS:-https://library-management-lovat-theta.vercel.app,https://*.vercel.app}
       - VNPAY_TMN_CODE=replace-with-vnpay-tmn-code
       - VNPAY_HASH_SECRET=replace-with-vnpay-hash-secret
       - VNPAY_PAY_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-      - VNPAY_RETURN_URL=${VNPAY_RETURN_URL:-https://lms-backend-345298684510.us-central1.run.app/api/vnpay/return}
-      - VNPAY_IPN_URL=${VNPAY_IPN_URL:-https://lms-backend-345298684510.us-central1.run.app/api/vnpay/ipn}
+      - VNPAY_RETURN_URL=${VNPAY_RETURN_URL:-https://lms-backend-345298684510.europe-west1.run.app/api/vnpay/return}
+      - VNPAY_IPN_URL=${VNPAY_IPN_URL:-https://lms-backend-345298684510.europe-west1.run.app/api/vnpay/ipn}
       - RESEND_API_KEY=replace-with-resend-api-key
       - RESEND_FROM_EMAIL=Thư viện Lumina <onboarding@resend.dev>
       - RECAPTCHA_SECRET_KEY=replace-with-recaptcha-secret-key
@@ -86,7 +86,7 @@ services:
       - backend
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}
-      - BACKEND_URL=${BACKEND_URL:-https://lms-backend-345298684510.us-central1.run.app}
+      - BACKEND_URL=${BACKEND_URL:-https://lms-backend-345298684510.europe-west1.run.app}
       - BACKEND_INTERNAL_URL=${BACKEND_INTERNAL_URL:-http://backend:8081}
 
 volumes:
