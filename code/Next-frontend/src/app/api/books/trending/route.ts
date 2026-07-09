@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerBackendUrl } from "@/config/env";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 
 const BACKEND_URL = getServerBackendUrl();
 const DEFAULT_TRENDING_LIMIT = 8;
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
     const limit = Number(searchParams.get("limit")) || DEFAULT_TRENDING_LIMIT;
     const backendCandidates = Array.from(new Set([BACKEND_URL, FALLBACK_BACKEND_URL].filter(Boolean)));
 
-    let lastMessage = "Backend is unreachable";
+    let lastMessage = API_ERRORS.BACKEND_UNREACHABLE;
 
     for (const backendUrl of backendCandidates) {
         try {
@@ -36,7 +37,7 @@ export async function GET(request: Request) {
                 });
             }
 
-            lastMessage = trending.data?.message || "Failed to fetch trending books";
+            lastMessage = trending.data?.message || API_ERRORS.BOOK_TRENDING_FAILED;
         } catch (error) {
             console.error(`Error proxying to backend /api/books/trending via ${backendUrl}:`, error);
         }

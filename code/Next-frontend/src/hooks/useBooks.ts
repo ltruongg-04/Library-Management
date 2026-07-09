@@ -232,7 +232,7 @@ export function useRelatedBooks(bookId: number | null, categoryId?: string, limi
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!categoryId) {
+        if (bookId === null) {
             setLoading(false);
             return;
         }
@@ -243,18 +243,31 @@ export function useRelatedBooks(bookId: number | null, categoryId?: string, limi
             setLoading(true);
             setError(null);
             try {
-                // Fetch limit + 1 in case the current book is in the list
-                const data = await bookService.getBooks({ category: categoryId, size: limit + 1 });
+                let related: Book[] = [];
+
+                if (categoryId) {
+                    try {
+                        const data = await bookService.getBooks({ category: categoryId, size: limit + 1 });
+                        related = data.content.filter((b) => b.id !== bookId).slice(0, limit);
+                    } catch {
+                        related = [];
+                    }
+                }
+
+                if (related.length === 0) {
+                    const fallback = await bookService.getBooks({ size: limit + 1, sortBy: "mostRead" });
+                    related = fallback.content.filter((b) => b.id !== bookId).slice(0, limit);
+                }
+
                 if (!cancelled) {
-                    const filtered = data.content.filter((b) => b.id !== bookId).slice(0, limit);
-                    setBooks(filtered);
-                    setLoading(false);
+                    setBooks(related);
                 }
             } catch (err: any) {
                 if (!cancelled) {
                     setError(err.message || API_ERRORS.BOOK_RELATED_FAILED);
-                    setLoading(false);
                 }
+            } finally {
+                if (!cancelled) setLoading(false);
             }
         }
 

@@ -83,7 +83,8 @@ export default function BorrowSuccess({ book, requestId = "#BRW-9042" }: BorrowS
                         <div>
                             <p className="mb-1 line-clamp-1 font-title-md text-title-md text-on-surface dark:text-white">{book.title}</p>
                             <p className="line-clamp-1 font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
-                                {book.authors?.map((a) => a.name).join(", ") || "Unknown Author"} • {book.categories?.[0]?.name || UI_TEXT.COMMON.BOOK}
+                                {book.authors?.map((a) => a.name).join(", ") || UI_TEXT.COMMON.UNKNOWN_AUTHOR} •{" "}
+                                {book.categories?.[0]?.name || UI_TEXT.COMMON.BOOK}
                             </p>
                         </div>
                     </div>

@@ -88,7 +88,7 @@ export function WishlistButton({ book }: { book: Book }) {
         e.stopPropagation();
 
         if (!isAuthenticated) {
-            router.push("/dang-nhap");
+            router.push("/login");
             return;
         }
 
@@ -127,7 +127,7 @@ export function WishlistButton({ book }: { book: Book }) {
             aria-label={wishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
         >
             <MaterialIcon name={wishlisted ? "bookmark_added" : "bookmark_add"} className="text-[20px]" />
-            <span>{wishlisted ? "Remove from Wishlist" : "Add to Wishlist"}</span>
+            <span>{wishlisted ? UI_TEXT.BOOK_DETAIL.REMOVE_WISHLIST : UI_TEXT.BOOK_DETAIL.ADD_WISHLIST}</span>
         </button>
     );
 }
@@ -151,7 +151,7 @@ export function GuestCtaBanner() {
                 <p className="mt-0.5 font-sans text-[13px] text-on-surface-variant dark:text-white/60">{UI_TEXT.HOME.CURATED_SECTION.LOGIN_CTA_SUBTITLE}</p>
             </div>
             <button
-                onClick={() => router.push("/dang-nhap")}
+                onClick={() => router.push("/login")}
                 className="ai-gradient-bg flex-shrink-0 rounded-xl px-5 py-2.5 text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
             >
                 {UI_TEXT.HOME.CURATED_SECTION.LOGIN_BTN}

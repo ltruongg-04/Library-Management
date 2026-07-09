@@ -134,14 +134,6 @@ export default function BookCover({ book, onOpenReview }: BookCoverProps) {
         onOpenReview();
     };
 
-    const handleProtectedAction = (action: () => void) => {
-        if (!isAuthenticated) {
-            setShowLoginPrompt(true);
-        } else {
-            action();
-        }
-    };
-
     return (
         <div className="flex flex-col gap-2">
             {/* Cover Image */}
@@ -149,7 +141,7 @@ export default function BookCover({ book, onOpenReview }: BookCoverProps) {
                 {hasCoverImage ? (
                     <Image
                         src={book.coverImage}
-                        alt={`Book Cover: ${book.title}`}
+                        alt={`${UI_TEXT.BOOK_DETAIL.IMAGE_ALT} ${book.title}`}
                         width={400}
                         height={600}
                         className="aspect-[2/3] h-auto w-full rounded-t-sm object-cover"
@@ -178,7 +170,7 @@ export default function BookCover({ book, onOpenReview }: BookCoverProps) {
             <div className="mt-2 flex flex-col gap-2">
                 {isAvailable ? (
                     <button
-                        onClick={() => handleProtectedAction(() => router.push(`/sach/${book.id}/muon`))}
+                        onClick={() => router.push(`/sach/${book.id}/muon`)}
                         className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-label-caps text-label-caps text-on-primary shadow-sm transition-colors duration-200 hover:bg-on-primary-fixed-variant active:scale-95 dark:bg-primary-500"
                     >
                         <MaterialIcon name="book" />
@@ -213,7 +205,7 @@ export default function BookCover({ book, onOpenReview }: BookCoverProps) {
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleProtectedAction(() => router.push(`/sach/${book.id}/doc-tai-thu-vien`))}
+                    onClick={() => router.push(`/sach/${book.id}/doc-tai-thu-vien`)}
                     className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-secondary bg-transparent px-4 py-2 font-label-caps text-label-caps text-secondary transition-colors duration-200 hover:bg-secondary/10 active:scale-95 dark:border-white dark:text-white dark:hover:bg-white/10"
                 >
                     <MaterialIcon name="local_library" />

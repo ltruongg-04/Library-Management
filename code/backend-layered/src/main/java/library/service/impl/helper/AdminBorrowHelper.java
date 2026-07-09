@@ -30,7 +30,7 @@ public class AdminBorrowHelper {
         return customerRepository.findByLibraryCardNoOrPhone(phone)
                 .orElseGet(() -> {
                     if (phone == null || phone.trim().isEmpty()) {
-                        throw new CustomBusinessException("Phone number is required", HttpStatus.BAD_REQUEST);
+                        throw new CustomBusinessException("Số điện thoại là bắt buộc", HttpStatus.BAD_REQUEST);
                     }
                     CustomerEntity newCustomer = CustomerEntity.builder()
                             .phone(phone)
@@ -44,7 +44,7 @@ public class AdminBorrowHelper {
 
     public List<BookCopyEntity> validateAndGetBookCopies(List<String> barcodes, BigDecimal[] totalDepositOut) {
         if (barcodes == null || barcodes.isEmpty()) {
-            throw new CustomBusinessException("At least one book barcode is required", HttpStatus.BAD_REQUEST);
+            throw new CustomBusinessException("Vui lòng nhập ít nhất một mã vạch sách", HttpStatus.BAD_REQUEST);
         }
 
         BigDecimal totalDeposit = BigDecimal.ZERO;
@@ -53,11 +53,11 @@ public class AdminBorrowHelper {
         for (String barcode : barcodes) {
             BookCopyEntity copy = bookCopyRepository.findByBarcode(barcode)
                     .orElseThrow(() -> new CustomBusinessException(
-                            "Book copy not found: " + barcode, HttpStatus.NOT_FOUND));
+                            "Không tìm thấy bản sao sách: " + barcode, HttpStatus.NOT_FOUND));
 
             if (copy.getStatus() != BookCopyStatus.AVAILABLE) {
                 throw new CustomBusinessException(
-                        "Book copy is not available: " + barcode + " (Status: " + copy.getStatus() + ")",
+                        "Bản sao sách không sẵn sàng để mượn: " + barcode + " (Trạng thái: " + copy.getStatus() + ")",
                         HttpStatus.BAD_REQUEST);
             }
 
@@ -71,8 +71,8 @@ public class AdminBorrowHelper {
     }
 
     public String[] processBookCopiesForOrder(List<BookCopyEntity> copiesToBorrow, BorrowOrderEntity savedOrder, BigDecimal rentalFeePerBook) {
-        String firstBookTitle = "N/A";
-        String firstBookAuthor = "N/A";
+        String firstBookTitle = "Chưa cập nhật";
+        String firstBookAuthor = "Chưa cập nhật";
 
         for (BookCopyEntity copy : copiesToBorrow) {
             copy.setStatus(BookCopyStatus.BORROWED);
@@ -91,7 +91,7 @@ public class AdminBorrowHelper {
                     .build();
             borrowOrderDetailRepository.save(detail);
 
-            if (firstBookTitle.equals("N/A") && copy.getBook() != null) {
+            if (firstBookTitle.equals("Chưa cập nhật") && copy.getBook() != null) {
                 firstBookTitle = copy.getBook().getTitle();
                 if (copy.getBook().getAuthors() != null && !copy.getBook().getAuthors().isEmpty()) {
                     firstBookAuthor = copy.getBook().getAuthors().iterator().next().getName();
