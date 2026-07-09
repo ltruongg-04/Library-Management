@@ -67,6 +67,16 @@ public class BookEntity extends BaseEntity {
     @Builder.Default
     private Set<CategoryEntity> categories = new HashSet<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "book_tags",
+        joinColumns = @JoinColumn(name = "book_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @org.hibernate.annotations.BatchSize(size = 50)
+    @Builder.Default
+    private Set<TagEntity> tags = new HashSet<>();
+
     // Dummy field to satisfy abandoned NOT NULL DB column 'author'
     @Column(name = "author")
     @Builder.Default

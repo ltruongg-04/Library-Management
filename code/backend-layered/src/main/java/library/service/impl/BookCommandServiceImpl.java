@@ -25,6 +25,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     private final BookRepository bookRepository;
     private final library.repository.CategoryRepository categoryRepository;
     private final library.repository.AuthorRepository authorRepository;
+    private final library.repository.TagRepository tagRepository;
     private final SystemLogService systemLogService;
     private final BookCopyService bookCopyService;
     private final CacheInvalidationService cacheInvalidationService;
@@ -36,16 +37,17 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     @Transactional
     public BookResponse createBook(library.dto.request.BookCreateRequest request) {
         validateUniqueTitle(request.getTitle(), null);
+        String normalizedIsbn = normalizeOptionalText(request.getIsbn());
 
-        if (request.getIsbn() != null && !request.getIsbn().trim().isEmpty()) {
-            if (bookRepository.existsByIsbn(request.getIsbn().trim())) {
+        if (normalizedIsbn != null) {
+            if (bookRepository.existsByIsbn(normalizedIsbn)) {
                 throw new CustomBusinessException("Sách với mã ISBN này đã tồn tại trong thư viện", HttpStatus.BAD_REQUEST);
             }
         }
 
         BookEntity book = BookEntity.builder()
                 .title(request.getTitle())
-                .isbn(request.getIsbn() != null && request.getIsbn().trim().isEmpty() ? null : request.getIsbn())
+                .isbn(normalizedIsbn)
                 .publisher(request.getPublisher())
                 .publicationDate(request.getPublicationDate())
                 .pages(request.getPages())
@@ -61,6 +63,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
 
         book.setAuthors(processAuthors(request.getAuthorIds(), request.getNewAuthors()));
         book.setCategories(processCategories(request.getCategoryIds(), request.getNewCategories()));
+        book.setTags(processTags(request.getTagIds(), request.getNewTags()));
 
         BookEntity savedBook = bookRepository.save(book);
         
@@ -92,10 +95,19 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
             book.setAuthors(processAuthors(request.getAuthorIds(), request.getNewAuthors()));
         }
         if (request.getIsbn() != null) {
-            book.setIsbn(request.getIsbn().trim().isEmpty() ? null : request.getIsbn());
+            String normalizedIsbn = normalizeOptionalText(request.getIsbn());
+            if (normalizedIsbn != null
+                    && !normalizedIsbn.equals(book.getIsbn())
+                    && bookRepository.existsByIsbn(normalizedIsbn)) {
+                throw new CustomBusinessException("Sách với mã ISBN này đã tồn tại trong thư viện", HttpStatus.BAD_REQUEST);
+            }
+            book.setIsbn(normalizedIsbn);
         }
         if (request.getCategoryIds() != null || request.getNewCategories() != null) {
             book.setCategories(processCategories(request.getCategoryIds(), request.getNewCategories()));
+        }
+        if (request.getTagIds() != null || request.getNewTags() != null) {
+            book.setTags(processTags(request.getTagIds(), request.getNewTags()));
         }
         if (request.getShelfLocation() != null) book.setShelfLocation(request.getShelfLocation());
         if (request.getImageUrl() != null) book.setImageUrl(request.getImageUrl());
@@ -172,5 +184,68 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
             }
         }
         return categories;
+    }
+
+    private java.util.Set<library.entity.TagEntity> processTags(java.util.List<Integer> tagIds, java.util.List<String> newTags) {
+        java.util.Set<library.entity.TagEntity> tags = new java.util.HashSet<>();
+        if (tagIds != null && !tagIds.isEmpty()) {
+            java.util.List<Integer> distinctTagIds = tagIds.stream()
+                    .filter(java.util.Objects::nonNull)
+                    .distinct()
+                    .toList();
+
+            java.util.List<library.entity.TagEntity> existingTags = tagRepository.findAllById(distinctTagIds);
+            if (existingTags.size() != distinctTagIds.size()) {
+                java.util.Set<Integer> foundIds = existingTags.stream()
+                        .map(library.entity.TagEntity::getId)
+                        .collect(java.util.stream.Collectors.toSet());
+                java.util.List<Integer> missingIds = distinctTagIds.stream()
+                        .filter(tagId -> !foundIds.contains(tagId))
+                        .toList();
+                throw new CustomBusinessException("Không tìm thấy thẻ với ID: " + missingIds, HttpStatus.BAD_REQUEST);
+            }
+
+            tags.addAll(existingTags);
+        }
+        if (newTags != null && !newTags.isEmpty()) {
+            java.util.Map<String, String> normalizedTagNames = new java.util.LinkedHashMap<>();
+            for (String rawTagName : newTags) {
+                String tagName = normalizeTagName(rawTagName);
+                if (tagName != null) {
+                    normalizedTagNames.putIfAbsent(tagName.toLowerCase(), tagName);
+                }
+            }
+
+            for (String tagName : normalizedTagNames.values()) {
+                if (tagName.length() > 100) {
+                    throw new CustomBusinessException("Tên thẻ không được vượt quá 100 ký tự", HttpStatus.BAD_REQUEST);
+                }
+
+                java.util.Optional<library.entity.TagEntity> existing = tagRepository.findByNameIgnoreCase(tagName);
+                if (existing.isPresent()) {
+                    tags.add(existing.get());
+                } else {
+                    library.entity.TagEntity newTag = library.entity.TagEntity.builder().name(tagName).build();
+                    tags.add(tagRepository.save(newTag));
+                }
+            }
+        }
+        return tags;
+    }
+
+    private String normalizeOptionalText(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.trim();
+        return normalized.isEmpty() ? null : normalized;
+    }
+
+    private String normalizeTagName(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.trim().replaceAll("\\s+", " ");
+        return normalized.isEmpty() ? null : normalized;
     }
 }

@@ -23,4 +23,5 @@ public class BookListResponse {
     private int quantity;
     private String isbn;
     private String shelfLocation;
+    private List<TagResponse> tags;
 }

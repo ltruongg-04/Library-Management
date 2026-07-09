@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/borrow/**").permitAll()
                         .requestMatchers("/api/public/book-visits/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/books/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/public/tags/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/policies/**").permitAll()
