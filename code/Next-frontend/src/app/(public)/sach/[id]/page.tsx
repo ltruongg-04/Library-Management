@@ -22,7 +22,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     // Loading state
     if (loading) {
         return (
-            <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
+            <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 pt-6 md:px-6 md:pt-8">
                 <div className="py-4">
                     <Skeleton className="h-4 w-48" />
                 </div>
@@ -43,7 +43,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     // Error state
     if (error || !book) {
         return (
-            <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
+            <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 pt-6 md:px-6 md:pt-8">
                 <div className="flex flex-col items-center justify-center py-24 text-center">
                     <MaterialIcon name="error_outline" className="mb-4 text-[64px] text-red-400" />
                     <h2 className="mb-2 text-[24px] font-semibold text-on-surface dark:text-white">{UI_TEXT.COMMON.ERROR_LOAD_BOOK_DETAIL}</h2>
@@ -70,7 +70,7 @@ export default function BookDetailPage({ params }: { params: { id: string } }) {
     ];
 
     return (
-        <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-6">
+        <div className="mx-auto w-full max-w-[1440px] px-4 pb-12 pt-6 md:px-6 md:pt-8">
             {/* Breadcrumb */}
             <Breadcrumb items={breadcrumbItems} />
 
