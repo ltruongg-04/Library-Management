@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const DEFAULT_BACKEND_URL = "https://lms-backend-345298684510.europe-west1.run.app";
-const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || DEFAULT_BACKEND_URL;
+const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || DEFAULT_BACKEND_URL;
 const backendHostname = new URL(backendUrl).hostname;
 
 const nextConfig = {
