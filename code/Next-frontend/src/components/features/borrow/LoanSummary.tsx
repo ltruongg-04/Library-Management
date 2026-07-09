@@ -24,9 +24,7 @@ export default function LoanSummary({ book, pickupDate, returnDate, userFullName
         const fetchPolicy = async () => {
             try {
                 const data = await getActivePolicy();
-                if (data && data.data) {
-                    setPolicy(data.data);
-                }
+                setPolicy(data);
             } catch (error) {
                 console.error("Failed to fetch policy:", error);
             }
@@ -34,7 +32,8 @@ export default function LoanSummary({ book, pickupDate, returnDate, userFullName
         fetchPolicy();
     }, []);
 
-    let days = 14;
+    const maxBorrowDays = policy?.maxBorrowDays || 14;
+    let days = maxBorrowDays;
     if (pickupDate && returnDate) {
         const pDate = new Date(pickupDate);
         const rDate = new Date(returnDate);

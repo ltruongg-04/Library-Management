@@ -56,8 +56,8 @@ export default function RenewBookPage() {
                     setError(res.message || API_ERRORS.FETCH_ERROR);
                 }
 
-                if (policyRes && policyRes.data) {
-                    setPolicyData(policyRes.data);
+                if (policyRes) {
+                    setPolicyData(policyRes);
                 }
             } catch (err) {
                 setError(API_ERRORS.GENERIC_FETCH_ERROR);

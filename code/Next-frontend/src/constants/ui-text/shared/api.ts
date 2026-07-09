@@ -1,7 +1,7 @@
 export const API_SUCCESS = {
     FAVORITE_ADD_SUCCESS: "Đã thêm vào danh sách yêu thích",
     FAVORITE_REMOVE_SUCCESS: "Đã xóa khỏi danh sách yêu thích",
-    HOLD_CANCEL_SUCCESS: "Đã huỷ đặt giữ chỗ thành công!",
+    HOLD_CANCEL_SUCCESS: "Đã hủy đặt giữ sách thành công!",
 };
 
 export const API_ERRORS = {
@@ -15,7 +15,7 @@ export const API_ERRORS = {
     USER_BORROW_HISTORY_FAILED: "Lỗi tải lịch sử mượn sách",
     USER_BORROW_DETAIL_FAILED: "Lỗi tải chi tiết mượn sách",
     GOOGLE_LOGIN_FAILED: "Đăng nhập Google thất bại",
-    HOLD_CANCEL_FAILED: "Huỷ đặt giữ chỗ thất bại",
+    HOLD_CANCEL_FAILED: "Hủy đặt giữ sách thất bại",
     FAVORITE_ADD_FAILED: "Thêm vào danh sách yêu thích thất bại",
     LOGIN_FAILED: "Đăng nhập thất bại",
     FAVORITE_LOAD_FAILED: "Lỗi tải danh sách yêu thích",

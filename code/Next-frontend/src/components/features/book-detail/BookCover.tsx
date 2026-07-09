@@ -203,14 +203,35 @@ export default function BookCover({ book, onOpenReview }: BookCoverProps) {
                     <MaterialIcon name={isFavorite ? "bookmark_added" : "bookmark_add"} />
                     {isFavorite ? UI_TEXT.BOOK_DETAIL.REMOVE_WISHLIST : UI_TEXT.BOOK_DETAIL.ADD_WISHLIST}
                 </button>
-                <button
-                    type="button"
-                    onClick={() => router.push(`/sach/${book.id}/doc-tai-thu-vien`)}
-                    className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-secondary bg-transparent px-4 py-2 font-label-caps text-label-caps text-secondary transition-colors duration-200 hover:bg-secondary/10 active:scale-95 dark:border-white dark:text-white dark:hover:bg-white/10"
-                >
-                    <MaterialIcon name="local_library" />
-                    {UI_TEXT.BOOK_DETAIL.READ_AT_LIBRARY}
-                </button>
+                {isAvailable ? (
+                    <button
+                        type="button"
+                        onClick={() => router.push(`/sach/${book.id}/doc-tai-thu-vien`)}
+                        className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-secondary bg-transparent px-4 py-2 font-label-caps text-label-caps text-secondary transition-colors duration-200 hover:bg-secondary/10 active:scale-95 dark:border-white dark:text-white dark:hover:bg-white/10"
+                    >
+                        <MaterialIcon name="local_library" />
+                        {UI_TEXT.BOOK_DETAIL.READ_AT_LIBRARY}
+                    </button>
+                ) : (
+                    <div className="group relative" title={UI_TEXT.BOOK_DETAIL.READ_UNAVAILABLE_HINT}>
+                        <button
+                            type="button"
+                            disabled
+                            aria-describedby={`read-unavailable-${book.id}`}
+                            className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface-container px-4 py-2 font-label-caps text-label-caps text-on-surface-variant opacity-70 transition-colors duration-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                        >
+                            <MaterialIcon name="local_library" />
+                            {UI_TEXT.BOOK_DETAIL.READ_AT_LIBRARY}
+                        </button>
+                        <span
+                            id={`read-unavailable-${book.id}`}
+                            role="tooltip"
+                            className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-20 w-64 -translate-x-1/2 rounded-lg border border-error-container bg-surface-container-lowest px-3 py-2 font-body-sm text-body-sm text-on-error-container opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100 dark:border-error-500/40 dark:bg-slate-900 dark:text-error-50"
+                        >
+                            {UI_TEXT.BOOK_DETAIL.READ_UNAVAILABLE_HINT}
+                        </span>
+                    </div>
+                )}
                 <button
                     type="button"
                     onClick={handleOpenReview}

@@ -46,6 +46,7 @@ public class AdminSettingsServiceImpl implements AdminSettingsService {
         return AdminSettingsResponse.builder()
                 .borrowing(AdminSettingsResponse.Borrowing.builder()
                         .maxDays(String.valueOf(defaultNumber(policy.getMaxBorrowDays(), 14)))
+                        .rentalFeePerDay(toPlainString(defaultDecimal(policy.getRentalFeePerDay(), "5000")))
                         .finePerDay(toPlainString(defaultDecimal(policy.getOverdueFinePerDay(), "10000")))
                         .maxBooks(String.valueOf(defaultNumber(policy.getMaxBooks(), 5)))
                         .depositPercentage("10")
@@ -79,6 +80,7 @@ public class AdminSettingsServiceImpl implements AdminSettingsService {
         AdminSettingsResponse.Borrowing borrowing = request.getBorrowing();
         if (borrowing != null) {
             policy.setMaxBorrowDays(parseInteger(borrowing.getMaxDays(), policy.getMaxBorrowDays()));
+            policy.setRentalFeePerDay(parseBigDecimal(borrowing.getRentalFeePerDay(), policy.getRentalFeePerDay()));
             policy.setOverdueFinePerDay(parseBigDecimal(borrowing.getFinePerDay(), policy.getOverdueFinePerDay()));
             policy.setMaxBooks(parseInteger(borrowing.getMaxBooks(), policy.getMaxBooks()));
             policy.setMaxExtensions(parseInteger(borrowing.getMaxRenewals(), policy.getMaxExtensions()));
@@ -87,9 +89,6 @@ public class AdminSettingsServiceImpl implements AdminSettingsService {
             }
             if (policy.getLostBookMultiplier() == null) {
                 policy.setLostBookMultiplier(new BigDecimal("2.0"));
-            }
-            if (policy.getRentalFeePerDay() == null) {
-                policy.setRentalFeePerDay(new BigDecimal("5000"));
             }
             borrowingPolicyRepository.save(policy);
         }

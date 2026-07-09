@@ -1,7 +1,7 @@
 param(
     [string]$EnvFile = "code\backend-layered\.env",
     [string]$BackendDir = "code\backend-layered",
-    [string]$Port = "8081"
+    [string]$Port = "8080"
 )
 
 $ErrorActionPreference = "Stop"

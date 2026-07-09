@@ -28,10 +28,12 @@ import { adminSettingsService } from "@/services/adminSettings";
 const SETTINGS = UI_TEXT.ADMIN_SETTINGS;
 
 const borrowingFields = [
-    { key: "maxDays", label: SETTINGS.BORROWING.MAX_DAYS, suffix: undefined },
+    { key: "maxDays", label: SETTINGS.BORROWING.MAX_DAYS, suffix: SETTINGS.BORROWING.UNIT_DAYS },
+    { key: "rentalFeePerDay", label: SETTINGS.BORROWING.RENTAL_FEE_PER_DAY, suffix: UI_TEXT.COMMON.CURRENCY_SUFFIX },
     { key: "finePerDay", label: SETTINGS.BORROWING.FINE_PER_DAY, suffix: UI_TEXT.COMMON.CURRENCY_SUFFIX },
-    { key: "maxBooks", label: SETTINGS.BORROWING.MAX_BOOKS, suffix: undefined },
+    { key: "maxBooks", label: SETTINGS.BORROWING.MAX_BOOKS, suffix: SETTINGS.BORROWING.UNIT_BOOKS },
     { key: "depositPercentage", label: SETTINGS.BORROWING.DEPOSIT_PERCENTAGE, suffix: "%" },
+    { key: "maxRenewals", label: SETTINGS.BORROWING.MAX_RENEWALS, suffix: SETTINGS.BORROWING.UNIT_TIMES },
 ] as const;
 
 const featureItems = [
@@ -111,7 +113,7 @@ function SectionCard({ icon: Icon, title, children }: { icon: ElementType; title
     );
 }
 
-function PolicyField({ label, value, suffix, onChange }: { label: string; value: string; suffix?: string; onChange: (value: string) => void }) {
+function PolicyField({ label, value, suffix, onChange }: { label: string; value: string; suffix: string; onChange: (value: string) => void }) {
     return (
         <label className="flex flex-col gap-xs">
             <span className="font-mono text-[13px] font-medium leading-5 tracking-[0.02em] text-on-surface-variant">{label}</span>
@@ -120,15 +122,11 @@ function PolicyField({ label, value, suffix, onChange }: { label: string; value:
                     type="number"
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
-                    className={`h-10 w-full rounded-lg border-none bg-surface-bright py-sm pl-md text-body-md text-on-surface transition-shadow focus:ring-1 focus:ring-primary ${
-                        suffix ? "pr-14" : "pr-md"
-                    }`}
+                    className="h-10 w-full appearance-none rounded-lg border-none bg-surface-bright py-sm pl-md pr-16 text-body-md text-on-surface transition-shadow [appearance:textfield] focus:ring-1 focus:ring-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
-                {suffix ? (
-                    <span className="pointer-events-none absolute right-1 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md bg-surface-bright text-body-sm text-on-surface-variant">
-                        {suffix}
-                    </span>
-                ) : null}
+                <span className="pointer-events-none absolute right-1 top-1/2 grid h-8 min-w-10 -translate-y-1/2 place-items-center rounded-md bg-surface-bright px-2 text-body-sm text-on-surface-variant">
+                    {suffix}
+                </span>
             </span>
         </label>
     );
@@ -486,16 +484,7 @@ export default function CaiDatPage() {
                                             onChange={(value) => updateBorrowing(field.key, value)}
                                         />
                                     ))}
-                                    <div className="md:col-span-2">
-                                        <div className="max-w-sm">
-                                            <PolicyField
-                                                label={SETTINGS.BORROWING.MAX_RENEWALS}
-                                                value={adminSettings.borrowing.maxRenewals}
-                                                onChange={(value) => updateBorrowing("maxRenewals", value)}
-                                            />
-                                        </div>
-                                        <p className="mt-xs text-[13px] leading-5 text-on-surface-variant">* {SETTINGS.BORROWING.RENEWALS_HELP}</p>
-                                    </div>
+                                    <p className="text-[13px] leading-5 text-on-surface-variant md:col-start-2">* {SETTINGS.BORROWING.RENEWALS_HELP}</p>
                                 </div>
                             </SectionCard>
                         </div>

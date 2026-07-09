@@ -24,6 +24,8 @@ export const BORROW = {
         TITLE: "Chính sách mượn sách:",
         CONTENT:
             "Mỗi độc giả được mượn tối đa 3 cuốn sách giấy. Vui lòng đảm bảo trả sách trong thời hạn 14 ngày để tránh phí phạt trễ hạn hoặc bị tạm khóa tài khoản.",
+        CONTENT_TEMPLATE:
+            "Mỗi độc giả được mượn tối đa {maxBooks} cuốn sách giấy. Vui lòng đảm bảo trả sách trong thời hạn {maxBorrowDays} ngày để tránh phí phạt trễ hạn hoặc bị tạm khóa tài khoản.",
     },
     SUMMARY: {
         TITLE: "Tóm tắt mượn sách",
@@ -160,6 +162,8 @@ export const BORROW = {
         CAPTCHA_PLACEHOLDER: "Nhập mã xác nhận bên trên",
         CONSOLE_ERROR: "Lỗi tra cứu đơn mượn:",
         LOOKUP_FAILED: "Tra cứu thất bại. Vui lòng kiểm tra lại thông tin.",
+        OTP_REQUEST_FAILED: "Không thể gửi mã OTP lúc này. Vui lòng kiểm tra cấu hình email hoặc thử lại sau.",
+        SYSTEM_ERROR: "Lỗi hệ thống",
         RESULT: {
             TITLE: "Kết quả tra cứu",
             STATUS: "Trạng thái:",

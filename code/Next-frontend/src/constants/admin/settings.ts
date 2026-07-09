@@ -7,6 +7,7 @@ export const STORAGE_KEY = "lumina_admin_business_policies";
 export type AdminSettingsState = {
     borrowing: {
         maxDays: string;
+        rentalFeePerDay: string;
         finePerDay: string;
         maxBooks: string;
         depositPercentage: string;
@@ -31,6 +32,7 @@ export type AdminSettingsState = {
 export const DEFAULT_SETTINGS: AdminSettingsState = {
     borrowing: {
         maxDays: "14",
+        rentalFeePerDay: "5000",
         finePerDay: "5000",
         maxBooks: "5",
         depositPercentage: "10",
@@ -53,10 +55,12 @@ export const DEFAULT_SETTINGS: AdminSettingsState = {
 };
 
 export const borrowingFields = [
-    { key: "maxDays", label: SETTINGS.BORROWING.MAX_DAYS, suffix: undefined },
+    { key: "maxDays", label: SETTINGS.BORROWING.MAX_DAYS, suffix: SETTINGS.BORROWING.UNIT_DAYS },
+    { key: "rentalFeePerDay", label: SETTINGS.BORROWING.RENTAL_FEE_PER_DAY, suffix: UI_TEXT.COMMON.CURRENCY_SUFFIX },
     { key: "finePerDay", label: SETTINGS.BORROWING.FINE_PER_DAY, suffix: UI_TEXT.COMMON.CURRENCY_SUFFIX },
-    { key: "maxBooks", label: SETTINGS.BORROWING.MAX_BOOKS, suffix: undefined },
+    { key: "maxBooks", label: SETTINGS.BORROWING.MAX_BOOKS, suffix: SETTINGS.BORROWING.UNIT_BOOKS },
     { key: "depositPercentage", label: SETTINGS.BORROWING.DEPOSIT_PERCENTAGE, suffix: "%" },
+    { key: "maxRenewals", label: SETTINGS.BORROWING.MAX_RENEWALS, suffix: SETTINGS.BORROWING.UNIT_TIMES },
 ] as const;
 
 export const featureItems = [

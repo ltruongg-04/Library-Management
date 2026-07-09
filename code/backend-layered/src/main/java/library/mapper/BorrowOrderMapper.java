@@ -45,10 +45,10 @@ public class BorrowOrderMapper {
 
         if (order.getOrderDetails() != null && !order.getOrderDetails().isEmpty()) {
             BorrowOrderDetailEntity detail = order.getOrderDetails().get(0);
-            BookEntity book = detail.getBookCopy().getBook();
-            builder.bookTitle(book.getTitle())
+            BookEntity book = getBookFromDetail(detail);
+            builder.bookTitle(getBookTitle(book))
                    .bookAuthor(getAuthorName(book))
-                   .bookCoverImage(book.getImageUrl());
+                   .bookCoverImage(book != null ? book.getImageUrl() : null);
         }
 
         return builder.build();
@@ -70,11 +70,11 @@ public class BorrowOrderMapper {
 
         if (order.getOrderDetails() != null && !order.getOrderDetails().isEmpty()) {
             BorrowOrderDetailEntity detail = order.getOrderDetails().get(0);
-            BookEntity book = detail.getBookCopy().getBook();
-            builder.bookTitle(book.getTitle())
+            BookEntity book = getBookFromDetail(detail);
+            builder.bookTitle(getBookTitle(book))
                    .bookAuthor(getAuthorName(book))
-                   .bookCoverImage(book.getImageUrl())
-                   .bookDetailStatus(detail.getStatus().name());
+                   .bookCoverImage(book != null ? book.getImageUrl() : null)
+                   .bookDetailStatus(detail.getStatus() != null ? detail.getStatus().name() : "");
         }
 
         if (order.getDueDate() != null && LocalDate.now().isAfter(order.getDueDate())
@@ -167,21 +167,21 @@ public class BorrowOrderMapper {
         List<BorrowOrderDetailResponseDto.BookItemDto> bookItems = new ArrayList<>();
         if (order.getOrderDetails() != null) {
             for (BorrowOrderDetailEntity detail : order.getOrderDetails()) {
-                BookEntity book = detail.getBookCopy().getBook();
-                String bookStatus = detail.getStatus().name().toLowerCase();
+                BookEntity book = getBookFromDetail(detail);
+                String bookStatus = detail.getStatus() != null ? detail.getStatus().name().toLowerCase() : "";
                 if ("borrowing".equals(bookStatus)) bookStatus = "inUse";
 
                 bookItems.add(BorrowOrderDetailResponseDto.BookItemDto.builder()
-                        .title(book.getTitle())
+                        .title(getBookTitle(book))
                         .author(getAuthorName(book))
                         .status(bookStatus)
-                        .imgSrc(book.getImageUrl())
+                        .imgSrc(book != null ? book.getImageUrl() : null)
                         .build());
             }
         }
 
-        String customerName = order.getCustomer().getFullName() != null ? order.getCustomer().getFullName() : "Chưa cập nhật";
-        String rawPhone = order.getCustomer().getPhone();
+        String customerName = order.getCustomer() != null && order.getCustomer().getFullName() != null ? order.getCustomer().getFullName() : "Chưa cập nhật";
+        String rawPhone = order.getCustomer() != null ? order.getCustomer().getPhone() : null;
         String customerPhone = (rawPhone != null && rawPhone.length() >= 3) ? "*******" + rawPhone.substring(rawPhone.length() - 3) : "***";
 
         long extensionCount = borrowExtensionRepository.countByBorrowOrderIdAndStatus(order.getId(), BorrowExtensionStatus.APPROVED);
@@ -230,10 +230,10 @@ public class BorrowOrderMapper {
         String imgSrc = null;
 
         if (order.getOrderDetails() != null && !order.getOrderDetails().isEmpty()) {
-            BookEntity book = order.getOrderDetails().get(0).getBookCopy().getBook();
-            title = book.getTitle();
+            BookEntity book = getBookFromDetail(order.getOrderDetails().get(0));
+            title = getBookTitle(book);
             author = getAuthorName(book);
-            imgSrc = book.getImageUrl();
+            imgSrc = book != null ? book.getImageUrl() : null;
         }
 
         String depositFormatted = order.getTotalDeposit() != null ? currencyFormatter.format(order.getTotalDeposit()) : "0 đ";
@@ -290,11 +290,25 @@ public class BorrowOrderMapper {
     }
 
     protected String getAuthorName(BookEntity book) {
+        if (book == null) {
+            return "Chưa cập nhật tác giả";
+        }
         if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
             return book.getAuthors().iterator().next().getName();
         } else if (book.getAuthor() != null && !book.getAuthor().isEmpty()) {
             return book.getAuthor();
         }
         return "Chưa cập nhật tác giả";
+    }
+
+    private BookEntity getBookFromDetail(BorrowOrderDetailEntity detail) {
+        if (detail == null || detail.getBookCopy() == null) {
+            return null;
+        }
+        return detail.getBookCopy().getBook();
+    }
+
+    private String getBookTitle(BookEntity book) {
+        return book != null && book.getTitle() != null ? book.getTitle() : "Sách không còn tồn tại";
     }
 }
