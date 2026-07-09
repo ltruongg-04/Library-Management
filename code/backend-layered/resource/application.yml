@@ -1,10 +1,13 @@
 server:
   address: 0.0.0.0
   port: ${PORT:8080}
+  shutdown: graceful
 
 spring:
   main:
     lazy-initialization: true
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
   config:
     import:
       - optional:file:.env[.properties]
