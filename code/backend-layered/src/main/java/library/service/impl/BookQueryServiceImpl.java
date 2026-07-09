@@ -51,7 +51,7 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
     @Override
     @Cacheable(value = CacheNames.BOOKS_DETAIL, key = "#id")
     public BookResponse getBookById(Integer id) {
-        BookEntity book = bookRepository.findByIdIncludingDeleted(id)
+        BookEntity book = bookRepository.findById(id)
                 .orElseThrow(() -> new CustomBusinessException(
                         "Không tìm thấy sách với ID: " + id,
                         HttpStatus.NOT_FOUND));

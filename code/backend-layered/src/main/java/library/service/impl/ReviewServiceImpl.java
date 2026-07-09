@@ -40,7 +40,7 @@ public class ReviewServiceImpl implements ReviewService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        BookEntity book = bookRepository.findByIdIncludingDeleted(bookId)
+        BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
         ReviewEntity review = ReviewEntity.builder()
