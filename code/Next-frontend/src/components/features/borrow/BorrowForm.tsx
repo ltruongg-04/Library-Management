@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { BorrowingPolicyDto, getActivePolicy } from "@/services/policy";
 import type { Book } from "@/types/book";
 
 interface BorrowFormProps {
@@ -39,6 +41,24 @@ export default function BorrowForm({
     setEmail,
 }: BorrowFormProps) {
     const { BORROW } = UI_TEXT;
+    const [policy, setPolicy] = useState<BorrowingPolicyDto | null>(null);
+
+    useEffect(() => {
+        const fetchPolicy = async () => {
+            try {
+                const data = await getActivePolicy();
+                setPolicy(data);
+            } catch (error) {
+                console.error("Failed to fetch policy:", error);
+            }
+        };
+
+        fetchPolicy();
+    }, []);
+
+    const maxBorrowDays = policy?.maxBorrowDays || 14;
+    const maxBooks = policy?.maxBooks || 3;
+    const policyContent = BORROW.POLICY.CONTENT_TEMPLATE.replace("{maxBooks}", maxBooks.toString()).replace("{maxBorrowDays}", maxBorrowDays.toString());
 
     // Minimum pickup date is today
     const minPickupDate = new Date().toISOString().split("T")[0];
@@ -52,11 +72,11 @@ export default function BorrowForm({
           })()
         : minPickupDate;
 
-    // Maximum return date is pickup date + 14
+    // Maximum return date follows the active borrowing policy
     const maxReturnDate = pickupDate
         ? (() => {
               const date = new Date(pickupDate);
-              date.setDate(date.getDate() + 14);
+              date.setDate(date.getDate() + maxBorrowDays);
               return date.toISOString().split("T")[0];
           })()
         : undefined;
@@ -166,7 +186,7 @@ export default function BorrowForm({
                                         const rDateObj = new Date(returnDate);
                                         const pDateObj = new Date(newDate);
                                         const diffDays = (rDateObj.getTime() - pDateObj.getTime()) / (1000 * 60 * 60 * 24);
-                                        if (diffDays <= 0 || diffDays > 14) {
+                                        if (diffDays <= 0 || diffDays > maxBorrowDays) {
                                             setReturnDate("");
                                         }
                                     }
@@ -204,7 +224,7 @@ export default function BorrowForm({
                 {/* Payment Method Selection */}
                 <div className="space-y-4">
                     <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">{BORROW.FORM.PAYMENT_METHOD}</label>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <label
                             className={`group relative flex cursor-pointer flex-col items-center gap-2 rounded-xl border p-6 transition-all hover:bg-surface-container-high dark:hover:bg-slate-800 ${paymentMethod === "cash" ? "border-primary-700 bg-primary-fixed/20 dark:border-primary-300 dark:bg-primary-900/20" : "border-outline-variant/40 dark:border-slate-700"}`}
                         >
@@ -222,27 +242,6 @@ export default function BorrowForm({
                             />
                             <span className="text-center font-body-sm font-semibold text-on-surface dark:text-white">{BORROW.FORM.CASH}</span>
                             <div className={`absolute right-2 top-2 transition-opacity ${paymentMethod === "cash" ? "opacity-100" : "opacity-0"}`}>
-                                <MaterialIcon name="check_circle" className="text-base text-primary-700 dark:text-primary-300" />
-                            </div>
-                        </label>
-
-                        <label
-                            className={`group relative flex cursor-pointer flex-col items-center gap-2 rounded-xl border p-6 transition-all hover:bg-surface-container-high dark:hover:bg-slate-800 ${paymentMethod === "momo" ? "border-primary-700 bg-primary-fixed/20 dark:border-primary-300 dark:bg-primary-900/20" : "border-outline-variant/40 dark:border-slate-700"}`}
-                        >
-                            <input
-                                className="peer sr-only"
-                                name="payment"
-                                type="radio"
-                                value="momo"
-                                checked={paymentMethod === "momo"}
-                                onChange={(e) => setPaymentMethod(e.target.value)}
-                            />
-                            <MaterialIcon
-                                name="account_balance_wallet"
-                                className={`text-[32px] transition-colors ${paymentMethod === "momo" ? "text-primary-700 dark:text-primary-300" : "text-on-surface-variant group-hover:text-primary-700 dark:text-slate-400 dark:group-hover:text-primary-300"}`}
-                            />
-                            <span className="text-center font-body-sm font-semibold text-on-surface dark:text-white">{BORROW.FORM.MOMO}</span>
-                            <div className={`absolute right-2 top-2 transition-opacity ${paymentMethod === "momo" ? "opacity-100" : "opacity-0"}`}>
                                 <MaterialIcon name="check_circle" className="text-base text-primary-700 dark:text-primary-300" />
                             </div>
                         </label>
@@ -275,7 +274,7 @@ export default function BorrowForm({
                     <MaterialIcon name="info" className="text-on-secondary-container dark:text-secondary-300" />
                     <div>
                         <p className="font-body-sm leading-relaxed text-on-secondary-container dark:text-secondary-50">
-                            <strong>{BORROW.POLICY.TITLE}</strong> {BORROW.POLICY.CONTENT}
+                            <strong>{BORROW.POLICY.TITLE}</strong> {policyContent}
                         </p>
                     </div>
                 </div>

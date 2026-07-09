@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import library.dto.request.OtpRequestDto;
+import library.dto.request.GuestBorrowLookupRequest;
 import library.service.OtpService;
 import library.common.exception.CustomBusinessException;
 import org.springframework.http.HttpStatus;
@@ -55,6 +56,25 @@ public class PublicBorrowController {
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String otp,
             @RequestParam(required = false) String recaptchaToken) {
+        return lookupGuestBorrowOrderInternal(identifier, orderCode, phone, otp, recaptchaToken);
+    }
+
+    @PostMapping("/lookup")
+    public ResponseEntity<ApiResponse<?>> lookupGuestBorrowOrder(@RequestBody GuestBorrowLookupRequest request) {
+        return lookupGuestBorrowOrderInternal(
+                request.getIdentifier(),
+                request.getOrderCode(),
+                request.getPhone(),
+                request.getOtp(),
+                request.getRecaptchaToken());
+    }
+
+    private ResponseEntity<ApiResponse<?>> lookupGuestBorrowOrderInternal(
+            String identifier,
+            String orderCode,
+            String phone,
+            String otp,
+            String recaptchaToken) {
         if (orderCode != null && !orderCode.isBlank() && phone != null && !phone.isBlank()) {
             BorrowOrderDetailResponseDto response = borrowOrderService.getGuestBorrowOrder(orderCode, phone);
             return ResponseEntity.ok(ApiResponse.builder()

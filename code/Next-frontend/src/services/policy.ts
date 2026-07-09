@@ -1,5 +1,11 @@
 import axiosInstance from "@/lib/axios";
 
+interface ApiResponse<T> {
+    success: boolean;
+    message: string;
+    data: T;
+}
+
 export interface BorrowingPolicyDto {
     id: number;
     maxBorrowDays: number;
@@ -12,11 +18,11 @@ export interface BorrowingPolicyDto {
 }
 
 export const getActivePolicy = async () => {
-    const response = await axiosInstance.get("/policies/active");
-    return response.data;
+    const response = await axiosInstance.get<ApiResponse<BorrowingPolicyDto>>("/api/policies/active");
+    return response.data.data;
 };
 
 export const updateActivePolicy = async (data: Partial<BorrowingPolicyDto>) => {
-    const response = await axiosInstance.put("/admin/policies/active", data);
-    return response.data;
+    const response = await axiosInstance.put<ApiResponse<BorrowingPolicyDto>>("/api/admin/policies/active", data);
+    return response.data.data;
 };

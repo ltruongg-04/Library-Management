@@ -21,6 +21,7 @@ public class AdminSettingsResponse {
     @AllArgsConstructor
     public static class Borrowing {
         private String maxDays;
+        private String rentalFeePerDay;
         private String finePerDay;
         private String maxBooks;
         private String depositPercentage;

@@ -56,8 +56,8 @@ export default function RenewBookPage() {
                     setError(res.message || API_ERRORS.FETCH_ERROR);
                 }
 
-                if (policyRes && policyRes.data) {
-                    setPolicyData(policyRes.data);
+                if (policyRes) {
+                    setPolicyData(policyRes);
                 }
             } catch (err) {
                 setError(API_ERRORS.GENERIC_FETCH_ERROR);
@@ -263,6 +263,8 @@ export default function RenewBookPage() {
                                 </span>
                                 <span>{formatCurrency(selectedOption.fee)}</span>
                             </div>
+
+                            <p className="mt-4 text-xs italic text-on-surface-variant dark:text-slate-400">{RENEW_PAGE.SUMMARY.POSTPAID_NOTE_LONG}</p>
                         </div>
                     </div>
                 </div>
@@ -280,8 +282,6 @@ export default function RenewBookPage() {
                         <Loader2 className="h-5 w-5 animate-spin" />
                         {UI_TEXT.COMMON.PROCESSING}
                     </>
-                ) : amountToPayNow > 0 ? (
-                    `Thanh toán ${formatCurrency(amountToPayNow)} & Gia hạn`
                 ) : (
                     RENEW_PAGE.CONFIRM_BUTTON
                 )}

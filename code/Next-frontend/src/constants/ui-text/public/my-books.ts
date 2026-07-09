@@ -26,7 +26,7 @@ export const MY_BOOKS_PAGE = {
         LATE_FEE_LABEL: "Tiền phạt phát sinh",
         DEPOSIT_RETURN: "Hoàn trả cọc",
         VIEW_DETAIL: "Xem chi tiết",
-        CANCEL_RESERVATION: "Huỷ đặt giữ chỗ",
+        CANCEL_RESERVATION: "Hủy đặt giữ sách",
         VIEW_RECEIPT: "Xem biên lai",
         STATUS_BORROWING: "Đang mượn",
         STATUS_RETURNED: "Đã trả",
@@ -87,6 +87,7 @@ export const RENEW_PAGE = {
         RENEWAL_FEE_LABEL: "Phí gia hạn:",
         POSTPAID_NOTE: "(Sẽ thu vào lần sau):",
         TOTAL_LABEL: "Tổng cộng:",
+        POSTPAID_NOTE_LONG: "* Lưu ý: Chi phí gia hạn và các phí khác sẽ được tổng hợp để thanh toán trực tiếp tại quầy thư viện khi trả sách.",
     },
     CONFIRM_BUTTON: "Xác nhận gia hạn",
 };

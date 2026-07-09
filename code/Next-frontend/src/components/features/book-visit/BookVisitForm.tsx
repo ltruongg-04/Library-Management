@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
 import { useMemo } from "react";
 import { Clock3, Info, User } from "lucide-react";
-import ReCAPTCHA from "react-google-recaptcha";
+import { Captcha } from "@/components/base/captcha";
 import { BOOK_VISIT_INPUT_CLASS_NAME } from "@/constants/public/book-visit";
 import { UI_TEXT } from "@/constants/ui-text";
 import type { SubmitStatus, VisitFormState } from "@/types/book-visit";
@@ -148,10 +148,7 @@ export function BookVisitForm({ formState, submitStatus, today, onFieldChange, o
                     </p>
 
                     <div className="flex w-full justify-center py-2 md:justify-start">
-                        <ReCAPTCHA
-                            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-                            onChange={(token) => onFieldChange("captchaToken", token || "")}
-                        />
+                        <Captcha onValidate={(token) => onFieldChange("captchaToken", token || "")} />
                     </div>
 
                     <button

@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Optional;
 
 @Repository
@@ -20,11 +21,15 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
 
     boolean existsByCustomerIdAndBookIdAndStatus(Integer customerId, Integer bookId, ReservationStatus status);
 
+    boolean existsByCustomerIdAndBookIdAndStatusIn(Integer customerId, Integer bookId, Collection<ReservationStatus> statuses);
+
     java.util.List<ReservationEntity> findByCustomerIdAndBookId(Integer customerId, Integer bookId);
 
     boolean existsByBookIdAndStatus(Integer bookId, ReservationStatus status);
 
     long countByBookIdAndStatusAndReservationDateBefore(Integer bookId, ReservationStatus status, LocalDateTime date);
+
+    long countByBookIdAndStatusInAndReservationDateBefore(Integer bookId, Collection<ReservationStatus> statuses, LocalDateTime date);
 
     Optional<ReservationEntity> findFirstByBookIdAndStatusOrderByReservationDateAsc(Integer bookId, ReservationStatus status);
 
