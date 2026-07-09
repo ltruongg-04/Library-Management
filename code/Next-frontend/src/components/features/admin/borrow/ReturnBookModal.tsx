@@ -65,7 +65,7 @@ export default function ReturnBookModal({ isOpen, onClose, orderCode, onSubmitSu
                 setIsReturning(initialReturning);
                 setConditions(initialConditions);
             } else {
-                setError(res.message || "Failed to load details");
+                setError(res.message || TEXT.ERROR_FETCH);
             }
         } catch (err) {
             setError(TEXT.ERROR_FETCH);

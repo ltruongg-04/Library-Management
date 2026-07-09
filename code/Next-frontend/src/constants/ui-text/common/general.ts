@@ -1,5 +1,5 @@
 export const COMMON = {
-    BREADCRUMB_ARIA: "Breadcrumb",
+    BREADCRUMB_ARIA: "Đường dẫn điều hướng",
     LOADING_DATA: "Đang tải dữ liệu...",
     PROCESSING: "Đang xử lý...",
     LOADING: "Đang xử lý...",
@@ -27,6 +27,7 @@ export const COMMON = {
     BOOK: "Sách",
     LIBRARY_PAYMENT: "Thanh toán thư viện",
     UPDATING: "Đang cập nhật",
+    UNKNOWN_AUTHOR: "Chưa cập nhật tác giả",
     CURRENCY_SUFFIX: "đ",
     GUEST: "Khách",
     RETURNED: "Đã trả",

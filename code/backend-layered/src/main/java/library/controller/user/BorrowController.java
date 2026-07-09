@@ -30,12 +30,12 @@ public class BorrowController {
             HttpServletRequest httpRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
 
         String email = authentication.getPrincipal().toString();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
 
         BorrowResponseDto response = borrowOrderService.createBorrowOrder(user.getId(), request, httpRequest);
 
@@ -48,12 +48,12 @@ public class BorrowController {
     public ResponseEntity<ApiResponse<java.util.List<library.dto.borrow.BorrowHistoryResponseDto>>> getBorrowHistory() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
 
         String email = authentication.getPrincipal().toString();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
 
         java.util.List<library.dto.borrow.BorrowHistoryResponseDto> history = borrowOrderService.getBorrowHistory(user.getId());
 
@@ -64,12 +64,12 @@ public class BorrowController {
     public ResponseEntity<ApiResponse<library.dto.borrow.BorrowOrderDetailResponseDto>> getBorrowOrderDetail(@PathVariable String orderCode) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
 
         String email = authentication.getPrincipal().toString();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
 
         library.dto.borrow.BorrowOrderDetailResponseDto detail = borrowOrderService.getBorrowOrderDetail(orderCode, user.getId());
 
@@ -83,12 +83,12 @@ public class BorrowController {
             HttpServletRequest httpRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
 
         String email = authentication.getPrincipal().toString();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
 
         library.dto.borrow.BorrowResponseDto response = borrowOrderService.renewBorrowOrder(orderCode, user.getId(), request, httpRequest);
 
@@ -99,12 +99,12 @@ public class BorrowController {
     public ResponseEntity<ApiResponse<Void>> cancelBorrowOrder(@PathVariable String orderCode) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new CustomBusinessException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
         }
 
         String email = authentication.getPrincipal().toString();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
 
         borrowOrderService.cancelBorrowOrder(orderCode, user.getId());
 

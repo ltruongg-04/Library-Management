@@ -38,7 +38,7 @@ public class BorrowOrderQueryServiceImpl implements library.service.BorrowOrderQ
     public library.dto.borrow.BorrowOrderDetailResponseDto getBorrowOrderDetail(String orderCode, Integer userId) {
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerUserId(orderCode, userId)
                 .orElseThrow(() -> new CustomBusinessException(
-                        "Borrow order not found or you do not have permission to view it", HttpStatus.NOT_FOUND));
+                        "Không tìm thấy phiếu mượn hoặc bạn không có quyền xem phiếu này", HttpStatus.NOT_FOUND));
 
         return borrowOrderMapper.toBorrowOrderDetailResponseDto(order);
     }
@@ -52,7 +52,7 @@ public class BorrowOrderQueryServiceImpl implements library.service.BorrowOrderQ
     @Override
     public UserBorrowDetailDto getUserBorrowDetail(Integer customerId, String orderCode) {
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerId(orderCode, customerId)
-                .orElseThrow(() -> new CustomBusinessException("Borrow order not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy phiếu mượn", HttpStatus.NOT_FOUND));
 
         return borrowOrderMapper.toUserBorrowDetailDto(order);
     }

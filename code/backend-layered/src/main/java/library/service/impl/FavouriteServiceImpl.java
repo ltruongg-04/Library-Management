@@ -39,9 +39,9 @@ public class FavouriteServiceImpl implements FavouriteService {
         }
 
         CustomerEntity customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustomBusinessException("Customer not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy khách hàng", HttpStatus.NOT_FOUND));
         BookEntity book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
 
         FavouriteEntity favourite = FavouriteEntity.builder()
                 .id(new FavouriteId(customerId, bookId))

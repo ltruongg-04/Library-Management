@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import axiosInstance from "@/lib/axios";
 import type { Review, ReviewFilter, ReviewStatus } from "@/types/admin-review";
 
@@ -63,7 +64,7 @@ export function useAdminReviews() {
             setCurrentFilter(filter);
             setCurrentSearch(search);
         } catch (err: any) {
-            setError(err.response?.data?.message || err.message || "Failed to fetch admin reviews");
+            setError(err.response?.data?.message || err.message || API_ERRORS.ADMIN_REVIEW_FETCH_FAILED);
         } finally {
             setLoading(false);
         }
@@ -81,7 +82,7 @@ export function useAdminReviews() {
             await fetchReviews(currentFilter, currentSearch, page);
             return true;
         } catch (err: any) {
-            throw new Error(err.response?.data?.message || err.message || "Failed to update status");
+            throw new Error(err.response?.data?.message || err.message || API_ERRORS.ADMIN_REVIEW_STATUS_FAILED);
         }
     };
 
@@ -91,7 +92,7 @@ export function useAdminReviews() {
             await fetchReviews(currentFilter, currentSearch, page);
             return true;
         } catch (err: any) {
-            throw new Error(err.response?.data?.message || err.message || "Failed to delete review");
+            throw new Error(err.response?.data?.message || err.message || API_ERRORS.REVIEW_DELETE_FAILED);
         }
     };
 

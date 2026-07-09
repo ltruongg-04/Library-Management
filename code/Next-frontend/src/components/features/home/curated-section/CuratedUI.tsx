@@ -127,7 +127,7 @@ export function WishlistButton({ book }: { book: Book }) {
             aria-label={wishlisted ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
         >
             <MaterialIcon name={wishlisted ? "bookmark_added" : "bookmark_add"} className="text-[20px]" />
-            <span>{wishlisted ? "Remove from Wishlist" : "Add to Wishlist"}</span>
+            <span>{wishlisted ? UI_TEXT.BOOK_DETAIL.REMOVE_WISHLIST : UI_TEXT.BOOK_DETAIL.ADD_WISHLIST}</span>
         </button>
     );
 }

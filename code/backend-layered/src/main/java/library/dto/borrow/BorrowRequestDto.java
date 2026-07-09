@@ -16,16 +16,16 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class BorrowRequestDto {
 
-    @NotNull(message = "Book ID is required")
+    @NotNull(message = "Mã sách là bắt buộc")
     private Integer bookId;
 
-    @NotNull(message = "Pickup date is required")
-    @FutureOrPresent(message = "Pickup date must be in the present or future")
+    @NotNull(message = "Ngày nhận sách là bắt buộc")
+    @FutureOrPresent(message = "Ngày nhận sách phải là hôm nay hoặc trong tương lai")
     private LocalDate pickupDate;
 
-    @NotNull(message = "Return date is required")
+    @NotNull(message = "Ngày trả sách là bắt buộc")
     private LocalDate returnDate;
 
-    @NotNull(message = "Payment method is required")
+    @NotNull(message = "Phương thức thanh toán là bắt buộc")
     private PaymentMethod paymentMethod;
 }

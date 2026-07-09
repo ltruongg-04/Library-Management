@@ -40,7 +40,7 @@ export default function RelatedBooks({ books, categoryId }: RelatedBooksProps) {
                             {book.coverImage ? (
                                 <Image
                                     src={book.coverImage}
-                                    alt={`Book Cover: ${book.title}`}
+                                    alt={`${UI_TEXT.BOOK_DETAIL.IMAGE_ALT} ${book.title}`}
                                     fill
                                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                                     unoptimized
