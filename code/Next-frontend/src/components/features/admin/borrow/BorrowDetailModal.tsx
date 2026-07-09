@@ -42,7 +42,7 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
                 if (elapsed < 5000) {
                     await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
                 }
-                setError(res.message || "Failed to load details");
+                setError(res.message || API_ERRORS.FETCH_BORROW_DETAIL_ERROR);
             }
         } catch (err) {
             const elapsed = Date.now() - startTime;
@@ -77,7 +77,7 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
     };
 
     const formatDate = (dateStr: string | null) => {
-        if (!dateStr) return "N/A";
+        if (!dateStr) return UI_TEXT.COMMON.UPDATING;
         const [year, month, day] = dateStr.split("-");
         return `${day}/${month}/${year}`;
     };

@@ -22,20 +22,20 @@ public class BookReturnValidationHelper {
 
     public BorrowOrderEntity validateAndGetBorrowOrder(Integer orderId) {
         BorrowOrderEntity borrowOrder = borrowOrderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomBusinessException("Borrow order not found: " + orderId, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy phiếu mượn: " + orderId, HttpStatus.NOT_FOUND));
 
         if (borrowOrder.getStatus() != BorrowOrderStatus.BORROWED && borrowOrder.getStatus() != BorrowOrderStatus.OVERDUE && borrowOrder.getStatus() != BorrowOrderStatus.PARTIALLY_RETURNED) {
-            throw new CustomBusinessException("Borrow order is not in an active status (BORROWED, OVERDUE, or PARTIALLY_RETURNED)", HttpStatus.BAD_REQUEST);
+            throw new CustomBusinessException("Phiếu mượn không ở trạng thái đang hoạt động (đang mượn, quá hạn hoặc trả một phần)", HttpStatus.BAD_REQUEST);
         }
         return borrowOrder;
     }
 
     public AssistantEntity validateAndGetAssistant(String assistantUsername) {
         UserEntity user = userRepository.findByEmail(assistantUsername)
-                .orElseThrow(() -> new CustomBusinessException("User not found: " + assistantUsername, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng: " + assistantUsername, HttpStatus.NOT_FOUND));
         AssistantEntity assistant = assistantRepository.findByUserId(user.getId()).orElse(null);
         if (assistant == null && user.getRole() != UserEntity.Role.ADMIN) {
-            throw new CustomBusinessException("Assistant not found for user: " + assistantUsername, HttpStatus.FORBIDDEN);
+            throw new CustomBusinessException("Không tìm thấy hồ sơ trợ lý cho người dùng: " + assistantUsername, HttpStatus.FORBIDDEN);
         }
         return assistant;
     }

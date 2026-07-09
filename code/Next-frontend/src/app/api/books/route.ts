@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerBackendUrl } from "@/config/env";
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 
 const BACKEND_URL = getServerBackendUrl();
 
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
         const data = await response.json();
 
         if (!response.ok) {
-            return NextResponse.json({ success: false, message: data.message || "Failed to fetch from backend" }, { status: response.status });
+            return NextResponse.json({ success: false, message: data.message || API_ERRORS.BACKEND_FETCH_FAILED }, { status: response.status });
         }
 
         return NextResponse.json(data, {
@@ -27,6 +28,6 @@ export async function GET(request: Request) {
         });
     } catch (error) {
         console.error("Error proxying to backend /api/books:", error);
-        return NextResponse.json({ success: false, message: "Backend is unreachable" }, { status: 503 });
+        return NextResponse.json({ success: false, message: API_ERRORS.BACKEND_UNREACHABLE }, { status: 503 });
     }
 }

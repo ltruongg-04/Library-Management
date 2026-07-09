@@ -4,7 +4,7 @@ export const ADMIN_INVENTORY_MANAGEMENT = {
     },
     TABLE: {
         NOT_UPDATED: "Chưa cập nhật",
-        NA: "N/A",
+        NA: "Chưa cập nhật",
         BTN_COPIES: "Chi tiết các cuốn",
         BTN_EDIT: "Sửa thông tin",
         BTN_DELETE: "Xóa",

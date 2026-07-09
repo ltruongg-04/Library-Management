@@ -49,7 +49,7 @@ function BookCard({ book }: { book: Book }) {
                 {book.imageUrl ? (
                     <Image
                         src={book.imageUrl}
-                        alt={`Book cover: ${book.title}`}
+                        alt={`${UI_TEXT.BOOK_DETAIL.IMAGE_ALT} ${book.title}`}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         unoptimized
@@ -61,7 +61,7 @@ function BookCard({ book }: { book: Book }) {
                 )}
                 {/* NEW tag */}
                 <div className="absolute left-2 top-2 flex items-center justify-center rounded bg-primary-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
-                    NEW
+                    {UI_TEXT.BOOK_DETAIL.NEW_BADGE}
                 </div>
             </div>
 
@@ -79,7 +79,7 @@ function BookCard({ book }: { book: Book }) {
                     <button
                         onClick={handleBookmark}
                         className="text-on-surface-variant/30 transition-colors hover:text-secondary-300 dark:text-white/20 dark:hover:text-secondary-300"
-                        aria-label="Add to wishlist"
+                        aria-label={UI_TEXT.BOOK_DETAIL.ADD_WISHLIST}
                     >
                         <MaterialIcon name="bookmark_add" className="text-[18px]" />
                     </button>

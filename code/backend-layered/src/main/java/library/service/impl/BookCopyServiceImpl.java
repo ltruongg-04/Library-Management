@@ -42,7 +42,7 @@ public class BookCopyServiceImpl implements BookCopyService {
     @Transactional
     public List<BookCopyResponse> addCopies(Integer bookId, int quantity) {
         BookEntity book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sách"));
 
         List<BookCopyEntity> newCopies = new java.util.ArrayList<>();
         for (int i = 0; i < quantity; i++) {
@@ -68,7 +68,7 @@ public class BookCopyServiceImpl implements BookCopyService {
     @Transactional
     public BookCopyResponse updateCopy(Integer copyId, BookCopyRequest request) {
         BookCopyEntity copy = bookCopyRepository.findById(copyId)
-                .orElseThrow(() -> new RuntimeException("Book copy not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bản sao sách"));
 
 
         BookCopyStatus oldStatus = copy.getStatus();
@@ -91,7 +91,7 @@ public class BookCopyServiceImpl implements BookCopyService {
     @Transactional
     public void deleteCopy(Integer copyId) {
         BookCopyEntity copy = bookCopyRepository.findById(copyId)
-                .orElseThrow(() -> new RuntimeException("Book copy not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bản sao sách"));
         bookCopyRepository.delete(copy);
         cacheInvalidationService.evictBookCaches();
     }

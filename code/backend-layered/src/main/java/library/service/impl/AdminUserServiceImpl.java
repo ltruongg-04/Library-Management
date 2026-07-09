@@ -33,7 +33,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public void updateUserStatus(Integer userId, boolean isActive) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new library.common.exception.CustomBusinessException("User not found", org.springframework.http.HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy người dùng", org.springframework.http.HttpStatus.NOT_FOUND));
         
         user.setActive(isActive);
         userRepository.save(user);
@@ -45,7 +45,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public void updateUser(Integer userId, library.dto.admin.AdminUpdateUserDto request) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new library.common.exception.CustomBusinessException("User not found", org.springframework.http.HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy người dùng", org.springframework.http.HttpStatus.NOT_FOUND));
         
         user.setFullName(request.getFullName());
 

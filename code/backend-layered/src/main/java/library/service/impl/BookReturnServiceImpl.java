@@ -79,17 +79,17 @@ public class BookReturnServiceImpl implements BookReturnService {
 
         for (BookReturnDetailRequestDto detailReq : requestDto.getDetails()) {
             BookCopyEntity bookCopy = bookCopyRepository.findById(detailReq.getBookCopyId())
-                    .orElseThrow(() -> new CustomBusinessException("Book copy not found: " + detailReq.getBookCopyId(),
+                    .orElseThrow(() -> new CustomBusinessException("Không tìm thấy bản sao sách: " + detailReq.getBookCopyId(),
                             HttpStatus.NOT_FOUND));
 
             BorrowOrderDetailEntity orderDetail = borrowOrder.getOrderDetails().stream()
                     .filter(od -> od.getBookCopy().getId().equals(bookCopy.getId()))
                     .findFirst()
-                    .orElseThrow(() -> new CustomBusinessException("Book copy not found in this order",
+                    .orElseThrow(() -> new CustomBusinessException("Không tìm thấy bản sao sách trong phiếu mượn này",
                             HttpStatus.NOT_FOUND));
 
             if (orderDetail.getStatus() != BorrowOrderDetailStatus.BORROWING) {
-                throw new CustomBusinessException("Book copy has already been returned or lost/damaged",
+                throw new CustomBusinessException("Bản sao sách đã được trả hoặc đã được ghi nhận mất/hư hỏng",
                         HttpStatus.BAD_REQUEST);
             }
 
@@ -152,7 +152,7 @@ public class BookReturnServiceImpl implements BookReturnService {
     @Transactional
     public String generateVnPayUrl(Integer bookReturnId, String ipAddress) {
         BookReturnEntity bookReturn = bookReturnRepository.findById(bookReturnId)
-                .orElseThrow(() -> new CustomBusinessException("Book return not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy lượt trả sách", HttpStatus.NOT_FOUND));
 
         BorrowOrderEntity order = bookReturn.getBorrowOrder();
 
@@ -186,10 +186,10 @@ public class BookReturnServiceImpl implements BookReturnService {
     @Transactional
     public void confirmCashPayment(Integer bookReturnId, String assistantUsername) {
         BookReturnEntity bookReturn = bookReturnRepository.findById(bookReturnId)
-                .orElseThrow(() -> new CustomBusinessException("Book return not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy lượt trả sách", HttpStatus.NOT_FOUND));
 
         UserEntity user = userRepository.findByEmail(assistantUsername)
-                .orElseThrow(() -> new CustomBusinessException("User not found: " + assistantUsername,
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng: " + assistantUsername,
                         HttpStatus.NOT_FOUND));
         AssistantEntity assistant = assistantRepository.findByUserId(user.getId()).orElse(null);
 
@@ -257,7 +257,7 @@ public class BookReturnServiceImpl implements BookReturnService {
     @Transactional
     public void finalizeReturnStatus(Integer bookReturnId) {
         BookReturnEntity bookReturn = bookReturnRepository.findById(bookReturnId)
-                .orElseThrow(() -> new CustomBusinessException("Book return not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy lượt trả sách", HttpStatus.NOT_FOUND));
         BorrowOrderEntity borrowOrder = bookReturn.getBorrowOrder();
 
         if (bookReturn.getDetails() != null) {
@@ -337,7 +337,7 @@ public class BookReturnServiceImpl implements BookReturnService {
     @Transactional
     public void completeVnPayFinePayment(Integer fineId) {
         FineEntity fine = fineRepository.findById(fineId)
-                .orElseThrow(() -> new CustomBusinessException("Fine not found: " + fineId, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy khoản phạt: " + fineId, HttpStatus.NOT_FOUND));
 
         if (fine.getStatus() == FineStatus.PAID) {
             return; // Already processed

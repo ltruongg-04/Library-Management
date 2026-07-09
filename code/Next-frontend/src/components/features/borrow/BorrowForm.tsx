@@ -85,7 +85,8 @@ export default function BorrowForm({
                                 value={book.title}
                             />
                             <p className="font-body-sm text-on-surface-variant dark:text-slate-400">
-                                {book.authors?.map((a) => a.name).join(", ") || "Unknown Author"} • {book.categories?.[0]?.name || UI_TEXT.COMMON.BOOK}
+                                {book.authors?.map((a) => a.name).join(", ") || UI_TEXT.COMMON.UNKNOWN_AUTHOR} •{" "}
+                                {book.categories?.[0]?.name || UI_TEXT.COMMON.BOOK}
                             </p>
                         </div>
                     </div>

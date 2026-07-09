@@ -21,7 +21,7 @@ export default function BookInfo({ book }: BookInfoProps) {
                             isAvailable ? "bg-secondary-container text-on-secondary-container" : "bg-error-container text-on-error-container"
                         }`}
                     >
-                        {isAvailable ? "Available Now" : "Out of Stock"}
+                        {isAvailable ? UI_TEXT.BOOK_DETAIL.STATUS_AVAILABLE : UI_TEXT.BOOK_DETAIL.STATUS_OUT_OF_STOCK}
                     </span>
 
                     {/* Rating */}
@@ -49,7 +49,7 @@ export default function BookInfo({ book }: BookInfoProps) {
                                   {i < book.authorsList!.length - 1 ? ", " : ""}
                               </span>
                           ))
-                        : book.author || "Unknown"}
+                        : book.author || UI_TEXT.COMMON.UNKNOWN_AUTHOR}
                 </p>
 
                 {/* Description */}
@@ -62,18 +62,18 @@ export default function BookInfo({ book }: BookInfoProps) {
             <div className="grid grid-cols-2 gap-4 border-y border-outline-variant/30 py-4 dark:border-slate-700 md:grid-cols-3 lg:grid-cols-6">
                 <MetadataItem
                     label={UI_TEXT.BOOK_DETAIL.METADATA.PUBLISHER}
-                    value={book.publisher || "N/A"}
+                    value={book.publisher || UI_TEXT.COMMON.UPDATING}
                     href={book.publisher ? `/sach?publisher=${encodeURIComponent(book.publisher)}` : undefined}
                 />
                 <MetadataItem
                     label={UI_TEXT.BOOK_DETAIL.METADATA.PUBLISHED}
-                    value={book.publishedDate ? new Date(book.publishedDate).getFullYear().toString() : "N/A"}
+                    value={book.publishedDate ? new Date(book.publishedDate).getFullYear().toString() : UI_TEXT.COMMON.UPDATING}
                 />
-                <MetadataItem label={UI_TEXT.BOOK_DETAIL.METADATA.PAGES} value={book.pages ? String(book.pages) : "N/A"} />
-                <MetadataItem label={UI_TEXT.BOOK_DETAIL.METADATA.ISBN} value={book.isbn || "N/A"} />
+                <MetadataItem label={UI_TEXT.BOOK_DETAIL.METADATA.PAGES} value={book.pages ? String(book.pages) : UI_TEXT.COMMON.UPDATING} />
+                <MetadataItem label={UI_TEXT.BOOK_DETAIL.METADATA.ISBN} value={book.isbn || UI_TEXT.COMMON.UPDATING} />
                 <MetadataItem
                     label={UI_TEXT.BOOK_DETAIL.METADATA.DEPOSIT}
-                    value={book.depositPrice ? `${book.depositPrice.toLocaleString("vi-VN")} đ` : "N/A"}
+                    value={book.depositPrice ? `${book.depositPrice.toLocaleString("vi-VN")} đ` : UI_TEXT.COMMON.UPDATING}
                 />
                 <MetadataItem label={UI_TEXT.BOOK_DETAIL.METADATA.RENTAL_FEE} value={UI_TEXT.BOOK_DETAIL.METADATA.RENTAL_FEE_VALUE} />
             </div>

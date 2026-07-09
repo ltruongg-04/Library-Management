@@ -90,11 +90,13 @@ export default function VnPayResult({ status, orderCode, amount, txnNo, payDate,
                             <div className="space-y-3 text-body-sm text-on-surface-variant dark:text-slate-300">
                                 <div className="flex justify-between border-b border-outline-variant/20 pb-2">
                                     <span>{UI_TEXT.BORROW.VNPAY_RESULT.RECEIPT.TRANSACTION_ID}</span>
-                                    <span className="font-medium text-on-surface dark:text-white">{txnNo || "N/A"}</span>
+                                    <span className="font-medium text-on-surface dark:text-white">{txnNo || UI_TEXT.COMMON.UPDATING}</span>
                                 </div>
                                 <div className="flex justify-between border-b border-outline-variant/20 pb-2">
                                     <span>{UI_TEXT.BORROW.VNPAY_RESULT.RECEIPT.TIME}</span>
-                                    <span className="font-medium text-on-surface dark:text-white">{payDate ? formatDate(payDate) : "N/A"}</span>
+                                    <span className="font-medium text-on-surface dark:text-white">
+                                        {payDate ? formatDate(payDate) : UI_TEXT.COMMON.UPDATING}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between border-b border-outline-variant/20 pb-2">
                                     <span>{UI_TEXT.BORROW.VNPAY_RESULT.RECEIPT.CONTENT}</span>
