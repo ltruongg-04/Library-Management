@@ -25,10 +25,10 @@ public class BorrowOrderValidationHelper {
     public long validateBorrowDatesAndGetDays(LocalDate pickupDate, LocalDate returnDate) {
         LocalDate today = LocalDate.now();
         if (pickupDate.isBefore(today)) {
-            throw new CustomBusinessException("Pickup date cannot be in the past", HttpStatus.BAD_REQUEST);
+            throw new CustomBusinessException("Ngày nhận sách không được ở quá khứ", HttpStatus.BAD_REQUEST);
         }
         if (returnDate.isBefore(pickupDate)) {
-            throw new CustomBusinessException("Return date must be after pickup date", HttpStatus.BAD_REQUEST);
+            throw new CustomBusinessException("Ngày trả sách phải sau ngày nhận sách", HttpStatus.BAD_REQUEST);
         }
 
         long borrowDays = java.time.temporal.ChronoUnit.DAYS.between(pickupDate, returnDate);

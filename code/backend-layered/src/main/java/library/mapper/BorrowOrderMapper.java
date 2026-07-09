@@ -180,7 +180,7 @@ public class BorrowOrderMapper {
             }
         }
 
-        String customerName = order.getCustomer().getFullName() != null ? order.getCustomer().getFullName() : "Unknown";
+        String customerName = order.getCustomer().getFullName() != null ? order.getCustomer().getFullName() : "Chưa cập nhật";
         String rawPhone = order.getCustomer().getPhone();
         String customerPhone = (rawPhone != null && rawPhone.length() >= 3) ? "*******" + rawPhone.substring(rawPhone.length() - 3) : "***";
 
@@ -225,8 +225,8 @@ public class BorrowOrderMapper {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd 'Tháng' MM, yyyy");
         java.text.NumberFormat currencyFormatter = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.of("vi", "VN"));
 
-        String title = "Unknown";
-        String author = "Unknown Author";
+        String title = "Chưa cập nhật";
+        String author = "Chưa cập nhật tác giả";
         String imgSrc = null;
 
         if (order.getOrderDetails() != null && !order.getOrderDetails().isEmpty()) {
@@ -295,6 +295,6 @@ public class BorrowOrderMapper {
         } else if (book.getAuthor() != null && !book.getAuthor().isEmpty()) {
             return book.getAuthor();
         }
-        return "Unknown Author";
+        return "Chưa cập nhật tác giả";
     }
 }

@@ -72,7 +72,7 @@ const TableRow = ({ book, onEdit, onManageCopies, onDelete, canEditBook }: Table
                     </p>
                 </div>
             </td>
-            <td className="px-6 py-4 font-mono text-[13px] text-on-surface-variant">{book.isbn || "N/A"}</td>
+            <td className="px-6 py-4 font-mono text-[13px] text-on-surface-variant">{book.isbn || textUI.TABLE.NOT_UPDATED}</td>
             <td className="px-6 py-4">
                 {book.categories && book.categories.length > 0 ? (
                     <div className="flex max-w-[150px] flex-wrap gap-1">

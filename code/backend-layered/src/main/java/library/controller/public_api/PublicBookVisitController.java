@@ -20,6 +20,6 @@ public class PublicBookVisitController {
     @PostMapping("/confirm")
     public ResponseEntity<ApiResponse<String>> createBookVisit(@RequestBody BookVisitRequest request) {
         bookVisitService.createBookVisit(request);
-        return ResponseEntity.ok(ApiResponse.success("Book visit created successfully", null));
+        return ResponseEntity.ok(ApiResponse.success("Tạo lịch đọc sách tại thư viện thành công", null));
     }
 }

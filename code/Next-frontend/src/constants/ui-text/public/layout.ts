@@ -18,10 +18,10 @@ export const PUBLIC_LAYOUT = {
         CONTACT: "Liên hệ",
     },
     FOOTER_LINKS: {
-        TERMS: "Terms of Service",
-        PRIVACY: "Privacy Policy",
-        CONTACT: "Contact Support",
-        API_DOCS: "API Docs",
-        COPYRIGHT: "© 2026 Lumina Library AI. Powered by Illuminated Intelligence.",
+        TERMS: "Điều khoản dịch vụ",
+        PRIVACY: "Chính sách bảo mật",
+        CONTACT: "Hỗ trợ liên hệ",
+        API_DOCS: "Tài liệu API",
+        COPYRIGHT: "© 2026 Lumina Library AI. Được hỗ trợ bởi Illuminated Intelligence.",
     },
 };

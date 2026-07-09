@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservationRequest {
-    @NotNull(message = "Book ID is required")
+    @NotNull(message = "Mã sách là bắt buộc")
     private Integer bookId;
 }

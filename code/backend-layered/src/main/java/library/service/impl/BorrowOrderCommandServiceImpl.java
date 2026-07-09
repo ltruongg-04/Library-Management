@@ -59,13 +59,13 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     public BorrowResponseDto createBorrowOrder(Integer userId, BorrowRequestDto request,
             HttpServletRequest httpRequest) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomBusinessException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
 
         // 1. Get or create customer profile
         CustomerEntity customer = getOrCreateCustomer(user);
 
         BookEntity book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
 
         // 2. Validate dates and calculate fee
         validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
@@ -94,7 +94,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     public BorrowResponseDto renewBorrowOrder(String orderCode, Integer userId,
             library.dto.borrow.BorrowExtensionRequestDto request, HttpServletRequest httpRequest) {
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerUserId(orderCode, userId)
-                .orElseThrow(() -> new CustomBusinessException("Borrow order not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy phiếu mượn", HttpStatus.NOT_FOUND));
 
         validationHelper.validateRenewalConditions(order);
         int maxBorrowDays = feeCalculatorService.getActivePolicy().getMaxBorrowDays() != null
@@ -174,7 +174,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         customer = customerRepository.save(customer);
 
         BookEntity book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
 
         // Validate dates
         validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
@@ -226,14 +226,14 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     @Transactional
     public void cancelBorrowOrder(String orderCode, Integer userId) {
         BorrowOrderEntity borrowOrder = borrowOrderRepository.findByOrderCode(orderCode)
-                .orElseThrow(() -> new CustomBusinessException("Order not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy phiếu mượn", HttpStatus.NOT_FOUND));
 
         if (borrowOrder.getCustomer() == null || borrowOrder.getCustomer().getUser() == null || !borrowOrder.getCustomer().getUser().getId().equals(userId)) {
-            throw new CustomBusinessException("Unauthorized to cancel this order", HttpStatus.FORBIDDEN);
+            throw new CustomBusinessException("Bạn không có quyền hủy phiếu mượn này", HttpStatus.FORBIDDEN);
         }
 
         if (borrowOrder.getStatus() != BorrowOrderStatus.PENDING && borrowOrder.getStatus() != BorrowOrderStatus.READY) {
-            throw new CustomBusinessException("Only pending or ready orders can be cancelled", HttpStatus.BAD_REQUEST);
+            throw new CustomBusinessException("Chỉ có thể hủy phiếu đang chờ duyệt hoặc chờ lấy sách", HttpStatus.BAD_REQUEST);
         }
 
         borrowOrder.setStatus(BorrowOrderStatus.CANCELLED);
@@ -318,7 +318,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         return customerRepository.findByUserId(user.getId()).orElseGet(() -> {
             CustomerEntity newCustomer = CustomerEntity.builder()
                     .user(user)
-                    .fullName(user.getFullName() != null ? user.getFullName() : "Unknown")
+                    .fullName(user.getFullName() != null ? user.getFullName() : "Chưa cập nhật")
                     .phone(user.getPhone() != null ? user.getPhone() : "0000000000")
                     .email(user.getEmail())
                     .address("Chưa cập nhật")
@@ -355,7 +355,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         }
 
         if (availableCopy == null) {
-            throw new CustomBusinessException("No copies of this book are currently available", HttpStatus.BAD_REQUEST);
+            throw new CustomBusinessException("Hiện không còn bản sao sách nào có thể mượn", HttpStatus.BAD_REQUEST);
         }
 
         // Reserve the copy

@@ -149,7 +149,7 @@ export default function BookCover({ book, onOpenReview }: BookCoverProps) {
                 {hasCoverImage ? (
                     <Image
                         src={book.coverImage}
-                        alt={`Book Cover: ${book.title}`}
+                        alt={`${UI_TEXT.BOOK_DETAIL.IMAGE_ALT} ${book.title}`}
                         width={400}
                         height={600}
                         className="aspect-[2/3] h-auto w-full rounded-t-sm object-cover"

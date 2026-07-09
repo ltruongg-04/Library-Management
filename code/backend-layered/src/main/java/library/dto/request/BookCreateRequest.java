@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookCreateRequest {
-    @NotBlank(message = "Title is required")
+    @NotBlank(message = "Tên sách là bắt buộc")
     private String title;
     
     private List<Integer> authorIds;

@@ -37,18 +37,18 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional
     public ReservationResponse createReservation(ReservationRequest request, Integer customerId) {
         BookEntity book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new CustomBusinessException("Book not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
 
         if (book.getAvailableQuantity() > 0) {
-            throw new IllegalArgumentException("Cannot reserve a book that is available. Please borrow it directly.");
+            throw new IllegalArgumentException("Sách hiện còn bản có thể mượn. Vui lòng mượn trực tiếp.");
         }
 
         CustomerEntity customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustomBusinessException("Customer not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy khách hàng", HttpStatus.NOT_FOUND));
 
         boolean exists = reservationRepository.existsByCustomerIdAndBookIdAndStatus(customerId, book.getId(), ReservationStatus.PENDING);
         if (exists) {
-            throw new IllegalArgumentException("You already have a pending reservation for this book");
+            throw new IllegalArgumentException("Bạn đã có đặt giữ chỗ đang chờ cho sách này");
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -87,14 +87,14 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional
     public void cancelReservation(Integer reservationId, Integer customerId) {
         ReservationEntity reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new CustomBusinessException("Reservation not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đặt giữ chỗ", HttpStatus.NOT_FOUND));
 
         if (!reservation.getCustomer().getId().equals(customerId)) {
-            throw new IllegalArgumentException("You do not have permission to cancel this reservation");
+            throw new IllegalArgumentException("Bạn không có quyền hủy đặt giữ chỗ này");
         }
 
         if (reservation.getStatus() != ReservationStatus.PENDING && reservation.getStatus() != ReservationStatus.NOTIFIED) {
-            throw new IllegalArgumentException("Only pending or notified reservations can be cancelled");
+            throw new IllegalArgumentException("Chỉ có thể hủy đặt giữ chỗ đang chờ hoặc đã được thông báo");
         }
 
         reservation.setStatus(ReservationStatus.CANCELLED);

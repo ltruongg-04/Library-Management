@@ -289,7 +289,7 @@ export default function AuditLogsPageContent() {
                     actorTone: log.userFullName ? "secondary" : "muted",
                     action: log.action,
                     targetObject: log.details.length > 50 ? log.details.substring(0, 50) + "..." : log.details,
-                    ipAddress: log.ipAddress || "N/A",
+                    ipAddress: log.ipAddress || TEXT.SYSTEM_LOGS.NA_IP,
                     result: log.status ? (log.status.toLowerCase() as AuditResult) : "success",
                     description: log.details,
                 }));
