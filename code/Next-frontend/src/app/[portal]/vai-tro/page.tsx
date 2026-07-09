@@ -10,6 +10,7 @@ import SecurityPolicy from "@/components/features/roles/SecurityPolicy";
 import { UI_TEXT } from "@/constants/ui-text";
 import { adminRoleService } from "@/services/adminRole";
 import { Role } from "@/types/role";
+import { localizeRole, localizeRoles } from "@/utils/role-localization";
 
 export default function RolesPage() {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -25,7 +26,7 @@ export default function RolesPage() {
     const loadRoles = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await adminRoleService.getRoles();
+            const data = localizeRoles(await adminRoleService.getRoles());
             setRoles(data);
             setOriginalRoles(data);
             setSelectedRoleId((current) => (data.some((role) => role.id === current) ? current : (data[0]?.id ?? current)));
@@ -86,7 +87,7 @@ export default function RolesPage() {
             const permissionIds = selectedRole.modules.flatMap((module) =>
                 module.permissions.filter((permission) => permission.enabled).map((permission) => `${module.id}.${permission.id}`),
             );
-            const updatedRole = await adminRoleService.updatePermissions(selectedRole.id, permissionIds);
+            const updatedRole = localizeRole(await adminRoleService.updatePermissions(selectedRole.id, permissionIds));
             setRoles((current) => current.map((role) => (role.id === updatedRole.id ? updatedRole : role)));
             setOriginalRoles((current) => current.map((role) => (role.id === updatedRole.id ? updatedRole : role)));
             toast.success(UI_TEXT.ROLES.SAVE_SUCCESS);
