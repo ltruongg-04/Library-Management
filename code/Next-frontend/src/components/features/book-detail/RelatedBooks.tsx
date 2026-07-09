@@ -19,10 +19,10 @@ export default function RelatedBooks({ books, categoryId }: RelatedBooksProps) {
                 </h2>
                 <Link
                     href={categoryId ? `/sach?category=${categoryId}` : "/sach"}
-                    className="flex items-center font-body-sm text-body-sm text-primary transition-colors duration-200 hover:underline dark:text-primary-300"
+                    className="group flex items-center gap-1 font-body-sm text-body-sm text-primary transition-colors duration-200 dark:text-primary-300"
                 >
-                    {UI_TEXT.BOOK_DETAIL.VIEW_ALL}
-                    <MaterialIcon name="arrow_forward" className="ml-1 text-[18px]" />
+                    <span className="group-hover:underline">{UI_TEXT.BOOK_DETAIL.VIEW_ALL}</span>
+                    <MaterialIcon name="arrow_forward" className="text-[18px]" />
                 </Link>
             </div>
 

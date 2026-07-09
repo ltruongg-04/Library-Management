@@ -50,8 +50,8 @@ export const BOOK_LIST = {
 };
 
 export const BOOK_DETAIL = {
-    RELATED_BOOKS_HEADING: "Related Titles",
-    VIEW_ALL: "View all",
+    RELATED_BOOKS_HEADING: "Sách liên quan",
+    VIEW_ALL: "Xem tất cả",
     REVIEWS: "Reviews",
     BY: "By",
     TAGS_CATEGORIES: "Tags & Categories",
