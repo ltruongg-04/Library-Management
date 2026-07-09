@@ -204,7 +204,7 @@ export default function BorrowForm({
                 {/* Payment Method Selection */}
                 <div className="space-y-4">
                     <label className="font-label-caps text-label-caps text-on-surface-variant dark:text-slate-400">{BORROW.FORM.PAYMENT_METHOD}</label>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <label
                             className={`group relative flex cursor-pointer flex-col items-center gap-2 rounded-xl border p-6 transition-all hover:bg-surface-container-high dark:hover:bg-slate-800 ${paymentMethod === "cash" ? "border-primary-700 bg-primary-fixed/20 dark:border-primary-300 dark:bg-primary-900/20" : "border-outline-variant/40 dark:border-slate-700"}`}
                         >
@@ -222,27 +222,6 @@ export default function BorrowForm({
                             />
                             <span className="text-center font-body-sm font-semibold text-on-surface dark:text-white">{BORROW.FORM.CASH}</span>
                             <div className={`absolute right-2 top-2 transition-opacity ${paymentMethod === "cash" ? "opacity-100" : "opacity-0"}`}>
-                                <MaterialIcon name="check_circle" className="text-base text-primary-700 dark:text-primary-300" />
-                            </div>
-                        </label>
-
-                        <label
-                            className={`group relative flex cursor-pointer flex-col items-center gap-2 rounded-xl border p-6 transition-all hover:bg-surface-container-high dark:hover:bg-slate-800 ${paymentMethod === "momo" ? "border-primary-700 bg-primary-fixed/20 dark:border-primary-300 dark:bg-primary-900/20" : "border-outline-variant/40 dark:border-slate-700"}`}
-                        >
-                            <input
-                                className="peer sr-only"
-                                name="payment"
-                                type="radio"
-                                value="momo"
-                                checked={paymentMethod === "momo"}
-                                onChange={(e) => setPaymentMethod(e.target.value)}
-                            />
-                            <MaterialIcon
-                                name="account_balance_wallet"
-                                className={`text-[32px] transition-colors ${paymentMethod === "momo" ? "text-primary-700 dark:text-primary-300" : "text-on-surface-variant group-hover:text-primary-700 dark:text-slate-400 dark:group-hover:text-primary-300"}`}
-                            />
-                            <span className="text-center font-body-sm font-semibold text-on-surface dark:text-white">{BORROW.FORM.MOMO}</span>
-                            <div className={`absolute right-2 top-2 transition-opacity ${paymentMethod === "momo" ? "opacity-100" : "opacity-0"}`}>
                                 <MaterialIcon name="check_circle" className="text-base text-primary-700 dark:text-primary-300" />
                             </div>
                         </label>
