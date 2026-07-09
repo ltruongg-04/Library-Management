@@ -3,7 +3,7 @@ import { getServerBackendUrl } from "@/config/env";
 
 const BACKEND_URL = getServerBackendUrl();
 const DEFAULT_TRENDING_LIMIT = 8;
-const LEGACY_BACKEND_URL = "https://lms-backend-345298684510.europe-west1.run.app";
+const FALLBACK_BACKEND_URL = "https://lms-backend-345298684510.europe-west1.run.app";
 
 async function fetchJson(url: string) {
     const response = await fetch(url, {
@@ -20,7 +20,7 @@ async function fetchJson(url: string) {
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const limit = Number(searchParams.get("limit")) || DEFAULT_TRENDING_LIMIT;
-    const backendCandidates = Array.from(new Set([BACKEND_URL, LEGACY_BACKEND_URL].filter(Boolean)));
+    const backendCandidates = Array.from(new Set([BACKEND_URL, FALLBACK_BACKEND_URL].filter(Boolean)));
 
     let lastMessage = "Backend is unreachable";
 
