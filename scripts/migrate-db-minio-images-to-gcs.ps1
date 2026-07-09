@@ -19,8 +19,6 @@ param(
 $ErrorActionPreference = "Stop"
 
 if (-not $LocalEndpoint) { $LocalEndpoint = "http://localhost:9000" }
-if (-not $LocalAccessKey) { $LocalAccessKey = "minioadmin" }
-if (-not $LocalSecretKey) { $LocalSecretKey = "minioadmin" }
 if (-not $LocalBucket) { $LocalBucket = "library-bucket" }
 if (-not $GcsEndpoint) { $GcsEndpoint = "https://storage.googleapis.com" }
 if (-not $McConfigDir) { $McConfigDir = Join-Path (Split-Path -Parent $PSScriptRoot) ".tmp\mc-config" }
@@ -88,6 +86,8 @@ function Escape-SqlLiteral {
 Require-Value "DbUrl / DB_URL" $DbUrl
 Require-Value "DbUsername / DB_USERNAME" $DbUsername
 Require-Value "DbPassword / DB_PASSWORD" $DbPassword
+Require-Value "LocalAccessKey / LOCAL_MINIO_ACCESS_KEY" $LocalAccessKey
+Require-Value "LocalSecretKey / LOCAL_MINIO_SECRET_KEY" $LocalSecretKey
 Require-Value "GcsAccessKey / GCS_ACCESS_KEY" $GcsAccessKey
 Require-Value "GcsSecretKey / GCS_SECRET_KEY" $GcsSecretKey
 Require-Value "GcsBucket / GCS_BUCKET" $GcsBucket

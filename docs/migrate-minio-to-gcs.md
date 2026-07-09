@@ -25,8 +25,8 @@ Install MinIO Client `mc`, then run from the repository root:
 
 ```powershell
 $env:LOCAL_MINIO_ENDPOINT = "http://localhost:9000"
-$env:LOCAL_MINIO_ACCESS_KEY = "minioadmin"
-$env:LOCAL_MINIO_SECRET_KEY = "minioadmin"
+$env:LOCAL_MINIO_ACCESS_KEY = "<local-minio-access-key>"
+$env:LOCAL_MINIO_SECRET_KEY = "<local-minio-secret-key>"
 $env:LOCAL_MINIO_BUCKET = "library-bucket"
 
 $env:GCS_S3_ENDPOINT = "https://storage.googleapis.com"
