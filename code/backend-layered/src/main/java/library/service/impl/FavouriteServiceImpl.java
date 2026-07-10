@@ -44,7 +44,6 @@ public class FavouriteServiceImpl implements FavouriteService {
                 .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
 
         FavouriteEntity favourite = FavouriteEntity.builder()
-                .id(new FavouriteId(customerId, bookId))
                 .customer(customer)
                 .book(book)
                 .build();

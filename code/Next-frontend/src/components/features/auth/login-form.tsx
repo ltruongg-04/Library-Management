@@ -43,7 +43,7 @@ export function LoginForm() {
         if (!email) next.email = UI_TEXT.AUTH.LOGIN.VALIDATION.EMAIL_REQUIRED;
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = UI_TEXT.AUTH.LOGIN.VALIDATION.EMAIL_INVALID;
         if (!password) next.password = UI_TEXT.AUTH.LOGIN.VALIDATION.PASSWORD_REQUIRED;
-        else if (password.length < 8) next.password = UI_TEXT.AUTH.LOGIN.VALIDATION.PASSWORD_MIN_LENGTH;
+        else if (password.length < 6) next.password = UI_TEXT.AUTH.LOGIN.VALIDATION.PASSWORD_MIN_LENGTH;
         return next;
     }
 

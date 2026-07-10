@@ -19,12 +19,12 @@ public class FavouriteEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("customerId")
-    @JoinColumn(name = "customer_id", insertable = false, updatable = false)
+    @JoinColumn(name = "customer_id")
     private CustomerEntity customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("bookId")
-    @JoinColumn(name = "book_id", insertable = false, updatable = false)
+    @JoinColumn(name = "book_id")
     private BookEntity book;
 
     @Column(name = "created_at", updatable = false)

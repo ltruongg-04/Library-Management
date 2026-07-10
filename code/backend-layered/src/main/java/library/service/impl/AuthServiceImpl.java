@@ -50,15 +50,12 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
                 .role(UserEntity.Role.CUSTOMER)
-                .active(false)
-                .activationToken(UUID.randomUUID().toString())
-                .activationTokenExpiresAt(LocalDateTime.now().plusHours(24))
+                .active(true)
                 .build();
 
         UserEntity savedUser = userRepository.save(user);
-        emailService.sendAccountActivationEmail(savedUser.getEmail(), savedUser.getFullName(), savedUser.getActivationToken());
 
-        systemLogService.logAction(savedUser, "Đăng ký tài khoản", "Người dùng " + savedUser.getEmail() + " đã đăng ký tài khoản mới, chờ kích hoạt email.");
+        systemLogService.logAction(savedUser, "Đăng ký tài khoản", "Người dùng " + savedUser.getEmail() + " đã đăng ký tài khoản mới.");
 
         return userMapper.toRegisterResponse(savedUser, null, null);
     }
