@@ -30,4 +30,5 @@ public class BookResponse {
     private String shelfLocation;
     private BigDecimal depositPrice;
     private List<CategoryResponse> categories;
+    private List<TagResponse> tags;
 }

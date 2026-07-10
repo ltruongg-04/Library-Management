@@ -21,6 +21,7 @@ export const FALLBACK_BOOKS: Book[] = [
         shelfLocation: "AI-204",
         depositPrice: 50000,
         categories: [{ id: 1, name: "Khoa học & Công nghệ" }],
+        tags: [],
         aiMatchScore: 98,
     },
     {
@@ -40,6 +41,7 @@ export const FALLBACK_BOOKS: Book[] = [
         shelfLocation: "SF-118",
         depositPrice: 45000,
         categories: [{ id: 2, name: "Tiểu thuyết" }],
+        tags: [],
         aiMatchScore: 92,
     },
     {
@@ -59,6 +61,7 @@ export const FALLBACK_BOOKS: Book[] = [
         shelfLocation: "WR-042",
         depositPrice: 40000,
         categories: [{ id: 4, name: "Thiết kế & Nghệ thuật" }],
+        tags: [],
         aiMatchScore: 85,
     },
     {
@@ -78,6 +81,7 @@ export const FALLBACK_BOOKS: Book[] = [
         shelfLocation: "HI-076",
         depositPrice: 35000,
         categories: [{ id: 3, name: "Lịch sử" }],
+        tags: [],
         aiMatchScore: 88,
     },
     {
@@ -97,6 +101,7 @@ export const FALLBACK_BOOKS: Book[] = [
         shelfLocation: "UX-019",
         depositPrice: 30000,
         categories: [{ id: 4, name: "Thiết kế & Nghệ thuật" }],
+        tags: [],
         aiMatchScore: 81,
     },
     {
@@ -116,6 +121,7 @@ export const FALLBACK_BOOKS: Book[] = [
         shelfLocation: "BM-033",
         depositPrice: 32000,
         categories: [{ id: 5, name: "Kinh doanh" }],
+        tags: [],
         aiMatchScore: 79,
     },
 ];

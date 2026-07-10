@@ -17,6 +17,7 @@ export interface Book {
     shelfLocation?: string;
     depositPrice?: number;
     categories: { id: number; name: string }[];
+    tags: { id: number; name: string }[];
     aiMatchScore?: number;
 }
 
@@ -25,6 +26,7 @@ export interface BookListItem {
     title: string;
     authors: { id: number; name: string }[];
     categories: { id: number; name: string }[];
+    tags: { id: number; name: string }[];
     imageUrl: string;
     rating: number;
     availableQuantity: number;
@@ -91,6 +93,7 @@ export interface BookDetail {
     shelfLocation?: string;
     depositPrice?: number;
     categories: string[];
+    tags: string[];
     aiMatchScore?: number;
     authorsList?: { id: number; name: string }[];
 }
@@ -102,6 +105,8 @@ export interface BookUpdateRequest {
     isbn?: string;
     categoryIds?: number[];
     newCategories?: string[];
+    tagIds?: number[];
+    newTags?: string[];
     shelfLocation?: string;
     imageUrl?: string;
     description?: string;
@@ -119,6 +124,8 @@ export interface BookCreateRequest {
     isbn?: string;
     categoryIds?: number[];
     newCategories?: string[];
+    tagIds?: number[];
+    newTags?: string[];
     shelfLocation?: string;
     imageUrl?: string;
     description?: string;
@@ -151,6 +158,7 @@ export function bookToBookDetail(book: Book): BookDetail {
         shelfLocation: book.shelfLocation,
         depositPrice: book.depositPrice,
         categories: book.categories?.map((c) => c.name) || [],
+        tags: book.tags?.map((t) => t.name) || [],
         authorsList: book.authors || [],
     };
 }

@@ -102,7 +102,9 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
     @Override
     @Cacheable(value = CacheNames.BOOKS_TRENDING, key = "#limit")
     public BookPageResponse getTrendingBooks(int limit) {
-        Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Sort sort = Sort.by(Sort.Direction.DESC, "isAvailableFlag")
+                        .and(Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(0, limit, sort);
         Page<BookEntity> bookPage = bookRepository.findAll(pageable);
         return toPageResponse(bookPage);
     }
@@ -121,21 +123,25 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
     }
 
     private Sort resolveSort(String sortBy) {
+        Sort primarySort = Sort.by(Sort.Direction.DESC, "isAvailableFlag");
+        Sort secondarySort;
+
         if (sortBy == null) {
-            return Sort.by(Sort.Direction.DESC, "id");
+            secondarySort = Sort.by(Sort.Direction.DESC, "id");
+        } else {
+            secondarySort = switch (sortBy) {
+                case "newest" -> Sort.by(Sort.Direction.DESC, "id");
+                case "oldest" -> Sort.by(Sort.Direction.ASC, "id");
+                case "title" -> Sort.by(Sort.Direction.ASC, "title");
+                case "titleDesc" -> Sort.by(Sort.Direction.DESC, "title");
+                case "author" -> Sort.by(Sort.Direction.ASC, "author");
+                case "authorDesc" -> Sort.by(Sort.Direction.DESC, "author");
+                case "mostRead" -> Sort.by(Sort.Direction.DESC, "borrowCount");
+                case "leastRead" -> Sort.by(Sort.Direction.ASC, "borrowCount");
+                default -> Sort.by(Sort.Direction.DESC, "id");
+            };
         }
 
-        return switch (sortBy) {
-            case "newest" -> Sort.by(Sort.Direction.DESC, "id");
-            case "oldest" -> Sort.by(Sort.Direction.ASC, "id");
-            case "title" -> Sort.by(Sort.Direction.ASC, "title");
-            case "titleDesc" -> Sort.by(Sort.Direction.DESC, "title");
-            case "author" -> Sort.by(Sort.Direction.ASC, "author");
-            case "authorDesc" -> Sort.by(Sort.Direction.DESC, "author");
-            case "mostRead" -> Sort.by(Sort.Direction.DESC, "borrowCount");
-            case "leastRead" -> Sort.by(Sort.Direction.ASC, "borrowCount");
-            default -> Sort.by(Sort.Direction.DESC, "id");
-        };
+        return primarySort.and(secondarySort);
     }
-
 }

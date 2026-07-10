@@ -7,6 +7,8 @@ import library.dto.response.CategoryResponse;
 import library.entity.AuthorEntity;
 import library.entity.BookEntity;
 import library.entity.CategoryEntity;
+import library.entity.TagEntity;
+import library.dto.response.TagResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -31,6 +33,7 @@ public class BookMapper {
                 .quantity(entity.getQuantity())
                 .isbn(entity.getIsbn())
                 .shelfLocation(entity.getShelfLocation())
+                .tags(mapTags(entity.getTags()))
                 .build();
     }
 
@@ -54,6 +57,7 @@ public class BookMapper {
                 .shelfLocation(entity.getShelfLocation())
                 .depositPrice(entity.getDepositPrice())
                 .categories(mapCategories(entity.getCategories()))
+                .tags(mapTags(entity.getTags()))
                 .build();
     }
 
@@ -75,6 +79,16 @@ public class BookMapper {
                         .id(a.getId())
                         .name(a.getName())
                         .biography(a.getBiography())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private List<TagResponse> mapTags(Set<TagEntity> tags) {
+        if (tags == null) return Collections.emptyList();
+        return tags.stream()
+                .map(t -> TagResponse.builder()
+                        .id(t.getId())
+                        .name(t.getName())
                         .build())
                 .collect(Collectors.toList());
     }

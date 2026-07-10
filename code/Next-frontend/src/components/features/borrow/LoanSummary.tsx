@@ -32,8 +32,7 @@ export default function LoanSummary({ book, pickupDate, returnDate, userFullName
         fetchPolicy();
     }, []);
 
-    const maxBorrowDays = policy?.maxBorrowDays || 14;
-    let days = maxBorrowDays;
+    let days = 0;
     if (pickupDate && returnDate) {
         const pDate = new Date(pickupDate);
         const rDate = new Date(returnDate);

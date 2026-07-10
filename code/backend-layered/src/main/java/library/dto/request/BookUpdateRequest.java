@@ -18,6 +18,8 @@ public class BookUpdateRequest {
     private String isbn;
     private List<Integer> categoryIds;
     private List<String> newCategories;
+    private List<Integer> tagIds;
+    private List<String> newTags;
     private String shelfLocation;
     private String imageUrl;
     private Integer quantity;

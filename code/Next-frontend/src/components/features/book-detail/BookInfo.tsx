@@ -86,10 +86,18 @@ export default function BookInfo({ book }: BookInfoProps) {
                 <div className="flex flex-wrap gap-2">
                     {book.categories?.map((category, index) => (
                         <span
-                            key={index}
-                            className="rounded-full bg-surface-container px-2 py-1 font-body-sm text-body-sm text-on-surface-variant transition-colors duration-200 dark:bg-slate-800 dark:text-white"
+                            key={`cat-${index}`}
+                            className="rounded-full bg-secondary-container px-2 py-1 font-body-sm text-body-sm text-on-secondary-container transition-colors duration-200"
                         >
                             {category}
+                        </span>
+                    ))}
+                    {book.tags?.map((tag, index) => (
+                        <span
+                            key={`tag-${index}`}
+                            className="rounded-full bg-surface-container px-2 py-1 font-body-sm text-body-sm text-on-surface-variant transition-colors duration-200 dark:bg-slate-800 dark:text-white"
+                        >
+                            #{tag}
                         </span>
                     ))}
                 </div>

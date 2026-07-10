@@ -55,7 +55,7 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
                     paymentMethod: paymentMethod.toUpperCase(),
                 });
             } else {
-                if (!phone || !fullName) {
+                if (!phone || !fullName || !email) {
                     setSubmitError(UI_TEXT.BORROW.FORM.ERRORS.MISSING_GUEST_INFO);
                     return;
                 }
