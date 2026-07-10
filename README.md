@@ -46,16 +46,16 @@ Frontend dùng App Router, tách component theo `base/` và `features/`, text UI
 
 ## Công Nghệ
 
-| Thành phần | Công nghệ |
-| --- | --- |
-| Frontend | Next.js 14.2, React 18, TypeScript, TailwindCSS, NextAuth, Axios, React Hook Form |
-| Backend | Java 24, Spring Boot 3.4, Spring Web, Spring Security, Spring Data JPA, Validation |
-| Database | MySQL 8, Flyway migrations |
-| Cache | Caffeine mặc định, Redis tùy chọn |
-| Storage | MinIO local hoặc Google Cloud Storage/S3-compatible endpoint |
-| Email | Resend, Thymeleaf templates |
-| Payment | VNPAY |
-| DevOps | Docker, Docker Compose, Maven, npm |
+| Thành phần | Công nghệ                                                                          |
+| ---------- | ---------------------------------------------------------------------------------- |
+| Frontend   | Next.js 14.2, React 18, TypeScript, TailwindCSS, NextAuth, Axios, React Hook Form  |
+| Backend    | Java 24, Spring Boot 3.4, Spring Web, Spring Security, Spring Data JPA, Validation |
+| Database   | MySQL 8, Flyway migrations                                                         |
+| Cache      | Caffeine mặc định, Redis tùy chọn                                                  |
+| Storage    | MinIO local hoặc Google Cloud Storage/S3-compatible endpoint                       |
+| Email      | Resend, Thymeleaf templates                                                        |
+| Payment    | VNPAY                                                                              |
+| DevOps     | Docker, Docker Compose, Maven, npm                                                 |
 
 ## Yêu Cầu Môi Trường
 

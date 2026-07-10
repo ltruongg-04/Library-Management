@@ -14,9 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-
-
-
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -30,15 +27,16 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     private final SystemLogService systemLogService;
     private final BookCopyService bookCopyService;
     private final CacheInvalidationService cacheInvalidationService;
-    private final library.mapper.BookMapper bookMapper;
+    private final library.mapper.BookMapper bookMapper;<<<<<<<HEAD
     private final FileStorageService fileStorageService;
 
     @Value("${minio.url}")
     private String storageUrl;
 
     @Value("${minio.bucket-name}")
-    private String storageBucketName;
+    private String storageBucketName;=======
 
+    >>>>>>>c81c7f11657b1d6809bc715289db6f3d158dda53
 
     @Override
     @Transactional
@@ -47,7 +45,8 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
 
         if (request.getIsbn() != null && !request.getIsbn().trim().isEmpty()) {
             if (bookRepository.existsByIsbn(request.getIsbn().trim())) {
-                throw new CustomBusinessException("Sách với mã ISBN này đã tồn tại trong thư viện", HttpStatus.BAD_REQUEST);
+                throw new CustomBusinessException("Sách với mã ISBN này đã tồn tại trong thư viện",
+                        HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -71,18 +70,23 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         book.setCategories(processCategories(request.getCategoryIds(), request.getNewCategories()));
 
         BookEntity savedBook = bookRepository.save(book);
-        
+
         if (request.getInitialQuantity() != null && request.getInitialQuantity() > 0) {
             bookCopyService.addCopies(savedBook.getId(), request.getInitialQuantity());
-            // Update book's calculated properties temporarily for the response or reload if necessary
-            // Note: Since @Formula values are evaluated on select, we don't strictly need to do anything here for the DB,
-            // but the response might show 0 unless re-fetched. This is fine for admin creation response.
+            // Update book's calculated properties temporarily for the response or reload if
+            // necessary
+            // Note: Since @Formula values are evaluated on select, we don't strictly need
+            // to do anything here for the DB,
+            // but the response might show 0 unless re-fetched. This is fine for admin
+            // creation response.
         }
-        
+
         systemLogService.logAction("Thêm sách mới", "Admin đã thêm sách mới: " + savedBook.getTitle());
         cacheInvalidationService.evictCatalogCaches();
         return bookMapper.toBookResponse(savedBook);
     }
+
+    <<<<<<<HEAD
 
     private String resolveCreateBookImageUrl(String imageUrl) {
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
@@ -113,6 +117,8 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
     }
 
+    =======>>>>>>>c81c7f11657b1d6809bc715289db6f3d158dda53
+
     @Override
     @Transactional
     public BookResponse updateBook(Integer id, library.dto.request.BookUpdateRequest request) {
@@ -134,8 +140,10 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         if (request.getCategoryIds() != null || request.getNewCategories() != null) {
             book.setCategories(processCategories(request.getCategoryIds(), request.getNewCategories()));
         }
-        if (request.getShelfLocation() != null) book.setShelfLocation(request.getShelfLocation());
-        if (request.getImageUrl() != null) book.setImageUrl(request.getImageUrl());
+        if (request.getShelfLocation() != null)
+            book.setShelfLocation(request.getShelfLocation());
+        if (request.getImageUrl() != null)
+            book.setImageUrl(request.getImageUrl());
 
         bookRepository.save(book);
         systemLogService.logAction("Cập nhật sách", "Admin đã cập nhật thông tin sách: " + book.getTitle());
@@ -167,13 +175,14 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
                 : bookRepository.existsByNormalizedTitleAndIdNot(title, currentBookId);
 
         if (duplicated) {
-            throw new CustomBusinessException("Sách với tiêu đề này đã tồn tại. Vui lòng quản lý số lượng bằng bản sao sách thay vì tạo đầu sách trùng.", HttpStatus.BAD_REQUEST);
+            throw new CustomBusinessException(
+                    "Sách với tiêu đề này đã tồn tại. Vui lòng quản lý số lượng bằng bản sao sách thay vì tạo đầu sách trùng.",
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
-
-
-    private java.util.Set<library.entity.AuthorEntity> processAuthors(java.util.List<Integer> authorIds, java.util.List<String> newAuthors) {
+    private java.util.Set<library.entity.AuthorEntity> processAuthors(java.util.List<Integer> authorIds,
+            java.util.List<String> newAuthors) {
         java.util.Set<library.entity.AuthorEntity> authors = new java.util.HashSet<>();
         if (authorIds != null && !authorIds.isEmpty()) {
             authors.addAll(authorRepository.findAllById(authorIds));
@@ -184,7 +193,8 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
                 if (existing.isPresent()) {
                     authors.add(existing.get());
                 } else {
-                    library.entity.AuthorEntity newAuthor = library.entity.AuthorEntity.builder().name(authorName).build();
+                    library.entity.AuthorEntity newAuthor = library.entity.AuthorEntity.builder().name(authorName)
+                            .build();
                     authors.add(authorRepository.save(newAuthor));
                 }
             }
@@ -192,18 +202,21 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         return authors;
     }
 
-    private java.util.Set<library.entity.CategoryEntity> processCategories(java.util.List<Integer> categoryIds, java.util.List<String> newCategories) {
+    private java.util.Set<library.entity.CategoryEntity> processCategories(java.util.List<Integer> categoryIds,
+            java.util.List<String> newCategories) {
         java.util.Set<library.entity.CategoryEntity> categories = new java.util.HashSet<>();
         if (categoryIds != null && !categoryIds.isEmpty()) {
             categories.addAll(categoryRepository.findAllById(categoryIds));
         }
         if (newCategories != null && !newCategories.isEmpty()) {
             for (String categoryName : newCategories) {
-                java.util.Optional<library.entity.CategoryEntity> existing = categoryRepository.findByName(categoryName);
+                java.util.Optional<library.entity.CategoryEntity> existing = categoryRepository
+                        .findByName(categoryName);
                 if (existing.isPresent()) {
                     categories.add(existing.get());
                 } else {
-                    library.entity.CategoryEntity newCategory = library.entity.CategoryEntity.builder().name(categoryName).build();
+                    library.entity.CategoryEntity newCategory = library.entity.CategoryEntity.builder()
+                            .name(categoryName).build();
                     categories.add(categoryRepository.save(newCategory));
                 }
             }
