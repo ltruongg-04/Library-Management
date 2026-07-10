@@ -24,13 +24,17 @@ public class BorrowOrderPaymentHelper {
     private final VnPayService vnPayService;
 
     public PaymentEntity createDepositPayment(BorrowOrderEntity borrowOrder, BigDecimal depositPrice, PaymentMethod paymentMethod) {
+        PaymentStatus initialStatus = depositPrice.compareTo(BigDecimal.ZERO) <= 0 
+                ? PaymentStatus.SUCCESS 
+                : PaymentStatus.PENDING;
+
         PaymentEntity payment = PaymentEntity.builder()
                 .borrowOrder(borrowOrder)
                 .paymentMethod(paymentMethod)
                 .transactionCode(borrowOrder.getOrderCode())
                 .amount(depositPrice)
                 .paymentType(PaymentType.DEPOSIT)
-                .paymentStatus(PaymentStatus.PENDING)
+                .paymentStatus(initialStatus)
                 .paymentDate(LocalDateTime.now())
                 .build();
 

@@ -10,9 +10,11 @@ import { authorService } from "@/services/author";
 import { bookService } from "@/services/book";
 import { categoryService } from "@/services/category";
 import { fileService } from "@/services/file";
+import { tagService } from "@/services/tag";
 import type { Author } from "@/types/author";
 import type { BookCreateRequest } from "@/types/book";
 import type { Category } from "@/types/category";
+import type { Tag } from "@/types/tag";
 
 export interface InitialBookData {
     title?: string;
@@ -24,6 +26,7 @@ export interface InitialBookData {
     isbn?: string;
     imageUrl?: string;
     categories?: string[];
+    tags?: string[];
 }
 
 interface AddBookModalProps {
@@ -44,9 +47,11 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
     const [selectedAuthors, setSelectedAuthors] = useState<any[]>([]);
     const [isbn, setIsbn] = useState("");
     const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
+    const [selectedTags, setSelectedTags] = useState<any[]>([]);
 
     const [authorInputValue, setAuthorInputValue] = useState("");
     const [categoryInputValue, setCategoryInputValue] = useState("");
+    const [tagInputValue, setTagInputValue] = useState("");
 
     const [shelfLocation, setShelfLocation] = useState("");
     const [imageUrl, setImageUrl] = useState("");
@@ -59,6 +64,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
     const [initialQuantity, setInitialQuantity] = useState<number | "">("");
 
     const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
+    const [availableTags, setAvailableTags] = useState<Tag[]>([]);
     const [availableAuthors, setAvailableAuthors] = useState<Author[]>([]);
 
     const textUI = ADMIN.MODAL.ADD_BOOK;
@@ -67,9 +73,14 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
         const loadData = async () => {
             try {
                 setLoading(true);
-                const [catData, authData] = await Promise.all([categoryService.getAllCategories(), authorService.getAllAuthors()]);
+                const [catData, authData, tagData] = await Promise.all([
+                    categoryService.getAllCategories(),
+                    authorService.getAllAuthors(),
+                    tagService.getAllTags(),
+                ]);
                 setAvailableCategories(catData);
                 setAvailableAuthors(authData);
+                setAvailableTags(tagData);
             } catch (err) {
                 console.error("Failed to load reference data:", err);
                 setError(API_ERRORS.FETCH_CATEGORIES_ERROR);
@@ -104,6 +115,13 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
                 setSelectedCategories([]);
             }
 
+            if (initialData?.tags && initialData.tags.length > 0) {
+                const initTags = initialData.tags.map((t) => ({ label: t, value: t, __isNew__: true }));
+                setSelectedTags(initTags);
+            } else {
+                setSelectedTags([]);
+            }
+
             setShelfLocation("");
             setDepositPrice("");
             setInitialQuantity("");
@@ -130,6 +148,9 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
             const categoryIds = selectedCategories.filter((c) => !c.__isNew__).map((c) => Number(c.value));
             const newCategories = selectedCategories.filter((c) => c.__isNew__).map((c) => c.label);
 
+            const tagIds = selectedTags.filter((t) => !t.__isNew__).map((t) => Number(t.value));
+            const newTags = selectedTags.filter((t) => t.__isNew__).map((t) => t.label);
+
             const createData: BookCreateRequest = {
                 title,
                 authorIds,
@@ -137,6 +158,8 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
                 isbn,
                 categoryIds,
                 newCategories,
+                tagIds,
+                newTags,
                 shelfLocation,
                 imageUrl,
                 description,
@@ -160,6 +183,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
 
     const authorOptions = availableAuthors.map((a) => ({ value: a.id.toString(), label: a.name }));
     const categoryOptions = availableCategories.map((c) => ({ value: c.id.toString(), label: c.name }));
+    const tagOptions = availableTags.map((t) => ({ value: t.id.toString(), label: t.name }));
 
     if (!isOpen) return null;
 
@@ -263,6 +287,43 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
                                         placeholder={textUI.SELECT_CATEGORY_PLACEHOLDER}
                                         formatCreateLabel={(inputValue: string) => `${textUI.CREATE_CATEGORY} "${inputValue}"`}
                                         noOptionsMessage={() => textUI.NO_CATEGORY_FOUND}
+                                        className="text-[14px]"
+                                        styles={{
+                                            control: (base: any) => ({
+                                                ...base,
+                                                borderRadius: "0.5rem",
+                                                borderColor: "#E2E8F0",
+                                                padding: "2px",
+                                                boxShadow: "none",
+                                                "&:hover": { borderColor: "#16a34a" },
+                                            }),
+                                            option: (base: any) => ({ ...base, fontSize: "13px" }),
+                                            multiValue: (base: any) => ({ ...base, backgroundColor: "#f1f5f9", borderRadius: "4px" }),
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[13px] font-medium text-on-surface-variant">{textUI.TAG_INPUT}</label>
+                                    <CreatableSelect
+                                        isMulti
+                                        options={tagOptions}
+                                        value={selectedTags}
+                                        inputValue={tagInputValue}
+                                        onInputChange={(newValue: any) => setTagInputValue(newValue)}
+                                        onChange={(newValue: any) => setSelectedTags(newValue as any[])}
+                                        onBlur={() => {
+                                            if (tagInputValue.trim()) {
+                                                setSelectedTags([
+                                                    ...selectedTags,
+                                                    { label: tagInputValue.trim(), value: tagInputValue.trim(), __isNew__: true },
+                                                ]);
+                                                setTagInputValue("");
+                                            }
+                                        }}
+                                        placeholder={textUI.SELECT_TAG_PLACEHOLDER}
+                                        formatCreateLabel={(inputValue: string) => `${textUI.CREATE_TAG} "${inputValue}"`}
+                                        noOptionsMessage={() => textUI.NO_TAG_FOUND}
                                         className="text-[14px]"
                                         styles={{
                                             control: (base: any) => ({

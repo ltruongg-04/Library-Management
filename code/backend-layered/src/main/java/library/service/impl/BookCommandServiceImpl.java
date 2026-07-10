@@ -27,16 +27,14 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     private final SystemLogService systemLogService;
     private final BookCopyService bookCopyService;
     private final CacheInvalidationService cacheInvalidationService;
-    private final library.mapper.BookMapper bookMapper;<<<<<<<HEAD
+    private final library.mapper.BookMapper bookMapper;
     private final FileStorageService fileStorageService;
 
     @Value("${minio.url}")
     private String storageUrl;
 
     @Value("${minio.bucket-name}")
-    private String storageBucketName;=======
-
-    >>>>>>>c81c7f11657b1d6809bc715289db6f3d158dda53
+    private String storageBucketName;
 
     @Override
     @Transactional
@@ -86,8 +84,6 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         return bookMapper.toBookResponse(savedBook);
     }
 
-    <<<<<<<HEAD
-
     private String resolveCreateBookImageUrl(String imageUrl) {
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
             return null;
@@ -116,8 +112,6 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         }
         return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
     }
-
-    =======>>>>>>>c81c7f11657b1d6809bc715289db6f3d158dda53
 
     @Override
     @Transactional

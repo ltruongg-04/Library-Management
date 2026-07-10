@@ -126,7 +126,7 @@ public class VnPayController {
             } else if (payment.getPaymentType() == PaymentType.DEPOSIT) {
                 log.info("Auto-approving new borrow order (DEPOSIT) for orderCode={}", orderCode);
                 try {
-                    adminBorrowService.updateBorrowStatus(orderCode, library.entity.BorrowOrderStatus.READY);
+                    adminBorrowService.approveBorrow(orderCode);
                 } catch (Exception e) {
                     log.error("Failed to auto-approve new borrow order", e);
                 }
@@ -216,7 +216,7 @@ public class VnPayController {
                 } else if (payment.getPaymentType() == PaymentType.DEPOSIT) {
                     log.info("Auto-approving new borrow order (via Return URL) for orderCode={}", orderCode);
                     try {
-                        adminBorrowService.updateBorrowStatus(orderCode, library.entity.BorrowOrderStatus.READY);
+                        adminBorrowService.approveBorrow(orderCode);
                     } catch (Exception e) {
                         log.error("Failed to auto-approve new borrow order", e);
                     }

@@ -33,6 +33,36 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
         return undefined;
     };
 
+    const parseCategoriesAndTags = (rawCategories?: string[] | any[]) => {
+        if (!rawCategories || !Array.isArray(rawCategories)) return { categories: [], tags: [] };
+
+        const categories = new Map<string, string>();
+        const tags = new Map<string, string>();
+        const addUnique = (target: Map<string, string>, value: string) => {
+            const normalized = value.trim().replace(/\s+/g, " ");
+            if (!normalized) return;
+            const key = normalized.toLowerCase();
+            if (!target.has(key)) target.set(key, normalized);
+        };
+
+        rawCategories.forEach((cat, index) => {
+            if (typeof cat !== "string") return;
+            const parts = cat
+                .split(/[\/,;]/)
+                .map((part) => part.trim())
+                .filter(Boolean);
+            if (parts.length === 0) return;
+
+            if (index < 3) addUnique(categories, parts[0]);
+            parts.forEach((part) => addUnique(tags, part));
+        });
+
+        return {
+            categories: Array.from(categories.values()).slice(0, 5),
+            tags: Array.from(tags.values()).slice(0, 10),
+        };
+    };
+
     if (!isOpen) return null;
 
     const handleSearch = async () => {
@@ -55,7 +85,7 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
                         publisher: info.publisher,
                         publicationDate: parseDateToYMD(info.publishedDate),
                         pages: info.pageCount,
-                        categories: info.categories || [],
+                        ...parseCategoriesAndTags(info.categories),
                         isbn: isbn.trim(),
                         imageUrl: info.imageLinks?.thumbnail?.replace("http://", "https://") || undefined,
                     };
@@ -78,7 +108,7 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
                             publisher: info.publishers ? info.publishers.map((p: any) => p.name).join(", ") : undefined,
                             publicationDate: parseDateToYMD(info.publish_date),
                             pages: info.number_of_pages || parseInt(info.pagination) || undefined,
-                            categories: info.subjects ? info.subjects.map((s: any) => s.name).slice(0, 5) : [],
+                            ...parseCategoriesAndTags(info.subjects ? info.subjects.map((s: any) => s.name) : []),
                             isbn: isbn.trim(),
                             imageUrl: info.cover?.large || info.cover?.medium || info.cover?.small || undefined,
                         };
@@ -90,6 +120,7 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
                             if (!bookData.pages) bookData.pages = olData.pages;
                             if (!bookData.imageUrl) bookData.imageUrl = olData.imageUrl;
                             if (!bookData.categories || bookData.categories.length === 0) bookData.categories = olData.categories;
+                            if (!bookData.tags || bookData.tags.length === 0) bookData.tags = olData.tags;
                             if (!bookData.publisher) bookData.publisher = olData.publisher;
                         }
                     }
