@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Loader2, Save, X } from "lucide-react";
 import Image from "next/image";
 import CreatableSelect from "react-select/creatable";
-import { DEFAULT_BACKEND_URL } from "@/config/env";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN } from "@/constants/ui-text/admin";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
@@ -110,12 +109,9 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
             setInitialQuantity("");
             setError(null);
 
-            // If there's an image URL, we might want to auto-upload it?
-            // Actually, we'll auto-upload it to MinIO right when opening the modal if it's an external URL
+            // External API cover URLs are sent to the backend and stored through the configured object storage.
             if (initialData?.imageUrl && initialData.imageUrl.startsWith("http")) {
                 setExternalImageUrl(initialData.imageUrl);
-                // We'll let the user click "Pull from URL" themselves, or we can auto-pull.
-                // It's safer to let them pull so they see the progress.
             } else {
                 setExternalImageUrl("");
             }
@@ -134,15 +130,6 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
             const categoryIds = selectedCategories.filter((c) => !c.__isNew__).map((c) => Number(c.value));
             const newCategories = selectedCategories.filter((c) => c.__isNew__).map((c) => c.label);
 
-            let finalImageUrl = imageUrl;
-            if (finalImageUrl && finalImageUrl.startsWith("http") && !finalImageUrl.includes(process.env.NEXT_PUBLIC_API_URL || DEFAULT_BACKEND_URL)) {
-                try {
-                    finalImageUrl = await fileService.uploadFileFromUrl(finalImageUrl);
-                } catch (e) {
-                    console.error("Failed to auto upload external image URL to MinIO before saving", e);
-                }
-            }
-
             const createData: BookCreateRequest = {
                 title,
                 authorIds,
@@ -151,7 +138,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
                 categoryIds,
                 newCategories,
                 shelfLocation,
-                imageUrl: finalImageUrl,
+                imageUrl,
                 description,
                 publisher,
                 publicationDate: publicationDate || undefined,

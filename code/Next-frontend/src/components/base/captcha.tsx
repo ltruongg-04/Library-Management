@@ -6,9 +6,10 @@ import { MaterialIcon } from "./material-icon";
 
 interface CaptchaProps {
     onValidate: (token: string | null) => void;
+    refreshLabel?: string;
 }
 
-export function Captcha({ onValidate }: CaptchaProps) {
+export function Captcha({ onValidate, refreshLabel }: CaptchaProps) {
     const recaptchaRef = useRef<ReCAPTCHA>(null);
 
     // Site key can be from environment variable or a default placeholder for development
@@ -37,8 +38,9 @@ export function Captcha({ onValidate }: CaptchaProps) {
                 <button
                     type="button"
                     onClick={handleRefresh}
-                    className="hover:text-primary-600 mt-2 p-2 text-on-surface-variant transition-colors"
-                    title="Làm mới"
+                    className="hover:text-primary-600 mt-2 p-2 text-on-surface-variant transition-colors dark:text-slate-300 dark:hover:text-primary-100"
+                    title={refreshLabel}
+                    aria-label={refreshLabel}
                 >
                     <MaterialIcon name="refresh" />
                 </button>

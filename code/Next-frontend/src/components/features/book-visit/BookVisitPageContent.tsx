@@ -20,10 +20,10 @@ import { MobileVisitNav } from "./MobileVisitNav";
 
 export default function BookVisitPageContent({ bookId }: BookVisitPageContentProps) {
     const pathname = usePathname();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const { book, loading, error } = useBookDetail(Number.isNaN(bookId) ? null : bookId);
     const selectedBookTitle = getSelectedBookTitle({ book, loading });
-    const { formState, submitStatus, today, updateField, handleSubmit } = useBookVisitForm({ bookId, selectedBookTitle });
+    const { formState, submitStatus, today, updateField, handleSubmit } = useBookVisitForm({ bookId, selectedBookTitle, currentUser: user, isAuthenticated });
     const isBookOutOfStock = Boolean(book && book.availableQuantity <= 0);
     const [isReserving, setIsReserving] = useState(false);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
@@ -113,6 +113,7 @@ export default function BookVisitPageContent({ bookId }: BookVisitPageContentPro
                                 formState={formState}
                                 submitStatus={submitStatus}
                                 today={today}
+                                isAuthenticated={isAuthenticated}
                                 onFieldChange={updateField}
                                 onSubmit={handleSubmit}
                             />

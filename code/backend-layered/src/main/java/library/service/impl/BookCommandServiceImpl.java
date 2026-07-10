@@ -7,8 +7,10 @@ import library.entity.BookEntity;
 import library.repository.BookRepository;
 import library.service.CacheInvalidationService;
 import library.service.BookCopyService;
+import library.service.FileStorageService;
 import library.service.SystemLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,13 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     private final BookCopyService bookCopyService;
     private final CacheInvalidationService cacheInvalidationService;
     private final library.mapper.BookMapper bookMapper;
+    private final FileStorageService fileStorageService;
 
+    @Value("${minio.url}")
+    private String storageUrl;
+
+    @Value("${minio.bucket-name}")
+    private String storageBucketName;
 
 
     @Override
@@ -50,7 +58,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
                 .publicationDate(request.getPublicationDate())
                 .pages(request.getPages())
                 .description(request.getDescription())
-                .imageUrl(request.getImageUrl())
+                .imageUrl(resolveCreateBookImageUrl(request.getImageUrl()))
                 .shelfLocation(request.getShelfLocation())
                 .depositPrice(request.getDepositPrice())
                 .quantity(0)
@@ -74,6 +82,35 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         systemLogService.logAction("Thêm sách mới", "Admin đã thêm sách mới: " + savedBook.getTitle());
         cacheInvalidationService.evictCatalogCaches();
         return bookMapper.toBookResponse(savedBook);
+    }
+
+    private String resolveCreateBookImageUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            return null;
+        }
+
+        String trimmedImageUrl = imageUrl.trim();
+        if (!isExternalHttpUrl(trimmedImageUrl) || isStoredImageUrl(trimmedImageUrl)) {
+            return trimmedImageUrl;
+        }
+
+        return fileStorageService.uploadFileFromUrl(trimmedImageUrl);
+    }
+
+    private boolean isExternalHttpUrl(String imageUrl) {
+        return imageUrl.startsWith("http://") || imageUrl.startsWith("https://");
+    }
+
+    private boolean isStoredImageUrl(String imageUrl) {
+        String normalizedStorageUrl = trimTrailingSlash(storageUrl);
+        return imageUrl.startsWith(normalizedStorageUrl + "/" + storageBucketName + "/");
+    }
+
+    private String trimTrailingSlash(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
     }
 
     @Override

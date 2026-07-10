@@ -45,6 +45,12 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  cloud:
+    gcp:
+      sql:
+        enabled: ${GCP_CLOUD_SQL_AUTO_CONFIG_ENABLED:false}
+        jdbc:
+          enabled: ${GCP_CLOUD_SQL_JDBC_AUTO_CONFIG_ENABLED:false}
 resend:
   api-key: ${RESEND_API_KEY:}
   from-email: ${RESEND_FROM_EMAIL:Lumina Library <onboarding@resend.dev>}

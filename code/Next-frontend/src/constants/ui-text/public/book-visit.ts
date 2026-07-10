@@ -39,6 +39,8 @@ export const BOOK_VISIT = {
             CONSULT: "Nhờ thủ thư tư vấn",
         },
         NOTE: "Không cần tạo tài khoản mới. Xác nhận đặt lịch sẽ được gửi qua email để vào thư viện nhanh hơn.",
+        MEMBER_NOTE: "Thông tin người đọc được lấy từ tài khoản của bạn. Xác nhận đặt lịch sẽ được gửi qua email tài khoản.",
+        CAPTCHA_REFRESH: "Làm mới CAPTCHA",
         SUBMIT: "Xác nhận lịch đến",
         TOAST_SENDING: "Đang gửi xác nhận lịch đến...",
     },

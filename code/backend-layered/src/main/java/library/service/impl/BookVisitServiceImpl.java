@@ -14,6 +14,9 @@ import library.service.ReCaptchaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +37,10 @@ public class BookVisitServiceImpl implements BookVisitService {
 
     @Override
     public void createBookVisit(BookVisitRequest request) {
-        // 1. Validate CAPTCHA
-        if (request.getCaptchaToken() == null || request.getCaptchaToken().trim().isEmpty()
-                || !reCaptchaService.verifyToken(request.getCaptchaToken())) {
+        // 1. Validate CAPTCHA for guest requests. Authenticated readers can skip it when using their account email.
+        if (!isAuthenticatedReader(request.getEmail())
+                && (request.getCaptchaToken() == null || request.getCaptchaToken().trim().isEmpty()
+                || !reCaptchaService.verifyToken(request.getCaptchaToken()))) {
             throw new RuntimeException("Xác thực CAPTCHA thất bại. Vui lòng thử lại.");
         }
 
@@ -101,6 +105,19 @@ public class BookVisitServiceImpl implements BookVisitService {
                 request.getPhone());
 
         log.info("Created book visit and sent email for {}", request.getEmail());
+    }
+
+    private boolean isAuthenticatedReader(String requestEmail) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken
+                || requestEmail == null) {
+            return false;
+        }
+
+        return authentication.getName() != null
+                && authentication.getName().equalsIgnoreCase(requestEmail.trim());
     }
 
     @Override

@@ -12,16 +12,22 @@ type BookVisitFormProps = {
     formState: VisitFormState;
     submitStatus: SubmitStatus;
     today: string;
+    isAuthenticated: boolean;
     onFieldChange: (field: keyof VisitFormState, value: string) => void;
     onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
 
-export function BookVisitForm({ formState, submitStatus, today, onFieldChange, onSubmit }: BookVisitFormProps) {
+export function BookVisitForm({ formState, submitStatus, today, isAuthenticated, onFieldChange, onSubmit }: BookVisitFormProps) {
     const visitTimeOptions = useMemo(() => getVisitTimeOptions(formState.visitDate), [formState.visitDate]);
     const visitTimeValue = buildVisitTimeValue(formState);
     const isVisitTimeDisabled = !formState.visitDate;
+    const requiresCaptcha = !isAuthenticated;
+    const isSubmitDisabled = submitStatus === "sending" || (requiresCaptcha && !formState.captchaToken);
     const timePlaceholder = formState.visitDate ? UI_TEXT.BOOK_VISIT.FORM.TIME_PLACEHOLDER : UI_TEXT.BOOK_VISIT.FORM.TIME_DISABLED_PLACEHOLDER;
     const visitTimeClassName = `${BOOK_VISIT_INPUT_CLASS_NAME} ${visitTimeValue ? "" : "text-outline dark:text-slate-500"}`;
+    const emailClassName = `${BOOK_VISIT_INPUT_CLASS_NAME} ${
+        isAuthenticated ? "disabled:cursor-not-allowed disabled:text-on-surface-variant disabled:opacity-80 dark:disabled:text-slate-300" : ""
+    }`;
 
     const handleVisitTimeChange = (value: string) => {
         const { hour, minute, period } = parseVisitTimeValue(value);
@@ -59,7 +65,8 @@ export function BookVisitForm({ formState, submitStatus, today, onFieldChange, o
                                 onChange={(event) => onFieldChange("email", event.target.value)}
                                 placeholder={UI_TEXT.BOOK_VISIT.FORM.EMAIL_PLACEHOLDER}
                                 autoComplete="email"
-                                className={BOOK_VISIT_INPUT_CLASS_NAME}
+                                disabled={isAuthenticated}
+                                className={emailClassName}
                             />
                         </Field>
                         <Field label={UI_TEXT.BOOK_VISIT.FORM.PHONE_LABEL} htmlFor="phone" className="md:col-span-2">
@@ -141,23 +148,28 @@ export function BookVisitForm({ formState, submitStatus, today, onFieldChange, o
                     </div>
                 </FormSection>
 
-                <div className="flex flex-col gap-4 border-t border-outline-variant/30 pt-6 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
+                <div className="grid gap-4 border-t border-outline-variant/30 pt-6 dark:border-slate-800 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
                     <p className="flex max-w-sm items-start gap-2 font-body-sm text-body-sm text-on-surface-variant dark:text-slate-300">
                         <Info size={18} className="mt-0.5 shrink-0 text-secondary dark:text-secondary-300" />
-                        <span>{UI_TEXT.BOOK_VISIT.FORM.NOTE}</span>
+                        <span>{isAuthenticated ? UI_TEXT.BOOK_VISIT.FORM.MEMBER_NOTE : UI_TEXT.BOOK_VISIT.FORM.NOTE}</span>
                     </p>
-
-                    <div className="flex w-full justify-center py-2 md:justify-start">
-                        <Captcha onValidate={(token) => onFieldChange("captchaToken", token || "")} />
-                    </div>
 
                     <button
                         type="submit"
-                        disabled={submitStatus === "sending" || !formState.captchaToken}
+                        disabled={isSubmitDisabled}
                         className="inline-flex w-full items-center justify-center whitespace-nowrap rounded-lg bg-primary px-10 py-3 font-title-md text-title-md text-on-primary shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-200 hover:bg-primary-container active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-primary-500 dark:hover:bg-primary-700 md:w-auto"
                     >
                         {submitStatus === "sending" ? UI_TEXT.BOOK_VISIT.FORM.TOAST_SENDING : UI_TEXT.BOOK_VISIT.FORM.SUBMIT}
                     </button>
+
+                    {requiresCaptcha && (
+                        <div className="flex w-full overflow-x-auto py-2 md:col-span-2">
+                            <Captcha
+                                refreshLabel={UI_TEXT.BOOK_VISIT.FORM.CAPTCHA_REFRESH}
+                                onValidate={(token) => onFieldChange("captchaToken", token || "")}
+                            />
+                        </div>
+                    )}
                 </div>
             </form>
         </div>
