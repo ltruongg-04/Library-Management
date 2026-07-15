@@ -60,6 +60,16 @@ export const ADMIN = {
             ERROR: "Có lỗi xảy ra khi tìm sách",
             CANCEL: "Hủy bỏ",
             OR_TEXT: "HOẶC",
+            OTHER_CATEGORY: "Khác",
+            CATEGORIES: {
+                FICTION: "Tiểu thuyết & Giả tưởng",
+                SCIENCE: "Khoa học Công nghệ",
+                BUSINESS: "Kinh tế & Quản trị",
+                HISTORY: "Lịch sử & Tiểu sử",
+                PSYCHOLOGY: "Tâm lý & Kỹ năng sống",
+                CHILDREN: "Thiếu nhi",
+                ART: "Nghệ thuật & Kiến trúc",
+            },
         },
         ADD_BOOK: {
             TITLE: "Thêm Sách Mới",

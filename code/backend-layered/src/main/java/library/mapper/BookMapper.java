@@ -9,6 +9,7 @@ import library.entity.BookEntity;
 import library.entity.CategoryEntity;
 import library.entity.TagEntity;
 import library.dto.response.TagResponse;
+import library.service.FileStorageService;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -19,6 +20,12 @@ import java.util.stream.Collectors;
 @Component
 public class BookMapper {
 
+    private final FileStorageService fileStorageService;
+
+    public BookMapper(FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
+    }
+
     public BookListResponse toBookListResponse(BookEntity entity) {
         if (entity == null) return null;
         
@@ -27,7 +34,7 @@ public class BookMapper {
                 .title(entity.getTitle())
                 .authors(mapAuthors(entity.getAuthors()))
                 .categories(mapCategories(entity.getCategories()))
-                .imageUrl(entity.getImageUrl())
+                .imageUrl(fileStorageService.resolveFullUrl(entity.getImageUrl()))
                 .rating(entity.getRating())
                 .availableQuantity(entity.getAvailableQuantity())
                 .quantity(entity.getQuantity())
@@ -49,7 +56,7 @@ public class BookMapper {
                 .pages(entity.getPages())
                 .isbn(entity.getIsbn())
                 .description(entity.getDescription())
-                .imageUrl(entity.getImageUrl())
+                .imageUrl(fileStorageService.resolveFullUrl(entity.getImageUrl()))
                 .rating(entity.getRating())
                 .reviewCount(entity.getReviewCount())
                 .availableQuantity(entity.getAvailableQuantity())

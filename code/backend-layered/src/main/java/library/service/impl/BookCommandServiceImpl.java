@@ -24,6 +24,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     private final BookRepository bookRepository;
     private final library.repository.CategoryRepository categoryRepository;
     private final library.repository.AuthorRepository authorRepository;
+    private final library.repository.TagRepository tagRepository;
     private final SystemLogService systemLogService;
     private final BookCopyService bookCopyService;
     private final CacheInvalidationService cacheInvalidationService;
@@ -66,6 +67,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
 
         book.setAuthors(processAuthors(request.getAuthorIds(), request.getNewAuthors()));
         book.setCategories(processCategories(request.getCategoryIds(), request.getNewCategories()));
+        book.setTags(processTags(request.getTagIds(), request.getNewTags()));
 
         BookEntity savedBook = bookRepository.save(book);
 
@@ -90,10 +92,18 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         }
 
         String trimmedImageUrl = imageUrl.trim();
-        if (!isExternalHttpUrl(trimmedImageUrl) || isStoredImageUrl(trimmedImageUrl)) {
+
+        // Nếu không phải URL http → đã là object key rồi, giữ nguyên
+        if (!isExternalHttpUrl(trimmedImageUrl)) {
             return trimmedImageUrl;
         }
 
+        // Nếu là URL đã nằm trên storage → strip prefix lấy object key
+        if (isStoredImageUrl(trimmedImageUrl)) {
+            return extractObjectKey(trimmedImageUrl);
+        }
+
+        // Là URL bên ngoài → upload lên MinIO, trả về object key
         return fileStorageService.uploadFileFromUrl(trimmedImageUrl);
     }
 
@@ -104,6 +114,18 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     private boolean isStoredImageUrl(String imageUrl) {
         String normalizedStorageUrl = trimTrailingSlash(storageUrl);
         return imageUrl.startsWith(normalizedStorageUrl + "/" + storageBucketName + "/");
+    }
+
+    /**
+     * Trích xuất object key từ full storage URL.
+     * Ví dụ: "http://84.247.131.42:9000/library/abc.jpg" → "abc.jpg"
+     */
+    private String extractObjectKey(String fullUrl) {
+        String prefix = trimTrailingSlash(storageUrl) + "/" + storageBucketName + "/";
+        if (fullUrl.startsWith(prefix)) {
+            return fullUrl.substring(prefix.length());
+        }
+        return fullUrl;
     }
 
     private String trimTrailingSlash(String value) {
@@ -134,10 +156,13 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
         if (request.getCategoryIds() != null || request.getNewCategories() != null) {
             book.setCategories(processCategories(request.getCategoryIds(), request.getNewCategories()));
         }
+        if (request.getTagIds() != null || request.getNewTags() != null) {
+            book.setTags(processTags(request.getTagIds(), request.getNewTags()));
+        }
         if (request.getShelfLocation() != null)
             book.setShelfLocation(request.getShelfLocation());
         if (request.getImageUrl() != null)
-            book.setImageUrl(request.getImageUrl());
+            book.setImageUrl(resolveCreateBookImageUrl(request.getImageUrl()));
 
         bookRepository.save(book);
         systemLogService.logAction("Cập nhật sách", "Admin đã cập nhật thông tin sách: " + book.getTitle());
@@ -216,5 +241,25 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
             }
         }
         return categories;
+    }
+
+    private java.util.Set<library.entity.TagEntity> processTags(java.util.List<Integer> tagIds,
+            java.util.List<String> newTags) {
+        java.util.Set<library.entity.TagEntity> tags = new java.util.HashSet<>();
+        if (tagIds != null && !tagIds.isEmpty()) {
+            tags.addAll(tagRepository.findAllById(tagIds));
+        }
+        if (newTags != null && !newTags.isEmpty()) {
+            for (String tagName : newTags) {
+                java.util.Optional<library.entity.TagEntity> existing = tagRepository.findByName(tagName);
+                if (existing.isPresent()) {
+                    tags.add(existing.get());
+                } else {
+                    library.entity.TagEntity newTag = library.entity.TagEntity.builder().name(tagName).build();
+                    tags.add(tagRepository.save(newTag));
+                }
+            }
+        }
+        return tags;
     }
 }

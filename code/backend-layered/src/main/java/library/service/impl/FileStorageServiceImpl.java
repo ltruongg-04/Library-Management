@@ -46,7 +46,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                             .build()
             );
 
-            return minioUrl + "/" + bucketName + "/" + fileName;
+            return fileName;
         } catch (Exception e) {
             throw new RuntimeException("Đã xảy ra lỗi khi tải tệp lên MinIO", e);
         }
@@ -103,10 +103,22 @@ public class FileStorageServiceImpl implements FileStorageService {
                 );
             }
 
-            return minioUrl + "/" + bucketName + "/" + fileName;
+            return fileName;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Đã xảy ra lỗi khi tải tệp từ URL lên MinIO: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public String resolveFullUrl(String objectKey) {
+        if (objectKey == null || objectKey.isBlank()) {
+            return null;
+        }
+        // Backward-compatible: nếu DB vẫn lưu full URL cũ thì trả nguyên
+        if (objectKey.startsWith("http://") || objectKey.startsWith("https://")) {
+            return objectKey;
+        }
+        return minioUrl + "/" + bucketName + "/" + objectKey;
     }
 }

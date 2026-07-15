@@ -17,8 +17,8 @@ public class FileController {
 
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
-        String fileUrl = fileStorageService.uploadFile(file);
-        return ResponseEntity.ok(Map.of("url", fileUrl));
+        String objectKey = fileStorageService.uploadFile(file);
+        return ResponseEntity.ok(Map.of("url", fileStorageService.resolveFullUrl(objectKey)));
     }
 
     public static class UrlRequest {
@@ -29,7 +29,7 @@ public class FileController {
 
     @PostMapping("/upload-url")
     public ResponseEntity<Map<String, String>> uploadFromUrl(@RequestBody UrlRequest request) {
-        String fileUrl = fileStorageService.uploadFileFromUrl(request.getUrl());
-        return ResponseEntity.ok(Map.of("url", fileUrl));
+        String objectKey = fileStorageService.uploadFileFromUrl(request.getUrl());
+        return ResponseEntity.ok(Map.of("url", fileStorageService.resolveFullUrl(objectKey)));
     }
 }

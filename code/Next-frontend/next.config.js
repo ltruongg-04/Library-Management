@@ -54,6 +54,10 @@ const nextConfig = {
                 protocol: "https",
                 hostname: "storage.googleapis.com",
             },
+            {
+                protocol: "http",
+                hostname: "84.247.131.42",
+            },
         ],
     },
 };

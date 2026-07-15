@@ -19,6 +19,33 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
 
     const textUI = ADMIN.MODAL.CHOOSE_ADD_METHOD;
 
+    const cleanDescription = (desc?: string) => {
+        if (!desc) return "";
+        let cleaned = desc;
+
+        // 1. Cắt bỏ mọi thứ từ đường gạch ngang hoặc "See also:" (thường nằm ở cuối tóm tắt)
+        const separatorIndex = cleaned.indexOf("----------");
+        if (separatorIndex !== -1) cleaned = cleaned.substring(0, separatorIndex);
+
+        const seeAlsoIndex = cleaned.toLowerCase().indexOf("see also:");
+        if (seeAlsoIndex !== -1) cleaned = cleaned.substring(0, seeAlsoIndex);
+
+        // 2. Cắt bỏ cụm trích dẫn nguồn ở cuối đoạn văn, ví dụ: ([source][1]) hoặc (Source: abc)
+        const sourceIndex1 = cleaned.toLowerCase().lastIndexOf("([source");
+        if (sourceIndex1 !== -1 && sourceIndex1 > cleaned.length - 100) {
+            cleaned = cleaned.substring(0, sourceIndex1);
+        }
+        const sourceIndex2 = cleaned.toLowerCase().lastIndexOf("(source");
+        if (sourceIndex2 !== -1 && sourceIndex2 > cleaned.length - 100) {
+            cleaned = cleaned.substring(0, sourceIndex2);
+        }
+
+        // 3. Xóa các markdown link còn sót lại [Text](http...)
+        cleaned = cleaned.replace(/\[([^\]]*)\]\([^\)]+\)/g, "");
+
+        return cleaned.trim();
+    };
+
     const parseDateToYMD = (dateStr?: string) => {
         if (!dateStr) return undefined;
         // Google Books: "YYYY" or "YYYY-MM"
@@ -33,11 +60,42 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
         return undefined;
     };
 
+    const CATEGORY_MAPPING = [
+        {
+            name: textUI.CATEGORIES.FICTION,
+            keywords: [
+                "fiction",
+                "fantasy",
+                "magic",
+                "ghost",
+                "monster",
+                "novel",
+                "literature",
+                "story",
+                "stories",
+                "vampire",
+                "sci-fi",
+                "thriller",
+                "mystery",
+            ],
+        },
+        {
+            name: textUI.CATEGORIES.SCIENCE,
+            keywords: ["science", "computer", "programming", "mathematics", "physics", "technology", "engineering", "java", "python", "software", "data"],
+        },
+        { name: textUI.CATEGORIES.BUSINESS, keywords: ["business", "economics", "management", "finance", "marketing", "investing", "leadership", "money"] },
+        { name: textUI.CATEGORIES.HISTORY, keywords: ["history", "biography", "war", "historical", "memoir", "politics"] },
+        { name: textUI.CATEGORIES.PSYCHOLOGY, keywords: ["psychology", "self-help", "motivation", "health", "mind", "wellness", "philosophy"] },
+        { name: textUI.CATEGORIES.CHILDREN, keywords: ["children", "juvenile", "kids", "picture books", "school"] },
+        { name: textUI.CATEGORIES.ART, keywords: ["art", "architecture", "design", "music", "photography"] },
+    ];
+
     const parseCategoriesAndTags = (rawCategories?: string[] | any[]) => {
         if (!rawCategories || !Array.isArray(rawCategories)) return { categories: [], tags: [] };
 
-        const categories = new Map<string, string>();
         const tags = new Map<string, string>();
+        const parsedCategories = new Set<string>();
+
         const addUnique = (target: Map<string, string>, value: string) => {
             const normalized = value.trim().replace(/\s+/g, " ");
             if (!normalized) return;
@@ -45,7 +103,7 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
             if (!target.has(key)) target.set(key, normalized);
         };
 
-        rawCategories.forEach((cat, index) => {
+        rawCategories.forEach((cat) => {
             if (typeof cat !== "string") return;
             const parts = cat
                 .split(/[\/,;]/)
@@ -53,13 +111,35 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
                 .filter(Boolean);
             if (parts.length === 0) return;
 
-            if (index < 3) addUnique(categories, parts[0]);
+            // 1. Lưu tất cả rác/từ khóa gốc vào Tags
             parts.forEach((part) => addUnique(tags, part));
+
+            // 2. Map từ khóa thành Thể loại chuẩn
+            const catLower = cat.toLowerCase();
+            for (const mapItem of CATEGORY_MAPPING) {
+                if (mapItem.keywords.some((kw) => catLower.includes(kw))) {
+                    parsedCategories.add(mapItem.name);
+                }
+            }
         });
 
+        // Lọc thẻ (Tags): Loại bỏ thẻ quá dài (>25 ký tự) hoặc nhiều hơn 3 từ
+        let filteredTags = Array.from(tags.values()).filter((tag) => {
+            const wordCount = tag.split(" ").length;
+            return tag.length <= 25 && wordCount <= 3;
+        });
+
+        // Ưu tiên các thẻ ngắn gọn lên đầu
+        filteredTags.sort((a, b) => a.length - b.length);
+
+        // Nếu không map được thể loại nào, gán mặc định là "Khác"
+        if (parsedCategories.size === 0) {
+            parsedCategories.add(textUI.OTHER_CATEGORY);
+        }
+
         return {
-            categories: Array.from(categories.values()).slice(0, 5),
-            tags: Array.from(tags.values()).slice(0, 10),
+            categories: Array.from(parsedCategories).slice(0, 2), // Lấy tối đa 2 thể loại chuẩn
+            tags: filteredTags.slice(0, 5), // Lấy tối đa 5 thẻ ngắn gọn nhất
         };
     };
 
@@ -104,7 +184,7 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
                         const olData = {
                             title: info.title,
                             authors: info.authors ? info.authors.map((a: any) => a.name) : [],
-                            description: info.notes || info.subtitle || "",
+                            description: info.subtitle || "",
                             publisher: info.publishers ? info.publishers.map((p: any) => p.name).join(", ") : undefined,
                             publicationDate: parseDateToYMD(info.publish_date),
                             pages: info.number_of_pages || parseInt(info.pagination) || undefined,
@@ -145,9 +225,9 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
                         const workRes = await axios.get(`https://openlibrary.org${workKey}.json`);
                         if (workRes.data && workRes.data.description) {
                             if (typeof workRes.data.description === "string") {
-                                bookData.description = workRes.data.description;
+                                bookData.description = cleanDescription(workRes.data.description);
                             } else if (workRes.data.description.value) {
-                                bookData.description = workRes.data.description.value;
+                                bookData.description = cleanDescription(workRes.data.description.value);
                             }
                         }
                     }

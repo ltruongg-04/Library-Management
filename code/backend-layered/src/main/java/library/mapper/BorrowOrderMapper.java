@@ -7,6 +7,7 @@ import library.entity.*;
 import library.repository.BorrowExtensionRepository;
 import library.repository.PaymentRepository;
 import library.service.FeeCalculatorService;
+import library.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,9 @@ public class BorrowOrderMapper {
     @Autowired
     protected FeeCalculatorService feeCalculatorService;
 
+    @Autowired
+    protected FileStorageService fileStorageService;
+
     // ----- To UserBorrowHistoryDto -----
     public UserBorrowHistoryDto toUserBorrowHistoryDto(BorrowOrderEntity order) {
         if (order == null) return null;
@@ -48,7 +52,7 @@ public class BorrowOrderMapper {
             BookEntity book = getBookFromDetail(detail);
             builder.bookTitle(getBookTitle(book))
                    .bookAuthor(getAuthorName(book))
-                   .bookCoverImage(book != null ? book.getImageUrl() : null);
+                   .bookCoverImage(book != null ? fileStorageService.resolveFullUrl(book.getImageUrl()) : null);
         }
 
         return builder.build();
@@ -73,7 +77,7 @@ public class BorrowOrderMapper {
             BookEntity book = getBookFromDetail(detail);
             builder.bookTitle(getBookTitle(book))
                    .bookAuthor(getAuthorName(book))
-                   .bookCoverImage(book != null ? book.getImageUrl() : null)
+                   .bookCoverImage(book != null ? fileStorageService.resolveFullUrl(book.getImageUrl()) : null)
                    .bookDetailStatus(detail.getStatus() != null ? detail.getStatus().name() : "");
         }
 
@@ -175,7 +179,7 @@ public class BorrowOrderMapper {
                         .title(getBookTitle(book))
                         .author(getAuthorName(book))
                         .status(bookStatus)
-                        .imgSrc(book != null ? book.getImageUrl() : null)
+                        .imgSrc(book != null ? fileStorageService.resolveFullUrl(book.getImageUrl()) : null)
                         .build());
             }
         }
@@ -233,7 +237,7 @@ public class BorrowOrderMapper {
             BookEntity book = getBookFromDetail(order.getOrderDetails().get(0));
             title = getBookTitle(book);
             author = getAuthorName(book);
-            imgSrc = book != null ? book.getImageUrl() : null;
+            imgSrc = book != null ? fileStorageService.resolveFullUrl(book.getImageUrl()) : null;
         }
 
         String depositFormatted = order.getTotalDeposit() != null ? currencyFormatter.format(order.getTotalDeposit()) : "0 đ";
