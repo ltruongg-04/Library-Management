@@ -83,6 +83,8 @@ services:
   frontend:
     build:
       context: ./code/Next-frontend
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.84.247.131.42.nip.io}
     container_name: library-frontend
     ports:
       - "3000:3000"
