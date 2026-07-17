@@ -5,3 +5,7 @@
 api.84.247.131.42.nip.io {
     reverse_proxy backend:8080
 }
+
+minio.84.247.131.42.nip.io {
+    reverse_proxy minio:9000
+}
