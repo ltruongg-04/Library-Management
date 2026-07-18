@@ -57,6 +57,11 @@ const nextConfig = {
             {
                 protocol: "http",
                 hostname: "84.247.131.42",
+                port: "9000",
+            },
+            {
+                protocol: "https",
+                hostname: "minio.84.247.131.42.nip.io",
             },
         ],
     },
