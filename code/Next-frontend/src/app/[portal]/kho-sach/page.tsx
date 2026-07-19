@@ -5,6 +5,7 @@ import { BookOpen, Plus, Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import AddBookModal, { InitialBookData } from "@/components/features/admin/inventory/AddBookModal";
+import BookCopiesModal from "@/components/features/admin/inventory/BookCopiesModal";
 import BookFilters from "@/components/features/admin/inventory/BookFilters";
 import BookTable from "@/components/features/admin/inventory/BookTable";
 import ChooseAddMethodModal from "@/components/features/admin/inventory/ChooseAddMethodModal";
@@ -17,6 +18,17 @@ export default function KhoSachPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [initialBookData, setInitialBookData] = useState<InitialBookData | null>(null);
     const [permissions, setPermissions] = useState<string[]>([]);
+
+    // Copies Modal State
+    const [copiesBookId, setCopiesBookId] = useState<number | null>(null);
+    const [copiesBookTitle, setCopiesBookTitle] = useState<string>("");
+    const [isCopiesModalOpen, setIsCopiesModalOpen] = useState(false);
+
+    const handleManageCopies = (id: number, title: string) => {
+        setCopiesBookId(id);
+        setCopiesBookTitle(title);
+        setIsCopiesModalOpen(true);
+    };
 
     const isAdmin = session?.user?.role?.toUpperCase() === "ADMIN";
     const canAddBook = useMemo(() => isAdmin || permissions.includes("books.add-book"), [isAdmin, permissions]);
@@ -89,7 +101,7 @@ export default function KhoSachPage() {
 
                 {/* Table View */}
                 <Suspense fallback={<div className="min-h-[400px] animate-pulse rounded-xl bg-surface-container-high"></div>}>
-                    <BookTable canEditBook={canEditBook} />
+                    <BookTable canEditBook={canEditBook} onManageCopies={handleManageCopies} />
                 </Suspense>
             </div>
 
@@ -107,6 +119,10 @@ export default function KhoSachPage() {
                         setInitialBookData(data);
                         setIsAddModalOpen(true);
                     }}
+                    onManageCopies={(id, title) => {
+                        setIsChooseModalOpen(false);
+                        handleManageCopies(id, title);
+                    }}
                 />
             )}
 
@@ -118,6 +134,22 @@ export default function KhoSachPage() {
                         window.location.reload();
                     }}
                     initialData={initialBookData}
+                    onManageCopies={(id, title) => {
+                        setIsAddModalOpen(false);
+                        handleManageCopies(id, title);
+                    }}
+                />
+            )}
+
+            {isCopiesModalOpen && copiesBookId !== null && (
+                <BookCopiesModal
+                    bookId={copiesBookId}
+                    bookTitle={copiesBookTitle}
+                    isOpen={isCopiesModalOpen}
+                    onClose={() => setIsCopiesModalOpen(false)}
+                    onSuccess={() => {
+                        window.location.reload();
+                    }}
                 />
             )}
         </div>

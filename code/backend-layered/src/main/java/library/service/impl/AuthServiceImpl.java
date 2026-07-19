@@ -30,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private static final int LOCK_MINUTES = 15;
 
     private final UserRepository userRepository;
+    private final library.repository.CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
     private final SystemLogService systemLogService;
     private final TokenService tokenService;
@@ -54,6 +55,15 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         UserEntity savedUser = userRepository.save(user);
+
+        library.entity.CustomerEntity customer = library.entity.CustomerEntity.builder()
+                .user(savedUser)
+                .fullName(savedUser.getFullName())
+                .phone(savedUser.getPhone() != null ? savedUser.getPhone() : "0000000000")
+                .email(savedUser.getEmail())
+                .address("Chưa cập nhật")
+                .build();
+        customerRepository.save(customer);
 
         systemLogService.logAction(savedUser, "Đăng ký tài khoản", "Người dùng " + savedUser.getEmail() + " đã đăng ký tài khoản mới.");
 
@@ -102,7 +112,18 @@ public class AuthServiceImpl implements AuthService {
                             .role(UserEntity.Role.CUSTOMER)
                             .active(true)
                             .build();
-                    return userRepository.save(newUser);
+                    UserEntity savedUser = userRepository.save(newUser);
+                    
+                    library.entity.CustomerEntity customer = library.entity.CustomerEntity.builder()
+                            .user(savedUser)
+                            .fullName(savedUser.getFullName())
+                            .phone("0000000000")
+                            .email(savedUser.getEmail())
+                            .address("Chưa cập nhật")
+                            .build();
+                    customerRepository.save(customer);
+                    
+                    return savedUser;
                 });
 
         if (!user.isActive()) {

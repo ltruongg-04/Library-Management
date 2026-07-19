@@ -11,18 +11,6 @@ import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { getBorrowOrderDetail } from "@/services/borrow";
 import { BorrowOrderDetailResponseDto } from "@/types/borrow";
 
-const mapStatus = (status: string): string => {
-    const map: Record<string, string> = {
-        PENDING: "pending",
-        READY: "pending",
-        BORROWED: "borrowing",
-        RETURNED: "returned",
-        OVERDUE: "overdue",
-        CANCELLED: "cancelled",
-    };
-    return map[status] || status.toLowerCase();
-};
-
 export default function LoanDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -83,8 +71,6 @@ export default function LoanDetailPage() {
         );
     }
 
-    const displayStatus = mapStatus(loan.status);
-    const isOverdue = displayStatus === "overdue";
     const breadcrumbItems = [
         { label: MY_BOOKS_PAGE.BREADCRUMB_ACCOUNT, href: "/profile" },
         { label: MY_BOOKS_PAGE.TITLE, href: "/lich-su" },
@@ -313,43 +299,6 @@ export default function LoanDetailPage() {
                             >
                                 {loan.settlementType === "SETTLED" ? "" : loan.settlementAmount || loan.total}
                             </span>
-                        </div>
-                    </section>
-
-                    {/* Section 4: Activity Timeline */}
-                    <section className="rounded-xl border border-surface-container bg-surface-container-lowest p-lg shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-slate-800 dark:bg-slate-900">
-                        <h2 className="mb-md border-b border-surface-container-high pb-sm font-title-md text-title-md text-on-background dark:border-slate-700 dark:text-white">
-                            {LOAN_DETAIL.ACTIVITY_HISTORY}
-                        </h2>
-                        <div className="relative mt-md space-y-6 pl-6 before:absolute before:inset-y-0 before:left-2 before:w-0.5 before:bg-surface-container-high dark:before:bg-slate-700">
-                            {/* Timeline: Due date */}
-                            <div className="relative">
-                                <span
-                                    className={`absolute -left-8 flex h-4 w-4 items-center justify-center rounded-full border-2 bg-surface-container-lowest dark:bg-slate-900 ${isOverdue ? "border-error" : "border-secondary"}`}
-                                ></span>
-                                <div className="flex flex-col">
-                                    <h3 className="font-body-md text-body-md font-medium text-error">{LOAN_DETAIL.DEADLINE}</h3>
-                                    <time className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">{loan.deadlineDate || "—"}</time>
-                                </div>
-                            </div>
-                            {/* Timeline Item 2 */}
-                            <div className="relative">
-                                <span className="absolute -left-8 flex h-4 w-4 items-center justify-center rounded-full border-2 border-secondary bg-surface-container-lowest dark:bg-slate-900"></span>
-                                <div className="flex flex-col">
-                                    <h3 className="font-body-md text-body-md font-medium text-on-surface dark:text-white">{LOAN_DETAIL.REMINDER_SENT}</h3>
-                                    <time className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">{loan.reminderDate || "—"}</time>
-                                </div>
-                            </div>
-                            {/* Timeline Item 3 */}
-                            <div className="relative">
-                                <span className="absolute -left-8 flex h-4 w-4 items-center justify-center rounded-full border-2 border-primary bg-primary"></span>
-                                <div className="flex flex-col">
-                                    <h3 className="font-body-md text-body-md font-medium text-on-surface dark:text-white">{LOAN_DETAIL.BORROW_SUCCESS}</h3>
-                                    <time className="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
-                                        {loan.borrowSuccessDate || "—"}
-                                    </time>
-                                </div>
-                            </div>
                         </div>
                     </section>
                 </div>

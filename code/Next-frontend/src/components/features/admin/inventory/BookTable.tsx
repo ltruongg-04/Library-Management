@@ -10,7 +10,6 @@ import { ADMIN_INVENTORY_MANAGEMENT } from "@/constants/ui-text/admin";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { bookService } from "@/services/book";
 import type { BookListItem, PageResponse } from "@/types/book";
-import BookCopiesModal from "./BookCopiesModal";
 import EditBookModal from "./EditBookModal";
 
 const textUI = ADMIN_INVENTORY_MANAGEMENT;
@@ -240,9 +239,10 @@ function DeleteBookDialog({ book, isDeleting, onClose, onConfirm }: DeleteBookDi
 
 interface BookTableProps {
     canEditBook?: boolean;
+    onManageCopies?: (id: number, title: string) => void;
 }
 
-export default function BookTable({ canEditBook = false }: BookTableProps) {
+export default function BookTable({ canEditBook = false, onManageCopies }: BookTableProps) {
     const [data, setData] = useState<PageResponse<BookListItem> | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -261,11 +261,6 @@ export default function BookTable({ canEditBook = false }: BookTableProps) {
     // Edit Modal State
     const [editBookId, setEditBookId] = useState<number | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-    // Copies Modal State
-    const [copiesBookId, setCopiesBookId] = useState<number | null>(null);
-    const [copiesBookTitle, setCopiesBookTitle] = useState<string>("");
-    const [isCopiesModalOpen, setIsCopiesModalOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
         const startTime = Date.now();
@@ -296,9 +291,9 @@ export default function BookTable({ canEditBook = false }: BookTableProps) {
     };
 
     const handleManageCopiesClick = (id: number, title: string) => {
-        setCopiesBookId(id);
-        setCopiesBookTitle(title);
-        setIsCopiesModalOpen(true);
+        if (onManageCopies) {
+            onManageCopies(id, title);
+        }
     };
 
     const handleDeleteClick = (book: BookListItem) => {
@@ -417,16 +412,6 @@ export default function BookTable({ canEditBook = false }: BookTableProps) {
 
             {isEditModalOpen && editBookId !== null && (
                 <EditBookModal bookId={editBookId} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={handleEditSuccess} />
-            )}
-
-            {isCopiesModalOpen && copiesBookId !== null && (
-                <BookCopiesModal
-                    bookId={copiesBookId}
-                    bookTitle={copiesBookTitle}
-                    isOpen={isCopiesModalOpen}
-                    onClose={() => setIsCopiesModalOpen(false)}
-                    onSuccess={handleEditSuccess}
-                />
             )}
 
             <DeleteBookDialog book={deleteBook} isDeleting={isDeleting} onClose={handleCloseDeleteDialog} onConfirm={handleConfirmDelete} />
