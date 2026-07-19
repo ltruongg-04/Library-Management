@@ -109,6 +109,40 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
         return toPageResponse(bookPage);
     }
 
+    @Override
+    public java.util.Map<String, Object> checkDuplicate(String isbn, String title) {
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        
+        // 1. Check ISBN if provided
+        if (isbn != null && !isbn.trim().isEmpty()) {
+            java.util.Optional<BookEntity> optionalBook = bookRepository.findByIsbn(isbn.trim());
+            if (optionalBook.isPresent()) {
+                BookEntity book = optionalBook.get();
+                result.put("exists", true);
+                result.put("bookId", book.getId());
+                result.put("title", book.getTitle());
+                result.put("duplicateBy", "isbn");
+                return result;
+            }
+        }
+        
+        // 2. Check Title if provided
+        if (title != null && !title.trim().isEmpty()) {
+            List<BookEntity> books = bookRepository.findByNormalizedTitle(title.trim());
+            if (!books.isEmpty()) {
+                BookEntity book = books.get(0);
+                result.put("exists", true);
+                result.put("bookId", book.getId());
+                result.put("title", book.getTitle());
+                result.put("duplicateBy", "title");
+                return result;
+            }
+        }
+
+        result.put("exists", false);
+        return result;
+    }
+
     private BookPageResponse toPageResponse(Page<BookEntity> bookPage) {
         return BookPageResponse.builder()
                 .content(bookPage.getContent().stream()

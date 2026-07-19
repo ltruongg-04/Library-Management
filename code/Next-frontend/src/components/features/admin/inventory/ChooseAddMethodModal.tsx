@@ -3,6 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { FileEdit, Loader2, Search, X } from "lucide-react";
 import { ADMIN } from "@/constants/ui-text/admin";
+import { bookService } from "@/services/book";
 import { InitialBookData } from "./AddBookModal";
 
 interface ChooseAddMethodModalProps {
@@ -10,12 +11,14 @@ interface ChooseAddMethodModalProps {
     onClose: () => void;
     onSelectManual: () => void;
     onSelectAutofill: (data: InitialBookData) => void;
+    onManageCopies: (id: number, title: string) => void;
 }
 
-export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, onSelectAutofill }: ChooseAddMethodModalProps) {
+export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, onSelectAutofill, onManageCopies }: ChooseAddMethodModalProps) {
     const [isbn, setIsbn] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [existingBook, setExistingBook] = useState<{ bookId: number; title: string; duplicateBy?: "isbn" | "title" } | null>(null);
 
     const textUI = ADMIN.MODAL.CHOOSE_ADD_METHOD;
 
@@ -149,8 +152,17 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
         if (!isbn.trim()) return;
         setLoading(true);
         setError(null);
+        setExistingBook(null);
 
         try {
+            // 0. Kiểm tra xem sách đã tồn tại trong DB chưa
+            const checkResult = await bookService.checkDuplicate(isbn.trim());
+            if (checkResult.exists && checkResult.bookId && checkResult.title) {
+                setExistingBook({ bookId: checkResult.bookId, title: checkResult.title, duplicateBy: checkResult.duplicateBy });
+                setLoading(false);
+                return;
+            }
+
             let bookData: InitialBookData | null = null;
 
             // 1. Try Google Books API
@@ -252,19 +264,19 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/40 p-4 backdrop-blur-sm">
             <div className="relative flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
-                <div className="flex shrink-0 items-center justify-between border-b border-surface-container-high px-6 py-4">
-                    <h2 className="text-[18px] font-semibold text-ink-950">{textUI.TITLE}</h2>
+                <div className="flex shrink-0 items-center justify-between border-b border-surface-container-high px-5 py-3.5">
+                    <h2 className="text-[17px] font-semibold text-ink-950">{textUI.TITLE}</h2>
                     <button onClick={onClose} className="rounded-full p-1.5 text-outline transition-colors hover:bg-surface hover:text-on-surface">
-                        <X size={20} />
+                        <X size={18} />
                     </button>
                 </div>
 
-                <div className="p-6">
+                <div className="p-5">
                     {/* Autofill Section */}
-                    <div className="border-primary-200 mb-6 rounded-xl border bg-primary-50 p-5">
-                        <div className="mb-3 flex items-start gap-3">
-                            <div className="text-primary-600 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100">
-                                <Search size={20} />
+                    <div className="border-primary-200 mb-5 rounded-xl border bg-primary-50 p-4">
+                        <div className="mb-2.5 flex items-start gap-3">
+                            <div className="text-primary-600 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100">
+                                <Search size={16} />
                             </div>
                             <div>
                                 <h3 className="text-[15px] font-semibold text-ink-950">{textUI.AUTOFILL_TITLE}</h3>
@@ -272,48 +284,73 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
                             </div>
                         </div>
 
-                        <div className="mt-4 flex flex-col gap-3">
+                        <div className="mt-3 flex flex-col gap-2.5">
                             <input
                                 type="text"
                                 placeholder={textUI.ISBN_PLACEHOLDER}
                                 value={isbn}
                                 onChange={(e) => setIsbn(e.target.value)}
-                                className="w-full rounded-lg border border-surface-container-high px-3 py-2.5 font-mono text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                className="w-full rounded-lg border border-surface-container-high px-3 py-2 font-mono text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") handleSearch();
                                 }}
                             />
                             {error && <div className="text-[13px] text-error">{error}</div>}
-                            <button
-                                type="button"
-                                disabled={!isbn.trim() || loading}
-                                onClick={handleSearch}
-                                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-700 px-4 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-900 disabled:opacity-50"
-                            >
-                                {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                                {loading ? textUI.SEARCHING : textUI.SEARCH_BTN}
-                            </button>
+
+                            {existingBook ? (
+                                <div className="mt-1 flex flex-col gap-2.5">
+                                    <div className="rounded-lg border border-warning-200 bg-warning-50 p-3">
+                                        <p className="text-[12.5px] leading-snug text-warning-800">
+                                            {textUI.EXISTING_BOOK_WARNING_PREFIX}
+                                            <strong>{existingBook.title}</strong>
+                                            {textUI.EXISTING_BOOK_WARNING_MIDDLE}
+                                            {existingBook.duplicateBy === "title" ? textUI.EXISTING_BOOK_TYPE_TITLE : textUI.EXISTING_BOOK_TYPE_ISBN}
+                                            {textUI.EXISTING_BOOK_WARNING_SUFFIX}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            onClose();
+                                            onManageCopies(existingBook.bookId, existingBook.title);
+                                        }}
+                                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-warning-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-warning-700"
+                                    >
+                                        {textUI.MANAGE_COPIES_BTN}
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    disabled={!isbn.trim() || loading}
+                                    onClick={handleSearch}
+                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-700 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-900 disabled:opacity-50"
+                                >
+                                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                                    {loading ? textUI.SEARCHING : textUI.SEARCH_BTN}
+                                </button>
+                            )}
                         </div>
                     </div>
 
-                    <div className="relative mb-6 flex items-center justify-center">
+                    <div className="relative mb-5 flex items-center justify-center">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-surface-container-high"></div>
                         </div>
-                        <div className="relative bg-white px-4 text-[13px] text-on-surface-variant">{textUI.OR_TEXT}</div>
+                        <div className="relative bg-white px-3 text-[12.5px] text-on-surface-variant">{textUI.OR_TEXT}</div>
                     </div>
 
                     {/* Manual Section */}
-                    <div className="rounded-xl border border-surface-container-high bg-surface p-5 text-center">
-                        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-ink-600 shadow-sm">
-                            <FileEdit size={20} />
+                    <div className="rounded-xl border border-surface-container-high bg-surface p-4 text-center">
+                        <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink-600 shadow-sm">
+                            <FileEdit size={16} />
                         </div>
-                        <h3 className="text-[15px] font-semibold text-ink-950">{textUI.MANUAL_TITLE}</h3>
-                        <p className="mt-1 text-[13px] text-on-surface-variant">{textUI.MANUAL_DESC}</p>
+                        <h3 className="text-[14.5px] font-semibold text-ink-950">{textUI.MANUAL_TITLE}</h3>
+                        <p className="mt-1 text-[12.5px] text-on-surface-variant">{textUI.MANUAL_DESC}</p>
                         <button
                             type="button"
                             onClick={onSelectManual}
-                            className="mt-4 flex w-full justify-center rounded-lg border border-surface-container-high bg-white px-4 py-2.5 text-[14px] font-semibold text-ink-950 transition-colors hover:bg-surface-container-lowest"
+                            className="mt-3 flex w-full justify-center rounded-lg border border-surface-container-high bg-white px-4 py-2 text-[13px] font-semibold text-ink-950 transition-colors hover:bg-surface-container-lowest"
                         >
                             {textUI.MANUAL_BTN}
                         </button>

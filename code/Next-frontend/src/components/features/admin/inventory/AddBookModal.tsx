@@ -34,9 +34,10 @@ interface AddBookModalProps {
     onClose: () => void;
     onSuccess: () => void;
     initialData?: InitialBookData | null;
+    onManageCopies?: (id: number, title: string) => void;
 }
 
-export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }: AddBookModalProps) {
+export default function AddBookModal({ isOpen, onClose, onSuccess, initialData, onManageCopies }: AddBookModalProps) {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
@@ -62,6 +63,9 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
     const [pages, setPages] = useState<number | "">("");
     const [depositPrice, setDepositPrice] = useState<number | "">("");
     const [initialQuantity, setInitialQuantity] = useState<number | "">("");
+
+    // Duplicate check
+    const [existingBook, setExistingBook] = useState<{ bookId: number; title: string; duplicateBy?: "isbn" | "title" } | null>(null);
 
     const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
     const [availableTags, setAvailableTags] = useState<Tag[]>([]);
@@ -133,11 +137,36 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
             } else {
                 setExternalImageUrl("");
             }
+
+            // Auto check duplicate for autofilled data
+            if (initialData?.isbn || initialData?.title) {
+                bookService.checkDuplicate(initialData.isbn?.trim() || "", initialData.title?.trim() || "").then((result) => {
+                    if (result.exists && result.bookId && result.title) {
+                        setExistingBook({ bookId: result.bookId, title: result.title, duplicateBy: result.duplicateBy });
+                    }
+                });
+            }
         }
     }, [isOpen, initialData]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Final check before submit
+        let isDuplicate = !!existingBook;
+        if (!existingBook && (isbn.trim() || title.trim())) {
+            const checkResult = await bookService.checkDuplicate(isbn.trim(), title.trim());
+            if (checkResult.exists && checkResult.bookId && checkResult.title) {
+                setExistingBook({ bookId: checkResult.bookId, title: checkResult.title, duplicateBy: checkResult.duplicateBy });
+                isDuplicate = true;
+            }
+        }
+
+        if (isDuplicate) {
+            setError(textUI.DUPLICATE_ERROR_MSG);
+            return;
+        }
+
         try {
             setSaving(true);
             setError(null);
@@ -181,6 +210,19 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
         }
     };
 
+    const handleDuplicateCheck = async () => {
+        if (!isbn.trim() && !title.trim()) {
+            setExistingBook(null);
+            return;
+        }
+        const result = await bookService.checkDuplicate(isbn.trim(), title.trim());
+        if (result.exists && result.bookId && result.title) {
+            setExistingBook({ bookId: result.bookId, title: result.title, duplicateBy: result.duplicateBy });
+        } else {
+            setExistingBook(null);
+        }
+    };
+
     const authorOptions = availableAuthors.map((a) => ({ value: a.id.toString(), label: a.name }));
     const categoryOptions = availableCategories.map((c) => ({ value: c.id.toString(), label: c.name }));
     const tagOptions = availableTags.map((t) => ({ value: t.id.toString(), label: t.name }));
@@ -207,6 +249,27 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
                         <form onSubmit={handleSubmit} className="space-y-5">
                             {error && <div className="rounded-lg bg-error-50 p-3 text-[14px] text-error">{error}</div>}
 
+                            {existingBook && (
+                                <div className="rounded-lg border border-warning-200 bg-warning-50 p-4 shadow-sm">
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <p className="text-[13.5px] leading-relaxed text-warning-800">
+                                            {textUI.EXISTING_BOOK_WARNING_PREFIX}
+                                            <strong>{existingBook.title}</strong>
+                                            {textUI.EXISTING_BOOK_WARNING_MIDDLE}
+                                            {existingBook.duplicateBy === "title" ? textUI.EXISTING_BOOK_TYPE_TITLE : textUI.EXISTING_BOOK_TYPE_ISBN}
+                                            {textUI.EXISTING_BOOK_WARNING_SUFFIX}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => onManageCopies?.(existingBook.bookId, existingBook.title)}
+                                            className="focus-ring shrink-0 rounded-lg bg-warning-600 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-warning-700"
+                                        >
+                                            {textUI.MANAGE_COPIES_BTN}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                                 <div className="space-y-1.5">
                                     <label className="text-[13px] font-medium text-on-surface-variant">{textUI.TITLE_INPUT}</label>
@@ -214,7 +277,11 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
                                         type="text"
                                         required
                                         value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
+                                        onChange={(e) => {
+                                            setTitle(e.target.value);
+                                            if (existingBook?.duplicateBy === "title") setExistingBook(null);
+                                        }}
+                                        onBlur={handleDuplicateCheck}
                                         className="w-full rounded-lg border border-surface-container-high px-3 py-2 text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                     />
                                 </div>
@@ -261,7 +328,11 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData }
                                     <input
                                         type="text"
                                         value={isbn}
-                                        onChange={(e) => setIsbn(e.target.value)}
+                                        onChange={(e) => {
+                                            setIsbn(e.target.value);
+                                            if (existingBook?.duplicateBy === "isbn") setExistingBook(null);
+                                        }}
+                                        onBlur={handleDuplicateCheck}
                                         className="w-full rounded-lg border border-surface-container-high px-3 py-2 font-mono text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                     />
                                 </div>
