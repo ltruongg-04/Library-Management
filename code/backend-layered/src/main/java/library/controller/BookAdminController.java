@@ -26,6 +26,14 @@ public class BookAdminController {
         return ResponseEntity.ok(bookPage);
     }
 
+    @GetMapping("/check-duplicate")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('books.add-book')")
+    public ResponseEntity<java.util.Map<String, Object>> checkDuplicate(
+            @RequestParam(required = false) String isbn, 
+            @RequestParam(required = false) String title) {
+        return ResponseEntity.ok(bookService.checkDuplicate(isbn, title));
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasAuthority('books.add-book')")
     public ResponseEntity<library.dto.response.BookResponse> createBook(
