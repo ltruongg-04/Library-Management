@@ -65,4 +65,9 @@ public class BookServiceImpl implements BookService {
     public BookPageResponse getTrendingBooks(int limit) {
         return bookQueryService.getTrendingBooks(limit);
     }
+
+    @Override
+    public java.util.Map<String, Object> checkDuplicate(String isbn, String title) {
+        return bookQueryService.checkDuplicate(isbn, title);
+    }
 }

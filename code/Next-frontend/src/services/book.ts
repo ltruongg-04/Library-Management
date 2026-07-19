@@ -138,4 +138,18 @@ export const bookService = {
             throw error;
         }
     },
+
+    async checkDuplicate(isbn?: string, title?: string): Promise<{ exists: boolean; bookId?: number; title?: string; duplicateBy?: "isbn" | "title" }> {
+        try {
+            const params = new URLSearchParams();
+            if (isbn) params.append("isbn", isbn);
+            if (title) params.append("title", title);
+
+            const response = await axiosInstance.get(`/api/admin/books/check-duplicate?${params.toString()}`);
+            return response.data;
+        } catch (error) {
+            console.error("Lỗi khi check duplicate:", error);
+            return { exists: false };
+        }
+    },
 };

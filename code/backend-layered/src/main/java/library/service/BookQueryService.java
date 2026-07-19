@@ -14,4 +14,5 @@ public interface BookQueryService {
     Page<BookListResponse> getAdminBookInventory(String keyword, Integer categoryId, int page, int size);
     BookPageResponse getBooks(String keyword, Integer categoryId, Integer authorId, String publisher, int page, int size, String sortBy, Double minRating, Boolean isAvailable);
     BookPageResponse getTrendingBooks(int limit);
+    java.util.Map<String, Object> checkDuplicate(String isbn, String title);
 }

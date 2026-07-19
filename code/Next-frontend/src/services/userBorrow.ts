@@ -47,14 +47,18 @@ interface ApiResponse<T> {
 }
 
 export const userBorrowService = {
-    async getHistory(page: number = 0, size: number = 20): Promise<PageResponse<UserBorrowHistoryItem>> {
-        const response = await axiosInstance.get<ApiResponse<PageResponse<UserBorrowHistoryItem>>>(
-            `/api/user/borrow?page=${page}&size=${size}&sort=createdAt,desc`,
-        );
+    async getHistory(_page: number = 0, _size: number = 20): Promise<PageResponse<UserBorrowHistoryItem>> {
+        const response = await axiosInstance.get<ApiResponse<UserBorrowHistoryItem[]>>(`/api/user/borrow/history`);
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || API_ERRORS.USER_BORROW_HISTORY_FAILED);
         }
-        return response.data.data;
+        return {
+            content: response.data.data,
+            totalPages: 1,
+            totalElements: response.data.data.length,
+            number: 0,
+            size: response.data.data.length || 20,
+        };
     },
 
     async getDetail(orderCode: string): Promise<UserBorrowDetail> {
