@@ -42,7 +42,7 @@ public class BookVisitServiceImpl implements BookVisitService {
                 if (!isAuthenticatedReader(request.getEmail())
                                 && (request.getCaptchaToken() == null || request.getCaptchaToken().trim().isEmpty()
                                                 || !reCaptchaService.verifyToken(request.getCaptchaToken()))) {
-                        throw new RuntimeException("Xác thực CAPTCHA thất bại. Vui lòng thử lại.");
+                        throw new CustomBusinessException("Xác thực CAPTCHA thất bại. Vui lòng thử lại.", HttpStatus.BAD_REQUEST);
                 }
 
                 BookEntity book = bookRepository.findById(request.getBookId())
@@ -131,7 +131,7 @@ public class BookVisitServiceImpl implements BookVisitService {
         @Override
         public library.dto.response.BookVisitResponse updateStatus(Integer id, String status, String notes) {
                 BookVisitEntity visit = bookVisitRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Không tìm thấy lượt hẹn"));
+                                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy lượt hẹn", HttpStatus.NOT_FOUND));
 
                 visit.setStatus(status);
                 visit.setNotes(notes);

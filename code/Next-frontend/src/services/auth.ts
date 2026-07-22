@@ -1,14 +1,7 @@
 import axiosInstance from "@/lib/axios";
+import { ApiResponse } from "@/types/api";
 
 // 🔐 API Service cho authentication
-
-// 📦 Response types
-interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T | null;
-    timestamp: string;
-}
 
 interface RegisterResponseData {
     id: number;

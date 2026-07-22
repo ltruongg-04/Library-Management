@@ -16,6 +16,7 @@ public class BookAdminController {
     private final BookService bookService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN') or hasAuthority('books.view')")
     public ResponseEntity<Page<BookListResponse>> getAdminBookInventory(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer categoryId,

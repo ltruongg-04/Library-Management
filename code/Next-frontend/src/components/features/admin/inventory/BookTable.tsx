@@ -240,9 +240,10 @@ function DeleteBookDialog({ book, isDeleting, onClose, onConfirm }: DeleteBookDi
 interface BookTableProps {
     canEditBook?: boolean;
     onManageCopies?: (id: number, title: string) => void;
+    refreshKey?: number;
 }
 
-export default function BookTable({ canEditBook = false, onManageCopies }: BookTableProps) {
+export default function BookTable({ canEditBook = false, onManageCopies, refreshKey = 0 }: BookTableProps) {
     const [data, setData] = useState<PageResponse<BookListItem> | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -279,7 +280,7 @@ export default function BookTable({ canEditBook = false, onManageCopies }: BookT
         } finally {
             setLoading(false);
         }
-    }, [page, keyword, category]);
+    }, [page, keyword, category, refreshKey]);
 
     useEffect(() => {
         fetchData();

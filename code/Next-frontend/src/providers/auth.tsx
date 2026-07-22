@@ -2,6 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { AUTH } from "@/constants/ui-text/auth";
 import { authService } from "@/services/auth";
 
 // 👤 User type definition
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     // NextAuth defaults to "CredentialsSignin" if not specified.
                     // If we threw a custom error from authorize(), it might be in result.error
                     if (result.error === "CredentialsSignin") {
-                        throw new Error("Email hoặc mật khẩu không đúng");
+                        throw new Error(AUTH.LOGIN.VALIDATION.INVALID_CREDENTIALS);
                     }
                     throw new Error(result.error);
                 }

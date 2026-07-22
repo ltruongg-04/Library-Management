@@ -89,7 +89,7 @@ function FeaturedBookCard({ book }: { book: Book }) {
                     {book.title}
                 </h3>
                 <p className="mb-3 line-clamp-1 font-sans text-[13px] text-on-surface-variant transition-colors duration-200 dark:text-white/60">
-                    {book.authors?.map((a: any) => a.name).join(", ")}
+                    {book.authors?.map((a) => a.name).join(", ")}
                 </p>
                 <div className="flex items-center gap-2">
                     <span className="inline-flex items-center gap-1 rounded-full bg-primary-700/10 px-3 py-1 text-[12px] font-semibold text-primary-700 dark:bg-white/10 dark:text-white">
@@ -153,7 +153,7 @@ function SmallBookCard({ book, rank }: { book: Book; rank: number }) {
                     {book.title}
                 </h3>
                 <p className="line-clamp-1 font-sans text-[12px] text-on-surface-variant transition-colors duration-200 dark:text-white/50">
-                    {book.authors?.map((a: any) => a.name).join(", ")}
+                    {book.authors?.map((a) => a.name).join(", ")}
                 </p>
                 <span
                     className={`mt-1 self-start font-mono text-[10px] font-medium tracking-[0.05em] ${CATEGORY_STYLES[book.categories?.[0]?.name] || DEFAULT_CATEGORY_STYLE} rounded px-1.5 py-0.5`}

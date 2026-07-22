@@ -11,6 +11,7 @@ public interface BookCopyRepository extends JpaRepository<BookCopyEntity, Intege
     List<BookCopyEntity> findByBookId(Integer bookId);
     boolean existsByBarcode(String barcode);
     java.util.Optional<BookCopyEntity> findByBarcode(String barcode);
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     BookCopyEntity findFirstByBookIdAndStatus(Integer bookId, library.entity.BookCopyStatus status);
     long countByStatus(library.entity.BookCopyStatus status);
     boolean existsByBookIdAndStatusIn(Integer bookId, List<library.entity.BookCopyStatus> statuses);

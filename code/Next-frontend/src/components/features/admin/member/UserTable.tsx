@@ -5,16 +5,9 @@ import { BookOpen, ChevronLeft, ChevronRight, Edit2, Lock, ShieldAlert, Unlock, 
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UI_TEXT } from "@/constants/ui-text";
+import type { User } from "@/types/user";
 
-export type User = {
-    id: number;
-    name: string;
-    email: string;
-    role: "admin" | "librarian" | "customer";
-    status: "active" | "locked" | "inactive";
-    lastLogin: string;
-    avatarUrl?: string;
-};
+export type { User };
 
 export default function UserTable({
     users,

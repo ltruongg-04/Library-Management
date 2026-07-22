@@ -1,12 +1,6 @@
 import axiosInstance from "@/lib/axios";
-import type { Book, BookListItem, BookPageResponse, BookSearchParams } from "@/types/book";
-
-interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T | null;
-    timestamp: string;
-}
+import type { ApiResponse } from "@/types/api";
+import type { Book, BookCreateRequest, BookListItem, BookPageResponse, BookSearchParams, BookUpdateRequest, PageResponse } from "@/types/book";
 
 async function requestPublicBooksApi<T>(url: string, signal?: AbortSignal): Promise<T> {
     const response = await fetch(url, {
@@ -68,12 +62,7 @@ export const bookService = {
         return requestPublicBooksApi<Book>(`/api/books/${id}`);
     },
 
-    async getAdminBookInventory(
-        page: number = 0,
-        size: number = 10,
-        keyword?: string,
-        category?: string,
-    ): Promise<import("@/types/book").PageResponse<BookListItem>> {
+    async getAdminBookInventory(page: number = 0, size: number = 10, keyword?: string, category?: string): Promise<PageResponse<BookListItem>> {
         try {
             const queryParams = new URLSearchParams({
                 page: page.toString(),
@@ -92,12 +81,12 @@ export const bookService = {
         }
     },
 
-    async updateBook(id: number, data: import("@/types/book").BookUpdateRequest): Promise<Book> {
+    async updateBook(id: number, data: BookUpdateRequest): Promise<Book> {
         try {
             const response = await axiosInstance.put(`/api/admin/books/${id}`, data);
             const result = response.data;
 
-            if (result.id) {
+            if (result && typeof result === "object" && "id" in result) {
                 return result as Book;
             }
 
@@ -121,17 +110,17 @@ export const bookService = {
         }
     },
 
-    async createBook(data: import("@/types/book").BookCreateRequest): Promise<Book> {
+    async createBook(data: BookCreateRequest): Promise<Book> {
         try {
             const response = await axiosInstance.post(`/api/admin/books`, data);
             const result = response.data;
 
-            if (result.id) {
+            if (result && typeof result === "object" && "id" in result) {
                 return result as Book;
             }
 
             return result.data as Book;
-        } catch (error: any) {
+        } catch (error) {
             if (error instanceof TypeError && error.message === "Failed to fetch") {
                 throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra backend đang chạy.");
             }

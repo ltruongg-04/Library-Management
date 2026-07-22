@@ -36,6 +36,7 @@ export const API_ERRORS = {
     DELETE_AUTHOR_ERROR: "Lỗi khi xoá tác giả",
     SAVE_AUTHOR_ERROR: "Lỗi khi lưu tác giả",
     FETCH_CATEGORIES_ERROR: "Lỗi khi tải danh sách thể loại",
+    FETCH_TAGS_ERROR: "Lỗi khi tải danh sách thẻ",
     DELETE_CATEGORY_ERROR: "Lỗi khi xoá thể loại",
     SAVE_CATEGORY_ERROR: "Lỗi khi lưu thể loại",
     FETCH_BOOK_ERROR: "Lỗi khi tải thông tin sách",

@@ -22,6 +22,8 @@ export const ADMIN = {
         SYSTEM_STATUS: "Trạng thái: Đang hoạt động",
         SUPPORT: "Hỗ trợ",
         LOGOUT: "Đăng xuất",
+        EXPAND_MENU: "Mở rộng menu",
+        COLLAPSE_MENU: "Thu gọn menu",
     },
     PENDING_REQUESTS: {
         TITLE: "Yêu cầu chờ duyệt",

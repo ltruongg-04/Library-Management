@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { PublicHeader } from "@/components/layout/PublicHeader";

@@ -1,12 +1,6 @@
 import axiosInstance from "@/lib/axios";
+import { ApiResponse } from "@/types/api";
 import { User } from "@/types/user";
-
-interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T | null;
-    timestamp: string;
-}
 
 export const getAdminUsers = async (): Promise<ApiResponse<User[]>> => {
     const response = await axiosInstance.get<ApiResponse<User[]>>("/api/admin/users");

@@ -19,20 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class BorrowOrderMapper {
 
-    @Autowired
-    protected PaymentRepository paymentRepository;
-
-    @Autowired
-    protected BorrowExtensionRepository borrowExtensionRepository;
-
-    @Autowired
-    protected FeeCalculatorService feeCalculatorService;
-
-    @Autowired
-    protected FileStorageService fileStorageService;
+    private final PaymentRepository paymentRepository;
+    private final BorrowExtensionRepository borrowExtensionRepository;
+    private final FeeCalculatorService feeCalculatorService;
+    private final FileStorageService fileStorageService;
 
     // ----- To UserBorrowHistoryDto -----
     public UserBorrowHistoryDto toUserBorrowHistoryDto(BorrowOrderEntity order) {

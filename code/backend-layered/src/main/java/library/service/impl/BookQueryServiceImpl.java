@@ -35,7 +35,8 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
 
     @Override
     public List<BookListResponse> getAllBooks() {
-        return bookRepository.findAll().stream()
+        Pageable pageable = PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "id"));
+        return bookRepository.findAll(pageable).stream()
                 .map(bookMapper::toBookListResponse)
                 .collect(Collectors.toList());
     }
@@ -70,7 +71,6 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
     }
 
     @Override
-    @SuppressWarnings("null")
     @Cacheable(
             value = CacheNames.BOOKS_LIST,
             key = "T(java.util.Objects).hash(#keyword, #categoryId, #authorId, #publisher, #page, #size, #sortBy, #minRating, #isAvailable)"
@@ -168,8 +168,8 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
                 case "oldest" -> Sort.by(Sort.Direction.ASC, "id");
                 case "title" -> Sort.by(Sort.Direction.ASC, "title");
                 case "titleDesc" -> Sort.by(Sort.Direction.DESC, "title");
-                case "author" -> Sort.by(Sort.Direction.ASC, "author");
-                case "authorDesc" -> Sort.by(Sort.Direction.DESC, "author");
+                case "author" -> Sort.by(Sort.Direction.ASC, "title");
+                case "authorDesc" -> Sort.by(Sort.Direction.DESC, "title");
                 case "mostRead" -> Sort.by(Sort.Direction.DESC, "borrowCount");
                 case "leastRead" -> Sort.by(Sort.Direction.ASC, "borrowCount");
                 default -> Sort.by(Sort.Direction.DESC, "id");

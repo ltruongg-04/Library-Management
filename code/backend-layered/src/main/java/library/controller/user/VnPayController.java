@@ -29,7 +29,6 @@ import java.util.Map;
 @RequestMapping("/api/vnpay")
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class VnPayController {
 
     private static final String RESPONSE_CODE_SUCCESS = "00";

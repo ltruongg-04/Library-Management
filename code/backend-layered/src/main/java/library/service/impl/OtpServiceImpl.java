@@ -7,28 +7,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class OtpServiceImpl implements OtpService {
 
+    private static final SecureRandom secureRandom = new SecureRandom();
     private final EmailService emailService;
 
     // Email -> OtpData
     private final Map<String, OtpData> otpStorage = new ConcurrentHashMap<>();
     private final Map<String, ResetTokenData> resetTokenStorage = new ConcurrentHashMap<>();
 
-    @Autowired
     public OtpServiceImpl(EmailService emailService) {
         this.emailService = emailService;
     }
 
     @Override
     public void requestOtp(String email) {
-        String otp = String.format("%06d", new Random().nextInt(999999));
+        String otp = String.format("%06d", secureRandom.nextInt(1000000));
         
         // 5 minutes expiration
         long expirationTime = System.currentTimeMillis() + 5 * 60 * 1000;
@@ -39,7 +39,7 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public void requestForgotPasswordOtp(String email) {
-        String otp = String.format("%06d", new Random().nextInt(999999));
+        String otp = String.format("%06d", secureRandom.nextInt(1000000));
         
         // 5 minutes expiration
         long expirationTime = System.currentTimeMillis() + 5 * 60 * 1000;

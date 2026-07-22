@@ -1,11 +1,6 @@
 import { type AdminSettingsState, DEFAULT_SETTINGS } from "@/constants/admin/settings";
 import axiosInstance from "@/lib/axios";
-
-interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
-}
+import type { ApiResponse } from "@/types/api";
 
 function normalizeSettings(settings?: Partial<AdminSettingsState> | null): AdminSettingsState {
     return {

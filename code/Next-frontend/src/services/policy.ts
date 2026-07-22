@@ -1,10 +1,5 @@
 import axiosInstance from "@/lib/axios";
-
-interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
-}
+import type { ApiResponse } from "@/types/api";
 
 export interface BorrowingPolicyDto {
     id: number;

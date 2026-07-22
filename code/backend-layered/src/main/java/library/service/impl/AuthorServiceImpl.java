@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import library.common.exception.CustomBusinessException;
+import org.springframework.http.HttpStatus;
+
 @Service
 @RequiredArgsConstructor
 public class AuthorServiceImpl implements AuthorService {
@@ -35,7 +38,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Transactional
     public AuthorResponse createAuthor(AuthorRequest request) {
         if (authorRepository.existsByName(request.getName())) {
-            throw new RuntimeException("Tác giả đã tồn tại");
+            throw new CustomBusinessException("Tác giả đã tồn tại", HttpStatus.CONFLICT);
         }
 
         AuthorEntity author = AuthorEntity.builder()
@@ -52,10 +55,10 @@ public class AuthorServiceImpl implements AuthorService {
     @Transactional
     public AuthorResponse updateAuthor(@NonNull Integer id, AuthorRequest request) {
         AuthorEntity author = authorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy tác giả"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy tác giả", HttpStatus.NOT_FOUND));
 
         if (!author.getName().equals(request.getName()) && authorRepository.existsByName(request.getName())) {
-            throw new RuntimeException("Tên tác giả đã tồn tại");
+            throw new CustomBusinessException("Tên tác giả đã tồn tại", HttpStatus.CONFLICT);
         }
 
         author.setName(request.getName());
@@ -70,7 +73,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Transactional
     public void deleteAuthor(@NonNull Integer id) {
         if (!authorRepository.existsById(id)) {
-            throw new RuntimeException("Không tìm thấy tác giả");
+            throw new CustomBusinessException("Không tìm thấy tác giả", HttpStatus.NOT_FOUND);
         }
         authorRepository.deleteById(id);
         cacheInvalidationService.evictCatalogCaches();

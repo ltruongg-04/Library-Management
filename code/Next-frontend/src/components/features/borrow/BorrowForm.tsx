@@ -47,7 +47,7 @@ export default function BorrowForm({
         const fetchPolicy = async () => {
             try {
                 const data = await getActivePolicy();
-                setPolicy(data);
+                setPolicy(data ?? null);
             } catch (error) {
                 console.error("Failed to fetch policy:", error);
             }

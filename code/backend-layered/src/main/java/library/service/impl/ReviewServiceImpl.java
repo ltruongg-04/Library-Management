@@ -23,6 +23,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
+import library.common.exception.CustomBusinessException;
+import org.springframework.http.HttpStatus;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -38,10 +41,10 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse createReview(Integer bookId, ReviewRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
 
         BookEntity book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sách"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
 
         ReviewEntity review = ReviewEntity.builder()
                 .user(user)
@@ -67,11 +70,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public ReviewResponse updateReview(Integer id, ReviewRequest request) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
         
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!review.getUser().getEmail().equals(email)) {
-            throw new RuntimeException("Bạn chỉ có thể chỉnh sửa đánh giá của chính mình");
+            throw new CustomBusinessException("Bạn chỉ có thể chỉnh sửa đánh giá của chính mình", HttpStatus.FORBIDDEN);
         }
         
         review.setRating(request.getRating());
@@ -113,7 +116,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void updateReviewStatus(Integer id, ReviewStatus status, String hideReason) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
         
         review.setStatus(status);
         if (hideReason != null) {
@@ -129,7 +132,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void reportReview(Integer id, String reason) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
                 
         // Only mark as reported if it's currently visible
         if (review.getStatus() == ReviewStatus.VISIBLE) {
@@ -143,7 +146,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteReview(Integer id) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
         
         BookEntity book = review.getBook();
         reviewRepository.delete(review);
@@ -155,11 +158,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteMyReview(Integer id) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đánh giá"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
                 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!review.getUser().getEmail().equals(email)) {
-            throw new RuntimeException("Bạn chỉ có thể xóa đánh giá của chính mình");
+            throw new CustomBusinessException("Bạn chỉ có thể xóa đánh giá của chính mình", HttpStatus.FORBIDDEN);
         }
         
         BookEntity book = review.getBook();

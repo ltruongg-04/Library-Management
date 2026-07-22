@@ -3,8 +3,11 @@ package library.service.impl;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import library.service.FileStorageService;
+import library.common.exception.CustomBusinessException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileStorageServiceImpl implements FileStorageService {
 
     private final MinioClient minioClient;
@@ -105,8 +109,8 @@ public class FileStorageServiceImpl implements FileStorageService {
 
             return fileName;
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Đã xảy ra lỗi khi tải tệp từ URL lên MinIO: " + e.getMessage(), e);
+            log.error("Đã xảy ra lỗi khi tải tệp từ URL lên MinIO", e);
+            throw new CustomBusinessException("Đã xảy ra lỗi khi tải tệp từ URL lên MinIO: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

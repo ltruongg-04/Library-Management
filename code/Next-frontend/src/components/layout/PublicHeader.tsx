@@ -14,7 +14,7 @@ import { DEFAULT_PROFILE_AVATAR_URL, PROFILE_UPDATED_EVENT, StoredProfileData, g
 const NAV_LINKS = [
     { href: "/", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.HOME },
     { href: "/sach", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.BOOK },
-    { href: "/tra-cuu", label: "Tra cứu" },
+    { href: "/tra-cuu", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.LOOKUP },
     { href: "/gioi-thieu", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.ABOUT },
     { href: "/lien-he", label: UI_TEXT.PUBLIC_LAYOUT.NAV_LINKS.CONTACT },
 ];

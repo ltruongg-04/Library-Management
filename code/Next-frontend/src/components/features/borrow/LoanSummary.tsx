@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import { BorrowingPolicyDto, getActivePolicy } from "@/services/policy";
+import { Book } from "@/types/book";
 
 interface LoanSummaryProps {
-    book?: any;
+    book?: Book | null;
     pickupDate?: string;
     returnDate?: string;
     userFullName: string;
@@ -24,7 +25,7 @@ export default function LoanSummary({ book, pickupDate, returnDate, userFullName
         const fetchPolicy = async () => {
             try {
                 const data = await getActivePolicy();
-                setPolicy(data);
+                setPolicy(data ?? null);
             } catch (error) {
                 console.error("Failed to fetch policy:", error);
             }

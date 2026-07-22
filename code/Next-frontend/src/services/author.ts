@@ -1,3 +1,4 @@
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import axiosInstance from "@/lib/axios";
 import type { Author, AuthorRequest } from "@/types/author";
 
@@ -5,7 +6,7 @@ export const authorService = {
     getAllAuthors: async (): Promise<Author[]> => {
         const response = await axiosInstance.get(`/api/authors`);
         const result = response.data;
-        if (!result.success) throw new Error(result.message || "Lỗi tải tác giả");
+        if (!result.success) throw new Error(result.message || API_ERRORS.FETCH_AUTHORS_ERROR);
         return result.data;
     },
 

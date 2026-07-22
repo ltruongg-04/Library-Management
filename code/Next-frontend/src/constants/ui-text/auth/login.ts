@@ -19,6 +19,7 @@ export const LOGIN = {
         EMAIL_INVALID: "Email không hợp lệ.",
         PASSWORD_REQUIRED: "Mật khẩu không được để trống.",
         PASSWORD_MIN_LENGTH: "Mật khẩu phải có ít nhất 6 ký tự.",
+        INVALID_CREDENTIALS: "Email hoặc mật khẩu không đúng.",
     },
     ERROR_MSG: "Đăng nhập thất bại. Vui lòng thử lại.",
     REGISTER_SUCCESS: "Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản trước khi đăng nhập.",

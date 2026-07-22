@@ -1,4 +1,4 @@
-import axiosClient from "@/lib/axios";
+import axiosInstance from "@/lib/axios";
 
 export interface SystemLog {
     id: number;
@@ -26,13 +26,13 @@ export interface SystemLogPageResponse {
 
 export const systemLogService = {
     getSystemLogs: async (page: number = 0, size: number = 10): Promise<SystemLogPageResponse> => {
-        const response = await axiosClient.get("/api/admin/system-logs", {
+        const response = await axiosInstance.get("/api/admin/system-logs", {
             params: { page, size },
         });
         return response.data;
     },
 
     logExportEvent: async (format: string): Promise<void> => {
-        await axiosClient.post("/api/admin/system-logs/export-event", { format });
+        await axiosInstance.post("/api/admin/system-logs/export-event", { format });
     },
 };

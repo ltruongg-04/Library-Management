@@ -18,6 +18,9 @@ export default function KhoSachPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [initialBookData, setInitialBookData] = useState<InitialBookData | null>(null);
     const [permissions, setPermissions] = useState<string[]>([]);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const triggerRefresh = () => setRefreshKey((prev) => prev + 1);
 
     // Copies Modal State
     const [copiesBookId, setCopiesBookId] = useState<number | null>(null);
@@ -59,19 +62,19 @@ export default function KhoSachPage() {
     }, [isAdmin, session?.backendToken]);
 
     return (
-        <div className="flex min-h-screen w-full flex-col bg-surface">
+        <div className="flex min-h-screen w-full flex-col bg-surface dark:bg-slate-950">
             <div className="px-8 pb-2 pt-8">
                 <AdminBreadcrumb pageName={ADMIN.SIDEBAR.NAV_BOOKS} />
             </div>
 
             {/* Header Section */}
-            <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6">
+            <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6 dark:border-slate-800 dark:bg-slate-900">
                 <div>
-                    <h1 className="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950">
-                        <BookOpen size={24} className="text-primary-600" />
+                    <h1 className="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950 dark:text-white">
+                        <BookOpen size={24} className="text-primary-600 dark:text-primary-400" />
                         {ADMIN.SIDEBAR.NAV_BOOKS}
                     </h1>
-                    <p className="mt-1 text-[14px] text-on-surface-variant">{ADMIN_PAGES.INVENTORY.PAGE_DESC}</p>
+                    <p className="mt-1 text-[14px] text-on-surface-variant dark:text-slate-400">{ADMIN_PAGES.INVENTORY.PAGE_DESC}</p>
                 </div>
 
                 {/* Action Buttons */}
@@ -95,13 +98,13 @@ export default function KhoSachPage() {
             {/* Content Section */}
             <div className="flex flex-1 flex-col space-y-6 p-8">
                 {/* Filters and Search */}
-                <Suspense fallback={<div className="h-14 animate-pulse rounded-xl bg-surface-container-high"></div>}>
+                <Suspense fallback={<div className="h-14 animate-pulse rounded-xl bg-surface-container-high dark:bg-slate-800"></div>}>
                     <BookFilters />
                 </Suspense>
 
                 {/* Table View */}
-                <Suspense fallback={<div className="min-h-[400px] animate-pulse rounded-xl bg-surface-container-high"></div>}>
-                    <BookTable canEditBook={canEditBook} onManageCopies={handleManageCopies} />
+                <Suspense fallback={<div className="min-h-[400px] animate-pulse rounded-xl bg-surface-container-high dark:bg-slate-800"></div>}>
+                    <BookTable canEditBook={canEditBook} onManageCopies={handleManageCopies} refreshKey={refreshKey} />
                 </Suspense>
             </div>
 
@@ -131,7 +134,7 @@ export default function KhoSachPage() {
                     isOpen={isAddModalOpen}
                     onClose={() => setIsAddModalOpen(false)}
                     onSuccess={() => {
-                        window.location.reload();
+                        triggerRefresh();
                     }}
                     initialData={initialBookData}
                     onManageCopies={(id, title) => {
@@ -148,7 +151,7 @@ export default function KhoSachPage() {
                     isOpen={isCopiesModalOpen}
                     onClose={() => setIsCopiesModalOpen(false)}
                     onSuccess={() => {
-                        window.location.reload();
+                        triggerRefresh();
                     }}
                 />
             )}

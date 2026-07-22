@@ -1,3 +1,5 @@
+import type { PageResponse } from "./api";
+
 // Types khớp với BookResponse và BookPageResponse từ backend
 
 export interface Book {
@@ -35,18 +37,7 @@ export interface BookListItem {
     shelfLocation?: string;
 }
 
-export interface PageResponse<T> {
-    content: T[];
-    pageable: any;
-    last: boolean;
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-    first: boolean;
-    numberOfElements: number;
-    empty: boolean;
-}
+export type { PageResponse };
 
 export interface RelatedBook {
     id: number;

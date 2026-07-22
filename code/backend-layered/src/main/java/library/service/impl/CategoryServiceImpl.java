@@ -15,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import library.common.exception.CustomBusinessException;
+import org.springframework.http.HttpStatus;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
@@ -42,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryResponse createCategory(CategoryRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
-            throw new RuntimeException("Thể loại đã tồn tại");
+            throw new CustomBusinessException("Thể loại đã tồn tại", HttpStatus.CONFLICT);
         }
 
         CategoryEntity category = CategoryEntity.builder()
@@ -59,10 +62,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryResponse updateCategory(Integer id, CategoryRequest request) {
         CategoryEntity category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thể loại"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy thể loại", HttpStatus.NOT_FOUND));
 
         if (!category.getName().equals(request.getName()) && categoryRepository.existsByName(request.getName())) {
-            throw new RuntimeException("Tên thể loại đã tồn tại");
+            throw new CustomBusinessException("Tên thể loại đã tồn tại", HttpStatus.CONFLICT);
         }
 
         category.setName(request.getName());
@@ -77,7 +80,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void deleteCategory(Integer id) {
         if (!categoryRepository.existsById(id)) {
-            throw new RuntimeException("Không tìm thấy thể loại");
+            throw new CustomBusinessException("Không tìm thấy thể loại", HttpStatus.NOT_FOUND);
         }
         
         categoryRepository.deleteCategoryAssociations(id);

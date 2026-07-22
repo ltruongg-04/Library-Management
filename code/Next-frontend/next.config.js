@@ -5,8 +5,7 @@ const backendHostname = new URL(backendUrl).hostname;
 
 const nextConfig = {
     reactStrictMode: true,
-    swcMinify: true,
-    output: "standalone",
+    // output: "standalone", // Tắt standalone để build trên Netlify/Vercel
     // 🔄 Proxy API requests to backend to avoid CORS issues during development
     async rewrites() {
         return [

@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import library.common.exception.CustomBusinessException;
+import org.springframework.http.HttpStatus;
+
 @Service
 @RequiredArgsConstructor
 public class BookCopyServiceImpl implements BookCopyService {
@@ -42,7 +45,7 @@ public class BookCopyServiceImpl implements BookCopyService {
     @Transactional
     public List<BookCopyResponse> addCopies(Integer bookId, int quantity) {
         BookEntity book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sách"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
 
         List<BookCopyEntity> newCopies = new java.util.ArrayList<>();
         for (int i = 0; i < quantity; i++) {
@@ -68,7 +71,7 @@ public class BookCopyServiceImpl implements BookCopyService {
     @Transactional
     public BookCopyResponse updateCopy(Integer copyId, BookCopyRequest request) {
         BookCopyEntity copy = bookCopyRepository.findById(copyId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bản sao sách"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy bản sao sách", HttpStatus.NOT_FOUND));
 
 
         BookCopyStatus oldStatus = copy.getStatus();
@@ -91,7 +94,7 @@ public class BookCopyServiceImpl implements BookCopyService {
     @Transactional
     public void deleteCopy(Integer copyId) {
         BookCopyEntity copy = bookCopyRepository.findById(copyId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bản sao sách"));
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy bản sao sách", HttpStatus.NOT_FOUND));
         bookCopyRepository.delete(copy);
         cacheInvalidationService.evictBookCaches();
     }

@@ -14,6 +14,7 @@ export const PUBLIC_LAYOUT = {
     NAV_LINKS: {
         HOME: "Trang chủ",
         BOOK: "Danh sách sách",
+        LOOKUP: "Tra cứu",
         ABOUT: "Giới thiệu",
         CONTACT: "Liên hệ",
     },

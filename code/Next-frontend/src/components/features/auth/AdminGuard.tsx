@@ -29,10 +29,15 @@ export function AdminGuard({ children }: { children: ReactNode }) {
             if (!isAuthenticated) {
                 // Chưa đăng nhập thì chuyển về trang login
                 router.replace("/login");
+            } else if (!canViewAdmin) {
+                // Đã đăng nhập nhưng không có quyền -> tự động quay về trang chủ sau 4 giây
+                const timer = setTimeout(() => {
+                    router.replace("/");
+                }, 4000);
+                return () => clearTimeout(timer);
             }
-            // Bỏ đoạn tự động redirect về trang chủ khi không phải admin
         }
-    }, [isLoading, isAuthenticated, router]);
+    }, [isLoading, isAuthenticated, canViewAdmin, router]);
 
     // Hiển thị loading trong lúc đang kiểm tra auth
     if (isLoading) {

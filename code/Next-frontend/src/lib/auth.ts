@@ -1,5 +1,6 @@
 import axios from "axios";
 import { NextAuthOptions } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { getServerBackendUrl } from "@/config/env";
@@ -7,7 +8,7 @@ import { API_ERRORS } from "@/constants/ui-text/shared/api";
 
 const API_URL = getServerBackendUrl();
 
-async function refreshAccessToken(token: any) {
+async function refreshAccessToken(token: JWT): Promise<JWT> {
     // Không có refreshToken (ví dụ: Google OAuth thuần frontend) → bỏ qua refresh
     if (!token.refreshToken) {
         return token;
@@ -30,8 +31,9 @@ async function refreshAccessToken(token: any) {
             refreshToken: data.data.refreshToken ?? token.refreshToken,
             expiresAt: Date.now() + 15 * 60 * 1000, // 15 mins
         };
-    } catch (error: any) {
-        console.error("Error refreshing token:", error.response?.data?.message || error.message);
+    } catch (error) {
+        const message = axios.isAxiosError(error) ? error.response?.data?.message : (error as Error).message;
+        console.error("Error refreshing token:", message);
         return {
             ...token,
             error: "RefreshAccessTokenError",
@@ -118,11 +120,11 @@ export const authOptions: NextAuthOptions = {
                 } else if (user) {
                     // Credentials login
                     token.authProvider = "credentials";
-                    token.backendToken = (user as any).backendToken;
-                    token.refreshToken = (user as any).refreshToken;
+                    token.backendToken = user.backendToken;
+                    token.refreshToken = user.refreshToken;
                     token.id = user.id;
-                    token.role = (user as any).role;
-                    token.phone = (user as any).phone ?? null;
+                    token.role = user.role;
+                    token.phone = user.phone ?? null;
                     token.expiresAt = Date.now() + 15 * 60 * 1000;
                 }
                 return token;

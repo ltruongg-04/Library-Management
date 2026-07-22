@@ -1,32 +1,6 @@
 import axiosInstance from "@/lib/axios";
-
-export interface AdminBorrowResponse {
-    id: string;
-    customerName: string;
-    customerCode: string;
-    bookTitle: string;
-    bookAuthor: string;
-    borrowDate: string | null;
-    dueDate: string | null;
-    status: string;
-    overdayCount: number | null;
-    isGuest?: boolean;
-}
-
-interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T | null;
-    timestamp: string;
-}
-
-export interface AdminBorrowFilters {
-    status?: string;
-    customerType?: "ALL" | "GUEST" | "CUSTOMER";
-    keyword?: string;
-    page?: number;
-    size?: number;
-}
+import { ApiResponse } from "@/types/api";
+import type { AdminBorrowFilters, AdminBorrowResponse } from "@/types/borrow";
 
 export const getAdminBorrowOrders = async (filters: AdminBorrowFilters = {}): Promise<ApiResponse<AdminBorrowResponse[]>> => {
     const response = await axiosInstance.get<ApiResponse<AdminBorrowResponse[]>>("/api/admin/borrows", {

@@ -1,20 +1,6 @@
 import axiosInstance from "@/lib/axios";
+import type { ApiResponse, PageResponse } from "@/types/api";
 import type { Notification } from "@/types/notification";
-
-interface ApiResponse<T> {
-    success: boolean;
-    message: string;
-    data: T | null;
-    timestamp: string;
-}
-
-interface PageResponse<T> {
-    content: T[];
-    totalElements: number;
-    totalPages: number;
-    number: number;
-    size: number;
-}
 
 interface NotificationApiResponse {
     id: number;

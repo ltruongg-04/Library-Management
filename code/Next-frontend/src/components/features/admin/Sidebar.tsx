@@ -61,7 +61,7 @@ export default function Sidebar() {
                 <button
                     onClick={toggleCollapsed}
                     className="flex h-8 w-8 items-center justify-center rounded-lg text-on-primary/70 transition-colors hover:bg-primary-container/20 hover:text-on-primary"
-                    title={collapsed ? "Mở rộng menu" : "Thu gọn menu"}
+                    title={collapsed ? SIDEBAR.EXPAND_MENU : SIDEBAR.COLLAPSE_MENU}
                     aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >
                     {collapsed ? <PanelLeftOpen size={20} strokeWidth={2} /> : <PanelLeftClose size={20} strokeWidth={2} />}

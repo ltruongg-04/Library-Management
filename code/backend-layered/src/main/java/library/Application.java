@@ -1,30 +1,29 @@
 package library;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import org.springframework.scheduling.annotation.EnableAsync;
-
-import org.springframework.scheduling.annotation.EnableScheduling;
-
-@SpringBootApplication
+@SpringBootApplication(exclude = { org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration.class })
 @EnableJpaAuditing
 @EnableAsync
 @EnableScheduling
-public class Aplication {
-    private static final Logger log = LoggerFactory.getLogger(Aplication.class);
+@org.springframework.data.web.config.EnableSpringDataWebSupport(pageSerializationMode = org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
+public class Application {
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) {
-        SpringApplication.run(Aplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
     @jakarta.annotation.PostConstruct
