@@ -1,5 +1,9 @@
 package library.service.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import library.common.exception.CustomBusinessException;
 import library.dto.request.GoogleLoginRequest;
 import library.dto.request.LoginRequest;
@@ -15,19 +19,28 @@ import library.service.NotificationService;
 import library.service.SystemLogService;
 import library.service.TokenService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
     private static final int MAX_FAILED_LOGIN_ATTEMPTS = 5;
     private static final int LOCK_MINUTES = 15;
+
+    @Value("${GOOGLE_CLIENT_ID:${app.google.client-id:}}")
+    private String googleClientId;
+
+    private GoogleIdTokenVerifier tokenVerifier;
 
     private final UserRepository userRepository;
     private final library.repository.CustomerRepository customerRepository;
@@ -103,17 +116,29 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse loginWithGoogle(GoogleLoginRequest request) {
-        UserEntity user = userRepository.findByEmail(request.getEmail())
+        GoogleIdToken.Payload payload = verifyGoogleIdToken(request.getIdToken());
+        String email = payload.getEmail();
+        if (email == null || email.isBlank()) {
+            throw new CustomBusinessException("Không thể trích xuất địa chỉ email từ Google ID Token", HttpStatus.BAD_REQUEST);
+        }
+
+        String fullName = (String) payload.get("name");
+        if (fullName == null || fullName.isBlank()) {
+            fullName = email.contains("@") ? email.substring(0, email.indexOf('@')) : "Google User";
+        }
+        final String finalFullName = fullName;
+
+        UserEntity user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     UserEntity newUser = UserEntity.builder()
-                            .fullName(request.getFullName())
-                            .email(request.getEmail())
+                            .fullName(finalFullName)
+                            .email(email)
                             .password(passwordEncoder.encode(UUID.randomUUID().toString()))
                             .role(UserEntity.Role.CUSTOMER)
                             .active(true)
                             .build();
                     UserEntity savedUser = userRepository.save(newUser);
-                    
+
                     library.entity.CustomerEntity customer = library.entity.CustomerEntity.builder()
                             .user(savedUser)
                             .fullName(savedUser.getFullName())
@@ -122,7 +147,7 @@ public class AuthServiceImpl implements AuthService {
                             .address("Chưa cập nhật")
                             .build();
                     customerRepository.save(customer);
-                    
+
                     return savedUser;
                 });
 
@@ -138,6 +163,32 @@ public class AuthServiceImpl implements AuthService {
         systemLogService.logAction(user, "Đăng nhập Google", "Người dùng " + user.getEmail() + " đã đăng nhập bằng Google.");
 
         return userMapper.toLoginResponse(user, tokens.getToken(), tokens.getRefreshToken());
+    }
+
+    private GoogleIdToken.Payload verifyGoogleIdToken(String idTokenString) {
+        try {
+            if (this.tokenVerifier == null) {
+                GoogleIdTokenVerifier.Builder builder = new GoogleIdTokenVerifier.Builder(
+                        GoogleNetHttpTransport.newTrustedTransport(),
+                        GsonFactory.getDefaultInstance()
+                );
+                if (googleClientId != null && !googleClientId.isBlank()) {
+                    builder.setAudience(Collections.singletonList(googleClientId.trim()));
+                }
+                this.tokenVerifier = builder.build();
+            }
+
+            GoogleIdToken idToken = this.tokenVerifier.verify(idTokenString);
+            if (idToken == null) {
+                throw new CustomBusinessException("Google ID Token không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED);
+            }
+            return idToken.getPayload();
+        } catch (CustomBusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Lỗi khi xác thực Google ID Token: {}", e.getMessage(), e);
+            throw new CustomBusinessException("Xác thực tài khoản Google thất bại. Vui lòng thử lại.", HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @Override

@@ -40,19 +40,21 @@ public class FileStorageServiceImpl implements FileStorageService {
             }
             String fileName = UUID.randomUUID().toString() + extension;
 
-            InputStream inputStream = file.getInputStream();
-            minioClient.putObject(
-                    PutObjectArgs.builder()
-                            .bucket(bucketName)
-                            .object(fileName)
-                            .stream(inputStream, inputStream.available(), -1)
-                            .contentType(file.getContentType())
-                            .build()
-            );
+            try (InputStream inputStream = file.getInputStream()) {
+                minioClient.putObject(
+                        PutObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object(fileName)
+                                .stream(inputStream, inputStream.available(), -1)
+                                .contentType(file.getContentType())
+                                .build()
+                );
+            }
 
             return fileName;
         } catch (Exception e) {
-            throw new RuntimeException("Đã xảy ra lỗi khi tải tệp lên MinIO", e);
+            log.error("Đã xảy ra lỗi khi tải tệp lên MinIO", e);
+            throw new CustomBusinessException("Đã xảy ra lỗi khi tải tệp lên. Vui lòng thử lại.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -66,7 +68,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             connection.connect();
 
             if (connection.getResponseCode() != 200) {
-                throw new RuntimeException("Không thể tải ảnh từ URL, mã phản hồi: " + connection.getResponseCode());
+                throw new CustomBusinessException("Không thể tải ảnh từ URL, mã phản hồi: " + connection.getResponseCode(), HttpStatus.BAD_REQUEST);
             }
 
             String contentType = connection.getContentType();

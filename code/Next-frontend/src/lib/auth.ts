@@ -91,11 +91,14 @@ export const authOptions: NextAuthOptions = {
             if (user || (account && profile)) {
                 if (account?.provider === "google") {
                     token.authProvider = "google";
-                    // Sync Google Login với backend
+                    // Sync Google Login với backend bằng Google ID Token
                     try {
+                        const idToken = account.id_token;
+                        if (!idToken) {
+                            throw new Error("Không tìm thấy Google ID Token từ Google OAuth");
+                        }
                         const res = await axios.post(`${API_URL}/api/auth/google`, {
-                            email: profile?.email,
-                            fullName: profile?.name,
+                            idToken: idToken,
                         });
                         const data = res.data;
                         if (data.success && data.data) {

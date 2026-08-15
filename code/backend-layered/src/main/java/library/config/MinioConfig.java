@@ -1,11 +1,13 @@
 package library.config;
 
 import io.minio.MinioClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@Slf4j
 public class MinioConfig {
 
     @Value("${minio.url}")
@@ -50,8 +52,9 @@ public class MinioConfig {
                 minioClient.setBucketPolicy(
                         io.minio.SetBucketPolicyArgs.builder().bucket(bucketName).config(policy).build());
             } catch (Exception e) {
-                System.err.println("Error initializing MinIO bucket policy: " + e.getMessage());
+                log.error("Error initializing MinIO bucket policy: {}", e.getMessage(), e);
             }
         };
     }
 }
+

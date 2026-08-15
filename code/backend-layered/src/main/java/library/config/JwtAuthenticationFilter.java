@@ -56,7 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserEntity user = userRepository.findByEmail(userEmail).orElse(null);
                 if (user == null || !user.isActive()) {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                    response.getWriter().write("User account is locked or deleted");
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"success\":false,\"message\":\"Tài khoản đã bị khóa hoặc không tồn tại\",\"data\":null}");
                     return;
                 }
 
