@@ -28,6 +28,39 @@ const isCaptchaError = (error: unknown): boolean => {
     return typeof message === "string" && message.toLowerCase().includes("captcha");
 };
 
+let cachedSessionToken: { token: string | null; expiresAt: number } | null = null;
+let pendingSessionPromise: Promise<string | null> | null = null;
+
+export function invalidateAuthTokenCache() {
+    cachedSessionToken = null;
+    pendingSessionPromise = null;
+}
+
+async function getAuthToken(): Promise<string | null> {
+    const now = Date.now();
+    if (cachedSessionToken && cachedSessionToken.expiresAt > now) {
+        return cachedSessionToken.token;
+    }
+
+    if (!pendingSessionPromise) {
+        pendingSessionPromise = getSession()
+            .then((session) => {
+                const token = session?.backendToken || null;
+                cachedSessionToken = {
+                    token,
+                    expiresAt: Date.now() + 10_000, // cache for 10 seconds to avoid spamming /api/auth/session
+                };
+                return token;
+            })
+            .catch(() => null)
+            .finally(() => {
+                pendingSessionPromise = null;
+            });
+    }
+
+    return pendingSessionPromise;
+}
+
 // Thêm interceptor cho request để tự động gắn token
 axiosInstance.interceptors.request.use(
     async (config) => {
@@ -37,9 +70,9 @@ axiosInstance.interceptors.request.use(
             if (isPublicEndpoint(config.url)) {
                 return config;
             }
-            const session = await getSession();
-            if (session?.backendToken) {
-                config.headers.Authorization = `Bearer ${session.backendToken}`;
+            const token = await getAuthToken();
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
             }
         }
         return config;
@@ -58,6 +91,7 @@ axiosInstance.interceptors.response.use(
         const shouldSignOut = typeof window !== "undefined" && error.response?.status === 401 && !isPublicEndpoint(error.config?.url) && !isCaptchaError(error);
 
         if (shouldSignOut) {
+            invalidateAuthTokenCache();
             const session = await getSession();
             if (session) {
                 console.warn("Phiên đăng nhập hết hạn hoặc không hợp lệ, đang đăng xuất...");

@@ -264,7 +264,6 @@ export default function BookTable({ canEditBook = false, onManageCopies, refresh
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
-        const startTime = Date.now();
         try {
             setLoading(true);
             setError(null);
@@ -272,10 +271,6 @@ export default function BookTable({ canEditBook = false, onManageCopies, refresh
             const result = await bookService.getAdminBookInventory(page, 10, keyword, category);
             setData(result);
         } catch (err: any) {
-            const elapsed = Date.now() - startTime;
-            if (elapsed < 5000) {
-                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
-            }
             setError(err.message || API_ERRORS.GENERIC_FETCH_ERROR);
         } finally {
             setLoading(false);

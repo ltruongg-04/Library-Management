@@ -159,19 +159,19 @@ function MyBooksContent() {
                             {/* Overlay Actions (Hover) */}
                             <div className="absolute inset-0 flex items-center justify-center bg-surface-tint/20 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
                                 {book.availableQuantity > 0 ? (
-                                    <button
-                                        onClick={() => router.push(`/sach/${book.id}/muon`)}
+                                    <Link
+                                        href={`/sach/${book.id}/muon`}
                                         className="rounded-lg bg-primary px-lg py-sm font-title-md text-title-md text-on-primary shadow-md transition-colors hover:bg-primary-container hover:text-on-primary-container"
                                     >
                                         {UI_TEXT.BOOK_DETAIL.BORROW_NOW}
-                                    </button>
+                                    </Link>
                                 ) : (
-                                    <button
-                                        onClick={() => router.push(`/sach/${book.id}`)}
+                                    <Link
+                                        href={`/sach/${book.id}`}
                                         className="rounded-lg bg-secondary px-lg py-sm font-title-md text-title-md text-on-secondary shadow-md transition-colors hover:bg-secondary-container hover:text-on-secondary-container"
                                     >
                                         {UI_TEXT.FAVORITE.VIEW_DETAIL}
-                                    </button>
+                                    </Link>
                                 )}
                             </div>
                         </div>
@@ -244,12 +244,12 @@ function MyBooksContent() {
                     </div>
                     <h2 className="mb-sm font-headline-lg text-headline-lg text-on-surface">{UI_TEXT.FAVORITE.EMPTY_STATE.HEADING}</h2>
                     <p className="max-w-md font-body-md text-body-md text-on-surface-variant">{UI_TEXT.FAVORITE.EMPTY_STATE.DESC}</p>
-                    <button
-                        onClick={() => router.push(`/sach`)}
+                    <Link
+                        href="/sach"
                         className="mt-lg rounded-lg bg-primary px-xl py-sm font-title-md text-title-md text-on-primary shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-colors hover:bg-primary-container hover:text-on-primary-container"
                     >
                         {UI_TEXT.FAVORITE.EMPTY_STATE.EXPLORE_BTN}
-                    </button>
+                    </Link>
                 </div>
             )}
         </main>

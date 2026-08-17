@@ -28,7 +28,7 @@ export function PublicHeader() {
     const [storedProfile, setStoredProfile] = useState<StoredProfileData | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const notificationRef = useRef<HTMLDivElement>(null);
-    const notificationState = useNotifications();
+    const notificationState = useNotifications(isAuthenticated);
 
     const isSettingsRoute = pathname?.startsWith("/settings");
 

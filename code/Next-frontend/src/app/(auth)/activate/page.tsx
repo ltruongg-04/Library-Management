@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { BaseButton } from "@/components/base/base-button";
@@ -10,7 +10,7 @@ import { authService } from "@/services/auth";
 
 const { ACTIVATION } = UI_TEXT.AUTH;
 
-export default function ActivateAccountPage() {
+function ActivateAccountContent() {
     const searchParams = useSearchParams();
     const [token, setToken] = useState("");
     const [email, setEmail] = useState("");
@@ -106,5 +106,19 @@ export default function ActivateAccountPage() {
                 {ACTIVATION.BACK_TO_LOGIN}
             </Link>
         </div>
+    );
+}
+
+export default function ActivateAccountPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="mx-auto flex min-h-[70vh] w-full max-w-md items-center justify-center p-6">
+                    <div className="h-48 w-full animate-pulse rounded bg-surface-container-high" />
+                </div>
+            }
+        >
+            <ActivateAccountContent />
+        </Suspense>
     );
 }

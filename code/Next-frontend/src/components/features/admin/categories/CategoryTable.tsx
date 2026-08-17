@@ -19,17 +19,12 @@ export default function CategoryTable() {
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
     const fetchCategories = useCallback(async () => {
-        const startTime = Date.now();
         try {
             setLoading(true);
             setError(null);
             const data = await categoryService.getAllCategories();
             setCategories(data);
         } catch (err: any) {
-            const elapsed = Date.now() - startTime;
-            if (elapsed < 5000) {
-                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
-            }
             setError(err.message || API_ERRORS.FETCH_CATEGORIES_ERROR);
         } finally {
             setLoading(false);

@@ -1,3 +1,4 @@
+import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import axiosInstance from "@/lib/axios";
 import { getErrorMessage } from "@/lib/utils";
 import { ApiResponse } from "@/types/api";
@@ -35,11 +36,11 @@ export const authService = {
             const response = await axiosInstance.post<ApiResponse<RegisterResponseData>>("/api/auth/register", data);
             const result = response.data;
             if (!result.success || !result.data) {
-                throw new Error(result.message || "Đăng ký thất bại");
+                throw new Error(result.message || API_ERRORS.REGISTER_FAILED);
             }
             return result.data;
         } catch (error: unknown) {
-            throw new Error(getErrorMessage(error, "Đăng ký thất bại"));
+            throw new Error(getErrorMessage(error, API_ERRORS.REGISTER_FAILED));
         }
     },
 
@@ -48,10 +49,10 @@ export const authService = {
             const response = await axiosInstance.post<ApiResponse<null>>("/api/auth/activate", data);
             const result = response.data;
             if (!result.success) {
-                throw new Error(result.message || "Kích hoạt tài khoản thất bại");
+                throw new Error(result.message || API_ERRORS.ACTIVATE_FAILED);
             }
         } catch (error: unknown) {
-            throw new Error(getErrorMessage(error, "Kích hoạt tài khoản thất bại"));
+            throw new Error(getErrorMessage(error, API_ERRORS.ACTIVATE_FAILED));
         }
     },
 
@@ -60,10 +61,10 @@ export const authService = {
             const response = await axiosInstance.post<ApiResponse<null>>("/api/auth/resend-activation", data);
             const result = response.data;
             if (!result.success) {
-                throw new Error(result.message || "Gửi lại mã kích hoạt thất bại");
+                throw new Error(result.message || API_ERRORS.RESEND_ACTIVATION_FAILED);
             }
         } catch (error: unknown) {
-            throw new Error(getErrorMessage(error, "Gửi lại mã kích hoạt thất bại"));
+            throw new Error(getErrorMessage(error, API_ERRORS.RESEND_ACTIVATION_FAILED));
         }
     },
 
@@ -73,10 +74,10 @@ export const authService = {
             const response = await axiosInstance.put<ApiResponse<null>>("/api/auth/change-password", data);
             const result = response.data;
             if (!result.success) {
-                throw new Error(result.message || "Đổi mật khẩu thất bại");
+                throw new Error(result.message || API_ERRORS.CHANGE_PASSWORD_FAILED);
             }
         } catch (error: unknown) {
-            throw new Error(getErrorMessage(error, "Đổi mật khẩu thất bại"));
+            throw new Error(getErrorMessage(error, API_ERRORS.CHANGE_PASSWORD_FAILED));
         }
     },
 
@@ -86,10 +87,10 @@ export const authService = {
             const response = await axiosInstance.post<ApiResponse<null>>("/api/auth/forgot-password", data);
             const result = response.data;
             if (!result.success) {
-                throw new Error(result.message || "Yêu cầu gửi OTP thất bại");
+                throw new Error(result.message || API_ERRORS.FORGOT_PASSWORD_FAILED);
             }
         } catch (error: unknown) {
-            throw new Error(getErrorMessage(error, "Yêu cầu gửi OTP thất bại"));
+            throw new Error(getErrorMessage(error, API_ERRORS.FORGOT_PASSWORD_FAILED));
         }
     },
 
@@ -99,11 +100,11 @@ export const authService = {
             const response = await axiosInstance.post<ApiResponse<{ resetToken: string }>>("/api/auth/verify-otp", data);
             const result = response.data;
             if (!result.success || !result.data) {
-                throw new Error(result.message || "Xác thực OTP thất bại");
+                throw new Error(result.message || API_ERRORS.VERIFY_OTP_FAILED);
             }
             return result.data;
         } catch (error: unknown) {
-            throw new Error(getErrorMessage(error, "Xác thực OTP thất bại"));
+            throw new Error(getErrorMessage(error, API_ERRORS.VERIFY_OTP_FAILED));
         }
     },
 
@@ -113,10 +114,10 @@ export const authService = {
             const response = await axiosInstance.post<ApiResponse<null>>("/api/auth/reset-password", data);
             const result = response.data;
             if (!result.success) {
-                throw new Error(result.message || "Đặt lại mật khẩu thất bại");
+                throw new Error(result.message || API_ERRORS.RESET_PASSWORD_FAILED);
             }
         } catch (error: unknown) {
-            throw new Error(getErrorMessage(error, "Đặt lại mật khẩu thất bại"));
+            throw new Error(getErrorMessage(error, API_ERRORS.RESET_PASSWORD_FAILED));
         }
     },
 };

@@ -3,6 +3,7 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { AUTH } from "@/constants/ui-text/auth";
+import { invalidateAuthTokenCache } from "@/lib/axios";
 import { authService } from "@/services/auth";
 
 // 👤 User type definition
@@ -73,6 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     throw new Error(result.error);
                 }
 
+                invalidateAuthTokenCache();
                 return user!;
             } finally {
                 setIsLoading(false);
@@ -94,6 +96,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // 🌐 Google Login
     const loginWithGoogle = useCallback(async () => {
         setIsLoading(true);
+        invalidateAuthTokenCache();
         try {
             await signIn("google", { callbackUrl: "/auth-callback" });
         } catch (error) {
@@ -105,6 +108,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // 🚪 Logout
     const logout = useCallback(async () => {
         setIsLoading(true);
+        invalidateAuthTokenCache();
         try {
             await signOut({ callbackUrl: "/" });
         } finally {

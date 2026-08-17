@@ -18,17 +18,12 @@ export default function AuthorTable() {
     const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
 
     const fetchAuthors = useCallback(async () => {
-        const startTime = Date.now();
         try {
             setLoading(true);
             setError(null);
             const data = await authorService.getAllAuthors();
             setAuthors(data);
         } catch (err: any) {
-            const elapsed = Date.now() - startTime;
-            if (elapsed < 5000) {
-                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
-            }
             setError(err.message || API_ERRORS.FETCH_AUTHORS_ERROR);
         } finally {
             setLoading(false);

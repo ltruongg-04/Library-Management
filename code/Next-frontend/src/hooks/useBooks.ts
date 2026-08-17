@@ -34,7 +34,6 @@ export function useBooks(initialParams?: BookSearchParams) {
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const fetchBooks = useCallback(async (searchParams: BookSearchParams, signal?: AbortSignal) => {
-        const startTime = Date.now();
         setState((prev) => ({ ...prev, loading: true, error: null }));
         try {
             const data: BookPageResponse = await bookService.getBooks(searchParams, signal);
@@ -50,10 +49,6 @@ export function useBooks(initialParams?: BookSearchParams) {
         } catch (err: any) {
             // Bỏ qua lỗi do abort (request bị hủy có chủ đích)
             if (err.name === "AbortError") return;
-            const elapsed = Date.now() - startTime;
-            if (elapsed < 5000) {
-                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
-            }
             setState((prev) => ({
                 ...prev,
                 loading: false,
@@ -145,7 +140,6 @@ export function useBookDetail(id: number | null) {
         let cancelled = false;
 
         async function fetchBook() {
-            const startTime = Date.now();
             setLoading(true);
             setError(null);
             try {
@@ -156,14 +150,8 @@ export function useBookDetail(id: number | null) {
                 }
             } catch (err: any) {
                 if (!cancelled) {
-                    const elapsed = Date.now() - startTime;
-                    if (elapsed < 5000) {
-                        await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
-                    }
-                    if (!cancelled) {
-                        setError(err.message || API_ERRORS.BOOK_DETAIL_FAILED);
-                        setLoading(false);
-                    }
+                    setError(err.message || API_ERRORS.BOOK_DETAIL_FAILED);
+                    setLoading(false);
                 }
             }
         }
@@ -190,7 +178,6 @@ export function useTrendingBooks(limit: number = 8) {
         let cancelled = false;
 
         async function fetchTrending() {
-            const startTime = Date.now();
             setLoading(true);
             setError(null);
             try {
@@ -201,14 +188,8 @@ export function useTrendingBooks(limit: number = 8) {
                 }
             } catch (err: any) {
                 if (!cancelled) {
-                    const elapsed = Date.now() - startTime;
-                    if (elapsed < 5000) {
-                        await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
-                    }
-                    if (!cancelled) {
-                        setError(err.message || API_ERRORS.BOOK_TRENDING_FAILED);
-                        setLoading(false);
-                    }
+                    setError(err.message || API_ERRORS.BOOK_TRENDING_FAILED);
+                    setLoading(false);
                 }
             }
         }

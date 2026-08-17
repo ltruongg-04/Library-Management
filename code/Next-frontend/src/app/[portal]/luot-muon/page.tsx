@@ -32,7 +32,6 @@ export default function LuotMuonPage() {
     const [dateTo, setDateTo] = useState("");
 
     const fetchBorrows = async () => {
-        const startTime = Date.now();
         try {
             setIsLoading(true);
             setError(null);
@@ -70,10 +69,6 @@ export default function LuotMuonPage() {
                 setRecords(mappedData);
             }
         } catch (error: any) {
-            const elapsed = Date.now() - startTime;
-            if (elapsed < 5000) {
-                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
-            }
             console.error("Error fetching borrow orders:", error);
             setError(error.message || API_ERRORS.FETCH_BORROW_ERROR);
         } finally {

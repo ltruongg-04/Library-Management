@@ -30,7 +30,6 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
     }, [isOpen, orderCode]);
 
     const fetchDetail = async () => {
-        const startTime = Date.now();
         setIsLoading(true);
         setError(null);
         try {
@@ -38,17 +37,9 @@ export default function BorrowDetailModal({ isOpen, onClose, orderCode }: Borrow
             if (res.success && res.data) {
                 setDetail(res.data);
             } else {
-                const elapsed = Date.now() - startTime;
-                if (elapsed < 5000) {
-                    await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
-                }
                 setError(res.message || API_ERRORS.FETCH_BORROW_DETAIL_ERROR);
             }
         } catch (err) {
-            const elapsed = Date.now() - startTime;
-            if (elapsed < 5000) {
-                await new Promise((resolve) => setTimeout(resolve, 5000 - elapsed));
-            }
             setError(API_ERRORS.FETCH_BORROW_DETAIL_ERROR);
         } finally {
             setIsLoading(false);

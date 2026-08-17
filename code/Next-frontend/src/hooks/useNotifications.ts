@@ -11,12 +11,18 @@ import {
     readNotificationSettings,
 } from "@/utils/notification-settings";
 
-export function useNotifications() {
+export function useNotifications(enabled: boolean = true) {
     const [allItems, setAllItems] = useState<Notification[]>([]);
     const [serverUnreadCount, setServerUnreadCount] = useState(0);
     const [settings, setSettings] = useState<NotificationSettings>(() => readNotificationSettings());
 
     useEffect(() => {
+        if (!enabled) {
+            setAllItems([]);
+            setServerUnreadCount(0);
+            return;
+        }
+
         let mounted = true;
 
         const loadNotifications = async () => {
@@ -40,7 +46,7 @@ export function useNotifications() {
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [enabled]);
 
     useEffect(() => {
         const syncSettings = () => {

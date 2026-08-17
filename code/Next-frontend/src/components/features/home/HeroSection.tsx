@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -71,13 +72,13 @@ export default function HeroSection() {
                         <div className="mt-4 flex flex-wrap items-center gap-2">
                             <span className="text-[12px] text-on-surface-variant dark:text-white/50">{UI_TEXT.HOME.TRENDING_LABEL}</span>
                             {UI_TEXT.HOME.HERO_TAGS.map((tag) => (
-                                <button
+                                <Link
                                     key={tag}
-                                    onClick={() => router.push(`/sach?keyword=${encodeURIComponent(tag)}`)}
+                                    href={`/sach?keyword=${encodeURIComponent(tag)}`}
                                     className="rounded-full border border-outline/20 px-3 py-0.5 text-[12px] font-medium text-on-surface-variant transition-colors duration-150 hover:border-secondary-300/60 hover:text-secondary-500 dark:border-slate-700 dark:text-white/60 dark:hover:text-secondary-300"
                                 >
                                     {tag}
-                                </button>
+                                </Link>
                             ))}
                         </div>
                     </div>

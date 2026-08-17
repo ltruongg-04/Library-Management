@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -19,7 +19,6 @@ interface BookCoverProps {
 }
 
 export default function BookCover({ book, onOpenReview }: BookCoverProps) {
-    const router = useRouter();
     const { isAuthenticated } = useAuth();
     const isAvailable = book.availableCount > 0;
     const hasCoverImage = book.coverImage && book.coverImage.length > 0;
@@ -169,13 +168,13 @@ export default function BookCover({ book, onOpenReview }: BookCoverProps) {
             {/* Action Buttons */}
             <div className="mt-2 flex flex-col gap-2">
                 {isAvailable ? (
-                    <button
-                        onClick={() => router.push(`/sach/${book.id}/muon`)}
+                    <Link
+                        href={`/sach/${book.id}/muon`}
                         className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-label-caps text-label-caps text-on-primary shadow-sm transition-colors duration-200 hover:bg-on-primary-fixed-variant active:scale-95 dark:bg-primary-500"
                     >
                         <MaterialIcon name="book" />
                         {UI_TEXT.BOOK_DETAIL.BORROW_NOW}
-                    </button>
+                    </Link>
                 ) : userReservationId ? (
                     <button
                         onClick={handleCancelReservation}
@@ -204,14 +203,13 @@ export default function BookCover({ book, onOpenReview }: BookCoverProps) {
                     {isFavorite ? UI_TEXT.BOOK_DETAIL.REMOVE_WISHLIST : UI_TEXT.BOOK_DETAIL.ADD_WISHLIST}
                 </button>
                 {isAvailable ? (
-                    <button
-                        type="button"
-                        onClick={() => router.push(`/sach/${book.id}/doc-tai-thu-vien`)}
+                    <Link
+                        href={`/sach/${book.id}/doc-tai-thu-vien`}
                         className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-secondary bg-transparent px-4 py-2 font-label-caps text-label-caps text-secondary transition-colors duration-200 hover:bg-secondary/10 active:scale-95 dark:border-white dark:text-white dark:hover:bg-white/10"
                     >
                         <MaterialIcon name="local_library" />
                         {UI_TEXT.BOOK_DETAIL.READ_AT_LIBRARY}
-                    </button>
+                    </Link>
                 ) : (
                     <div className="group relative" title={UI_TEXT.BOOK_DETAIL.READ_UNAVAILABLE_HINT}>
                         <button
