@@ -111,4 +111,65 @@ public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, 
             ORDER BY FUNCTION('YEAR', orderEntity.createdAt), FUNCTION('MONTH', orderEntity.createdAt)
             """)
     List<Object[]> findMonthlyBorrowTrends();
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {
+            "customer",
+            "customer.user",
+            "orderDetails",
+            "orderDetails.bookCopy",
+            "orderDetails.bookCopy.book",
+            "orderDetails.bookCopy.book.authors"
+    })
+    @Query(
+        value = """
+            SELECT DISTINCT o
+            FROM BorrowOrderEntity o
+            LEFT JOIN o.customer c
+            LEFT JOIN o.orderDetails d
+            LEFT JOIN d.bookCopy bc
+            LEFT JOIN bc.book b
+            WHERE (:status IS NULL OR o.status = :status)
+              AND (
+                :customerType = 'ALL'
+                OR (:customerType = 'GUEST' AND c.user IS NULL)
+                OR (:customerType = 'CUSTOMER' AND c.user IS NOT NULL)
+              )
+              AND (
+                :keyword IS NULL OR :keyword = ''
+                OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.phone) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.libraryCardNo) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+              )
+            ORDER BY o.createdAt DESC
+            """,
+        countQuery = """
+            SELECT COUNT(DISTINCT o)
+            FROM BorrowOrderEntity o
+            LEFT JOIN o.customer c
+            LEFT JOIN o.orderDetails d
+            LEFT JOIN d.bookCopy bc
+            LEFT JOIN bc.book b
+            WHERE (:status IS NULL OR o.status = :status)
+              AND (
+                :customerType = 'ALL'
+                OR (:customerType = 'GUEST' AND c.user IS NULL)
+                OR (:customerType = 'CUSTOMER' AND c.user IS NOT NULL)
+              )
+              AND (
+                :keyword IS NULL OR :keyword = ''
+                OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.phone) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(c.libraryCardNo) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+              )
+            """
+    )
+    Page<BorrowOrderEntity> searchBorrowOrders(
+            @Param("status") BorrowOrderStatus status,
+            @Param("customerType") String customerType,
+            @Param("keyword") String keyword,
+            Pageable pageable);
 }

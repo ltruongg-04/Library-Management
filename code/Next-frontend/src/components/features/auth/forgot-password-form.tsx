@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { BaseButton } from "@/components/base/base-button";
 import { BaseInput } from "@/components/base/base-input";
 import { UI_TEXT } from "@/constants/ui-text";
+import { getErrorMessage } from "@/lib/utils";
 import { authService } from "@/services/auth";
 
 export function ForgotPasswordForm() {
@@ -25,29 +26,29 @@ export function ForgotPasswordForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const [errors, setErrors] = useState<{ email?: string; otp?: string; password?: string; confirm?: string; global?: string }>({});
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     function validateStep1() {
-        const next: typeof errors = {};
-        if (!email) next.email = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.EMAIL_REQUIRED;
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.EMAIL_INVALID;
-        return next;
+        const e: { [key: string]: string } = {};
+        if (!email) e.email = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.EMAIL_REQUIRED;
+        else if (!/\S+@\S+\.\S+/.test(email)) e.email = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.EMAIL_INVALID;
+        return e;
     }
 
     function validateStep2() {
-        const next: typeof errors = {};
-        if (!otp) next.otp = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.OTP_REQUIRED;
-        else if (otp.length !== 6) next.otp = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.OTP_LENGTH;
-        return next;
+        const e: { [key: string]: string } = {};
+        if (!otp) e.otp = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.OTP_REQUIRED;
+        else if (otp.length !== 6) e.otp = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.OTP_LENGTH;
+        return e;
     }
 
     function validateStep3() {
-        const next: typeof errors = {};
-        if (!newPassword) next.password = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.PASSWORD_REQUIRED;
-        else if (newPassword.length < 8) next.password = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.PASSWORD_MIN_LENGTH;
-
-        if (newPassword !== confirmPassword) next.confirm = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.PASSWORD_MISMATCH;
-        return next;
+        const e: { [key: string]: string } = {};
+        if (!newPassword) e.newPassword = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.PASSWORD_REQUIRED;
+        else if (newPassword.length < 8) e.newPassword = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.PASSWORD_MIN_LENGTH;
+        if (!confirmPassword) e.confirmPassword = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.PASSWORD_REQUIRED;
+        else if (newPassword !== confirmPassword) e.confirmPassword = UI_TEXT.AUTH.FORGOT_PASSWORD.VALIDATION.PASSWORD_MISMATCH;
+        return e;
     }
 
     async function handleRequestOtp(e: React.FormEvent) {
@@ -63,8 +64,8 @@ export function ForgotPasswordForm() {
             await authService.forgotPassword({ email });
             toast.success(UI_TEXT.AUTH.FORGOT_PASSWORD.MESSAGES.OTP_SENT_SUCCESS);
             setStep(2);
-        } catch (error: any) {
-            setErrors({ global: error.message });
+        } catch (error: unknown) {
+            setErrors({ global: getErrorMessage(error) });
         } finally {
             setIsLoading(false);
         }
@@ -84,8 +85,8 @@ export function ForgotPasswordForm() {
             setResetToken(res.resetToken);
             toast.success(UI_TEXT.AUTH.FORGOT_PASSWORD.MESSAGES.OTP_VERIFIED_SUCCESS);
             setStep(3);
-        } catch (error: any) {
-            setErrors({ global: error.message });
+        } catch (error: unknown) {
+            setErrors({ global: getErrorMessage(error) });
         } finally {
             setIsLoading(false);
         }
@@ -104,8 +105,8 @@ export function ForgotPasswordForm() {
             await authService.resetPassword({ resetToken, newPassword });
             toast.success(UI_TEXT.AUTH.FORGOT_PASSWORD.MESSAGES.RESET_SUCCESS);
             router.push("/login?reset=true");
-        } catch (error: any) {
-            setErrors({ global: error.message });
+        } catch (error: unknown) {
+            setErrors({ global: getErrorMessage(error) });
         } finally {
             setIsLoading(false);
         }

@@ -54,7 +54,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             return fileName;
         } catch (Exception e) {
             log.error("Đã xảy ra lỗi khi tải tệp lên MinIO", e);
-            throw new CustomBusinessException("Đã xảy ra lỗi khi tải tệp lên. Vui lòng thử lại.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomBusinessException(library.common.constant.ErrorMessages.FILE_UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

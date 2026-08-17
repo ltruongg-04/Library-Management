@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"success\":false,\"message\":\"Bạn chưa được xác thực\",\"data\":null}");
+                    response.getWriter().write(String.format("{\"success\":false,\"message\":\"%s\",\"data\":null}", library.common.constant.ErrorMessages.UNAUTHORIZED));
                 }))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

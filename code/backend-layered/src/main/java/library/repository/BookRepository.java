@@ -41,16 +41,25 @@ public interface BookRepository extends JpaRepository<BookEntity, Integer> {
             @Param("categoryId") Integer categoryId,
             Pageable pageable);
 
-    // Tìm kiếm theo title hoặc author name (case-insensitive)
+    /**
+     * @deprecated Sử dụng {@link #findWithFilters} để hỗ trợ tìm kiếm đầy đủ tiêu chí và phân trang tối ưu.
+     */
+    @Deprecated
     @Query("SELECT DISTINCT b FROM BookEntity b LEFT JOIN b.authors a WHERE LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<BookEntity> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    // Lọc theo category id
+    /**
+     * @deprecated Sử dụng {@link #findWithFilters} để hỗ trợ tìm kiếm đầy đủ tiêu chí và phân trang tối ưu.
+     */
+    @Deprecated
     @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.categories c WHERE c.id = :categoryId")
     Page<BookEntity> findByCategoryId(@Param("categoryId") Integer categoryId, Pageable pageable);
 
-    // Tìm kiếm + lọc category
+    /**
+     * @deprecated Sử dụng {@link #findWithFilters} để hỗ trợ tìm kiếm đầy đủ tiêu chí và phân trang tối ưu.
+     */
+    @Deprecated
     @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.categories c LEFT JOIN b.authors a WHERE c.id = :categoryId " +
             "AND (LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")

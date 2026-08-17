@@ -50,9 +50,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     private final library.service.impl.helper.BorrowOrderValidationHelper validationHelper;
     private final library.service.impl.helper.BorrowOrderPaymentHelper paymentHelper;
 
-    @org.springframework.context.annotation.Lazy
-    @org.springframework.beans.factory.annotation.Autowired
-    private library.service.AdminBorrowService adminBorrowService;
+    private final library.service.AdminBorrowService adminBorrowService;
 
     @Override
     @Transactional

@@ -9,6 +9,9 @@ import library.repository.BorrowOrderRepository;
 import library.service.AdminBorrowService;
 import library.service.SystemLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,24 +55,27 @@ public class AdminBorrowServiceImpl implements AdminBorrowService {
     @Override
     @Transactional(readOnly = true)
     public List<AdminBorrowOrderDto> searchBorrowOrders(String status, String customerType, String keyword, int page, int size) {
-        String normalizedStatus = status != null ? status.trim().toUpperCase() : "";
-        String normalizedCustomerType = customerType != null ? customerType.trim().toUpperCase() : "ALL";
-        String normalizedKeyword = keyword != null ? keyword.trim().toLowerCase() : "";
+        BorrowOrderStatus orderStatus = null;
+        if (status != null && !status.trim().isEmpty() && !"ALL".equalsIgnoreCase(status.trim())) {
+            try {
+                orderStatus = BorrowOrderStatus.valueOf(status.trim().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                // Ignore invalid status filter
+            }
+        }
+        String normalizedCustomerType = (customerType != null && !customerType.trim().isEmpty())
+                ? customerType.trim().toUpperCase()
+                : "ALL";
+        String normalizedKeyword = (keyword != null && !keyword.trim().isEmpty())
+                ? keyword.trim()
+                : null;
 
-        return getAllBorrowOrders().stream()
-                .filter(order -> normalizedStatus.isEmpty() || order.getStatus().name().equals(normalizedStatus))
-                .filter(order -> {
-                    if ("GUEST".equals(normalizedCustomerType)) return Boolean.TRUE.equals(order.getIsGuest());
-                    if ("CUSTOMER".equals(normalizedCustomerType)) return !Boolean.TRUE.equals(order.getIsGuest());
-                    return true;
-                })
-                .filter(order -> normalizedKeyword.isEmpty()
-                        || safe(order.getId()).toLowerCase().contains(normalizedKeyword)
-                        || safe(order.getCustomerName()).toLowerCase().contains(normalizedKeyword)
-                        || safe(order.getCustomerCode()).toLowerCase().contains(normalizedKeyword)
-                        || safe(order.getBookTitle()).toLowerCase().contains(normalizedKeyword))
-                .skip((long) Math.max(page, 0) * Math.max(size, 1))
-                .limit(Math.max(size, 1))
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+        Page<BorrowOrderEntity> orderPage = borrowOrderRepository.searchBorrowOrders(
+                orderStatus, normalizedCustomerType, normalizedKeyword, pageable);
+
+        return orderPage.getContent().stream()
+                .map(adminBorrowOrderMapper::toAdminBorrowOrderDto)
                 .collect(Collectors.toList());
     }
 

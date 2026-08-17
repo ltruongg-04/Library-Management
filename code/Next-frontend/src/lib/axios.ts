@@ -34,6 +34,9 @@ axiosInstance.interceptors.request.use(
         // Chỉ tự động lấy session trên client side
         // Trên server side (Server Components), cần truyền token thủ công hoặc tạo một instance riêng
         if (typeof window !== "undefined") {
+            if (isPublicEndpoint(config.url)) {
+                return config;
+            }
             const session = await getSession();
             if (session?.backendToken) {
                 config.headers.Authorization = `Bearer ${session.backendToken}`;

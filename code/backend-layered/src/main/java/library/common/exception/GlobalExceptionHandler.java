@@ -1,6 +1,7 @@
 package library.common.exception;
 
 import library.common.base.ApiResponse;
+import library.common.constant.ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +30,13 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
-        ApiResponse<Void> response = ApiResponse.error("Dữ liệu không hợp lệ: " + errors);
+        ApiResponse<Void> response = ApiResponse.error(ErrorMessages.INVALID_DATA + errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
-        ApiResponse<Void> response = ApiResponse.error("Bạn không có quyền thực hiện thao tác này");
+        ApiResponse<Void> response = ApiResponse.error(ErrorMessages.FORBIDDEN);
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
@@ -48,14 +49,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         log.error("Data integrity violation", ex);
-        ApiResponse<Void> response = ApiResponse.error("Dữ liệu bị trùng lặp hoặc vi phạm ràng buộc dữ liệu");
+        ApiResponse<Void> response = ApiResponse.error(ErrorMessages.DATA_INTEGRITY_VIOLATION);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
         log.error("Unhandled API exception: {}", ex.getMessage(), ex);
-        ApiResponse<Void> response = ApiResponse.error("Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.");
+        ApiResponse<Void> response = ApiResponse.error(ErrorMessages.SYSTEM_ERROR);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+

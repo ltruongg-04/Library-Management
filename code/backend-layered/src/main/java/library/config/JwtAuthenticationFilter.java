@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (user == null || !user.isActive()) {
                     response.setStatus(HttpStatus.UNAUTHORIZED.value());
                     response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write("{\"success\":false,\"message\":\"Tài khoản đã bị khóa hoặc không tồn tại\",\"data\":null}");
+                    response.getWriter().write(String.format("{\"success\":false,\"message\":\"%s\",\"data\":null}", library.common.constant.ErrorMessages.ACCOUNT_LOCKED));
                     return;
                 }
 

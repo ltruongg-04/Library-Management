@@ -10,6 +10,8 @@ export const COMMON = {
     ERROR_LOAD_BOOK_DETAIL: "Không thể tải chi tiết sách. Vui lòng thử lại.",
     ERROR_LOAD_TRENDING: "Không thể tải sách thịnh hành.",
     ERROR_CONNECT: "Không thể kết nối đến server.",
+    ERROR_NETWORK: "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng.",
+    ERROR_DEFAULT: "Đã xảy ra lỗi. Vui lòng thử lại sau.",
     RETRY_BTN: "Thử lại",
     EMPTY_DATA: "Chưa có dữ liệu",
     SUCCESS_MODAL: {

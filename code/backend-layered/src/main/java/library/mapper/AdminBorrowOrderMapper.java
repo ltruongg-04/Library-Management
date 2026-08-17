@@ -31,7 +31,9 @@ public class AdminBorrowOrderMapper {
     public AdminBorrowOrderDto toAdminBorrowOrderDto(BorrowOrderEntity order) {
         if (order == null) return null;
 
-        List<BorrowOrderDetailEntity> details = borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
+        List<BorrowOrderDetailEntity> details = (order.getOrderDetails() != null && !order.getOrderDetails().isEmpty())
+                ? order.getOrderDetails()
+                : borrowOrderDetailRepository.findByBorrowOrderId(order.getId());
 
         String bookTitle = "Chưa cập nhật";
         String bookAuthor = "Chưa cập nhật";

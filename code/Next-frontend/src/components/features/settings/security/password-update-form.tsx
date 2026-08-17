@@ -5,6 +5,7 @@ import { KeyRound } from "lucide-react";
 import { BaseButton } from "@/components/base/base-button";
 import { BaseInput } from "@/components/base/base-input";
 import { UI_TEXT } from "@/constants/ui-text";
+import { getErrorMessage } from "@/lib/utils";
 import { authService } from "@/services/auth";
 
 const securityText = UI_TEXT.SETTINGS_SECURITY.PAGE;
@@ -56,8 +57,8 @@ export function PasswordUpdateForm({ showSuccess }: Props) {
             });
 
             showSuccess(securityText.SUCCESS_MESSAGES.PASSWORD_UPDATED);
-        } catch (error: any) {
-            setPasswordError(error.message || securityText.ERROR_MESSAGES.PASSWORD_UPDATE_FAILED);
+        } catch (error: unknown) {
+            setPasswordError(getErrorMessage(error, securityText.ERROR_MESSAGES.PASSWORD_UPDATE_FAILED));
         } finally {
             setIsUpdatingPassword(false);
         }
