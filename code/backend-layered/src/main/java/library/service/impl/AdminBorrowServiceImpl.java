@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AdminBorrowServiceImpl implements AdminBorrowService {
 
     private final BorrowOrderRepository borrowOrderRepository;

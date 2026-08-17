@@ -16,6 +16,14 @@ import library.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import library.dto.request.ChangePasswordRequest;
+import library.dto.request.ForgotPasswordRequest;
+import library.dto.request.ResetPasswordRequest;
+import library.dto.request.VerifyOtpRequest;
+import library.dto.response.VerifyOtpResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import library.dto.request.ChangePasswordRequest;
 import library.dto.request.ForgotPasswordRequest;
 import library.dto.request.ResetPasswordRequest;
@@ -23,11 +31,14 @@ import library.dto.request.VerifyOtpRequest;
 import library.dto.response.VerifyOtpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import library.common.constant.ErrorMessages;
+import library.common.constant.SuccessMessages;
 import library.common.exception.CustomBusinessException;
 import org.springframework.http.HttpStatus;
 
 import library.dto.request.RefreshTokenRequest;
 
+@Validated
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -38,34 +49,34 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<RegisterResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Đăng ký thành công. Vui lòng kiểm tra email để kích hoạt tài khoản.", authService.register(request)));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_REGISTER, authService.register(request)));
     }
 
     @PostMapping("/activate")
     public ResponseEntity<ApiResponse<Void>> activate(@Valid @RequestBody ActivateAccountRequest request) {
         authService.activateAccount(request.getToken());
-        return ResponseEntity.ok(ApiResponse.success("Kích hoạt tài khoản thành công", null));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_ACTIVATE, null));
     }
 
     @PostMapping("/resend-activation")
     public ResponseEntity<ApiResponse<Void>> resendActivation(@Valid @RequestBody ResendActivationRequest request) {
         authService.resendActivation(request.getEmail());
-        return ResponseEntity.ok(ApiResponse.success("Đã gửi lại email kích hoạt", null));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_RESEND_ACTIVATION, null));
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Đăng nhập thành công", authService.login(request)));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_LOGIN, authService.login(request)));
     }
 
     @PostMapping("/google")
     public ResponseEntity<ApiResponse<LoginResponse>> loginWithGoogle(@Valid @RequestBody GoogleLoginRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Đăng nhập Google thành công", authService.loginWithGoogle(request)));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_GOOGLE_LOGIN, authService.loginWithGoogle(request)));
     }
 
     @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshToken(@RequestParam String token) {
-        return ResponseEntity.ok(ApiResponse.success("Làm mới token thành công", authService.refreshToken(token)));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_TOKEN_REFRESH, authService.refreshToken(token)));
     }
 
     @PostMapping("/logout")
@@ -78,35 +89,35 @@ public class AuthController {
                 authService.logout(bearerToken.substring(7));
             }
         }
-        return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công", null));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_LOGOUT, null));
     }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         userService.forgotPassword(request);
-        return ResponseEntity.ok(ApiResponse.success("Mã xác nhận (OTP) đã được gửi đến email của bạn", null));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_FORGOT_PASSWORD, null));
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<ApiResponse<VerifyOtpResponse>> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
         VerifyOtpResponse response = userService.verifyForgotPasswordOtp(request);
-        return ResponseEntity.ok(ApiResponse.success("Xác thực OTP thành công", response));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_VERIFY_OTP, response));
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         userService.resetPassword(request);
-        return ResponseEntity.ok(ApiResponse.success("Đặt lại mật khẩu thành công", null));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_RESET_PASSWORD, null));
     }
 
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new CustomBusinessException("Bạn chưa được xác thực", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException(ErrorMessages.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
         String email = authentication.getPrincipal().toString();
         userService.changePassword(email, request);
-        return ResponseEntity.ok(ApiResponse.success("Đổi mật khẩu thành công", null));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_PASSWORD_CHANGED, null));
     }
 }

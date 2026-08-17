@@ -10,6 +10,8 @@ export const HOME = {
     STATS_TOTAL_DESC: "đầu sách đa thể loại",
     STATS_AI_SEARCH: "Tìm kiếm AI",
     STATS_AI_DESC: "độ chính xác gợi ý",
+    STATS_TOTAL_VALUE: "10,000+",
+    STATS_AI_VALUE: "98%",
     VIEW_DETAILS: "Xem chi tiết →",
     CURATED_HEADING: "Dành cho bạn",
     CURATED_SUBHEADING: "Đề xuất dựa trên sở thích đọc sách của bạn.",

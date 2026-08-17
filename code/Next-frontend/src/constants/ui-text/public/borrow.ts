@@ -14,6 +14,9 @@ export const BORROW = {
         GUEST_NAME_LABEL: "Họ và tên *",
         GUEST_PHONE_LABEL: "Số điện thoại *",
         GUEST_EMAIL_LABEL: "Email *",
+        GUEST_NAME_PLACEHOLDER: "Nguyễn Văn A",
+        GUEST_PHONE_PLACEHOLDER: "0912345678",
+        GUEST_EMAIL_PLACEHOLDER: "email@example.com",
         ERRORS: {
             MISSING_DATES: "Vui lòng chọn ngày lấy và trả sách.",
             MISSING_GUEST_INFO: "Vui lòng nhập đầy đủ Họ tên, Số điện thoại và Email.",

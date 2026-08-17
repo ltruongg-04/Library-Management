@@ -62,7 +62,7 @@ export default function Sidebar() {
                     onClick={toggleCollapsed}
                     className="flex h-8 w-8 items-center justify-center rounded-lg text-on-primary/70 transition-colors hover:bg-primary-container/20 hover:text-on-primary"
                     title={collapsed ? SIDEBAR.EXPAND_MENU : SIDEBAR.COLLAPSE_MENU}
-                    aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    aria-label={collapsed ? SIDEBAR.EXPAND_MENU : SIDEBAR.COLLAPSE_MENU}
                 >
                     {collapsed ? <PanelLeftOpen size={20} strokeWidth={2} /> : <PanelLeftClose size={20} strokeWidth={2} />}
                 </button>

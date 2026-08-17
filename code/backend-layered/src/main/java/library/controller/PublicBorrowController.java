@@ -10,6 +10,7 @@ import library.service.BorrowOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
 
 import library.dto.request.OtpRequestDto;
 import library.dto.request.GuestBorrowLookupRequest;
@@ -17,6 +18,7 @@ import library.service.OtpService;
 import library.common.exception.CustomBusinessException;
 import org.springframework.http.HttpStatus;
 
+@Validated
 @RestController
 @RequestMapping("/api/public/borrow")
 @RequiredArgsConstructor

@@ -31,7 +31,7 @@ function FeaturedBookCard({ book }: { book: Book }) {
             await favoriteService.addFavorite(book.id);
             toast.success(API_SUCCESS.FAVORITE_ADD_SUCCESS, {
                 action: {
-                    label: "Tới Sách của tôi",
+                    label: UI_TEXT.COMMON.FAVORITE_ACTION_LABEL,
                     onClick: () => router.push("/sach-cua-toi"),
                 },
             });
@@ -114,7 +114,7 @@ function SmallBookCard({ book, rank }: { book: Book; rank: number }) {
             await favoriteService.addFavorite(book.id);
             toast.success(API_SUCCESS.FAVORITE_ADD_SUCCESS, {
                 action: {
-                    label: "Tới Sách của tôi",
+                    label: UI_TEXT.COMMON.FAVORITE_ACTION_LABEL,
                     onClick: () => router.push("/sach-cua-toi"),
                 },
             });

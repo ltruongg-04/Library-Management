@@ -34,4 +34,5 @@ export const COMMON = {
     GUEST: "Khách",
     RETURNED: "Đã trả",
     IN_USE: "Đang sử dụng",
+    FAVORITE_ACTION_LABEL: "Tới Sách của tôi",
 };

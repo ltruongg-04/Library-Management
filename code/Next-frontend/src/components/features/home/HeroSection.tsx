@@ -92,7 +92,7 @@ export default function HeroSection() {
                                 </span>
                                 <span className="text-[13px] font-medium text-on-surface-variant dark:text-white/70">{UI_TEXT.HOME.STATS_TOTAL_BOOKS}</span>
                             </div>
-                            <p className="text-[28px] font-bold leading-none text-primary-700 dark:text-white">10,000+</p>
+                            <p className="text-[28px] font-bold leading-none text-primary-700 dark:text-white">{UI_TEXT.HOME.STATS_TOTAL_VALUE}</p>
                             <p className="mt-1 text-[12px] text-on-surface-variant dark:text-white/50">{UI_TEXT.HOME.STATS_TOTAL_DESC}</p>
                         </div>
                         <div className="glass-panel rounded-2xl p-5 dark:border-slate-700/50 dark:bg-slate-900/80">
@@ -102,7 +102,7 @@ export default function HeroSection() {
                                 </span>
                                 <span className="text-[13px] font-medium text-on-surface-variant dark:text-white/70">{UI_TEXT.HOME.STATS_AI_SEARCH}</span>
                             </div>
-                            <p className="text-[28px] font-bold leading-none text-primary-700 dark:text-white">98%</p>
+                            <p className="text-[28px] font-bold leading-none text-primary-700 dark:text-white">{UI_TEXT.HOME.STATS_AI_VALUE}</p>
                             <p className="mt-1 text-[12px] text-on-surface-variant dark:text-white/50">{UI_TEXT.HOME.STATS_AI_DESC}</p>
                         </div>
                     </div>

@@ -1,5 +1,6 @@
 package library.service.impl;
 
+import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 import library.dto.response.NotificationResponse;
 import library.entity.NotificationEntity;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -57,9 +59,9 @@ public class NotificationServiceImpl implements NotificationService {
     public void markAsRead(String email, Integer id) {
         UserEntity user = findUser(email);
         NotificationEntity notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy thông báo", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_NOTIFICATION, HttpStatus.NOT_FOUND));
         if (notification.getUser() == null || !notification.getUser().getId().equals(user.getId())) {
-            throw new CustomBusinessException("Không có quyền cập nhật thông báo này", HttpStatus.FORBIDDEN);
+            throw new CustomBusinessException(ErrorMessages.NOTIFICATION_NO_PERMISSION, HttpStatus.FORBIDDEN);
         }
         notification.setReadAt(LocalDateTime.now());
         notificationRepository.save(notification);
@@ -80,7 +82,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private UserEntity findUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy tài khoản", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_ACCOUNT, HttpStatus.NOT_FOUND));
     }
 
     private NotificationResponse toResponse(NotificationEntity entity) {

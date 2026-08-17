@@ -33,6 +33,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService {
     private static final int MAX_FAILED_LOGIN_ATTEMPTS = 5;
     private static final int LOCK_MINUTES = 15;

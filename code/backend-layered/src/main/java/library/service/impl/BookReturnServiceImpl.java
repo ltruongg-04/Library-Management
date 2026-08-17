@@ -22,6 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BookReturnServiceImpl implements BookReturnService {
 
     private final BorrowOrderRepository borrowOrderRepository;
@@ -208,9 +209,7 @@ public class BookReturnServiceImpl implements BookReturnService {
         boolean alreadyPaid = false;
         if (totalAmountToPay.compareTo(BigDecimal.ZERO) < 0) {
             String prefix = "CASH_REFUND_" + bookReturnId + "_";
-            alreadyPaid = paymentRepository.findAll().stream()
-                    .anyMatch(p -> p.getTransactionCode() != null && p.getTransactionCode().startsWith(prefix)
-                            && p.getPaymentStatus() == PaymentStatus.SUCCESS);
+            alreadyPaid = paymentRepository.existsByTransactionCodeStartingWithAndPaymentStatus(prefix, PaymentStatus.SUCCESS);
         } else if (fine != null && fine.getStatus() == FineStatus.PAID) {
             alreadyPaid = true;
         }

@@ -1,5 +1,6 @@
 package library.service.impl;
 
+import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 
 import library.dto.response.BookListResponse;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FavouriteServiceImpl implements FavouriteService {
 
     private final FavouriteRepository favouriteRepository;
@@ -39,9 +41,9 @@ public class FavouriteServiceImpl implements FavouriteService {
         }
 
         CustomerEntity customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy khách hàng", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_CUSTOMER, HttpStatus.NOT_FOUND));
         BookEntity book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_BOOK, HttpStatus.NOT_FOUND));
 
         FavouriteId favouriteId = new FavouriteId(customer.getId(), book.getId());
 

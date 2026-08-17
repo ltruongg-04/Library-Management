@@ -17,5 +17,6 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Integer>
     Optional<PaymentEntity> findByBorrowOrderIdAndPaymentType(Integer borrowOrderId, PaymentType paymentType);
 
     java.util.List<PaymentEntity> findByBorrowOrderIdAndPaymentStatus(Integer borrowOrderId, library.entity.PaymentStatus paymentStatus);
-}
 
+    boolean existsByTransactionCodeStartingWithAndPaymentStatus(String transactionCodePrefix, library.entity.PaymentStatus paymentStatus);
+}

@@ -82,7 +82,11 @@ export default function ReportReviewModal({ open, reportingReview, onClose, onSu
             )}
 
             <div className="flex justify-end gap-2">
-                <button type="button" onClick={handleClose} className="rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300">
+                <button
+                    type="button"
+                    onClick={handleClose}
+                    className="rounded-md bg-surface-container-high px-4 py-2 text-sm font-medium text-on-surface hover:bg-surface-container-highest dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                >
                     {REVIEW.REPORT_DIALOG.CANCEL_BUTTON}
                 </button>
 
@@ -92,7 +96,7 @@ export default function ReportReviewModal({ open, reportingReview, onClose, onSu
                     disabled={!selectedReason || (selectedReason === REPORT_REASONS.OTHER && !otherReason.trim())}
                     className={`rounded-md px-4 py-2 text-sm font-medium text-white transition ${
                         !selectedReason || (selectedReason === REPORT_REASONS.OTHER && !otherReason.trim())
-                            ? "cursor-not-allowed bg-gray-400"
+                            ? "cursor-not-allowed bg-outline"
                             : "bg-primary hover:opacity-90"
                     }`}
                 >

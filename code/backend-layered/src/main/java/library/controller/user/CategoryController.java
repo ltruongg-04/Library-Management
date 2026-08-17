@@ -1,4 +1,5 @@
 package library.controller.user;
+import org.springframework.validation.annotation.Validated;
 
 import library.common.base.ApiResponse;
 import library.dto.response.CategoryResponse;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Validated
 @RestController("userCategoryController")
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor

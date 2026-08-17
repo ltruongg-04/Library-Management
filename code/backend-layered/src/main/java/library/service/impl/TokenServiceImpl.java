@@ -1,5 +1,6 @@
 package library.service.impl;
 
+import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 import library.config.JwtUtil;
 import library.dto.response.TokenRefreshResponse;
@@ -51,11 +52,11 @@ public class TokenServiceImpl implements TokenService {
     @Transactional
     public TokenRefreshResponse refreshToken(String token) {
         RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new CustomBusinessException("Refresh Token không hợp lệ", HttpStatus.UNAUTHORIZED));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.AUTH_REFRESH_TOKEN_INVALID, HttpStatus.UNAUTHORIZED));
 
         if (refreshTokenEntity.getExpiryDate().isBefore(LocalDateTime.now())) {
             refreshTokenRepository.delete(refreshTokenEntity);
-            throw new CustomBusinessException("Refresh Token đã hết hạn, vui lòng đăng nhập lại", HttpStatus.UNAUTHORIZED);
+            throw new CustomBusinessException(ErrorMessages.AUTH_REFRESH_TOKEN_EXPIRED, HttpStatus.UNAUTHORIZED);
         }
 
         UserEntity user = refreshTokenEntity.getUser();
@@ -63,7 +64,7 @@ public class TokenServiceImpl implements TokenService {
         // VALIDATION FIX: Check if the user is still active before issuing a new token
         if (!user.isActive()) {
             refreshTokenRepository.delete(refreshTokenEntity); // revoke the token
-            throw new CustomBusinessException("Tài khoản đã bị khoá", HttpStatus.FORBIDDEN);
+            throw new CustomBusinessException(ErrorMessages.AUTH_ACCOUNT_LOCKED, HttpStatus.FORBIDDEN);
         }
 
         String newToken = jwtUtil.generateToken(user);

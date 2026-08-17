@@ -1,5 +1,6 @@
 package library.service.impl;
 
+import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 import library.dto.borrow.UserBorrowDetailDto;
 import library.dto.borrow.UserBorrowHistoryDto;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class BorrowOrderQueryServiceImpl implements library.service.BorrowOrderQueryService {
 
     private final BorrowOrderRepository borrowOrderRepository;
@@ -38,7 +40,7 @@ public class BorrowOrderQueryServiceImpl implements library.service.BorrowOrderQ
     public library.dto.borrow.BorrowOrderDetailResponseDto getBorrowOrderDetail(String orderCode, Integer userId) {
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerUserId(orderCode, userId)
                 .orElseThrow(() -> new CustomBusinessException(
-                        "Không tìm thấy phiếu mượn hoặc bạn không có quyền xem phiếu này", HttpStatus.NOT_FOUND));
+                        ErrorMessages.NOT_FOUND_BORROW_ORDER_NO_PERMISSION, HttpStatus.NOT_FOUND));
 
         return borrowOrderMapper.toBorrowOrderDetailResponseDto(order);
     }
@@ -52,7 +54,7 @@ public class BorrowOrderQueryServiceImpl implements library.service.BorrowOrderQ
     @Override
     public UserBorrowDetailDto getUserBorrowDetail(Integer customerId, String orderCode) {
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerId(orderCode, customerId)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy phiếu mượn", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_BORROW_ORDER, HttpStatus.NOT_FOUND));
 
         return borrowOrderMapper.toUserBorrowDetailDto(order);
     }
@@ -69,7 +71,7 @@ public class BorrowOrderQueryServiceImpl implements library.service.BorrowOrderQ
         }
 
         if (orders.isEmpty()) {
-            throw new CustomBusinessException("Không tìm thấy đơn mượn nào khớp với thông tin cung cấp.", HttpStatus.NOT_FOUND);
+            throw new CustomBusinessException(ErrorMessages.NOT_FOUND_BORROW_ORDER_NO_MATCH, HttpStatus.NOT_FOUND);
         }
 
         return orders.stream().map(borrowOrderMapper::toBorrowOrderDetailResponseDto).collect(Collectors.toList());
@@ -79,12 +81,12 @@ public class BorrowOrderQueryServiceImpl implements library.service.BorrowOrderQ
     @Transactional(readOnly = true)
     public library.dto.borrow.BorrowOrderDetailResponseDto getGuestBorrowOrder(String orderCode, String phone) {
         if (orderCode == null || orderCode.isBlank() || phone == null || phone.isBlank()) {
-            throw new CustomBusinessException("Không tìm thấy phiếu mượn. Vui lòng kiểm tra lại thông tin.", HttpStatus.NOT_FOUND);
+            throw new CustomBusinessException(ErrorMessages.NOT_FOUND_BORROW_ORDER_CHECK_INFO, HttpStatus.NOT_FOUND);
         }
 
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerPhone(orderCode.trim(), phone.trim())
                 .filter(found -> found.getCustomer() != null && found.getCustomer().getUser() == null)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy phiếu mượn. Vui lòng kiểm tra lại thông tin.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_BORROW_ORDER_CHECK_INFO, HttpStatus.NOT_FOUND));
 
         return borrowOrderMapper.toBorrowOrderDetailResponseDto(order);
     }

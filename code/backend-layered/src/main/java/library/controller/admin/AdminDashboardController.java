@@ -1,4 +1,5 @@
 package library.controller.admin;
+import org.springframework.validation.annotation.Validated;
 
 import library.dto.response.DashboardStatsResponse;
 import library.service.AdminDashboardService;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RestController
 @RequestMapping("/api/admin/dashboard")
 @RequiredArgsConstructor

@@ -6,7 +6,7 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                "surface": "#f8f9fa",
+                surface: "#f8f9fa",
                 "surface-dim": "#d9dadb",
                 "surface-bright": "#f8f9fa",
                 "surface-container-lowest": "#ffffff",
@@ -18,7 +18,7 @@ const config: Config = {
                 "on-surface-variant": "#464652",
                 "inverse-surface": "#2e3132",
                 "inverse-on-surface": "#f0f1f2",
-                "outline": "#777683",
+                outline: "#777683",
                 "outline-variant": "#c7c5d4",
                 "surface-tint": "#4f54b4",
                 "on-primary": "#ffffff",
@@ -46,7 +46,7 @@ const config: Config = {
                 "tertiary-fixed-dim": "#dcb8ff",
                 "on-tertiary-fixed": "#2c0051",
                 "on-tertiary-fixed-variant": "#6700b5",
-                "background": "#f8f9fa",
+                background: "#f8f9fa",
                 "on-background": "#191c1d",
                 "surface-variant": "#e1e3e4",
                 brass: {
@@ -181,6 +181,9 @@ const config: Config = {
                 },
             },
             fontFamily: {
+                sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+                mono: ["var(--font-jetbrains)", "'JetBrains Mono'", "Consolas", "monospace"],
+                serif: ["var(--font-fraunces)", "Fraunces", "Georgia", "serif"],
                 "body-md": ["Inter", "sans-serif"],
                 "title-md": ["Inter", "sans-serif"],
                 "body-sm": ["Inter", "sans-serif"],
@@ -219,4 +222,3 @@ const config: Config = {
     plugins: [],
 };
 export default config;
-

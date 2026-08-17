@@ -1,8 +1,8 @@
 "use client";
 
 import { ButtonHTMLAttributes, ReactNode } from "react";
-import { SpinnerIcon } from "../icons";
 import { UI_TEXT } from "@/constants/ui-text";
+import { SpinnerIcon } from "../icons";
 
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "destructive";
 type ButtonSize = "sm" | "md" | "lg";
@@ -16,15 +16,13 @@ interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
     primary:
-        "bg-primary-500 text-white hover:bg-primary-700 active:bg-primary-900",
+        "bg-primary-500 text-white hover:bg-primary-700 active:bg-primary-900 dark:bg-primary-500 dark:hover:bg-primary-300 dark:active:bg-primary-100 dark:text-white",
     secondary:
-        "bg-surface-container-high text-on-surface hover:bg-surface-default active:bg-surface-container-high ",
+        "bg-surface-container-high text-on-surface hover:bg-surface-default active:bg-surface-container-high dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700",
     outline:
-        "border border-primary-500 text-primary-500 bg-transparent hover:bg-primary-50 active:bg-primary-100",
-    ghost:
-        "bg-transparent text-on-surface-variant hover:bg-surface-container-high active:bg-surface-container-high ",
-    destructive:
-        "bg-error-500 text-white hover:bg-error-700 active:bg-error-700",
+        "border border-primary-500 text-primary-500 bg-transparent hover:bg-primary-50 active:bg-primary-100 dark:border-primary-300 dark:text-primary-300 dark:hover:bg-primary-900/20",
+    ghost: "bg-transparent text-on-surface-variant hover:bg-surface-container-high active:bg-surface-container-high dark:text-slate-400 dark:hover:bg-slate-800",
+    destructive: "bg-error-500 text-white hover:bg-error-700 active:bg-error-700",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -33,22 +31,14 @@ const sizeClasses: Record<ButtonSize, string> = {
     lg: "h-12 px-6 text-base gap-2",
 };
 
-export function BaseButton({
-    children,
-    variant = "primary",
-    size = "lg",
-    isLoading = false,
-    disabled,
-    className = "",
-    ...props
-}: BaseButtonProps) {
+export function BaseButton({ children, variant = "primary", size = "lg", isLoading = false, disabled, className = "", ...props }: BaseButtonProps) {
     return (
         <button
             {...props}
             disabled={disabled || isLoading}
             className={[
                 // Base
-                "inline-flex w-full items-center justify-center font-medium rounded",
+                "inline-flex w-full items-center justify-center rounded font-medium",
                 "transition-colors duration-150 ease-in-out",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2",
                 "disabled:pointer-events-none disabled:opacity-50",
@@ -70,4 +60,3 @@ export function BaseButton({
         </button>
     );
 }
-

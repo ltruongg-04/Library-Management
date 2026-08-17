@@ -23,12 +23,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
+import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 import org.springframework.http.HttpStatus;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
@@ -41,10 +43,10 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse createReview(Integer bookId, ReviewRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_USER, HttpStatus.NOT_FOUND));
 
         BookEntity book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_BOOK, HttpStatus.NOT_FOUND));
 
         ReviewEntity review = ReviewEntity.builder()
                 .user(user)
@@ -70,11 +72,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public ReviewResponse updateReview(Integer id, ReviewRequest request) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_REVIEW, HttpStatus.NOT_FOUND));
         
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!review.getUser().getEmail().equals(email)) {
-            throw new CustomBusinessException("Bạn chỉ có thể chỉnh sửa đánh giá của chính mình", HttpStatus.FORBIDDEN);
+            throw new CustomBusinessException(ErrorMessages.REVIEW_NOT_OWNER_EDIT, HttpStatus.FORBIDDEN);
         }
         
         review.setRating(request.getRating());
@@ -116,7 +118,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void updateReviewStatus(Integer id, ReviewStatus status, String hideReason) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_REVIEW, HttpStatus.NOT_FOUND));
         
         review.setStatus(status);
         if (hideReason != null) {
@@ -132,7 +134,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void reportReview(Integer id, String reason) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_REVIEW, HttpStatus.NOT_FOUND));
                 
         // Only mark as reported if it's currently visible
         if (review.getStatus() == ReviewStatus.VISIBLE) {
@@ -146,7 +148,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteReview(Integer id) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_REVIEW, HttpStatus.NOT_FOUND));
         
         BookEntity book = review.getBook();
         reviewRepository.delete(review);
@@ -158,11 +160,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteMyReview(Integer id) {
         ReviewEntity review = reviewRepository.findById(id)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy đánh giá", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_REVIEW, HttpStatus.NOT_FOUND));
                 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!review.getUser().getEmail().equals(email)) {
-            throw new CustomBusinessException("Bạn chỉ có thể xóa đánh giá của chính mình", HttpStatus.FORBIDDEN);
+            throw new CustomBusinessException(ErrorMessages.REVIEW_NOT_OWNER_DELETE, HttpStatus.FORBIDDEN);
         }
         
         BookEntity book = review.getBook();

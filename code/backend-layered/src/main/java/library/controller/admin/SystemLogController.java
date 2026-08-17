@@ -1,4 +1,5 @@
 package library.controller.admin;
+import org.springframework.validation.annotation.Validated;
 
 import library.dto.SystemLogDTO;
 import library.entity.SystemLogEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RestController
 @RequestMapping("/api/admin/system-logs")
 @RequiredArgsConstructor

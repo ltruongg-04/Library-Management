@@ -1,4 +1,5 @@
 package library.controller.user;
+import org.springframework.validation.annotation.Validated;
 import library.entity.*;
 import library.repository.BorrowOrderRepository;
 import library.repository.BorrowOrderDetailRepository;
@@ -25,6 +26,7 @@ import java.util.Map;
  * Controller handling VNPay payment callbacks.
  * Includes both IPN (server-to-server) and Return URL (browser redirect) endpoints.
  */
+@Validated
 @RestController
 @RequestMapping("/api/vnpay")
 @RequiredArgsConstructor

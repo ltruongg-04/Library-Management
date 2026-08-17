@@ -1,6 +1,7 @@
 package library.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
+import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 import library.common.utils.VnPayUtil;
 import library.dto.borrow.BorrowRequestDto;
@@ -57,13 +58,13 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     public BorrowResponseDto createBorrowOrder(Integer userId, BorrowRequestDto request,
             HttpServletRequest httpRequest) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy người dùng", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_USER, HttpStatus.NOT_FOUND));
 
         // 1. Get or create customer profile
         CustomerEntity customer = getOrCreateCustomer(user);
 
         BookEntity book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_BOOK, HttpStatus.NOT_FOUND));
 
         // 2. Validate dates and calculate fee
         validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
@@ -92,7 +93,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     public BorrowResponseDto renewBorrowOrder(String orderCode, Integer userId,
             library.dto.borrow.BorrowExtensionRequestDto request, HttpServletRequest httpRequest) {
         BorrowOrderEntity order = borrowOrderRepository.findByOrderCodeAndCustomerUserId(orderCode, userId)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy phiếu mượn", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_BORROW_ORDER, HttpStatus.NOT_FOUND));
 
         validationHelper.validateRenewalConditions(order);
         int maxBorrowDays = feeCalculatorService.getActivePolicy().getMaxBorrowDays() != null
@@ -156,7 +157,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         customer = customerRepository.save(customer);
 
         BookEntity book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_BOOK, HttpStatus.NOT_FOUND));
 
         // Validate dates
         validationHelper.validateBorrowDatesAndGetDays(request.getPickupDate(), request.getReturnDate());
@@ -208,7 +209,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     @Transactional
     public void cancelBorrowOrder(String orderCode, Integer userId) {
         BorrowOrderEntity borrowOrder = borrowOrderRepository.findByOrderCode(orderCode)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy phiếu mượn", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_BORROW_ORDER, HttpStatus.NOT_FOUND));
 
         if (borrowOrder.getCustomer() == null || borrowOrder.getCustomer().getUser() == null || !borrowOrder.getCustomer().getUser().getId().equals(userId)) {
             throw new CustomBusinessException("Bạn không có quyền hủy phiếu mượn này", HttpStatus.FORBIDDEN);

@@ -1,0 +1,83 @@
+server:
+  address: 0.0.0.0
+  port: ${PORT:8080}
+  shutdown: graceful
+
+spring:
+  main:
+    lazy-initialization: true
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:.env.backend[.properties]
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: LibraryHikariPool
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT:300000}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT:20000}
+      max-lifetime: ${DB_POOL_MAX_LIFETIME:900000}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc.time_zone: Asia/Ho_Chi_Minh
+        default_batch_fetch_size: 100
+        generate_statistics: ${HIBERNATE_GENERATE_STATISTICS:false}
+        format_sql: ${HIBERNATE_FORMAT_SQL:false}
+    show-sql: ${JPA_SHOW_SQL:false}
+
+  flyway:
+    enabled: ${FLYWAY_ENABLED:false}
+    baseline-on-migrate: true
+    ignore-migration-patterns: "*:missing"
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  cloud:
+    gcp:
+      sql:
+        enabled: ${GCP_CLOUD_SQL_AUTO_CONFIG_ENABLED:false}
+        jdbc:
+          enabled: ${GCP_CLOUD_SQL_JDBC_AUTO_CONFIG_ENABLED:false}
+resend:
+  api-key: ${RESEND_API_KEY:}
+  from-email: ${RESEND_FROM_EMAIL:Lumina Library <onboarding@resend.dev>}
+
+app:
+  cache:
+    provider: ${CACHE_PROVIDER:caffeine}
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 900000
+
+vnpay:
+  tmn-code: ${VNPAY_TMN_CODE}
+  hash-secret: ${VNPAY_HASH_SECRET}
+  pay-url: ${VNPAY_PAY_URL}
+  return-url: "${VNPAY_RETURN_URL:${BACKEND_URL:https://lms-backend-345298684510.europe-west1.run.app}/api/vnpay/return}"
+  ipn-url: "${VNPAY_IPN_URL:${BACKEND_URL:https://lms-backend-345298684510.europe-west1.run.app}/api/vnpay/ipn}"
+  frontend-url: "${FRONTEND_URL:https://library-management-lovat-theta.vercel.app}"
+  version: "2.1.0"
+  command: "pay"
+  order-type: "other"
+
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket-name: ${MINIO_BUCKET_NAME}
+
+recaptcha:
+  secret-key: ${RECAPTCHA_SECRET_KEY}

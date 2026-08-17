@@ -1,4 +1,5 @@
 package library.controller.public_api;
+import org.springframework.validation.annotation.Validated;
 
 import library.common.base.ApiResponse;
 import library.dto.request.BookVisitRequest;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RestController
 @RequestMapping("/api/public/book-visits")
 @RequiredArgsConstructor

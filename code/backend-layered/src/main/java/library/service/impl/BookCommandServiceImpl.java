@@ -1,5 +1,6 @@
 package library.service.impl;
 
+import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 
 import library.dto.response.BookResponse;
@@ -18,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class BookCommandServiceImpl implements library.service.BookCommandService {
 
     private final BookRepository bookRepository;
@@ -44,7 +44,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
 
         if (request.getIsbn() != null && !request.getIsbn().trim().isEmpty()) {
             if (bookRepository.existsByIsbn(request.getIsbn().trim())) {
-                throw new CustomBusinessException("Sách với mã ISBN này đã tồn tại trong thư viện",
+                throw new CustomBusinessException(ErrorMessages.BOOK_ISBN_DUPLICATE,
                         HttpStatus.BAD_REQUEST);
             }
         }
@@ -140,7 +140,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     public BookResponse updateBook(Integer id, library.dto.request.BookUpdateRequest request) {
         BookEntity book = bookRepository.findById(id)
                 .orElseThrow(() -> new CustomBusinessException(
-                        "Không tìm thấy sách với ID: " + id,
+                        ErrorMessages.NOT_FOUND_BOOK_BY_ID + id,
                         HttpStatus.NOT_FOUND));
 
         if (request.getTitle() != null) {
@@ -175,7 +175,7 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
     public void deleteBook(Integer id) {
         BookEntity book = bookRepository.findById(id)
                 .orElseThrow(() -> new CustomBusinessException(
-                        "Không tìm thấy sách với ID: " + id,
+                        ErrorMessages.NOT_FOUND_BOOK_BY_ID + id,
                         HttpStatus.NOT_FOUND));
 
         bookRepository.delete(book);

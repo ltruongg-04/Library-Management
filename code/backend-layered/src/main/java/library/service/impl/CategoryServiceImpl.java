@@ -15,11 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 import org.springframework.http.HttpStatus;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -62,7 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryResponse updateCategory(Integer id, CategoryRequest request) {
         CategoryEntity category = categoryRepository.findById(id)
-                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy thể loại", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_CATEGORY, HttpStatus.NOT_FOUND));
 
         if (!category.getName().equals(request.getName()) && categoryRepository.existsByName(request.getName())) {
             throw new CustomBusinessException("Tên thể loại đã tồn tại", HttpStatus.CONFLICT);
@@ -80,7 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void deleteCategory(Integer id) {
         if (!categoryRepository.existsById(id)) {
-            throw new CustomBusinessException("Không tìm thấy thể loại", HttpStatus.NOT_FOUND);
+            throw new CustomBusinessException(ErrorMessages.NOT_FOUND_CATEGORY, HttpStatus.NOT_FOUND);
         }
         
         categoryRepository.deleteCategoryAssociations(id);

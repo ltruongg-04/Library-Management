@@ -1,5 +1,6 @@
 package library.service.impl;
 
+import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 import library.common.constant.CacheNames;
 import library.dto.response.BookListResponse;
@@ -54,7 +55,7 @@ public class BookQueryServiceImpl implements library.service.BookQueryService {
     public BookResponse getBookById(Integer id) {
         BookEntity book = bookRepository.findById(id)
                 .orElseThrow(() -> new CustomBusinessException(
-                        "Không tìm thấy sách với ID: " + id,
+                        ErrorMessages.NOT_FOUND_BOOK_BY_ID + id,
                         HttpStatus.NOT_FOUND));
         return bookMapper.toBookResponse(book);
     }

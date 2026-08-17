@@ -124,7 +124,7 @@ export default function BorrowForm({
                                 <input
                                     className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-lowest p-3 font-body-md text-on-surface focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                                     type="text"
-                                    placeholder="Nguyễn Văn A"
+                                    placeholder={BORROW.FORM.GUEST_NAME_PLACEHOLDER}
                                     value={fullName}
                                     onChange={(e) => setFullName?.(e.target.value)}
                                 />
@@ -136,7 +136,7 @@ export default function BorrowForm({
                                 <input
                                     className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-lowest p-3 font-body-md text-on-surface focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                                     type="tel"
-                                    placeholder="0912345678"
+                                    placeholder={BORROW.FORM.GUEST_PHONE_PLACEHOLDER}
                                     value={phone}
                                     onChange={(e) => setPhone?.(e.target.value)}
                                 />
@@ -148,7 +148,7 @@ export default function BorrowForm({
                                 <input
                                     className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-lowest p-3 font-body-md text-on-surface focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                                     type="email"
-                                    placeholder="email@example.com"
+                                    placeholder={BORROW.FORM.GUEST_EMAIL_PLACEHOLDER}
                                     value={email || ""}
                                     onChange={(e) => setEmail?.(e.target.value)}
                                 />

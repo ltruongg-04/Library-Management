@@ -1,4 +1,5 @@
 package library.controller.admin;
+import org.springframework.validation.annotation.Validated;
 
 import library.common.base.ApiResponse;
 import library.dto.admin.AdminUserResponseDto;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/admin/users")
 @PreAuthorize("hasRole('ADMIN')")

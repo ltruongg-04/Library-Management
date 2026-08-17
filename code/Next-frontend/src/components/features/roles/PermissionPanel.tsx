@@ -47,12 +47,12 @@ export default function PermissionPanel({ role, onTogglePermission, onDiscardCha
                 )}
             </div>
 
-            <div className="space-y-5 bg-gray-50 p-6 dark:bg-slate-900">
+            <div className="space-y-5 bg-surface-container-low p-6 dark:bg-slate-900">
                 {role.modules.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-gray-300 bg-white py-12 text-center dark:border-slate-700 dark:bg-slate-950">
-                        <span className="material-symbols-outlined text-5xl text-gray-400 dark:text-slate-500">{UI_TEXT.ROLES.ICON.LOCK}</span>
+                    <div className="rounded-lg border border-dashed border-outline-variant bg-surface-container-lowest py-12 text-center dark:border-slate-700 dark:bg-slate-950">
+                        <span className="material-symbols-outlined text-5xl text-outline dark:text-slate-500">{UI_TEXT.ROLES.ICON.LOCK}</span>
 
-                        <p className="mt-4 text-gray-500 dark:text-slate-400">{UI_TEXT.ROLES.EMPTY_PERMISSION}</p>
+                        <p className="mt-4 text-on-surface-variant dark:text-slate-400">{UI_TEXT.ROLES.EMPTY_PERMISSION}</p>
                     </div>
                 ) : (
                     role.modules.map((module) => <PermissionModule key={module.id} module={module} onTogglePermission={onTogglePermission} />)

@@ -1,4 +1,5 @@
 package library.controller.admin;
+import org.springframework.validation.annotation.Validated;
 
 import library.common.base.ApiResponse;
 import library.dto.admin.AdminSettingsResponse;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RestController
 @RequestMapping("/api/admin/settings")
 @PreAuthorize("hasRole('ADMIN') or hasAuthority('settings.manage')")
