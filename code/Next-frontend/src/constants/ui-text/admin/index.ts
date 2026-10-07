@@ -14,3 +14,5 @@ export * from "./reviews";
 export * from "./book-visits";
 
 export * from "./ui";
+
+export * from "./recent";

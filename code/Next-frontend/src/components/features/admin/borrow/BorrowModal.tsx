@@ -1,9 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { BookOpen, CalendarDays, Loader2, User as UserIcon, X } from "lucide-react";
+import { BookOpen, CalendarDays, CheckCircle2, Loader2, Search, User as UserIcon, X } from "lucide-react";
+import { toast } from "sonner";
 import { UI_TEXT } from "@/constants/ui-text";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { createAdminBorrowOrder } from "@/services/adminBorrow";
+import { AdminCustomerLookupResponse, lookupCustomer } from "@/services/adminCustomer";
 
 const T = UI_TEXT.ADMIN_BORROW_MANAGEMENT.MODAL;
 
@@ -16,6 +18,8 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
         dueDate: "",
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [isLookingUp, setIsLookingUp] = useState(false);
+    const [customerData, setCustomerData] = useState<AdminCustomerLookupResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -23,10 +27,42 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
             setForm({ phone: "", fullName: "", email: "", bookBarcodes: "", dueDate: "" });
             setError(null);
             setIsLoading(false);
+            setCustomerData(null);
+            setIsLookingUp(false);
         }
     }, [open]);
 
     if (!open) return null;
+
+    const handleLookup = async () => {
+        if (!form.phone.trim()) {
+            toast.error(UI_TEXT.RECENT.TEXT_50);
+            return;
+        }
+
+        setIsLookingUp(true);
+        setError(null);
+        try {
+            const res = await lookupCustomer(form.phone);
+            if (res.success && res.data) {
+                setCustomerData(res.data);
+                setForm((prev) => ({
+                    ...prev,
+                    phone: res.data!.phone,
+                    fullName: res.data!.fullName,
+                    email: res.data!.email || "",
+                }));
+                toast.success(UI_TEXT.RECENT.TEXT_49 + res.data.fullName);
+            } else {
+                toast.error(res.message || UI_TEXT.RECENT.TEXT_48);
+            }
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || UI_TEXT.RECENT.TEXT_47);
+            setCustomerData(null);
+        } finally {
+            setIsLookingUp(false);
+        }
+    };
 
     const handleSubmit = async () => {
         setError(null);
@@ -56,6 +92,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
             });
 
             if (res.success) {
+                toast.success(UI_TEXT.RECENT.TEXT_46);
                 onSubmitSuccess();
                 onClose();
             } else {
@@ -73,7 +110,10 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
             <div className="level-2-shadow flex w-full max-w-lg transform flex-col overflow-hidden rounded-2xl bg-surface-container-lowest transition-all">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-outline-variant/30 bg-surface-bright p-6">
-                    <h3 className="text-xl font-bold text-on-background">{T.CREATE_TITLE}</h3>
+                    <div>
+                        <h3 className="text-xl font-bold text-on-background">{UI_TEXT.RECENT.TEXT_45}</h3>
+                        <p className="text-sm text-on-surface-variant">{UI_TEXT.RECENT.TEXT_44}</p>
+                    </div>
                     <button
                         onClick={onClose}
                         disabled={isLoading}
@@ -86,51 +126,85 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                 {/* Form Body */}
                 <div className="flex flex-col gap-5 p-6">
                     {error && <div className="rounded border border-error/50 bg-error-container/20 p-3 text-sm text-error">{error}</div>}
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">
-                            {T.LABEL_PHONE} <span className="text-error">*</span>
-                        </label>
-                        <div className="relative">
-                            <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
-                            <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
-                                placeholder="Nhập số điện thoại..."
-                                value={form.phone}
-                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                type="text"
-                                disabled={isLoading}
-                            />
-                        </div>
-                    </div>
 
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium text-on-surface">
-                            {T.LABEL_FULL_NAME} <span className="text-xs font-normal text-on-surface-variant">{T.HINT_OPTIONAL_CREATE}</span>
+                            {UI_TEXT.RECENT.TEXT_43}
+                            <span className="text-error">*</span>
+                        </label>
+                        <div className="flex gap-2">
+                            <div className="relative flex-1">
+                                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
+                                <input
+                                    className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                    placeholder="Quét mã thẻ hoặc nhập SĐT..."
+                                    value={form.phone}
+                                    onChange={(e) => {
+                                        setForm({ ...form, phone: e.target.value });
+                                        if (customerData) setCustomerData(null);
+                                    }}
+                                    type="text"
+                                    disabled={isLoading || isLookingUp}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            handleLookup();
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <button
+                                onClick={handleLookup}
+                                disabled={isLoading || isLookingUp || !form.phone.trim()}
+                                className="flex items-center justify-center gap-2 rounded-lg bg-surface-variant px-4 text-sm font-medium text-on-surface transition-colors hover:bg-outline-variant/30 disabled:opacity-50"
+                            >
+                                {isLookingUp ? <Loader2 className="animate-spin" size={18} /> : <Search size={18} />}
+                                {UI_TEXT.RECENT.TEXT_42}
+                            </button>
+                        </div>
+                    </div>
+
+                    {customerData && (
+                        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                            <div className="mb-1 flex items-center gap-2">
+                                <CheckCircle2 size={16} className="text-primary" />
+                                <span className="text-sm font-semibold text-primary">{UI_TEXT.RECENT.TEXT_41}</span>
+                                {customerData.isGuest ? (
+                                    <span className="bg-secondary-100 text-secondary-700 dark:bg-secondary-900 ml-auto rounded px-2 py-0.5 text-[10px] font-semibold dark:text-secondary-300">
+                                        {UI_TEXT.RECENT.TEXT_40}
+                                    </span>
+                                ) : (
+                                    <span className="ml-auto rounded bg-success-100 px-2 py-0.5 text-[10px] font-semibold text-success-700 dark:bg-success-900 dark:text-success-300">
+                                        {UI_TEXT.RECENT.TEXT_39}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex flex-col gap-1 pl-6 text-sm text-on-surface">
+                                <p>
+                                    <span className="text-on-surface-variant">{UI_TEXT.RECENT.TEXT_38}</span>{" "}
+                                    <span className="font-medium">{customerData.fullName}</span>
+                                </p>
+                                {customerData.libraryCardNo && (
+                                    <p>
+                                        <span className="text-on-surface-variant">{UI_TEXT.RECENT.TEXT_37}</span> {customerData.libraryCardNo}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-on-surface">
+                            {T.LABEL_FULL_NAME} {!customerData && <span className="text-xs font-normal text-on-surface-variant">{UI_TEXT.RECENT.TEXT_36}</span>}
                         </label>
                         <div className="relative">
                             <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-2.5 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-2.5 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-surface-variant disabled:opacity-70"
                                 placeholder="Nhập họ và tên..."
                                 value={form.fullName}
                                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                                 type="text"
-                                disabled={isLoading}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">
-                            {T.LABEL_EMAIL} <span className="text-xs font-normal text-on-surface-variant">{T.HINT_OPTIONAL}</span>
-                        </label>
-                        <div className="relative">
-                            <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-2.5 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
-                                placeholder="Nhập email..."
-                                value={form.email}
-                                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                type="email"
-                                disabled={isLoading}
+                                disabled={isLoading || customerData !== null}
                             />
                         </div>
                     </div>
@@ -143,7 +217,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                             <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
                             <input
                                 className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
-                                placeholder="Ví dụ: BC001, BC002..."
+                                placeholder="Quét mã sách (Ví dụ: BC001, BC002...)"
                                 value={form.bookBarcodes}
                                 onChange={(e) => setForm({ ...form, bookBarcodes: e.target.value })}
                                 type="text"
@@ -185,7 +259,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                         className="flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-on-primary shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-70"
                     >
                         {isLoading && <Loader2 className="animate-spin" size={16} />}
-                        {T.BTN_CREATE}
+                        {UI_TEXT.RECENT.TEXT_35}
                     </button>
                 </div>
             </div>

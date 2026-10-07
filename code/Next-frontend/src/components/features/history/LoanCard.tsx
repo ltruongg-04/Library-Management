@@ -162,6 +162,15 @@ export const LoanCard = ({ loan, onCancel }: { loan: UserBorrowHistoryItem; onCa
                                 <span>{MY_BOOKS_PAGE.CARD.CANCEL_RESERVATION}</span>
                             </button>
                         )}
+                        {(displayStatus === "borrowing" || displayStatus === "overdue") && (
+                            <Link
+                                href={`/lich-su/${loan.orderCode}/gia-han`}
+                                className="flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-on-primary shadow-sm transition-all hover:bg-primary-container hover:text-on-primary-container active:scale-[0.99] dark:bg-primary-300 dark:text-slate-900"
+                            >
+                                <MaterialIcon name="update" className="text-[18px]" />
+                                <span>{MY_BOOKS_PAGE.RENEW_NOW}</span>
+                            </Link>
+                        )}
                         <Link
                             href={`/lich-su/${loan.orderCode}`}
                             className="dark:border-primary-400 dark:text-primary-400 flex items-center justify-center gap-2 rounded-lg border border-primary px-5 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"

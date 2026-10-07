@@ -103,6 +103,7 @@ export interface AdminBorrowResponse {
     status: string;
     overdayCount: number | null;
     isGuest?: boolean;
+    customerPhone?: string;
 }
 
 export interface AdminBorrowFilters {

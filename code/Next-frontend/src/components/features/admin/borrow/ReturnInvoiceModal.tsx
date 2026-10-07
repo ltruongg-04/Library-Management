@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, Receipt, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
+import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN_BORROW_MANAGEMENT } from "@/constants/ui-text/admin/borrow-management";
 import { formatCurrency } from "@/lib/utils";
 import { type ReturnBookResponse, confirmReturnCashPayment, generateReturnVnPayUrl, getAdminBorrowOrderDetail } from "@/services/adminBorrow";
@@ -265,7 +266,13 @@ export default function ReturnInvoiceModal({ isOpen, onClose, invoiceData }: Ret
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center gap-3 border-t border-outline-variant/30 bg-surface-container-lowest px-6 py-4">
+                <div className="flex items-center gap-3 border-t border-outline-variant/30 bg-surface-container-lowest px-6 py-4 print:hidden">
+                    <button
+                        onClick={() => window.print()}
+                        className="flex items-center justify-center gap-2 rounded-lg border border-outline-variant px-4 py-2.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
+                    >
+                        <Receipt size={18} /> {UI_TEXT.RECENT.TEXT_53}
+                    </button>
                     <button
                         onClick={onClose}
                         className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary/90"

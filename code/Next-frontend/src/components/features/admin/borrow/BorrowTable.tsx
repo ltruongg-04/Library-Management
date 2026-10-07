@@ -14,6 +14,7 @@ export type BorrowRecord = {
     member: {
         name: string;
         code: string;
+        phone?: string;
         avatarUrl?: string;
         avatarInitials?: string;
         avatarColor?: "secondary" | "tertiary" | "primary";

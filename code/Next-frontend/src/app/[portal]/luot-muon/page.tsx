@@ -54,6 +54,7 @@ export default function LuotMuonPage() {
                         member: {
                             name: order.customerName,
                             code: order.customerCode,
+                            phone: order.customerPhone,
                         },
                         book: {
                             title: order.bookTitle,
@@ -134,6 +135,7 @@ export default function LuotMuonPage() {
             r.id.toLowerCase().includes(search.toLowerCase()) ||
             r.member.name.toLowerCase().includes(search.toLowerCase()) ||
             r.member.code.toLowerCase().includes(search.toLowerCase()) ||
+            (r.member.phone && r.member.phone.toLowerCase().includes(search.toLowerCase())) ||
             r.book.title.toLowerCase().includes(search.toLowerCase());
         const matchStatus = status === "" || r.status === status;
 

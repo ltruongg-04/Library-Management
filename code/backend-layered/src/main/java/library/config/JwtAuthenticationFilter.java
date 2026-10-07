@@ -33,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final AdminRoleService adminRoleService;
+    private final org.springframework.data.redis.core.RedisTemplate<String, Object> redisTemplate;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -62,6 +63,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 Claims claims = jwtUtil.extractAllClaims(jwt);
+                String sessionId = claims.get("sessionId", String.class);
+                if (sessionId != null) {
+                    Object sessionStr = redisTemplate.opsForValue().get("session:" + sessionId);
+                    if (sessionStr == null) {
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().write(String.format("{\"success\":false,\"message\":\"%s\",\"data\":null}", "Phiên đăng nhập đã hết hạn hoặc bị đăng xuất"));
+                        return;
+                    }
+                }
+
                 
                 // Spring Security expects roles to start with ROLE_
                 String roleString = claims.get("role", String.class);

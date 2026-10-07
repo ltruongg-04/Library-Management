@@ -60,12 +60,14 @@ public class AdminBorrowOrderMapper {
 
         String customerName = "Chưa cập nhật";
         String customerCode = "Chưa cập nhật";
+        String customerPhone = "";
         boolean isGuest = false;
 
         if (order.getCustomer() != null) {
             customerName = order.getCustomer().getFullName();
             customerCode = order.getCustomer().getLibraryCardNo() != null ? order.getCustomer().getLibraryCardNo()
                     : order.getCustomer().getPhone();
+            customerPhone = order.getCustomer().getPhone();
             isGuest = order.getCustomer().getUser() == null;
         }
 
@@ -73,6 +75,7 @@ public class AdminBorrowOrderMapper {
                 .id(order.getOrderCode())
                 .customerName(customerName)
                 .customerCode(customerCode)
+                .customerPhone(customerPhone)
                 .bookTitle(bookTitle)
                 .bookAuthor(bookAuthor)
                 .borrowDate(order.getBorrowDate())

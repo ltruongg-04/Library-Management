@@ -25,11 +25,12 @@ public class JwtUtil {
     /**
      * Tạo JWT token cho user
      */
-    public String generateToken(UserEntity user) {
+    public String generateToken(UserEntity user, String sessionId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole().name());
         claims.put("userId", user.getId());
         claims.put("fullName", user.getFullName());
+        claims.put("sessionId", sessionId);
 
         return Jwts.builder()
                 .claims(claims)

@@ -19,4 +19,6 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Integer>
     java.util.List<PaymentEntity> findByBorrowOrderIdAndPaymentStatus(Integer borrowOrderId, library.entity.PaymentStatus paymentStatus);
 
     boolean existsByTransactionCodeStartingWithAndPaymentStatus(String transactionCodePrefix, library.entity.PaymentStatus paymentStatus);
+    
+    org.springframework.data.domain.Page<PaymentEntity> findByTransactionCodeContaining(String transactionCode, org.springframework.data.domain.Pageable pageable);
 }

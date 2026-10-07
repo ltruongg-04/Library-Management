@@ -8,7 +8,6 @@ import library.repository.BorrowExtensionRepository;
 import library.repository.PaymentRepository;
 import library.service.FeeCalculatorService;
 import library.service.FileStorageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

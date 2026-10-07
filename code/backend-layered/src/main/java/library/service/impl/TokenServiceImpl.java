@@ -4,73 +4,94 @@ import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
 import library.config.JwtUtil;
 import library.dto.response.TokenRefreshResponse;
-import library.entity.RefreshTokenEntity;
 import library.entity.UserEntity;
-import library.repository.RefreshTokenRepository;
+import library.repository.UserRepository;
 import library.service.TokenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+
+    // Keys
+    private static final String SESSION_PREFIX = "session:";
+    private static final String USER_SESSIONS_PREFIX = "user_sessions:";
 
     @Override
-    @Transactional
     public TokenRefreshResponse generateTokenPair(UserEntity user) {
-        // Create Access Token
-        String accessToken = jwtUtil.generateToken(user);
+        String refreshToken = UUID.randomUUID().toString();
+        String accessToken = jwtUtil.generateToken(user, refreshToken);
 
-        // Delete old refresh token if exists to prevent token accumulation
-        refreshTokenRepository.deleteByUser(user);
-        refreshTokenRepository.flush(); // Ensure DELETE runs before INSERT
+        long expirationSecs = 7 * 24 * 60 * 60;
 
-        // Create new Refresh Token valid for 7 days
-        RefreshTokenEntity refreshToken = RefreshTokenEntity.builder()
-                .user(user)
-                .token(UUID.randomUUID().toString())
-                .expiryDate(LocalDateTime.now().plusDays(7))
+        String ipAddress = "Unknown";
+        String userAgent = "Unknown";
+        
+        try {
+            org.springframework.web.context.request.RequestAttributes attrs = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+            if (attrs instanceof org.springframework.web.context.request.ServletRequestAttributes) {
+                jakarta.servlet.http.HttpServletRequest request = ((org.springframework.web.context.request.ServletRequestAttributes) attrs).getRequest();
+                ipAddress = request.getRemoteAddr();
+                String xForwardedFor = request.getHeader("X-Forwarded-For");
+                if (xForwardedFor != null && !xForwardedFor.isEmpty()) ipAddress = xForwardedFor.split(",")[0];
+                userAgent = request.getHeader("User-Agent");
+            }
+        } catch (Exception ignored) {}
+
+        library.dto.admin.AdminSessionDto sessionDto = library.dto.admin.AdminSessionDto.builder()
+                .id(refreshToken)
+                .userId(user.getId())
+                .username(user.getEmail())
+                .fullName(user.getFullName())
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .loginTime(java.time.LocalDateTime.now())
                 .build();
-                
-        refreshTokenRepository.save(refreshToken);
+
+        String sessionKey = SESSION_PREFIX + refreshToken;
+        redisTemplate.opsForValue().set(sessionKey, sessionDto, Duration.ofSeconds(expirationSecs));
+
+        String userSessionsKey = USER_SESSIONS_PREFIX + user.getId();
+        redisTemplate.opsForSet().add(userSessionsKey, refreshToken);
+        redisTemplate.expire(userSessionsKey, Duration.ofSeconds(expirationSecs));
 
         return TokenRefreshResponse.builder()
                 .token(accessToken)
-                .refreshToken(refreshToken.getToken())
+                .refreshToken(refreshToken)
                 .build();
     }
 
     @Override
-    @Transactional
     public TokenRefreshResponse refreshToken(String token) {
-        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new CustomBusinessException(ErrorMessages.AUTH_REFRESH_TOKEN_INVALID, HttpStatus.UNAUTHORIZED));
+        String sessionKey = SESSION_PREFIX + token;
+        library.dto.admin.AdminSessionDto sessionDto = (library.dto.admin.AdminSessionDto) redisTemplate.opsForValue().get(sessionKey);
 
-        if (refreshTokenEntity.getExpiryDate().isBefore(LocalDateTime.now())) {
-            refreshTokenRepository.delete(refreshTokenEntity);
-            throw new CustomBusinessException(ErrorMessages.AUTH_REFRESH_TOKEN_EXPIRED, HttpStatus.UNAUTHORIZED);
+        if (sessionDto == null) {
+            throw new CustomBusinessException(ErrorMessages.AUTH_REFRESH_TOKEN_INVALID, HttpStatus.UNAUTHORIZED);
         }
 
-        UserEntity user = refreshTokenEntity.getUser();
+        UserEntity user = userRepository.findById(sessionDto.getUserId())
+                .orElseThrow(() -> new CustomBusinessException("Người dùng không tồn tại", HttpStatus.UNAUTHORIZED));
 
-        // VALIDATION FIX: Check if the user is still active before issuing a new token
         if (!user.isActive()) {
-            refreshTokenRepository.delete(refreshTokenEntity); // revoke the token
+            redisTemplate.delete(sessionKey);
+            redisTemplate.opsForSet().remove(USER_SESSIONS_PREFIX + user.getId(), token);
             throw new CustomBusinessException(ErrorMessages.AUTH_ACCOUNT_LOCKED, HttpStatus.FORBIDDEN);
         }
 
-        String newToken = jwtUtil.generateToken(user);
+        String newToken = jwtUtil.generateToken(user, token);
 
-        // Keep the old Refresh Token (do not rotate) to prevent race conditions
-        // and session sync issues between Client/Server in NextAuth.
         return TokenRefreshResponse.builder()
                 .token(newToken)
                 .refreshToken(token)
@@ -78,12 +99,17 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    @Transactional
-    public java.util.Optional<UserEntity> revokeToken(String token) {
-        return refreshTokenRepository.findByToken(token).map(refreshToken -> {
-            UserEntity user = refreshToken.getUser();
-            refreshTokenRepository.delete(refreshToken);
-            return user;
-        });
+    public Optional<UserEntity> revokeToken(String token) {
+        String sessionKey = SESSION_PREFIX + token;
+        library.dto.admin.AdminSessionDto sessionDto = (library.dto.admin.AdminSessionDto) redisTemplate.opsForValue().get(sessionKey);
+
+        if (sessionDto != null) {
+            Integer userId = sessionDto.getUserId();
+            redisTemplate.delete(sessionKey);
+            redisTemplate.opsForSet().remove(USER_SESSIONS_PREFIX + userId, token);
+            
+            return userRepository.findById(userId);
+        }
+        return Optional.empty();
     }
 }

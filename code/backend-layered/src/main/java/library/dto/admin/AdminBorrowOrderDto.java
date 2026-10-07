@@ -23,4 +23,5 @@ public class AdminBorrowOrderDto {
     private BorrowOrderStatus status;
     private Integer overdayCount;
     private Boolean isGuest;
+    private String customerPhone;
 }

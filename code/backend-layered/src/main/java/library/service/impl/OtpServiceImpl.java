@@ -3,7 +3,6 @@ package library.service.impl;
 
 import library.service.EmailService;
 import library.service.OtpService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 

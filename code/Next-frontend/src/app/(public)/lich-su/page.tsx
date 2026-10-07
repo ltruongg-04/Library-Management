@@ -6,6 +6,7 @@ import { MaterialIcon } from "@/components/base/material-icon";
 import Breadcrumb from "@/components/features/book-detail/Breadcrumb";
 import { LoanCard } from "@/components/features/history/LoanCard";
 import { LoanFilter } from "@/components/features/history/LoanFilter";
+import { UI_TEXT } from "@/constants/ui-text";
 import { MY_BOOKS_PAGE } from "@/constants/ui-text/public/my-books";
 import { API_ERRORS, API_SUCCESS } from "@/constants/ui-text/shared/api";
 import { cancelBorrowOrder, getBorrowHistory } from "@/services/borrow";
@@ -69,6 +70,7 @@ export default function MyBooksPage() {
     };
 
     const handleCancel = async (orderCode: string) => {
+        if (!window.confirm(UI_TEXT.RECENT.TEXT_1)) return;
         try {
             const res = await cancelBorrowOrder(orderCode);
             if (res.success) {

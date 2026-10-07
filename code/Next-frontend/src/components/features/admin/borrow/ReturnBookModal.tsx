@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, Book, CheckCircle, X } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UI_TEXT } from "@/constants/ui-text";
 import { ADMIN_BORROW_MANAGEMENT } from "@/constants/ui-text/admin/borrow-management";
 import {
     AdminBorrowOrderDetailResponse,
@@ -134,9 +135,23 @@ export default function ReturnBookModal({ isOpen, onClose, orderCode, onSubmitSu
                     <div>
                         <h2 className="text-xl font-bold text-on-surface">{TEXT.TITLE}</h2>
                         {orderCode && (
-                            <p className="mt-1 text-sm text-on-surface-variant">
-                                {TEXT.ORDER_CODE}: {orderCode}
-                            </p>
+                            <div className="mt-2 space-y-1">
+                                <p className="text-sm text-on-surface-variant">
+                                    {TEXT.ORDER_CODE}: <span className="font-medium text-on-surface">{orderCode}</span>
+                                </p>
+                                {detail && (
+                                    <p className="text-sm text-on-surface-variant">
+                                        {UI_TEXT.RECENT.TEXT_52}
+                                        <span className="font-medium text-on-surface">{detail.customerName}</span>
+                                        {detail.isGuest && (
+                                            <span className="ml-2 rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-semibold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+                                                {UI_TEXT.RECENT.TEXT_51}
+                                            </span>
+                                        )}
+                                        {detail.customerPhone && <span className="ml-2 text-on-surface-variant">({detail.customerPhone})</span>}
+                                    </p>
+                                )}
+                            </div>
                         )}
                     </div>
                     <button
