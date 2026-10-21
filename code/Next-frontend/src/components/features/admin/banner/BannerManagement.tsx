@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, LayoutDashboard, Pencil, Plus, Trash2, XCircle } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { UI_TEXT } from "@/constants/ui-text";
 import { AdminBanner, createAdminBanner, deleteAdminBanner, getAdminBanners, updateAdminBanner } from "@/services/adminBanner";
@@ -21,11 +22,7 @@ export default function BannerManagement() {
         isActive: true,
     });
 
-    useEffect(() => {
-        fetchBanners();
-    }, []);
-
-    const fetchBanners = async () => {
+    const fetchBanners = useCallback(async () => {
         setIsLoading(true);
         try {
             const res = await getAdminBanners();
@@ -39,7 +36,11 @@ export default function BannerManagement() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchBanners();
+    }, [fetchBanners]);
 
     const handleOpenModal = (banner?: AdminBanner) => {
         if (banner) {
@@ -136,10 +137,13 @@ export default function BannerManagement() {
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {banners.map((banner) => (
-                        <div key={banner.id} className="flex flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface shadow-sm">
-                            <div className="relative h-48 bg-surface-variant">
-                                <img src={banner.imageUrl} alt={banner.title} className="h-full w-full object-cover" />
-                                <div className="absolute right-2 top-2 flex gap-1 rounded bg-black/50 p-1 backdrop-blur">
+                        <div
+                            key={banner.id}
+                            className="flex flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                        >
+                            <div className="relative h-48 bg-surface-variant dark:bg-slate-800">
+                                <Image src={banner.imageUrl} alt={banner.title || "Banner"} fill className="object-cover" unoptimized />
+                                <div className="absolute right-2 top-2 z-10 flex gap-1 rounded bg-black/50 p-1 backdrop-blur">
                                     <button onClick={() => handleOpenModal(banner)} className="p-1 text-white hover:text-primary">
                                         <Pencil size={16} />
                                     </button>
@@ -147,26 +151,28 @@ export default function BannerManagement() {
                                         <Trash2 size={16} />
                                     </button>
                                 </div>
-                                <div className="absolute left-2 top-2 rounded bg-black/50 px-2 py-1 text-xs font-semibold text-white backdrop-blur">
+                                <div className="absolute left-2 top-2 z-10 rounded bg-black/50 px-2 py-1 text-xs font-semibold text-white backdrop-blur">
                                     {UI_TEXT.RECENT.TEXT_23}
                                     {banner.displayOrder}
                                 </div>
                             </div>
                             <div className="p-4">
                                 <div className="flex items-start justify-between gap-2">
-                                    <h3 className="line-clamp-1 font-semibold text-on-surface">{banner.title}</h3>
+                                    <h3 className="line-clamp-1 font-semibold text-on-surface dark:text-white">{banner.title}</h3>
                                     {banner.isActive ? (
                                         <CheckCircle2 size={18} className="text-success flex-shrink-0" />
                                     ) : (
                                         <XCircle size={18} className="flex-shrink-0 text-error" />
                                     )}
                                 </div>
-                                <p className="mt-1 line-clamp-2 text-sm text-on-surface-variant">{banner.description || UI_TEXT.RECENT.TEXT_22}</p>
+                                <p className="mt-1 line-clamp-2 text-sm text-on-surface-variant dark:text-slate-400">
+                                    {banner.description || UI_TEXT.RECENT.TEXT_22}
+                                </p>
                             </div>
                         </div>
                     ))}
                     {banners.length === 0 && (
-                        <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-dashed border-outline-variant p-12 text-on-surface-variant">
+                        <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-dashed border-outline-variant p-12 text-on-surface-variant dark:border-slate-800 dark:text-slate-400">
                             <LayoutDashboard size={48} className="mb-4 opacity-50" />
                             <p>{UI_TEXT.RECENT.TEXT_21}</p>
                         </div>
@@ -176,42 +182,44 @@ export default function BannerManagement() {
 
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
-                    <div className="w-full max-w-lg rounded-2xl bg-surface p-6 shadow-xl">
-                        <h2 className="mb-6 text-xl font-bold">{editingBanner ? UI_TEXT.RECENT.TEXT_20 : UI_TEXT.RECENT.TEXT_19}</h2>
+                    <div className="w-full max-w-lg rounded-2xl bg-surface p-6 shadow-xl dark:border dark:border-slate-800 dark:bg-slate-900">
+                        <h2 className="mb-6 text-xl font-bold text-on-surface dark:text-white">
+                            {editingBanner ? UI_TEXT.RECENT.TEXT_20 : UI_TEXT.RECENT.TEXT_19}
+                        </h2>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                             <div>
-                                <label className="mb-1 block text-sm font-medium">{UI_TEXT.RECENT.TEXT_18}</label>
+                                <label className="mb-1 block text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_18}</label>
                                 <input
                                     required
-                                    className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2.5"
+                                    className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2.5 text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                     value={form.title}
                                     onChange={(e) => setForm({ ...form, title: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium">{UI_TEXT.RECENT.TEXT_17}</label>
+                                <label className="mb-1 block text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_17}</label>
                                 <input
-                                    className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2.5"
+                                    className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2.5 text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                     value={form.description}
                                     onChange={(e) => setForm({ ...form, description: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium">{UI_TEXT.RECENT.TEXT_16}</label>
+                                <label className="mb-1 block text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_16}</label>
                                 <input
                                     required
                                     type="url"
-                                    className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2.5"
+                                    className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2.5 text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                     value={form.imageUrl}
                                     onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="mb-1 block text-sm font-medium">{UI_TEXT.RECENT.TEXT_15}</label>
+                                    <label className="mb-1 block text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_15}</label>
                                     <input
                                         type="number"
-                                        className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2.5"
+                                        className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2.5 text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                         value={form.displayOrder}
                                         onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })}
                                     />
@@ -220,16 +228,20 @@ export default function BannerManagement() {
                                     <label className="flex cursor-pointer items-center gap-2">
                                         <input
                                             type="checkbox"
-                                            className="h-5 w-5 rounded border-outline-variant"
+                                            className="h-5 w-5 rounded border-outline-variant text-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
                                             checked={form.isActive}
                                             onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
                                         />
-                                        <span className="text-sm font-medium">{UI_TEXT.RECENT.TEXT_14}</span>
+                                        <span className="text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_14}</span>
                                     </label>
                                 </div>
                             </div>
                             <div className="mt-4 flex justify-end gap-3">
-                                <button type="button" onClick={handleCloseModal} className="rounded-lg px-4 py-2 hover:bg-surface-variant">
+                                <button
+                                    type="button"
+                                    onClick={handleCloseModal}
+                                    className="rounded-lg px-4 py-2 text-on-surface hover:bg-surface-variant dark:text-slate-300 dark:hover:bg-slate-800"
+                                >
                                     {UI_TEXT.RECENT.TEXT_13}
                                 </button>
                                 <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">

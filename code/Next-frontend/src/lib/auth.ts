@@ -133,8 +133,8 @@ export const authOptions: NextAuthOptions = {
                 return token;
             }
 
-            // Check if access token is expired
-            if (Date.now() < (token.expiresAt as number)) {
+            // Check if access token is expired (có buffer 30s để refresh chủ động trước khi hết hạn)
+            if (Date.now() < (token.expiresAt as number) - 30 * 1000) {
                 return token;
             }
 

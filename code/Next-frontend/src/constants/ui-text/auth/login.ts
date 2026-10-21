@@ -14,6 +14,7 @@ export const LOGIN = {
     SIGN_UP_LINK: "Đăng ký",
     GOOGLE_BTN: "Google",
     APPLE_BTN: "Apple",
+    APPLE_COMING_SOON: "Tính năng đăng nhập với Apple sẽ sớm ra mắt.",
     VALIDATION: {
         EMAIL_REQUIRED: "Email không được để trống.",
         EMAIL_INVALID: "Email không hợp lệ.",

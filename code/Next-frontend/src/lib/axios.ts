@@ -88,10 +88,26 @@ axiosInstance.interceptors.response.use(
         return response;
     },
     async (error) => {
-        const shouldSignOut = typeof window !== "undefined" && error.response?.status === 401 && !isPublicEndpoint(error.config?.url) && !isCaptchaError(error);
+        const originalRequest = error.config;
+        const isAuthError =
+            typeof window !== "undefined" && error.response?.status === 401 && !isPublicEndpoint(originalRequest?.url) && !isCaptchaError(error);
 
-        if (shouldSignOut) {
+        if (isAuthError && originalRequest && !originalRequest._retry) {
+            originalRequest._retry = true;
             invalidateAuthTokenCache();
+
+            // Thử lấy token mới (getSession() sẽ kích hoạt refreshAccessToken trong NextAuth)
+            const newToken = await getAuthToken();
+            const currentAuth = originalRequest.headers?.Authorization?.toString() || "";
+            const currentToken = currentAuth.startsWith("Bearer ") ? currentAuth.slice(7) : currentAuth;
+
+            if (newToken && newToken !== currentToken) {
+                originalRequest.headers = originalRequest.headers || {};
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return axiosInstance(originalRequest);
+            }
+
+            // Nếu refresh không thành công hoặc phiên thực sự bị hủy
             const session = await getSession();
             if (session) {
                 console.warn("Phiên đăng nhập hết hạn hoặc không hợp lệ, đang đăng xuất...");
@@ -99,8 +115,6 @@ axiosInstance.interceptors.response.use(
             }
         }
 
-        // Có thể xử lý refresh token ở đây nếu cần gọi api trực tiếp qua axios thay vì NextAuth
-        // Tuy nhiên NextAuth đang xử lý refresh token trong callbacks.jwt rồi.
         return Promise.reject(error);
     },
 );

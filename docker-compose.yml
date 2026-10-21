@@ -58,11 +58,15 @@ services:
     depends_on:
       - database
       - minio
+      - redis
     environment:
       - DB_URL=jdbc:mysql://database:3306/librarydb?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
       - DB_USERNAME=${DB_USERNAME:-root}
       - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD in your local environment}
       - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in your local environment}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - MINIO_URL=${MINIO_URL:-http://minio:9000}
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in your local environment}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in your local environment}

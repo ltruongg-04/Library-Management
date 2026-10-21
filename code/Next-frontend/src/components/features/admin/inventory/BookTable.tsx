@@ -275,11 +275,11 @@ export default function BookTable({ canEditBook = false, onManageCopies, refresh
         } finally {
             setLoading(false);
         }
-    }, [page, keyword, category, refreshKey]);
+    }, [page, keyword, category]);
 
     useEffect(() => {
         fetchData();
-    }, [fetchData]);
+    }, [fetchData, refreshKey]);
 
     const handleEditClick = (id: number) => {
         setEditBookId(id);

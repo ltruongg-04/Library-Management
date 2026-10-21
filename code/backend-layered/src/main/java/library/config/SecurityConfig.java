@@ -53,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/book-visits/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/books/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/tags/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/public/banners/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/policies/**").permitAll()
@@ -85,7 +86,11 @@ public class SecurityConfig {
     private List<String> buildAllowedOriginPatterns() {
         List<String> origins = new ArrayList<>(List.of(
                 "https://library-management-lovat-theta.vercel.app",
-                "https://*.vercel.app"));
+                "https://*.vercel.app",
+                "http://localhost:3000",
+                "http://localhost:3001",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:3001"));
 
         if (frontendUrl != null && !frontendUrl.isBlank()) {
             origins.add(frontendUrl.trim());

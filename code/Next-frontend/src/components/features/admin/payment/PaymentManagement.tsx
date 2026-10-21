@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RotateCcw, Search, SearchX } from "lucide-react";
 import { toast } from "sonner";
 import { UI_TEXT } from "@/constants/ui-text";
@@ -18,11 +18,7 @@ export default function PaymentManagement() {
     const [searchCode, setSearchCode] = useState("");
     const [activeSearch, setActiveSearch] = useState("");
 
-    useEffect(() => {
-        fetchPayments();
-    }, [page, activeSearch]);
-
-    const fetchPayments = async () => {
+    const fetchPayments = useCallback(async () => {
         setIsLoading(true);
         try {
             const res = await getAdminPayments(page, 15, activeSearch);
@@ -35,7 +31,11 @@ export default function PaymentManagement() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [page, activeSearch]);
+
+    useEffect(() => {
+        fetchPayments();
+    }, [fetchPayments]);
 
     const handleSearch = () => {
         setPage(0);
@@ -87,24 +87,24 @@ export default function PaymentManagement() {
                     <input
                         type="text"
                         placeholder="Mã giao dịch..."
-                        className="rounded-lg border border-outline-variant bg-surface-container-low px-4 py-2 text-sm"
+                        className="rounded-lg border border-outline-variant bg-surface-container-low px-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         value={searchCode}
                         onChange={(e) => setSearchCode(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                     />
                     <button
                         onClick={handleSearch}
-                        className="flex items-center gap-2 rounded-lg bg-surface-variant px-4 py-2 text-sm font-medium hover:bg-outline-variant/30"
+                        className="flex items-center gap-2 rounded-lg bg-surface-variant px-4 py-2 text-sm font-medium text-on-surface hover:bg-outline-variant/30 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                     >
                         <Search size={18} /> {UI_TEXT.RECENT.TEXT_140}
                     </button>
                 </div>
             </div>
 
-            <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface shadow-sm">
+            <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex-1 overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                        <thead className="sticky top-0 bg-surface-container-low">
+                        <thead className="sticky top-0 bg-surface-container-low text-on-surface-variant dark:bg-slate-800/80 dark:text-slate-300">
                             <tr>
                                 <th className="p-4 font-semibold">{UI_TEXT.RECENT.TEXT_139}</th>
                                 <th className="p-4 font-semibold">{UI_TEXT.RECENT.TEXT_138}</th>
@@ -132,10 +132,13 @@ export default function PaymentManagement() {
                                 </tr>
                             ) : (
                                 payments.map((payment) => (
-                                    <tr key={payment.id} className="border-b border-outline-variant/20 transition-colors hover:bg-surface-variant/30">
+                                    <tr
+                                        key={payment.id}
+                                        className="border-b border-outline-variant/20 transition-colors hover:bg-surface-variant/30 dark:border-slate-800 dark:hover:bg-slate-800/50"
+                                    >
                                         <td className="p-4 font-medium text-primary">{payment.transactionCode || "N/A"}</td>
-                                        <td className="p-4">{payment.orderCode || "N/A"}</td>
-                                        <td className="p-4">
+                                        <td className="p-4 text-on-surface dark:text-slate-200">{payment.orderCode || "N/A"}</td>
+                                        <td className="p-4 text-on-surface dark:text-slate-200">
                                             {payment.paymentType === "DEPOSIT"
                                                 ? UI_TEXT.RECENT.TEXT_130
                                                 : payment.paymentType === "FINE"
@@ -144,15 +147,17 @@ export default function PaymentManagement() {
                                         </td>
                                         <td className="p-4 text-right font-semibold text-error">{formatCurrency(payment.amount)}</td>
                                         <td className="p-4 text-center">{getStatusBadge(payment.paymentStatus)}</td>
-                                        <td className="p-4 text-xs">{payment.paymentDate ? formatDate(payment.paymentDate) : "N/A"}</td>
-                                        <td className="p-4 text-on-surface-variant">{payment.processedByName || "-"}</td>
+                                        <td className="p-4 text-xs text-on-surface-variant dark:text-slate-400">
+                                            {payment.paymentDate ? formatDate(payment.paymentDate) : "N/A"}
+                                        </td>
+                                        <td className="p-4 text-on-surface-variant dark:text-slate-400">{payment.processedByName || "-"}</td>
                                         <td className="p-4 text-center">
                                             {payment.paymentStatus === "PAID" && payment.paymentType === "DEPOSIT" && (
                                                 <button
                                                     onClick={() => handleRefund(payment.id)}
                                                     disabled={isRefunding === payment.id}
-                                                    className="inline-flex items-center gap-1 rounded bg-surface-variant px-3 py-1.5 text-xs font-medium text-on-surface hover:bg-outline-variant/30 disabled:opacity-50"
-                                                    title="Hoàn trả tiền cọc cho khách"
+                                                    className="inline-flex items-center gap-1 rounded bg-surface-variant px-3 py-1.5 text-xs font-medium text-on-surface hover:bg-outline-variant/30 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                                    title={UI_TEXT.RECENT.TEXT_150}
                                                 >
                                                     {isRefunding === payment.id ? (
                                                         <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
@@ -172,22 +177,22 @@ export default function PaymentManagement() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="flex items-center justify-between border-t border-outline-variant/30 bg-surface px-6 py-4">
-                        <span className="text-sm text-on-surface-variant">
+                    <div className="flex items-center justify-between border-t border-outline-variant/30 bg-surface px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
+                        <span className="text-sm text-on-surface-variant dark:text-slate-400">
                             Trang {page + 1} / {totalPages}
                         </span>
                         <div className="flex gap-2">
                             <button
                                 disabled={page === 0}
                                 onClick={() => setPage(page - 1)}
-                                className="rounded border border-outline-variant px-3 py-1 text-sm disabled:opacity-50"
+                                className="rounded border border-outline-variant px-3 py-1 text-sm text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                             >
                                 {UI_TEXT.RECENT.TEXT_127}
                             </button>
                             <button
                                 disabled={page >= totalPages - 1}
                                 onClick={() => setPage(page + 1)}
-                                className="rounded border border-outline-variant px-3 py-1 text-sm disabled:opacity-50"
+                                className="rounded border border-outline-variant px-3 py-1 text-sm text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                             >
                                 Sau
                             </button>

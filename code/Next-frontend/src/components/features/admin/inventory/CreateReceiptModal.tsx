@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LibraryBig, Loader2, Plus, Search, Trash2, X } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { UI_TEXT } from "@/constants/ui-text";
 import { formatCurrency } from "@/lib/utils";
@@ -157,11 +158,14 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8 backdrop-blur-sm">
-            <div className="flex h-full w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-surface shadow-2xl">
+            <div className="flex h-full w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-surface shadow-2xl dark:border dark:border-slate-800 dark:bg-slate-900">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-outline-variant/30 bg-surface-container-low px-6 py-4">
-                    <h2 className="text-xl font-bold">{UI_TEXT.RECENT.TEXT_69}</h2>
-                    <button onClick={onClose} className="rounded-full p-2 hover:bg-outline-variant/30">
+                <div className="flex items-center justify-between border-b border-outline-variant/30 bg-surface-container-low px-6 py-4 dark:border-slate-800 dark:bg-slate-800/60">
+                    <h2 className="text-xl font-bold text-on-surface dark:text-white">{UI_TEXT.RECENT.TEXT_69}</h2>
+                    <button
+                        onClick={onClose}
+                        className="rounded-full p-2 text-on-surface-variant hover:bg-outline-variant/30 dark:text-slate-400 dark:hover:bg-slate-800"
+                    >
                         <X size={20} />
                     </button>
                 </div>
@@ -169,29 +173,32 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                 {/* Body */}
                 <div className="flex flex-1 overflow-hidden">
                     {/* Left: Form & Search */}
-                    <div className="flex w-1/3 flex-col overflow-y-auto border-r border-outline-variant/30 p-6">
+                    <div className="flex w-1/3 flex-col overflow-y-auto border-r border-outline-variant/30 p-6 dark:border-slate-800">
                         <div className="mb-6 flex flex-col gap-1.5">
-                            <label className="text-sm font-medium">{UI_TEXT.RECENT.TEXT_68}</label>
+                            <label className="text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_68}</label>
                             {isAddingSupplier ? (
                                 <div className="flex gap-2">
                                     <input
                                         autoFocus
                                         placeholder="Tên nhà cung cấp mới..."
-                                        className="flex-1 rounded-lg border border-outline-variant p-2 text-sm"
+                                        className="flex-1 rounded-lg border border-outline-variant bg-surface-container-low p-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                         value={newSupplierName}
                                         onChange={(e) => setNewSupplierName(e.target.value)}
                                     />
-                                    <button onClick={handleQuickAddSupplier} className="rounded-lg bg-primary px-3 text-sm text-white">
+                                    <button onClick={handleQuickAddSupplier} className="rounded-lg bg-primary px-3 text-sm text-white hover:bg-primary/90">
                                         {UI_TEXT.RECENT.TEXT_67}
                                     </button>
-                                    <button onClick={() => setIsAddingSupplier(false)} className="rounded-lg bg-surface-variant px-3 text-sm">
+                                    <button
+                                        onClick={() => setIsAddingSupplier(false)}
+                                        className="rounded-lg bg-surface-variant px-3 text-sm text-on-surface hover:bg-outline-variant/30 dark:bg-slate-800 dark:text-slate-300"
+                                    >
                                         {UI_TEXT.RECENT.TEXT_66}
                                     </button>
                                 </div>
                             ) : (
                                 <div className="flex gap-2">
                                     <select
-                                        className="flex-1 rounded-lg border border-outline-variant bg-surface-container-low p-2 text-sm"
+                                        className="flex-1 rounded-lg border border-outline-variant bg-surface-container-low p-2 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                         value={selectedSupplierId}
                                         onChange={(e) => setSelectedSupplierId(Number(e.target.value))}
                                     >
@@ -206,7 +213,7 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                                     </select>
                                     <button
                                         onClick={() => setIsAddingSupplier(true)}
-                                        className="rounded-lg border border-outline-variant px-2 hover:bg-surface-variant"
+                                        className="rounded-lg border border-outline-variant px-2 text-on-surface hover:bg-surface-variant dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                                         title="Thêm NCC mới"
                                     >
                                         <Plus size={18} />
@@ -216,52 +223,62 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                         </div>
 
                         <div className="mb-6 flex flex-col gap-1.5">
-                            <label className="text-sm font-medium">{UI_TEXT.RECENT.TEXT_64}</label>
+                            <label className="text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_64}</label>
                             <textarea
                                 rows={2}
-                                className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2 text-sm"
+                                className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                 placeholder="Ghi chú thêm..."
                                 value={note}
                                 onChange={(e) => setNote(e.target.value)}
                             />
                         </div>
 
-                        <div className="my-4 h-px w-full bg-outline-variant/30"></div>
+                        <div className="my-4 h-px w-full bg-outline-variant/30 dark:bg-slate-800"></div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium">{UI_TEXT.RECENT.TEXT_63}</label>
+                            <label className="text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_63}</label>
                             <div className="flex gap-2">
                                 <input
                                     placeholder="Tên sách, ISBN..."
-                                    className="flex-1 rounded-lg border border-outline-variant bg-surface-container-low p-2 text-sm"
+                                    className="flex-1 rounded-lg border border-outline-variant bg-surface-container-low p-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                     value={searchKeyword}
                                     onChange={(e) => setSearchKeyword(e.target.value)}
                                     onKeyDown={(e) => e.key === "Enter" && handleSearchBooks()}
                                 />
-                                <button onClick={handleSearchBooks} className="rounded-lg bg-surface-variant px-3 hover:bg-outline-variant/30">
+                                <button
+                                    onClick={handleSearchBooks}
+                                    className="rounded-lg bg-surface-variant px-3 text-on-surface hover:bg-outline-variant/30 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                                >
                                     {isSearching ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
                                 </button>
                             </div>
                         </div>
 
                         {searchResults.length > 0 && (
-                            <div className="mt-4 flex max-h-64 flex-col gap-2 overflow-y-auto rounded-lg border border-outline-variant/50 p-2">
+                            <div className="mt-4 flex max-h-64 flex-col gap-2 overflow-y-auto rounded-lg border border-outline-variant/50 p-2 dark:border-slate-800">
                                 {searchResults.map((book) => (
                                     <div
                                         key={book.id}
-                                        className="flex items-center justify-between rounded border-b border-outline-variant/20 p-2 last:border-0 hover:bg-surface-variant/50"
+                                        className="flex items-center justify-between rounded border-b border-outline-variant/20 p-2 last:border-0 hover:bg-surface-variant/50 dark:border-slate-800 dark:hover:bg-slate-800/50"
                                     >
                                         <div className="flex items-center gap-2 overflow-hidden">
                                             {book.imageUrl ? (
-                                                <img src={book.imageUrl} className="h-10 w-8 rounded object-cover" />
+                                                <Image
+                                                    src={book.imageUrl}
+                                                    alt={book.title || "Book"}
+                                                    width={32}
+                                                    height={40}
+                                                    className="h-10 w-8 rounded object-cover"
+                                                    unoptimized
+                                                />
                                             ) : (
-                                                <div className="flex h-10 w-8 items-center justify-center rounded bg-surface-variant">
-                                                    <LibraryBig size={14} />
+                                                <div className="flex h-10 w-8 items-center justify-center rounded bg-surface-variant dark:bg-slate-800">
+                                                    <LibraryBig size={14} className="text-on-surface-variant dark:text-slate-400" />
                                                 </div>
                                             )}
                                             <div className="text-xs">
-                                                <p className="line-clamp-1 font-semibold">{book.title}</p>
-                                                <p className="line-clamp-1 text-on-surface-variant">
+                                                <p className="line-clamp-1 font-semibold text-on-surface dark:text-white">{book.title}</p>
+                                                <p className="line-clamp-1 text-on-surface-variant dark:text-slate-400">
                                                     {book.authors?.map((a) => a.name).join(", ") || UI_TEXT.RECENT.TEXT_62}
                                                 </p>
                                             </div>
@@ -279,14 +296,14 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                     </div>
 
                     {/* Right: Selected Books Table */}
-                    <div className="flex w-2/3 flex-col bg-surface-container-lowest p-6">
-                        <h3 className="mb-4 font-bold">
+                    <div className="flex w-2/3 flex-col bg-surface-container-lowest p-6 dark:bg-slate-900/50">
+                        <h3 className="mb-4 font-bold text-on-surface dark:text-white">
                             {UI_TEXT.RECENT.TEXT_61}
                             {selectedBooks.length})
                         </h3>
-                        <div className="flex-1 overflow-y-auto rounded-xl border border-outline-variant/30">
+                        <div className="flex-1 overflow-y-auto rounded-xl border border-outline-variant/30 dark:border-slate-800">
                             <table className="w-full text-left text-sm">
-                                <thead className="sticky top-0 z-10 bg-surface-container-low shadow-sm">
+                                <thead className="sticky top-0 z-10 bg-surface-container-low text-on-surface-variant shadow-sm dark:bg-slate-800 dark:text-slate-300">
                                     <tr>
                                         <th className="p-3 font-semibold">{UI_TEXT.RECENT.TEXT_60}</th>
                                         <th className="w-24 p-3 text-center font-semibold">SL</th>
@@ -298,22 +315,25 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                                 <tbody>
                                     {selectedBooks.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="p-12 text-center text-on-surface-variant">
+                                            <td colSpan={5} className="p-12 text-center text-on-surface-variant dark:text-slate-400">
                                                 {UI_TEXT.RECENT.TEXT_57}
                                             </td>
                                         </tr>
                                     ) : (
                                         selectedBooks.map((book) => (
-                                            <tr key={book.id} className="border-b border-outline-variant/20 hover:bg-surface-variant/10">
+                                            <tr
+                                                key={book.id}
+                                                className="border-b border-outline-variant/20 hover:bg-surface-variant/10 dark:border-slate-800 dark:hover:bg-slate-800/40"
+                                            >
                                                 <td className="p-3">
-                                                    <p className="line-clamp-1 font-medium">{book.title}</p>
-                                                    <p className="text-xs text-on-surface-variant">ISBN: {book.isbn}</p>
+                                                    <p className="line-clamp-1 font-medium text-on-surface dark:text-white">{book.title}</p>
+                                                    <p className="text-xs text-on-surface-variant dark:text-slate-400">ISBN: {book.isbn}</p>
                                                 </td>
                                                 <td className="p-2">
                                                     <input
                                                         type="number"
                                                         min="1"
-                                                        className="w-full rounded border border-outline-variant p-1.5 text-center text-sm"
+                                                        className="w-full rounded border border-outline-variant bg-surface-container-low p-1.5 text-center text-sm text-on-surface dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                                         value={book.importQuantity}
                                                         onChange={(e) => handleUpdateBook(book.id, "importQuantity", Number(e.target.value))}
                                                     />
@@ -323,7 +343,7 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                                                         type="number"
                                                         min="0"
                                                         step="1000"
-                                                        className="w-full rounded border border-outline-variant p-1.5 text-right text-sm"
+                                                        className="w-full rounded border border-outline-variant bg-surface-container-low p-1.5 text-right text-sm text-on-surface dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                                         value={book.importPrice}
                                                         onChange={(e) => handleUpdateBook(book.id, "importPrice", Number(e.target.value))}
                                                     />
@@ -332,7 +352,10 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                                                     {formatCurrency(book.importQuantity * book.importPrice)}
                                                 </td>
                                                 <td className="p-3 text-center">
-                                                    <button onClick={() => handleRemoveBook(book.id)} className="text-on-surface-variant hover:text-error">
+                                                    <button
+                                                        onClick={() => handleRemoveBook(book.id)}
+                                                        className="text-on-surface-variant hover:text-error dark:text-slate-400"
+                                                    >
                                                         <Trash2 size={18} />
                                                     </button>
                                                 </td>
@@ -343,13 +366,16 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                             </table>
                         </div>
 
-                        <div className="mt-6 flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 p-4">
+                        <div className="mt-6 flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 p-4 dark:border-primary/30 dark:bg-primary/10">
                             <div>
-                                <p className="text-sm text-on-surface-variant">{UI_TEXT.RECENT.TEXT_56}</p>
+                                <p className="text-sm text-on-surface-variant dark:text-slate-300">{UI_TEXT.RECENT.TEXT_56}</p>
                                 <p className="text-2xl font-bold text-error">{formatCurrency(totalAmount)}</p>
                             </div>
                             <div className="flex gap-3">
-                                <button onClick={onClose} className="rounded-lg px-6 py-2.5 font-medium hover:bg-surface-variant">
+                                <button
+                                    onClick={onClose}
+                                    className="rounded-lg px-6 py-2.5 font-medium text-on-surface hover:bg-surface-variant dark:text-slate-300 dark:hover:bg-slate-800"
+                                >
                                     {UI_TEXT.RECENT.TEXT_55}
                                 </button>
                                 <button

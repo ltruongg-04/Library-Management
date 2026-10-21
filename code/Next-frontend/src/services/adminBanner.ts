@@ -11,6 +11,11 @@ export interface AdminBanner {
     isActive: boolean;
 }
 
+export const getPublicBanners = async (): Promise<ApiResponse<AdminBanner[]>> => {
+    const response = await axiosInstance.get<ApiResponse<AdminBanner[]>>("/api/public/banners");
+    return response.data;
+};
+
 export const getAdminBanners = async (): Promise<ApiResponse<AdminBanner[]>> => {
     const response = await axiosInstance.get<ApiResponse<AdminBanner[]>>("/api/admin/banners");
     return response.data;

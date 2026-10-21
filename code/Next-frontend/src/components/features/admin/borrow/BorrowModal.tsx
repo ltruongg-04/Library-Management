@@ -106,18 +106,18 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
-            <div className="level-2-shadow flex w-full max-w-lg transform flex-col overflow-hidden rounded-2xl bg-surface-container-lowest transition-all">
+        <div className="bg-scrim/50 fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="level-2-shadow flex w-full max-w-lg transform flex-col overflow-hidden rounded-2xl bg-surface-container-lowest transition-all dark:border dark:border-slate-800 dark:bg-slate-900">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-outline-variant/30 bg-surface-bright p-6">
+                <div className="dark:bg-slate-850 flex items-center justify-between border-b border-outline-variant/30 bg-surface-bright p-6 dark:border-slate-800">
                     <div>
-                        <h3 className="text-xl font-bold text-on-background">{UI_TEXT.RECENT.TEXT_45}</h3>
-                        <p className="text-sm text-on-surface-variant">{UI_TEXT.RECENT.TEXT_44}</p>
+                        <h3 className="text-xl font-bold text-on-background dark:text-white">{UI_TEXT.RECENT.TEXT_45}</h3>
+                        <p className="text-sm text-on-surface-variant dark:text-slate-400">{UI_TEXT.RECENT.TEXT_44}</p>
                     </div>
                     <button
                         onClick={onClose}
                         disabled={isLoading}
-                        className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-error-container/20 hover:text-error disabled:opacity-50"
+                        className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-error-container/20 hover:text-error disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800"
                     >
                         <X size={24} />
                     </button>
@@ -128,15 +128,15 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                     {error && <div className="rounded border border-error/50 bg-error-container/20 p-3 text-sm text-error">{error}</div>}
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">
+                        <label className="text-sm font-medium text-on-surface dark:text-slate-200">
                             {UI_TEXT.RECENT.TEXT_43}
                             <span className="text-error">*</span>
                         </label>
                         <div className="flex gap-2">
                             <div className="relative flex-1">
-                                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
+                                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant dark:text-slate-500" size={20} />
                                 <input
-                                    className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                    className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                     placeholder="Quét mã thẻ hoặc nhập SĐT..."
                                     value={form.phone}
                                     onChange={(e) => {
@@ -156,7 +156,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                             <button
                                 onClick={handleLookup}
                                 disabled={isLoading || isLookingUp || !form.phone.trim()}
-                                className="flex items-center justify-center gap-2 rounded-lg bg-surface-variant px-4 text-sm font-medium text-on-surface transition-colors hover:bg-outline-variant/30 disabled:opacity-50"
+                                className="flex items-center justify-center gap-2 rounded-lg bg-surface-variant px-4 text-sm font-medium text-on-surface transition-colors hover:bg-outline-variant/30 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                             >
                                 {isLookingUp ? <Loader2 className="animate-spin" size={18} /> : <Search size={18} />}
                                 {UI_TEXT.RECENT.TEXT_42}
@@ -165,7 +165,7 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                     </div>
 
                     {customerData && (
-                        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 dark:border-primary/30 dark:bg-primary/10">
                             <div className="mb-1 flex items-center gap-2">
                                 <CheckCircle2 size={16} className="text-primary" />
                                 <span className="text-sm font-semibold text-primary">{UI_TEXT.RECENT.TEXT_41}</span>
@@ -179,14 +179,15 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                                     </span>
                                 )}
                             </div>
-                            <div className="flex flex-col gap-1 pl-6 text-sm text-on-surface">
+                            <div className="flex flex-col gap-1 pl-6 text-sm text-on-surface dark:text-slate-200">
                                 <p>
-                                    <span className="text-on-surface-variant">{UI_TEXT.RECENT.TEXT_38}</span>{" "}
-                                    <span className="font-medium">{customerData.fullName}</span>
+                                    <span className="text-on-surface-variant dark:text-slate-400">{UI_TEXT.RECENT.TEXT_38}</span>{" "}
+                                    <span className="font-medium text-on-surface dark:text-white">{customerData.fullName}</span>
                                 </p>
                                 {customerData.libraryCardNo && (
                                     <p>
-                                        <span className="text-on-surface-variant">{UI_TEXT.RECENT.TEXT_37}</span> {customerData.libraryCardNo}
+                                        <span className="text-on-surface-variant dark:text-slate-400">{UI_TEXT.RECENT.TEXT_37}</span>{" "}
+                                        {customerData.libraryCardNo}
                                     </p>
                                 )}
                             </div>
@@ -194,12 +195,13 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                     )}
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">
-                            {T.LABEL_FULL_NAME} {!customerData && <span className="text-xs font-normal text-on-surface-variant">{UI_TEXT.RECENT.TEXT_36}</span>}
+                        <label className="text-sm font-medium text-on-surface dark:text-slate-200">
+                            {T.LABEL_FULL_NAME}{" "}
+                            {!customerData && <span className="text-xs font-normal text-on-surface-variant dark:text-slate-400">{UI_TEXT.RECENT.TEXT_36}</span>}
                         </label>
                         <div className="relative">
                             <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-2.5 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-surface-variant disabled:opacity-70"
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-2.5 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-surface-variant disabled:opacity-70 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/50"
                                 placeholder="Nhập họ và tên..."
                                 value={form.fullName}
                                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
@@ -210,13 +212,13 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">
+                        <label className="text-sm font-medium text-on-surface dark:text-slate-200">
                             {T.LABEL_BOOK_BARCODE} <span className="text-error">*</span>
                         </label>
                         <div className="relative">
-                            <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
+                            <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant dark:text-slate-500" size={20} />
                             <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                 placeholder="Quét mã sách (Ví dụ: BC001, BC002...)"
                                 value={form.bookBarcodes}
                                 onChange={(e) => setForm({ ...form, bookBarcodes: e.target.value })}
@@ -224,17 +226,17 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                                 disabled={isLoading}
                             />
                         </div>
-                        <p className="text-xs text-on-surface-variant">{T.HINT_MULTIPLE_BARCODE}</p>
+                        <p className="text-xs text-on-surface-variant dark:text-slate-400">{T.HINT_MULTIPLE_BARCODE}</p>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-on-surface">
+                        <label className="text-sm font-medium text-on-surface dark:text-slate-200">
                             {T.LABEL_DUE_DATE} <span className="text-error">*</span>
                         </label>
                         <div className="relative">
-                            <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" size={20} />
+                            <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant dark:text-slate-500" size={20} />
                             <input
-                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70"
+                                className="w-full rounded-lg border border-outline-variant/50 bg-surface-container-low py-2.5 pl-10 pr-4 text-sm text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-70 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                 value={form.dueDate}
                                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
                                 type="date"
@@ -245,11 +247,11 @@ export default function BorrowModal({ open, onClose, onSubmitSuccess }: { open: 
                 </div>
 
                 {/* Actions Footer */}
-                <div className="mt-auto flex justify-end gap-3 border-t border-outline-variant/30 bg-surface-bright p-6">
+                <div className="dark:bg-slate-850 mt-auto flex justify-end gap-3 border-t border-outline-variant/30 bg-surface-bright p-6 dark:border-slate-800">
                     <button
                         onClick={onClose}
                         disabled={isLoading}
-                        className="rounded-lg border border-outline px-5 py-2.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-50"
+                        className="rounded-lg border border-outline px-5 py-2.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                         {T.BTN_CANCEL}
                     </button>

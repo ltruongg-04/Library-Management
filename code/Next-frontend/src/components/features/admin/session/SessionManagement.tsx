@@ -95,7 +95,7 @@ export default function SessionManagement() {
                     <input
                         type="text"
                         placeholder="Tìm email, tên, IP..."
-                        className="rounded-lg border border-outline-variant bg-surface-container-low px-4 py-2 text-sm"
+                        className="rounded-lg border border-outline-variant bg-surface-container-low px-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         value={searchKeyword}
                         onChange={(e) => setSearchKeyword(e.target.value)}
                     />
@@ -108,7 +108,7 @@ export default function SessionManagement() {
                         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                     </div>
                 ) : filteredSessions.length === 0 ? (
-                    <div className="col-span-full rounded-xl border border-outline-variant/30 bg-surface py-12 text-center text-on-surface-variant">
+                    <div className="col-span-full rounded-xl border border-outline-variant/30 bg-surface py-12 text-center text-on-surface-variant dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
                         <ShieldAlert size={48} className="mx-auto mb-4 opacity-50" />
                         <p>{UI_TEXT.RECENT.TEXT_156}</p>
                     </div>
@@ -116,18 +116,18 @@ export default function SessionManagement() {
                     filteredSessions.map((session) => (
                         <div
                             key={session.id}
-                            className="relative flex flex-col gap-4 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface p-4 shadow-sm"
+                            className="relative flex flex-col gap-4 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
                         >
                             <div className="bg-success absolute right-0 top-0 h-1 w-full"></div>
 
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20">
                                         {getDeviceIcon(session.userAgent)}
                                     </div>
                                     <div>
-                                        <h3 className="line-clamp-1 font-semibold text-on-surface">{session.fullName || session.username}</h3>
-                                        <p className="text-xs text-on-surface-variant">{session.username}</p>
+                                        <h3 className="line-clamp-1 font-semibold text-on-surface dark:text-white">{session.fullName || session.username}</h3>
+                                        <p className="text-xs text-on-surface-variant dark:text-slate-400">{session.username}</p>
                                     </div>
                                 </div>
                                 <button
@@ -140,11 +140,11 @@ export default function SessionManagement() {
                             </div>
 
                             <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div className="flex items-center gap-2 text-on-surface-variant">
+                                <div className="flex items-center gap-2 text-on-surface-variant dark:text-slate-400">
                                     <Globe size={14} /> <span>IP: {session.ipAddress === "0:0:0:0:0:0:0:1" ? "127.0.0.1" : session.ipAddress}</span>
                                 </div>
-                                <div className="text-right text-on-surface-variant">{getBrowserInfo(session.userAgent)}</div>
-                                <div className="col-span-2 mt-1 text-xs text-on-surface-variant">
+                                <div className="text-right text-on-surface-variant dark:text-slate-400">{getBrowserInfo(session.userAgent)}</div>
+                                <div className="col-span-2 mt-1 text-xs text-on-surface-variant dark:text-slate-400">
                                     {UI_TEXT.RECENT.TEXT_154}
                                     {session.loginTime ? formatDate(session.loginTime) : UI_TEXT.RECENT.TEXT_153}
                                 </div>
@@ -152,7 +152,7 @@ export default function SessionManagement() {
 
                             <button
                                 onClick={() => handleTerminate(session.id)}
-                                className="mt-auto flex w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-surface-variant py-2 text-sm font-medium text-error transition-colors hover:border-error/20 hover:bg-error/10"
+                                className="mt-auto flex w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-surface-variant py-2 text-sm font-medium text-error transition-colors hover:border-error/20 hover:bg-error/10 dark:bg-slate-800 dark:hover:bg-error/20"
                             >
                                 <LogOut size={16} /> {UI_TEXT.RECENT.TEXT_152}
                             </button>

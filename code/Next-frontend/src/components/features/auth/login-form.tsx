@@ -5,6 +5,7 @@ import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { getSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { BaseButton } from "@/components/base/base-button";
 import { BaseInput } from "@/components/base/base-input";
 import { AppleIcon } from "@/components/icons/apple-icon";
@@ -206,6 +207,7 @@ export function LoginForm() {
 
                 <button
                     type="button"
+                    onClick={() => toast.info(UI_TEXT.AUTH.LOGIN.APPLE_COMING_SOON)}
                     className="inline-flex h-12 items-center justify-center gap-2 rounded border border-outline-variant bg-surface-container-lowest text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                 >
                     <AppleIcon />

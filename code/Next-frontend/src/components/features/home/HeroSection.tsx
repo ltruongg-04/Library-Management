@@ -1,14 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Search, Sparkles } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { bookService } from "@/services/book";
+import type { BookListItem } from "@/types/book";
 
 export default function HeroSection() {
     const router = useRouter();
     const [query, setQuery] = useState("");
+    const [books, setBooks] = useState<BookListItem[]>([]);
+
+    useEffect(() => {
+        const fetchTrending = async () => {
+            try {
+                const res = await bookService.getTrendingBooks(3);
+                if (res.content && res.content.length > 0) {
+                    setBooks(res.content);
+                }
+            } catch {
+                // Silently fallback if error
+            }
+        };
+        fetchTrending();
+    }, []);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -20,62 +38,59 @@ export default function HeroSection() {
     };
 
     return (
-        <section className="relative overflow-hidden bg-gradient-to-br from-primary-50/40 via-surface-container-lowest to-secondary-50/20 transition-colors duration-200 dark:from-primary-900/20 dark:via-slate-950 dark:to-slate-900">
-            {/* Decorative blobs */}
-            <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-secondary-300/10 blur-3xl dark:bg-secondary-300/5" />
-            <div className="pointer-events-none absolute -bottom-16 -left-16 h-72 w-72 rounded-full bg-primary-300/10 blur-3xl dark:bg-primary-700/10" />
+        <section className="relative overflow-hidden bg-gradient-to-b from-primary-50/50 via-surface to-surface pb-8 pt-6 transition-colors duration-200 dark:from-slate-900/40 dark:via-slate-950 dark:to-slate-950 lg:pb-10 lg:pt-8">
+            {/* Ambient Background Glows */}
+            <div className="pointer-events-none absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-primary/10 blur-[100px] dark:bg-primary/20" />
+            <div className="pointer-events-none absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-indigo-500/10 blur-[110px] dark:bg-indigo-500/15" />
 
-            <div className="relative z-10 mx-auto max-w-[1440px] px-4 py-10 lg:px-8 lg:py-14">
-                <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-16">
-                    {/* Left: Text + Search */}
-                    <div className="flex-1">
-                        {/* Badge */}
-                        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-secondary-300/40 bg-secondary-300/10 px-3 py-1 dark:border-secondary-300/30 dark:bg-secondary-300/10">
-                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-secondary-300" />
-                            <span className="font-mono text-[12px] font-medium uppercase tracking-widest text-secondary-500 dark:text-secondary-300">
-                                {UI_TEXT.HOME.LABEL_AI_POWERED}
-                            </span>
+            <div className="relative z-10 mx-auto max-w-[1440px] px-4 lg:px-8">
+                <div className="grid items-center gap-8 lg:grid-cols-12">
+                    {/* ── Left Column: Headline & Floating Search (7 cols) ── */}
+                    <div className="flex flex-col lg:col-span-7">
+                        {/* Status Badge */}
+                        <div className="dark:text-primary-foreground mb-2.5 inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-sm dark:border-primary/30 dark:bg-primary/20">
+                            <Sparkles size={13} className="animate-pulse" />
+                            <span>{UI_TEXT.HOME.LABEL_AI_POWERED}</span>
                         </div>
 
-                        <h1 className="mb-3 font-sans text-[36px] font-bold leading-[1.15] tracking-[-0.02em] text-primary-700 transition-colors duration-200 dark:text-white lg:text-[48px]">
+                        {/* Main Heading */}
+                        <h1 className="text-2xl font-extrabold tracking-tight text-on-surface dark:text-white sm:text-3xl md:text-4xl lg:leading-[1.15]">
                             {UI_TEXT.HOME.HERO_HEADING}
                         </h1>
-                        <p className="mb-6 max-w-lg font-sans text-[16px] leading-[26px] text-on-surface-variant transition-colors duration-200 dark:text-white/70">
-                            {UI_TEXT.HOME.HERO_SUBHEADING}
-                        </p>
 
-                        {/* Compact Search Bar */}
-                        <form onSubmit={handleSearch} className="flex max-w-lg items-center gap-2">
-                            <div className="ai-glow relative flex-1 rounded-xl border border-outline/20 bg-surface-container-lowest transition-all duration-200 focus-within:border-secondary-300/60 dark:border-slate-700 dark:bg-slate-900">
-                                <div className="flex h-11 items-center px-3">
-                                    <MaterialIcon name="auto_awesome" className="mr-2 flex-shrink-0 text-[18px] text-secondary-300" />
-                                    <input
-                                        className="flex-grow border-none bg-transparent font-sans text-[14px] text-on-surface outline-none placeholder:text-on-surface-variant/50 focus:ring-0 dark:text-white dark:placeholder:text-white/50"
-                                        placeholder={UI_TEXT.HOME.SEARCH_PLACEHOLDER}
-                                        type="text"
-                                        value={query}
-                                        onChange={(e) => setQuery(e.target.value)}
-                                        aria-label="AI semantic search"
-                                    />
-                                </div>
+                        <p className="mt-2 max-w-xl text-sm text-on-surface-variant dark:text-slate-300 sm:text-base">{UI_TEXT.HOME.HERO_SUBHEADING}</p>
+
+                        {/* Modern Floating Search Bar */}
+                        <form onSubmit={handleSearch} className="mt-5 max-w-lg">
+                            <div className="group relative flex items-center rounded-2xl border border-outline-variant/40 bg-surface p-1 shadow-md shadow-primary/5 transition-all focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 dark:border-slate-800 dark:bg-slate-900/90 dark:shadow-black/40">
+                                <Search
+                                    className="ml-3 text-on-surface-variant/60 transition-colors group-focus-within:text-primary dark:text-slate-400"
+                                    size={20}
+                                />
+                                <input
+                                    type="text"
+                                    className="flex-1 border-none bg-transparent px-3 py-1.5 text-sm text-on-surface outline-none placeholder:text-on-surface-variant/50 focus:ring-0 dark:text-white dark:placeholder:text-slate-500 sm:text-base"
+                                    placeholder={UI_TEXT.HOME.SEARCH_PLACEHOLDER}
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                />
+                                <button
+                                    type="submit"
+                                    className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90 active:scale-95"
+                                >
+                                    <span>{UI_TEXT.HOME.SEARCH_BTN}</span>
+                                </button>
                             </div>
-                            <button
-                                type="submit"
-                                className="ai-gradient-bg flex h-11 flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-4 py-2.5 text-[13px] font-semibold text-white transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
-                            >
-                                <MaterialIcon name="search" className="text-[16px]" />
-                                {UI_TEXT.HOME.SEARCH_BTN}
-                            </button>
                         </form>
 
-                        {/* Quick links */}
-                        <div className="mt-4 flex flex-wrap items-center gap-2">
-                            <span className="text-[12px] text-on-surface-variant dark:text-white/50">{UI_TEXT.HOME.TRENDING_LABEL}</span>
+                        {/* Quick Tags */}
+                        <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
+                            <span className="text-xs font-medium text-on-surface-variant dark:text-slate-400">{UI_TEXT.HOME.TRENDING_LABEL}</span>
                             {UI_TEXT.HOME.HERO_TAGS.map((tag) => (
                                 <Link
                                     key={tag}
                                     href={`/sach?keyword=${encodeURIComponent(tag)}`}
-                                    className="rounded-full border border-outline/20 px-3 py-0.5 text-[12px] font-medium text-on-surface-variant transition-colors duration-150 hover:border-secondary-300/60 hover:text-secondary-500 dark:border-slate-700 dark:text-white/60 dark:hover:text-secondary-300"
+                                    className="rounded-full border border-outline-variant/30 bg-surface-container-low px-2.5 py-0.5 text-xs font-medium text-on-surface transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-primary/50"
                                 >
                                     {tag}
                                 </Link>
@@ -83,27 +98,68 @@ export default function HeroSection() {
                         </div>
                     </div>
 
-                    {/* Right: Stats cards */}
-                    <div className="hidden w-72 flex-shrink-0 flex-col gap-3 lg:flex">
-                        <div className="glass-panel rounded-2xl p-5 dark:border-slate-700/50 dark:bg-slate-900/80">
-                            <div className="mb-2 flex items-center gap-3">
-                                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-700/10 dark:bg-white/10">
-                                    <MaterialIcon name="auto_stories" className="text-[20px] text-primary-700 dark:text-white" />
-                                </span>
-                                <span className="text-[13px] font-medium text-on-surface-variant dark:text-white/70">{UI_TEXT.HOME.STATS_TOTAL_BOOKS}</span>
+                    {/* ── Right Column: 3D Floating Book Stack (5 cols) ── */}
+                    <div className="relative flex items-center justify-center lg:col-span-5">
+                        <div className="relative flex h-[290px] w-full max-w-[340px] items-center justify-center sm:h-[330px]">
+                            {/* Decorative ambient background circular pedestal */}
+                            <div className="absolute inset-0 m-auto h-56 w-56 rounded-full bg-gradient-to-tr from-primary/20 via-indigo-500/20 to-sky-400/20 blur-xl dark:from-primary/30 dark:to-indigo-600/30" />
+
+                            {/* 3D Stacked Book Covers */}
+                            {/* Book 1 (Background Left - Tilted) */}
+                            <div className="absolute left-3 top-5 z-10 h-52 w-36 -rotate-12 transform rounded-xl shadow-xl transition-all duration-300 hover:rotate-0 hover:scale-105 sm:h-56 sm:w-40">
+                                <div className="relative h-full w-full overflow-hidden rounded-xl border border-white/20 bg-slate-800 shadow-xl">
+                                    {books[1]?.imageUrl ? (
+                                        <Image src={books[1].imageUrl} alt={books[1].title || "Book"} fill className="object-cover" unoptimized />
+                                    ) : (
+                                        <div className="flex h-full w-full flex-col justify-end bg-gradient-to-br from-indigo-700 to-purple-900 p-3 text-white">
+                                            <p className="line-clamp-2 text-xs font-bold">{books[1]?.title || UI_TEXT.HOME.HERO_BOOK_FALLBACK_1}</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            <p className="text-[28px] font-bold leading-none text-primary-700 dark:text-white">{UI_TEXT.HOME.STATS_TOTAL_VALUE}</p>
-                            <p className="mt-1 text-[12px] text-on-surface-variant dark:text-white/50">{UI_TEXT.HOME.STATS_TOTAL_DESC}</p>
-                        </div>
-                        <div className="glass-panel rounded-2xl p-5 dark:border-slate-700/50 dark:bg-slate-900/80">
-                            <div className="mb-2 flex items-center gap-3">
-                                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary-300/20 dark:bg-white/10">
-                                    <MaterialIcon name="psychology" className="text-[20px] text-secondary-500 dark:text-white" />
-                                </span>
-                                <span className="text-[13px] font-medium text-on-surface-variant dark:text-white/70">{UI_TEXT.HOME.STATS_AI_SEARCH}</span>
+
+                            {/* Book 2 (Background Right - Tilted opposite) */}
+                            <div className="absolute right-3 top-7 z-10 h-52 w-36 rotate-12 transform rounded-xl shadow-xl transition-all duration-300 hover:rotate-0 hover:scale-105 sm:h-56 sm:w-40">
+                                <div className="relative h-full w-full overflow-hidden rounded-xl border border-white/20 bg-slate-800 shadow-xl">
+                                    {books[2]?.imageUrl ? (
+                                        <Image src={books[2].imageUrl} alt={books[2].title || "Book"} fill className="object-cover" unoptimized />
+                                    ) : (
+                                        <div className="flex h-full w-full flex-col justify-end bg-gradient-to-br from-amber-700 to-rose-900 p-3 text-white">
+                                            <p className="line-clamp-2 text-xs font-bold">{books[2]?.title || UI_TEXT.HOME.HERO_BOOK_FALLBACK_2}</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            <p className="text-[28px] font-bold leading-none text-primary-700 dark:text-white">{UI_TEXT.HOME.STATS_AI_VALUE}</p>
-                            <p className="mt-1 text-[12px] text-on-surface-variant dark:text-white/50">{UI_TEXT.HOME.STATS_AI_DESC}</p>
+
+                            {/* Book 3 (Center - Front & Spotlight) */}
+                            <div className="sm:h-68 relative z-20 h-60 w-40 transform rounded-xl shadow-2xl shadow-black/40 transition-all duration-300 hover:scale-105 sm:w-44">
+                                <div className="relative h-full w-full overflow-hidden rounded-xl border-2 border-white/40 bg-slate-900 shadow-2xl dark:border-slate-700">
+                                    {books[0]?.imageUrl ? (
+                                        <Image
+                                            src={books[0].imageUrl}
+                                            alt={books[0].title || "Featured Book"}
+                                            fill
+                                            className="object-cover"
+                                            priority
+                                            unoptimized
+                                        />
+                                    ) : (
+                                        <div className="from-primary-800 flex h-full w-full flex-col justify-between bg-gradient-to-br via-primary-700 to-indigo-900 p-4 text-white">
+                                            <span className="w-fit rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider backdrop-blur">
+                                                {UI_TEXT.HOME.HERO_SPOTLIGHT}
+                                            </span>
+                                            <div>
+                                                <h3 className="line-clamp-2 text-xs font-bold sm:text-sm">
+                                                    {books[0]?.title || UI_TEXT.HOME.HERO_BOOK_FALLBACK_3}
+                                                </h3>
+                                                <p className="mt-0.5 text-[11px] text-white/80">
+                                                    {books[0]?.authors?.map((a) => a.name).join(", ") || UI_TEXT.HOME.HERO_AUTHOR_FALLBACK}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
