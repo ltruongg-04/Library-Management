@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { LibraryBig, Loader2, Plus, Search, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -10,6 +11,8 @@ import { createAdminStockReceipt } from "@/services/adminStockReceipt";
 import { AdminSupplier, createAdminSupplier, getAdminSuppliers } from "@/services/adminSupplier";
 import { bookService } from "@/services/book";
 import type { BookListItem } from "@/types/book";
+import AddBookModal, { InitialBookData } from "./AddBookModal";
+import ChooseAddMethodModal from "./ChooseAddMethodModal";
 
 interface CreateReceiptModalProps {
     onClose: () => void;
@@ -19,6 +22,12 @@ interface CreateReceiptModalProps {
 interface SelectedBook extends BookListItem {
     importQuantity: number;
     importPrice: number;
+    publisher?: string;
+}
+
+interface SearchBookItem extends BookListItem {
+    isExternal?: boolean;
+    rawExternalData?: any;
 }
 
 export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceiptModalProps) {
@@ -34,14 +43,46 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
 
     // Book Search
     const [searchKeyword, setSearchKeyword] = useState("");
-    const [searchResults, setSearchResults] = useState<BookListItem[]>([]);
+    const [searchResults, setSearchResults] = useState<SearchBookItem[]>([]);
     const [isSearching, setIsSearching] = useState(false);
 
     // Selected Books Cart
     const [selectedBooks, setSelectedBooks] = useState<SelectedBook[]>([]);
 
+    // Quick Add New Book Modals
+    const [isChooseAddMethodOpen, setIsChooseAddMethodOpen] = useState(false);
+    const [isAddBookOpen, setIsAddBookOpen] = useState(false);
+    const [initialBookData, setInitialBookData] = useState<InitialBookData | null>(null);
+
+    const modalText = UI_TEXT.ADMIN.MODAL.CREATE_RECEIPT;
+
+    const handleBookCreated = (createdBook?: any) => {
+        if (!createdBook) return;
+        const newBook: SelectedBook = {
+            id: createdBook.id,
+            title: createdBook.title || modalText.NEW_BOOK_TITLE,
+            isbn: createdBook.isbn || "",
+            imageUrl: createdBook.imageUrl,
+            authors: createdBook.authors || [],
+            publisher: createdBook.publisher,
+            categories: createdBook.categories || [],
+            tags: createdBook.tags || [],
+            availableQuantity: 0,
+            quantity: 0,
+            rating: 0,
+            importQuantity: 1,
+            importPrice: 0,
+        };
+        setSelectedBooks((prev) => {
+            if (prev.some((b) => b.id === newBook.id)) return prev;
+            return [...prev, newBook];
+        });
+        toast.success(`${modalText.SUCCESS_ADD_PREFIX}${newBook.title}${modalText.SUCCESS_ADD_SUFFIX}`);
+    };
+
     useEffect(() => {
         fetchSuppliers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchSuppliers = async () => {
@@ -72,14 +113,75 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
         }
     };
 
-    const handleSearchBooks = async () => {
-        if (!searchKeyword.trim()) return;
+    const handleSearchBooks = async (query?: string | React.MouseEvent) => {
+        const keyword = (typeof query === "string" ? query : searchKeyword).trim();
+        if (!keyword) {
+            setSearchResults([]);
+            return;
+        }
         setIsSearching(true);
         try {
-            const res = await bookService.getAdminBookInventory(0, 10, searchKeyword);
-            if (res && res.content) {
+            // 1. Tìm trong kho sách của thư viện trước
+            const res = await bookService.getAdminBookInventory(0, 10, keyword);
+            if (res && res.content && res.content.length > 0) {
                 setSearchResults(res.content);
+                return;
             }
+
+            // 2. Nếu không có trong kho và từ khóa có dạng ISBN/Mã vạch (8 - 20 số)
+            const cleanCode = keyword.replace(/\s+/g, "");
+            const isCode = /^[\d-]{8,20}$/.test(cleanCode);
+
+            if (isCode) {
+                try {
+                    let externalBook: any = null;
+
+                    // Thử tra cứu từ vn-lookup (Tiki trước -> Fahasa sau)
+                    const vnRes = await axios.get(`/api/admin/books/vn-lookup?query=${encodeURIComponent(cleanCode)}`);
+                    if (vnRes.data?.success && vnRes.data?.data) {
+                        externalBook = vnRes.data.data;
+                    } else {
+                        // Thử Google Books
+                        const gRes = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanCode}`);
+                        if (gRes.data?.items?.[0]?.volumeInfo) {
+                            const info = gRes.data.items[0].volumeInfo;
+                            externalBook = {
+                                title: info.title,
+                                authors: info.authors || [],
+                                publisher: info.publisher,
+                                pages: info.pageCount,
+                                description: info.description,
+                                isbn: cleanCode,
+                                imageUrl: info.imageLinks?.thumbnail?.replace("http://", "https://"),
+                            };
+                        }
+                    }
+
+                    if (externalBook && externalBook.title) {
+                        setSearchResults([
+                            {
+                                id: -1,
+                                title: externalBook.title,
+                                authors: externalBook.authors ? externalBook.authors.map((name: string, idx: number) => ({ id: idx, name })) : [],
+                                categories: [{ id: 0, name: modalText.NEW_BOOK_PLACEHOLDER_CAT }],
+                                tags: [],
+                                imageUrl: externalBook.imageUrl || "",
+                                rating: 0,
+                                availableQuantity: 0,
+                                quantity: 0,
+                                isbn: cleanCode,
+                                isExternal: true,
+                                rawExternalData: externalBook,
+                            },
+                        ]);
+                        return;
+                    }
+                } catch (lookupErr) {
+                    console.warn("Auto external lookup error:", lookupErr);
+                }
+            }
+
+            setSearchResults([]);
         } catch (error) {
             toast.error(UI_TEXT.RECENT.TEXT_76);
         } finally {
@@ -87,7 +189,73 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
         }
     };
 
-    const handleAddBookToReceipt = (book: BookListItem) => {
+    // Tự động tìm kiếm sau khi người dùng dừng nhập (Debounce 1000ms = 1 giây)
+    useEffect(() => {
+        const trimmed = searchKeyword.trim();
+        if (!trimmed) {
+            setSearchResults([]);
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            handleSearchBooks(trimmed);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchKeyword]);
+
+    const handleAddBookToReceipt = async (book: SearchBookItem) => {
+        // Nếu là sách mới tìm được từ Tiki/Fahasa bên ngoài
+        if (book.isExternal && book.rawExternalData) {
+            try {
+                toast.loading(modalText.QUICK_CREATING, { id: "quick-create-book" });
+                const raw = book.rawExternalData;
+                const created = await bookService.createBook({
+                    title: raw.title,
+                    isbn: raw.isbn || book.isbn,
+                    publisher: raw.publisher,
+                    description: raw.description,
+                    imageUrl: raw.imageUrl,
+                    pages: raw.pages,
+                    publicationDate: raw.publicationDate,
+                    authorIds: [],
+                    newAuthors: raw.authors || [],
+                    categoryIds: [],
+                    newCategories: raw.categories && raw.categories.length > 0 ? [raw.categories[0]] : [modalText.FALLBACK_CATEGORY],
+                    tagIds: [],
+                    newTags: [],
+                    initialQuantity: 0,
+                });
+
+                toast.success(`${modalText.SUCCESS_CREATE_PREFIX}${created.title}${modalText.SUCCESS_CREATE_SUFFIX}`, { id: "quick-create-book" });
+                setSelectedBooks((prev) => [
+                    ...prev,
+                    {
+                        id: created.id,
+                        title: created.title,
+                        isbn: created.isbn || "",
+                        imageUrl: created.imageUrl,
+                        authors: created.authors || [],
+                        publisher: created.publisher,
+                        categories: created.categories || [],
+                        tags: created.tags || [],
+                        availableQuantity: 0,
+                        quantity: 0,
+                        rating: 0,
+                        importQuantity: 1,
+                        importPrice: 0,
+                    },
+                ]);
+                setSearchKeyword("");
+                setSearchResults([]);
+                return;
+            } catch (createErr: any) {
+                toast.error(modalText.ERROR_AUTO_CREATE_PREFIX + (createErr.response?.data?.message || createErr.message), { id: "quick-create-book" });
+                return;
+            }
+        }
+
         if (selectedBooks.find((b) => b.id === book.id)) {
             toast.warning(UI_TEXT.RECENT.TEXT_75);
             return;
@@ -236,29 +404,73 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                         <div className="my-4 h-px w-full bg-outline-variant/30 dark:bg-slate-800"></div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_63}</label>
-                            <div className="flex gap-2">
-                                <input
-                                    placeholder="Tên sách, ISBN..."
-                                    className="flex-1 rounded-lg border border-outline-variant bg-surface-container-low p-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                                    value={searchKeyword}
-                                    onChange={(e) => setSearchKeyword(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && handleSearchBooks()}
-                                />
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-on-surface dark:text-slate-200">{UI_TEXT.RECENT.TEXT_63}</label>
                                 <button
-                                    onClick={handleSearchBooks}
-                                    className="rounded-lg bg-surface-variant px-3 text-on-surface hover:bg-outline-variant/30 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                                    type="button"
+                                    onClick={() => setIsChooseAddMethodOpen(true)}
+                                    className="dark:text-primary-400 flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                                 >
-                                    {isSearching ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+                                    <Plus size={14} /> {modalText.BTN_ADD_NEW_BOOK}
                                 </button>
                             </div>
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <input
+                                        placeholder={modalText.SEARCH_PLACEHOLDER}
+                                        className="w-full rounded-lg border border-outline-variant bg-surface-container-low p-2 pr-9 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                        value={searchKeyword}
+                                        onChange={(e) => setSearchKeyword(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handleSearchBooks()}
+                                    />
+                                    {isSearching && (
+                                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                                            <Loader2 size={16} className="animate-spin text-primary" />
+                                        </div>
+                                    )}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => handleSearchBooks()}
+                                    className="rounded-lg bg-surface-variant px-3 text-on-surface hover:bg-outline-variant/30 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                                    title={modalText.SEARCH_NOW}
+                                >
+                                    <Search size={18} />
+                                </button>
+                            </div>
+                            {searchKeyword.trim() && !isSearching && searchResults.length === 0 && (
+                                <p className="text-[11px] text-on-surface-variant/70 dark:text-slate-400">{modalText.AUTO_SEARCH_HINT}</p>
+                            )}
                         </div>
+
+                        {searchResults.length === 0 &&
+                            searchKeyword.trim() &&
+                            !isSearching &&
+                            (() => {
+                                const isLikelyIsbn = /^[\d-]{8,20}$/.test(searchKeyword.trim());
+                                return (
+                                    <div className="mt-3 flex flex-col items-center justify-center rounded-lg border border-dashed border-outline-variant/60 p-4 text-center dark:border-slate-800">
+                                        <p className="text-xs text-on-surface-variant dark:text-slate-400">
+                                            {isLikelyIsbn
+                                                ? `${modalText.NOT_FOUND_ISBN_PREFIX}${searchKeyword}${modalText.NOT_FOUND_ISBN_SUFFIX}`
+                                                : `${modalText.NOT_FOUND_BOOK_PREFIX}${searchKeyword}${modalText.NOT_FOUND_BOOK_SUFFIX}`}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsChooseAddMethodOpen(true)}
+                                            className="mt-2 flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-white dark:bg-primary/20 dark:text-primary-300"
+                                        >
+                                            <Plus size={14} /> {isLikelyIsbn ? modalText.LOOKUP_ISBN_AND_ADD : modalText.ADD_NEW_BOOK_TO_RECEIPT}
+                                        </button>
+                                    </div>
+                                );
+                            })()}
 
                         {searchResults.length > 0 && (
                             <div className="mt-4 flex max-h-64 flex-col gap-2 overflow-y-auto rounded-lg border border-outline-variant/50 p-2 dark:border-slate-800">
                                 {searchResults.map((book) => (
                                     <div
-                                        key={book.id}
+                                        key={book.id === -1 ? book.isbn || book.title : book.id}
                                         className="flex items-center justify-between rounded border-b border-outline-variant/20 p-2 last:border-0 hover:bg-surface-variant/50 dark:border-slate-800 dark:hover:bg-slate-800/50"
                                     >
                                         <div className="flex items-center gap-2 overflow-hidden">
@@ -277,15 +489,25 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                                                 </div>
                                             )}
                                             <div className="text-xs">
-                                                <p className="line-clamp-1 font-semibold text-on-surface dark:text-white">{book.title}</p>
+                                                <div className="flex items-center gap-1.5">
+                                                    <p className="line-clamp-1 font-semibold text-on-surface dark:text-white">{book.title}</p>
+                                                    {book.isExternal && (
+                                                        <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:bg-amber-500/25 dark:text-amber-400">
+                                                            {modalText.BADGE_NEW_ONLINE}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="line-clamp-1 text-on-surface-variant dark:text-slate-400">
                                                     {book.authors?.map((a) => a.name).join(", ") || UI_TEXT.RECENT.TEXT_62}
+                                                    {book.isbn ? ` • ISBN: ${book.isbn}` : ""}
                                                 </p>
                                             </div>
                                         </div>
                                         <button
+                                            type="button"
                                             onClick={() => handleAddBookToReceipt(book)}
-                                            className="ml-2 flex-shrink-0 rounded bg-primary/10 p-1.5 text-primary transition-colors hover:bg-primary hover:text-white"
+                                            className="ml-2 flex-shrink-0 rounded bg-primary/10 p-1.5 text-primary transition-colors hover:bg-primary hover:text-white dark:bg-primary/20 dark:text-primary-300 dark:hover:bg-primary dark:hover:text-white"
+                                            title={modalText.TOOLTIP_ADD_TO_RECEIPT}
                                         >
                                             <Plus size={16} />
                                         </button>
@@ -391,6 +613,39 @@ export default function CreateReceiptModal({ onClose, onSuccess }: CreateReceipt
                     </div>
                 </div>
             </div>
+
+            {isChooseAddMethodOpen && (
+                <ChooseAddMethodModal
+                    isOpen={isChooseAddMethodOpen}
+                    onClose={() => setIsChooseAddMethodOpen(false)}
+                    onSelectManual={() => {
+                        setIsChooseAddMethodOpen(false);
+                        setInitialBookData(null);
+                        setIsAddBookOpen(true);
+                    }}
+                    onSelectAutofill={(data) => {
+                        setIsChooseAddMethodOpen(false);
+                        setInitialBookData(data);
+                        setIsAddBookOpen(true);
+                    }}
+                    onManageCopies={() => {
+                        setIsChooseAddMethodOpen(false);
+                    }}
+                    initialIsbn={searchKeyword.trim()}
+                />
+            )}
+
+            {isAddBookOpen && (
+                <AddBookModal
+                    isOpen={isAddBookOpen}
+                    onClose={() => setIsAddBookOpen(false)}
+                    onSuccess={(created) => {
+                        setIsAddBookOpen(false);
+                        handleBookCreated(created);
+                    }}
+                    initialData={initialBookData}
+                />
+            )}
         </div>
     );
 }

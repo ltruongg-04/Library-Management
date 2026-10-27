@@ -21,9 +21,11 @@ import java.util.stream.Collectors;
 public class BookMapper {
 
     private final FileStorageService fileStorageService;
+    private final library.repository.EbookRepository ebookRepository;
 
-    public BookMapper(FileStorageService fileStorageService) {
+    public BookMapper(FileStorageService fileStorageService, library.repository.EbookRepository ebookRepository) {
         this.fileStorageService = fileStorageService;
+        this.ebookRepository = ebookRepository;
     }
 
     public BookListResponse toBookListResponse(BookEntity entity) {
@@ -47,6 +49,8 @@ public class BookMapper {
     public BookResponse toBookResponse(BookEntity entity) {
         if (entity == null) return null;
         
+        boolean hasEbook = ebookRepository.existsByBookId(entity.getId());
+
         return BookResponse.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
@@ -65,6 +69,7 @@ public class BookMapper {
                 .depositPrice(entity.getDepositPrice())
                 .categories(mapCategories(entity.getCategories()))
                 .tags(mapTags(entity.getTags()))
+                .hasEbook(hasEbook)
                 .build();
     }
 

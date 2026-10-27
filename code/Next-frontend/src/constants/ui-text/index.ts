@@ -13,7 +13,21 @@ import {
 } from "./admin";
 import { AUTH } from "./auth";
 import { COMMON, MAINTENANCE } from "./common";
-import { ABOUT, BOOK_DETAIL, BOOK_LIST, BOOK_VISIT, BORROW, CONTACT, FAVORITE, HOME, MY_BOOKS_PAGE, NOTIFICATIONS, PUBLIC_LAYOUT, RENEW_PAGE } from "./public";
+import {
+    ABOUT,
+    BOOK_DETAIL,
+    BOOK_LIST,
+    BOOK_VISIT,
+    BORROW,
+    CONTACT,
+    EBOOK_READER,
+    FAVORITE,
+    HOME,
+    MY_BOOKS_PAGE,
+    NOTIFICATIONS,
+    PUBLIC_LAYOUT,
+    RENEW_PAGE,
+} from "./public";
 import { REPORT_REASONS } from "./report";
 import { REVIEW } from "./review";
 import { PROFILE, SETTINGS_HEADER, SETTINGS_NOTIFICATIONS, SETTINGS_SECURITY, SETTINGS_SIDEBAR } from "./settings";
@@ -27,6 +41,7 @@ export const UI_TEXT = {
     BOOK_LIST,
     BOOK_DETAIL,
     BOOK_VISIT,
+    EBOOK_READER,
     HOME,
     ABOUT,
     CONTACT,

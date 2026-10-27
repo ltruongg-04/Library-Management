@@ -62,6 +62,30 @@ const nextConfig = {
                 protocol: "https",
                 hostname: "minio.84.247.131.42.nip.io",
             },
+            {
+                protocol: "https",
+                hostname: "cdn1.fahasa.com",
+            },
+            {
+                protocol: "https",
+                hostname: "**.fahasa.com",
+            },
+            {
+                protocol: "https",
+                hostname: "salt.tikicdn.com",
+            },
+            {
+                protocol: "https",
+                hostname: "vcdn.tikicdn.com",
+            },
+            {
+                protocol: "https",
+                hostname: "**.tikicdn.com",
+            },
+            {
+                protocol: "https",
+                hostname: "books.google.com",
+            },
         ],
     },
 };

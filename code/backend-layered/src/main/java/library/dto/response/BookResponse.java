@@ -31,4 +31,5 @@ public class BookResponse {
     private BigDecimal depositPrice;
     private List<CategoryResponse> categories;
     private List<TagResponse> tags;
+    private Boolean hasEbook;
 }

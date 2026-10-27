@@ -1,10 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { FileEdit, Loader2, Search, X } from "lucide-react";
+import { FileEdit, Loader2, QrCode, Search, X } from "lucide-react";
 import { ADMIN } from "@/constants/ui-text/admin";
 import { bookService } from "@/services/book";
 import { InitialBookData } from "./AddBookModal";
+import BookScannerModal from "./BookScannerModal";
 
 interface ChooseAddMethodModalProps {
     isOpen: boolean;
@@ -12,13 +13,34 @@ interface ChooseAddMethodModalProps {
     onSelectManual: () => void;
     onSelectAutofill: (data: InitialBookData) => void;
     onManageCopies: (id: number, title: string) => void;
+    initialIsbn?: string;
+    autoSearch?: boolean;
 }
 
-export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, onSelectAutofill, onManageCopies }: ChooseAddMethodModalProps) {
-    const [isbn, setIsbn] = useState("");
+export default function ChooseAddMethodModal({
+    isOpen,
+    onClose,
+    onSelectManual,
+    onSelectAutofill,
+    onManageCopies,
+    initialIsbn,
+    autoSearch,
+}: ChooseAddMethodModalProps) {
+    const [isbn, setIsbn] = useState(initialIsbn || "");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [existingBook, setExistingBook] = useState<{ bookId: number; title: string; duplicateBy?: "isbn" | "title" } | null>(null);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const handleSearchRef = useRef<((targetIsbn?: string) => Promise<void>) | null>(null);
+
+    useEffect(() => {
+        if (initialIsbn) {
+            setIsbn(initialIsbn);
+            if (autoSearch) {
+                handleSearchRef.current?.(initialIsbn);
+            }
+        }
+    }, [initialIsbn, autoSearch]);
 
     const textUI = ADMIN.MODAL.CHOOSE_ADD_METHOD;
 
@@ -26,14 +48,38 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
         if (!desc) return "";
         let cleaned = desc;
 
-        // 1. Cắt bỏ mọi thứ từ đường gạch ngang hoặc "See also:" (thường nằm ở cuối tóm tắt)
+        // 1. Giải mã các thực thể HTML phổ biến (&quot;, &amp;, &lt;, &gt;, &nbsp;, &#39;, v.v.)
+        cleaned = cleaned
+            .replace(/&nbsp;/gi, " ")
+            .replace(/&quot;/gi, '"')
+            .replace(/&apos;|&#39;/gi, "'")
+            .replace(/&amp;/gi, "&")
+            .replace(/&lt;/gi, "<")
+            .replace(/&gt;/gi, ">")
+            .replace(/&hellip;/gi, "...")
+            .replace(/&ndash;|&mdash;/gi, "-");
+
+        // 2. Chuyển đổi các thẻ ngắt dòng HTML <br>, </p>, </div> thành xuống dòng
+        cleaned = cleaned
+            .replace(/<br\s*[\/]?>/gi, "\n")
+            .replace(/<\/p>/gi, "\n\n")
+            .replace(/<\/div>/gi, "\n");
+
+        // 3. Loại bỏ toàn bộ các thẻ HTML còn lại (<b>, <i>, <span>, <div>, <p>...)
+        cleaned = cleaned.replace(/<[^>]+>/g, "");
+
+        // 4. Loại bỏ các đoạn boilerplate thương mại điện tử (Tiki, Fahasa)
+        cleaned = cleaned.replace(/Giá sản phẩm trên Tiki[\s\S]*/i, "");
+        cleaned = cleaned.replace(/\bThông tin chung:[\s\S]*/i, "");
+
+        // 5. Cắt bỏ mọi thứ từ đường gạch ngang hoặc "See also:" (thường nằm ở cuối tóm tắt OpenLibrary)
         const separatorIndex = cleaned.indexOf("----------");
         if (separatorIndex !== -1) cleaned = cleaned.substring(0, separatorIndex);
 
         const seeAlsoIndex = cleaned.toLowerCase().indexOf("see also:");
         if (seeAlsoIndex !== -1) cleaned = cleaned.substring(0, seeAlsoIndex);
 
-        // 2. Cắt bỏ cụm trích dẫn nguồn ở cuối đoạn văn, ví dụ: ([source][1]) hoặc (Source: abc)
+        // 6. Cắt bỏ cụm trích dẫn nguồn ở cuối đoạn văn, ví dụ: ([source][1]) hoặc (Source: abc)
         const sourceIndex1 = cleaned.toLowerCase().lastIndexOf("([source");
         if (sourceIndex1 !== -1 && sourceIndex1 > cleaned.length - 100) {
             cleaned = cleaned.substring(0, sourceIndex1);
@@ -43,8 +89,12 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
             cleaned = cleaned.substring(0, sourceIndex2);
         }
 
-        // 3. Xóa các markdown link còn sót lại [Text](http...)
-        cleaned = cleaned.replace(/\[([^\]]*)\]\([^\)]+\)/g, "");
+        // 7. Xóa các markdown link còn sót lại [Text](http...)
+        cleaned = cleaned.replace(/\[([^\]]*)\]\([^\)]+\)/g, "$1");
+
+        // 8. Chuẩn hóa khoảng trắng và dòng trống
+        cleaned = cleaned.replace(/[ \t]+/g, " ");
+        cleaned = cleaned.replace(/\n\s*\n\s*\n+/g, "\n\n");
 
         return cleaned.trim();
     };
@@ -148,15 +198,16 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
 
     if (!isOpen) return null;
 
-    const handleSearch = async () => {
-        if (!isbn.trim()) return;
+    const handleSearch = async (targetIsbn?: string) => {
+        const queryIsbn = (targetIsbn !== undefined ? targetIsbn : isbn).trim();
+        if (!queryIsbn) return;
         setLoading(true);
         setError(null);
         setExistingBook(null);
 
         try {
             // 0. Kiểm tra xem sách đã tồn tại trong DB chưa
-            const checkResult = await bookService.checkDuplicate(isbn.trim());
+            const checkResult = await bookService.checkDuplicate(queryIsbn);
             if (checkResult.exists && checkResult.bookId && checkResult.title) {
                 setExistingBook({ bookId: checkResult.bookId, title: checkResult.title, duplicateBy: checkResult.duplicateBy });
                 setLoading(false);
@@ -167,18 +218,18 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
 
             // 1. Try Google Books API
             try {
-                const googleRes = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn.trim()}`);
+                const googleRes = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${queryIsbn}`);
                 if (googleRes.data && googleRes.data.items && googleRes.data.items.length > 0) {
                     const info = googleRes.data.items[0].volumeInfo;
                     bookData = {
                         title: info.title,
                         authors: info.authors || [],
-                        description: info.description,
+                        description: cleanDescription(info.description),
                         publisher: info.publisher,
                         publicationDate: parseDateToYMD(info.publishedDate),
                         pages: info.pageCount,
                         ...parseCategoriesAndTags(info.categories),
-                        isbn: isbn.trim(),
+                        isbn: queryIsbn,
                         imageUrl: info.imageLinks?.thumbnail?.replace("http://", "https://") || undefined,
                     };
                 }
@@ -189,26 +240,25 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
             // 2. Fallback to OpenLibrary API if not found or missing fields
             if (!bookData || !bookData.imageUrl || !bookData.description || !bookData.pages) {
                 try {
-                    const openLibraryRes = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn.trim()}&format=json&jscmd=data`);
-                    const key = `ISBN:${isbn.trim()}`;
+                    const openLibraryRes = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${queryIsbn}&format=json&jscmd=data`);
+                    const key = `ISBN:${queryIsbn}`;
                     if (openLibraryRes.data && openLibraryRes.data[key]) {
                         const info = openLibraryRes.data[key];
                         const olData = {
                             title: info.title,
                             authors: info.authors ? info.authors.map((a: any) => a.name) : [],
-                            description: info.subtitle || "",
+                            description: "",
                             publisher: info.publishers ? info.publishers.map((p: any) => p.name).join(", ") : undefined,
                             publicationDate: parseDateToYMD(info.publish_date),
                             pages: info.number_of_pages || parseInt(info.pagination) || undefined,
                             ...parseCategoriesAndTags(info.subjects ? info.subjects.map((s: any) => s.name) : []),
-                            isbn: isbn.trim(),
+                            isbn: queryIsbn,
                             imageUrl: info.cover?.large || info.cover?.medium || info.cover?.small || undefined,
                         };
 
                         if (!bookData) {
                             bookData = olData;
                         } else {
-                            if (!bookData.description) bookData.description = olData.description;
                             if (!bookData.pages) bookData.pages = olData.pages;
                             if (!bookData.imageUrl) bookData.imageUrl = olData.imageUrl;
                             if (!bookData.categories || bookData.categories.length === 0) bookData.categories = olData.categories;
@@ -224,8 +274,8 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
             // 3. Fallback for description from OpenLibrary Work if still missing
             if (bookData && !bookData.description) {
                 try {
-                    const detailsRes = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn.trim()}&format=json&jscmd=details`);
-                    const key = `ISBN:${isbn.trim()}`;
+                    const detailsRes = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${queryIsbn}&format=json&jscmd=details`);
+                    const key = `ISBN:${queryIsbn}`;
                     if (
                         detailsRes.data &&
                         detailsRes.data[key] &&
@@ -248,6 +298,55 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
                 }
             }
 
+            // 4. Fallback tra cứu sách tiếng Việt (Tiki trước -> Fahasa sau)
+            // Nếu chưa có sách hoặc mô tả bị thiếu / quá ngắn (< 40 ký tự) hoặc thiếu ảnh
+            if (!bookData || !bookData.title || !bookData.description || bookData.description.trim().length < 40 || !bookData.imageUrl) {
+                try {
+                    const vnRes = await axios.get(`/api/admin/books/vn-lookup?query=${encodeURIComponent(queryIsbn)}`);
+                    if (vnRes.data && vnRes.data.success && vnRes.data.data) {
+                        const vnBook = vnRes.data.data;
+                        const cleanedVnDesc = cleanDescription(vnBook.description || "");
+
+                        if (!bookData) {
+                            bookData = {
+                                title: vnBook.title,
+                                authors: vnBook.authors || [],
+                                description: cleanedVnDesc,
+                                publisher: vnBook.publisher,
+                                publicationDate: parseDateToYMD(vnBook.publicationDate),
+                                pages: vnBook.pages,
+                                ...parseCategoriesAndTags(vnBook.categories),
+                                isbn: queryIsbn,
+                                imageUrl: vnBook.imageUrl || undefined,
+                            };
+                        } else {
+                            if (!bookData.description || bookData.description.trim().length < 40) {
+                                bookData.description = cleanedVnDesc;
+                            }
+                            if (!bookData.imageUrl && vnBook.imageUrl) {
+                                bookData.imageUrl = vnBook.imageUrl;
+                            }
+                            if (!bookData.publisher && vnBook.publisher) {
+                                bookData.publisher = vnBook.publisher;
+                            }
+                            if (!bookData.pages && vnBook.pages) {
+                                bookData.pages = vnBook.pages;
+                            }
+                            if (!bookData.publicationDate && vnBook.publicationDate) {
+                                bookData.publicationDate = parseDateToYMD(vnBook.publicationDate);
+                            }
+                            if (!bookData.categories || bookData.categories.length === 0) {
+                                const parsed = parseCategoriesAndTags(vnBook.categories);
+                                bookData.categories = parsed.categories;
+                                if (!bookData.tags || bookData.tags.length === 0) bookData.tags = parsed.tags;
+                            }
+                        }
+                    }
+                } catch (vnErr) {
+                    console.warn("VN Book Lookup (Tiki -> Fahasa) failed:", vnErr);
+                }
+            }
+
             if (bookData) {
                 onSelectAutofill(bookData);
             } else {
@@ -260,47 +359,61 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
             setLoading(false);
         }
     };
+    handleSearchRef.current = handleSearch;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/40 p-4 backdrop-blur-sm">
-            <div className="relative flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
-                <div className="flex shrink-0 items-center justify-between border-b border-surface-container-high px-5 py-3.5">
-                    <h2 className="text-[17px] font-semibold text-ink-950">{textUI.TITLE}</h2>
-                    <button onClick={onClose} className="rounded-full p-1.5 text-outline transition-colors hover:bg-surface hover:text-on-surface">
+            <div className="relative flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-surface-container-high bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex shrink-0 items-center justify-between border-b border-surface-container-high px-5 py-3.5 dark:border-slate-800">
+                    <h2 className="text-[17px] font-semibold text-ink-950 dark:text-white">{textUI.TITLE}</h2>
+                    <button
+                        onClick={onClose}
+                        className="rounded-full p-1.5 text-outline transition-colors hover:bg-surface hover:text-on-surface dark:hover:bg-slate-800 dark:hover:text-white"
+                    >
                         <X size={18} />
                     </button>
                 </div>
 
                 <div className="p-5">
                     {/* Autofill Section */}
-                    <div className="border-primary-200 mb-5 rounded-xl border bg-primary-50 p-4">
+                    <div className="border-primary-200 dark:bg-primary-950/20 mb-5 rounded-xl border bg-primary-50/60 p-4 dark:border-primary-900/50">
                         <div className="mb-2.5 flex items-start gap-3">
-                            <div className="text-primary-600 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100">
+                            <div className="text-primary-600 dark:text-primary-400 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/40">
                                 <Search size={16} />
                             </div>
                             <div>
-                                <h3 className="text-[15px] font-semibold text-ink-950">{textUI.AUTOFILL_TITLE}</h3>
-                                <p className="mt-1 text-[13px] text-on-surface-variant">{textUI.AUTOFILL_DESC}</p>
+                                <h3 className="text-[15px] font-semibold text-ink-950 dark:text-white">{textUI.AUTOFILL_TITLE}</h3>
+                                <p className="mt-1 text-[13px] text-on-surface-variant dark:text-slate-400">{textUI.AUTOFILL_DESC}</p>
                             </div>
                         </div>
 
                         <div className="mt-3 flex flex-col gap-2.5">
-                            <input
-                                type="text"
-                                placeholder={textUI.ISBN_PLACEHOLDER}
-                                value={isbn}
-                                onChange={(e) => setIsbn(e.target.value)}
-                                className="w-full rounded-lg border border-surface-container-high px-3 py-2 font-mono text-[14px] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") handleSearch();
-                                }}
-                            />
+                            <div className="relative flex items-center">
+                                <input
+                                    type="text"
+                                    placeholder={textUI.ISBN_PLACEHOLDER}
+                                    value={isbn}
+                                    onChange={(e) => setIsbn(e.target.value)}
+                                    className="dark:focus:border-primary-400 w-full rounded-lg border border-surface-container-high bg-white py-2 pl-3 pr-10 font-mono text-[14px] text-ink-950 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleSearch();
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setIsScannerOpen(true)}
+                                    title={textUI.SCAN_BTN}
+                                    className="dark:hover:text-primary-400 absolute right-2 rounded-md p-1.5 text-on-surface-variant transition-colors hover:bg-surface hover:text-primary-700 dark:text-slate-400 dark:hover:bg-slate-700"
+                                >
+                                    <QrCode size={18} />
+                                </button>
+                            </div>
                             {error && <div className="text-[13px] text-error">{error}</div>}
 
                             {existingBook ? (
                                 <div className="mt-1 flex flex-col gap-2.5">
-                                    <div className="rounded-lg border border-warning-200 bg-warning-50 p-3">
-                                        <p className="text-[12.5px] leading-snug text-warning-800">
+                                    <div className="dark:bg-warning-950/30 rounded-lg border border-warning-200 bg-warning-50 p-3 dark:border-warning-900/50">
+                                        <p className="text-[12.5px] leading-snug text-warning-800 dark:text-warning-300">
                                             {textUI.EXISTING_BOOK_WARNING_PREFIX}
                                             <strong>{existingBook.title}</strong>
                                             {textUI.EXISTING_BOOK_WARNING_MIDDLE}
@@ -320,43 +433,67 @@ export default function ChooseAddMethodModal({ isOpen, onClose, onSelectManual, 
                                     </button>
                                 </div>
                             ) : (
-                                <button
-                                    type="button"
-                                    disabled={!isbn.trim() || loading}
-                                    onClick={handleSearch}
-                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-700 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-900 disabled:opacity-50"
-                                >
-                                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                                    {loading ? textUI.SEARCHING : textUI.SEARCH_BTN}
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        disabled={!isbn.trim() || loading}
+                                        onClick={() => handleSearch()}
+                                        className="hover:bg-primary-800 dark:bg-primary-600 flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary-700 px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-colors disabled:opacity-50 dark:hover:bg-primary-700"
+                                    >
+                                        {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                                        {loading ? textUI.SEARCHING : textUI.SEARCH_BTN}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsScannerOpen(true)}
+                                        className="dark:border-primary-800 dark:hover:bg-primary-950/40 flex items-center justify-center gap-1.5 rounded-lg border border-primary-300 bg-white px-3.5 py-2 text-[13px] font-semibold text-primary-700 shadow-sm transition-colors hover:bg-primary-50 dark:bg-slate-800 dark:text-primary-300"
+                                    >
+                                        <QrCode size={16} />
+                                        {textUI.SCAN_BTN}
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
 
                     <div className="relative mb-5 flex items-center justify-center">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-surface-container-high"></div>
+                            <div className="w-full border-t border-surface-container-high dark:border-slate-800"></div>
                         </div>
-                        <div className="relative bg-white px-3 text-[12.5px] text-on-surface-variant">{textUI.OR_TEXT}</div>
+                        <div className="relative bg-white px-3 text-[12.5px] text-on-surface-variant dark:bg-slate-900 dark:text-slate-400">
+                            {textUI.OR_TEXT}
+                        </div>
                     </div>
 
                     {/* Manual Section */}
-                    <div className="rounded-xl border border-surface-container-high bg-surface p-4 text-center">
-                        <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink-600 shadow-sm">
+                    <div className="rounded-xl border border-surface-container-high bg-surface p-4 text-center dark:border-slate-800 dark:bg-slate-800/40">
+                        <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink-600 shadow-sm dark:bg-slate-800 dark:text-slate-300">
                             <FileEdit size={16} />
                         </div>
-                        <h3 className="text-[14.5px] font-semibold text-ink-950">{textUI.MANUAL_TITLE}</h3>
-                        <p className="mt-1 text-[12.5px] text-on-surface-variant">{textUI.MANUAL_DESC}</p>
+                        <h3 className="text-[14.5px] font-semibold text-ink-950 dark:text-white">{textUI.MANUAL_TITLE}</h3>
+                        <p className="mt-1 text-[12.5px] text-on-surface-variant dark:text-slate-400">{textUI.MANUAL_DESC}</p>
                         <button
                             type="button"
                             onClick={onSelectManual}
-                            className="mt-3 flex w-full justify-center rounded-lg border border-surface-container-high bg-white px-4 py-2 text-[13px] font-semibold text-ink-950 transition-colors hover:bg-surface-container-lowest"
+                            className="mt-3 flex w-full justify-center rounded-lg border border-surface-container-high bg-white px-4 py-2 text-[13px] font-semibold text-ink-950 transition-colors hover:bg-surface-container-lowest dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
                         >
                             {textUI.MANUAL_BTN}
                         </button>
                     </div>
                 </div>
             </div>
+
+            {isScannerOpen && (
+                <BookScannerModal
+                    isOpen={isScannerOpen}
+                    onClose={() => setIsScannerOpen(false)}
+                    onScanSuccess={(scannedIsbn) => {
+                        setIsScannerOpen(false);
+                        setIsbn(scannedIsbn);
+                        handleSearch(scannedIsbn);
+                    }}
+                />
+            )}
         </div>
     );
 }

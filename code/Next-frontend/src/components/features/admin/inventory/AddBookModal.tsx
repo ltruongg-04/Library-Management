@@ -32,7 +32,7 @@ export interface InitialBookData {
 interface AddBookModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess: () => void;
+    onSuccess: (createdBook?: any) => void;
     initialData?: InitialBookData | null;
     onManageCopies?: (id: number, title: string) => void;
 }
@@ -190,7 +190,7 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData, 
                 tagIds,
                 newTags,
                 shelfLocation,
-                imageUrl,
+                imageUrl: (imageUrl || externalImageUrl || "").trim() || undefined,
                 description,
                 publisher,
                 publicationDate: publicationDate || undefined,
@@ -199,8 +199,8 @@ export default function AddBookModal({ isOpen, onClose, onSuccess, initialData, 
                 initialQuantity: initialQuantity === "" ? undefined : Number(initialQuantity),
             };
 
-            await bookService.createBook(createData);
-            onSuccess();
+            const created = await bookService.createBook(createData);
+            onSuccess(created);
             onClose();
         } catch (err: any) {
             const errorMsg = err.response?.data?.message || err.message || textUI.ERROR;

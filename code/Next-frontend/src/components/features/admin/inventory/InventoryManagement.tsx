@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { UI_TEXT } from "@/constants/ui-text";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { AdminStockReceipt, getAdminStockReceiptDetail, getAdminStockReceipts } from "@/services/adminStockReceipt";
+import AdminBreadcrumb from "../AdminBreadcrumb";
 import CreateReceiptModal from "./CreateReceiptModal";
 
 export default function InventoryManagement() {
@@ -16,6 +17,7 @@ export default function InventoryManagement() {
 
     useEffect(() => {
         fetchReceipts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchReceipts = async () => {
@@ -24,6 +26,9 @@ export default function InventoryManagement() {
             const res = await getAdminStockReceipts();
             if (res.success && res.data) {
                 setReceipts(res.data);
+                if (res.data.length > 0) {
+                    handleViewDetail(res.data[0].id);
+                }
             } else {
                 toast.error(res.message || UI_TEXT.RECENT.TEXT_99);
             }
@@ -46,22 +51,30 @@ export default function InventoryManagement() {
     };
 
     return (
-        <div className="flex h-full flex-col p-6">
-            <div className="mb-6 flex items-center justify-between">
+        <div className="flex min-h-screen w-full flex-col bg-surface dark:bg-slate-950">
+            <div className="px-8 pb-2 pt-8">
+                <AdminBreadcrumb pageName={UI_TEXT.RECENT.TEXT_96} />
+            </div>
+
+            {/* Header Section */}
+            <div className="flex items-center justify-between border-y border-surface-container-high bg-white px-8 py-6 dark:border-slate-800 dark:bg-slate-900">
                 <div>
-                    <h1 className="text-2xl font-bold text-on-surface">{UI_TEXT.RECENT.TEXT_96}</h1>
-                    <p className="text-sm text-on-surface-variant">{UI_TEXT.RECENT.TEXT_95}</p>
+                    <h1 className="flex items-center gap-2 text-[28px] font-semibold leading-tight text-ink-950 dark:text-white">
+                        <ClipboardList size={24} className="text-primary-600 dark:text-primary-400" />
+                        {UI_TEXT.RECENT.TEXT_96}
+                    </h1>
+                    <p className="mt-1 text-[14px] text-on-surface-variant dark:text-slate-400">{UI_TEXT.RECENT.TEXT_95}</p>
                 </div>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary transition hover:bg-primary/90"
+                    className="focus-ring hover:bg-primary-800 dark:bg-primary-600 flex items-center gap-2 rounded-lg bg-primary-700 px-5 py-2.5 text-[14px] font-semibold text-white shadow-sm transition-colors dark:hover:bg-primary-700"
                 >
                     <Plus size={18} />
                     {UI_TEXT.RECENT.TEXT_94}
                 </button>
             </div>
 
-            <div className="flex flex-1 flex-col gap-6 lg:flex-row">
+            <div className="flex flex-1 flex-col gap-6 p-8 lg:flex-row">
                 {/* List of Receipts */}
                 <div className="flex w-full flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:w-1/3">
                     <div className="border-b border-outline-variant/30 bg-surface-container-low p-4 dark:border-slate-800 dark:bg-slate-800/60">
@@ -73,9 +86,15 @@ export default function InventoryManagement() {
                                 <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                             </div>
                         ) : receipts.length === 0 ? (
-                            <div className="flex h-32 flex-col items-center justify-center text-on-surface-variant dark:text-slate-400">
-                                <ClipboardList size={32} className="mb-2 opacity-50" />
-                                <span className="text-sm">{UI_TEXT.RECENT.TEXT_92}</span>
+                            <div className="flex flex-col items-center justify-center p-8 text-center text-on-surface-variant dark:text-slate-400">
+                                <ClipboardList size={40} className="mb-3 text-primary-500 opacity-40" />
+                                <p className="text-sm font-medium">{UI_TEXT.RECENT.TEXT_92}</p>
+                                <button
+                                    onClick={() => setIsCreateModalOpen(true)}
+                                    className="dark:bg-primary-950/40 mt-3 flex items-center gap-1.5 rounded-lg bg-primary-50 px-3.5 py-2 text-xs font-semibold text-primary-700 transition hover:bg-primary-100 dark:text-primary-300 dark:hover:bg-primary-900/40"
+                                >
+                                    <Plus size={14} /> {UI_TEXT.ADMIN_PAGES.INVENTORY.CREATE_FIRST_RECEIPT}
+                                </button>
                             </div>
                         ) : (
                             <div className="flex flex-col">

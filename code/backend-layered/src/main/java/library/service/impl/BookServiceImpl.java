@@ -12,11 +12,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@org.springframework.transaction.annotation.Transactional(readOnly = true)
 public class BookServiceImpl implements BookService {
 
     private final BookCommandService bookCommandService;
@@ -43,16 +44,19 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public BookResponse createBook(BookCreateRequest request) {
         return bookCommandService.createBook(request);
     }
 
     @Override
+    @Transactional
     public BookResponse updateBook(Integer id, BookUpdateRequest request) {
         return bookCommandService.updateBook(id, request);
     }
 
     @Override
+    @Transactional
     public void deleteBook(Integer id) {
         bookCommandService.deleteBook(id);
     }

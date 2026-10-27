@@ -47,6 +47,8 @@ export const ADMIN_PAGES = {
         DESC: "Đây là trang kho sách. Bạn có thể thêm nội dung quản lý sách ở đây.",
         PAGE_DESC: "Quản lý các mục trong danh mục, giám sát tình trạng có sẵn và tận dụng tính năng quét AI để nhập liệu nhanh chóng.",
         AI_OCR_BTN: "AI OCR",
+        SCAN_QR_BTN: "Quét QR / Barcode",
+        CREATE_FIRST_RECEIPT: "Tạo phiếu nhập đầu tiên",
     },
     SETTINGS: {
         TITLE: "Cài đặt",

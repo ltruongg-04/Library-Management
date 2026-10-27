@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertTriangle, Book, ChevronLeft, ChevronRight, Library, MoreVertical, Pencil, Trash2, X } from "lucide-react";
+import { AlertTriangle, Book, ChevronLeft, ChevronRight, FileText, Library, MoreVertical, Pencil, Trash2, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -11,6 +11,7 @@ import { API_ERRORS } from "@/constants/ui-text/shared/api";
 import { bookService } from "@/services/book";
 import type { BookListItem, PageResponse } from "@/types/book";
 import EditBookModal from "./EditBookModal";
+import ManageEbookModal from "./ManageEbookModal";
 
 const textUI = ADMIN_INVENTORY_MANAGEMENT;
 
@@ -26,11 +27,12 @@ interface TableRowProps {
     book: BookListItem;
     onEdit: (id: number) => void;
     onManageCopies: (id: number, title: string) => void;
+    onManageEbook: (id: number, title: string) => void;
     onDelete: (book: BookListItem) => void;
     canEditBook: boolean;
 }
 
-const TableRow = ({ book, onEdit, onManageCopies, onDelete, canEditBook }: TableRowProps) => {
+const TableRow = ({ book, onEdit, onManageCopies, onManageEbook, onDelete, canEditBook }: TableRowProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -129,6 +131,16 @@ const TableRow = ({ book, onEdit, onManageCopies, onDelete, canEditBook }: Table
                                     >
                                         <Library size={15} className="group-hover:text-primary-600 text-outline" />
                                         {textUI.TABLE.BTN_COPIES}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setIsMenuOpen(false);
+                                            onManageEbook(book.id, book.title);
+                                        }}
+                                        className="group flex w-full items-center gap-2 px-4 py-2 text-sm text-on-surface transition-colors hover:bg-surface"
+                                    >
+                                        <FileText size={15} className="text-outline group-hover:text-emerald-600" />
+                                        {UI_TEXT.EBOOK_READER.ACTIONS.EDIT_EBOOK_CONFIG}
                                     </button>
                                     <div className="my-1 border-t border-surface-container-high"></div>
                                     <button
@@ -249,6 +261,7 @@ export default function BookTable({ canEditBook = false, onManageCopies, refresh
     const [error, setError] = useState<string | null>(null);
     const [deleteBook, setDeleteBook] = useState<BookListItem | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [manageEbookBook, setManageEbookBook] = useState<{ id: number; title: string } | null>(null);
 
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -371,6 +384,7 @@ export default function BookTable({ canEditBook = false, onManageCopies, refresh
                                         book={book}
                                         onEdit={handleEditClick}
                                         onManageCopies={handleManageCopiesClick}
+                                        onManageEbook={(id, title) => setManageEbookBook({ id, title })}
                                         onDelete={handleDeleteClick}
                                         canEditBook={canEditBook}
                                     />
@@ -408,6 +422,19 @@ export default function BookTable({ canEditBook = false, onManageCopies, refresh
 
             {isEditModalOpen && editBookId !== null && (
                 <EditBookModal bookId={editBookId} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={handleEditSuccess} />
+            )}
+
+            {manageEbookBook && (
+                <ManageEbookModal
+                    isOpen={!!manageEbookBook}
+                    bookId={manageEbookBook.id}
+                    bookTitle={manageEbookBook.title}
+                    onClose={() => setManageEbookBook(null)}
+                    onSuccess={() => {
+                        setManageEbookBook(null);
+                        fetchData();
+                    }}
+                />
             )}
 
             <DeleteBookDialog book={deleteBook} isDeleting={isDeleting} onClose={handleCloseDeleteDialog} onConfirm={handleConfirmDelete} />

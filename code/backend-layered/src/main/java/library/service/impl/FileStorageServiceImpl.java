@@ -65,10 +65,35 @@ public class FileStorageServiceImpl implements FileStorageService {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            connection.setConnectTimeout(8000);
+            connection.setReadTimeout(15000);
+            connection.setInstanceFollowRedirects(true);
             connection.connect();
 
-            if (connection.getResponseCode() != 200) {
-                throw new CustomBusinessException("Không thể tải ảnh từ URL, mã phản hồi: " + connection.getResponseCode(), HttpStatus.BAD_REQUEST);
+            int responseCode = connection.getResponseCode();
+            int redirects = 0;
+            while ((responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+                    || responseCode == HttpURLConnection.HTTP_MOVED_PERM
+                    || responseCode == HttpURLConnection.HTTP_SEE_OTHER
+                    || responseCode == 307
+                    || responseCode == 308) && redirects < 5) {
+                String newUrl = connection.getHeaderField("Location");
+                if (newUrl == null || newUrl.isBlank()) break;
+                connection.disconnect();
+                url = new URI(newUrl).toURL();
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                connection.setConnectTimeout(8000);
+                connection.setReadTimeout(15000);
+                connection.setInstanceFollowRedirects(true);
+                connection.connect();
+                responseCode = connection.getResponseCode();
+                redirects++;
+            }
+
+            if (responseCode != 200) {
+                throw new CustomBusinessException("Không thể tải ảnh từ URL, mã phản hồi: " + responseCode, HttpStatus.BAD_REQUEST);
             }
 
             String contentType = connection.getContentType();
@@ -126,5 +151,37 @@ public class FileStorageServiceImpl implements FileStorageService {
             return objectKey;
         }
         return minioUrl + "/" + bucketName + "/" + objectKey;
+    }
+
+    @Override
+    public InputStream getFileStream(String objectKey) {
+        try {
+            return minioClient.getObject(
+                    io.minio.GetObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectKey)
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error("Đã xảy ra lỗi khi đọc tệp từ MinIO", e);
+            throw new CustomBusinessException("Không thể đọc tệp từ lưu trữ: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Override
+    public void deleteFile(String objectKey) {
+        if (objectKey == null || objectKey.isBlank()) {
+            return;
+        }
+        try {
+            minioClient.removeObject(
+                    io.minio.RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectKey)
+                            .build()
+            );
+        } catch (Exception e) {
+            log.warn("Không thể xóa tệp từ MinIO: {}", objectKey, e);
+        }
     }
 }

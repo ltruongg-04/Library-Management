@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@lombok.extern.slf4j.Slf4j
 public class BookCommandServiceImpl implements library.service.BookCommandService {
 
     private final BookRepository bookRepository;
@@ -103,8 +104,13 @@ public class BookCommandServiceImpl implements library.service.BookCommandServic
             return extractObjectKey(trimmedImageUrl);
         }
 
-        // Là URL bên ngoài → upload lên MinIO, trả về object key
-        return fileStorageService.uploadFileFromUrl(trimmedImageUrl);
+        // Là URL bên ngoài → upload lên MinIO, trả về object key (nếu lỗi thì lưu tạm URL gốc để không chặn tạo sách)
+        try {
+            return fileStorageService.uploadFileFromUrl(trimmedImageUrl);
+        } catch (Exception e) {
+            log.warn("Không thể tải ảnh từ URL lên MinIO ({}), giữ lại URL gốc: {}", trimmedImageUrl, e.getMessage());
+            return trimmedImageUrl;
+        }
     }
 
     private boolean isExternalHttpUrl(String imageUrl) {

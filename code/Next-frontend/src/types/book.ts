@@ -21,6 +21,7 @@ export interface Book {
     categories: { id: number; name: string }[];
     tags: { id: number; name: string }[];
     aiMatchScore?: number;
+    hasEbook?: boolean;
 }
 
 export interface BookListItem {
@@ -87,6 +88,7 @@ export interface BookDetail {
     tags: string[];
     aiMatchScore?: number;
     authorsList?: { id: number; name: string }[];
+    hasEbook?: boolean;
 }
 
 export interface BookUpdateRequest {
@@ -151,5 +153,6 @@ export function bookToBookDetail(book: Book): BookDetail {
         categories: book.categories?.map((c) => c.name) || [],
         tags: book.tags?.map((t) => t.name) || [],
         authorsList: book.authors || [],
+        hasEbook: book.hasEbook ?? false,
     };
 }

@@ -105,6 +105,23 @@ CREATE TABLE `book_copies` (
 `created_at` timestamp
 );
 
+CREATE TABLE `ebooks` (
+`id` int PRIMARY KEY AUTO_INCREMENT,
+`book_id` int UNIQUE NOT NULL,
+`file_key` varchar(500) NOT NULL,
+`file_name` varchar(255),
+`file_format` varchar(20) DEFAULT 'PDF',
+`file_size_bytes` bigint,
+`total_pages` int DEFAULT 0,
+`preview_pages` int DEFAULT 5,
+`is_free` boolean DEFAULT false,
+`min_membership_tier_id` int,
+`is_active` boolean DEFAULT true,
+`created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+`updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+FOREIGN KEY (`book_id`) REFERENCES `books`(`id`) ON DELETE CASCADE
+);
+
 CREATE TABLE `authors` (
 `author_id` int PRIMARY KEY AUTO_INCREMENT,
 `author_name` varchar(255),

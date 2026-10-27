@@ -53,10 +53,21 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        log.error("JSON parse error: {}", ex.getMessage());
+        String detail = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage();
+        ApiResponse<Void> response = ApiResponse.error("Định dạng dữ liệu không hợp lệ: " + detail);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
         log.error("Unhandled API exception: {}", ex.getMessage(), ex);
-        ApiResponse<Void> response = ApiResponse.error(ErrorMessages.SYSTEM_ERROR);
+        String detail = ex.getMessage() != null && !ex.getMessage().isBlank()
+                ? ex.getMessage()
+                : ex.getClass().getSimpleName();
+        ApiResponse<Void> response = ApiResponse.error(ErrorMessages.SYSTEM_ERROR + " (" + detail + ")");
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

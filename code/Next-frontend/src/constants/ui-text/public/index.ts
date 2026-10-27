@@ -9,3 +9,4 @@ export * from "./notifications";
 export * from "./favorite";
 export * from "./book-visit";
 export * from "./auth";
+export * from "./ebook-reader";

@@ -163,10 +163,29 @@ export default function BookCover({ book, onOpenReview }: BookCoverProps) {
                         </span>
                     </div>
                 )}
+
+                {/* Ebook Available Badge */}
+                {book.hasEbook && (
+                    <div className="absolute left-2 top-2 flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-600/90 px-2.5 py-1 text-white shadow-sm backdrop-blur-sm">
+                        <MaterialIcon name="chrome_reader_mode" className="text-[13px]" />
+                        <span className="text-[11px] font-bold">{UI_TEXT.EBOOK_READER.ACTIONS.EBOOK_AVAILABLE}</span>
+                    </div>
+                )}
             </div>
 
             {/* Action Buttons */}
             <div className="mt-2 flex flex-col gap-2">
+                {/* Nút Đọc online sách mềm (nếu sách có file ebook) */}
+                {book.hasEbook && (
+                    <Link
+                        href={`/sach/${book.id}/doc`}
+                        className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 font-label-caps text-label-caps text-white shadow-sm transition-colors duration-200 hover:bg-emerald-700 active:scale-95 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+                    >
+                        <MaterialIcon name="chrome_reader_mode" />
+                        {UI_TEXT.EBOOK_READER.ACTIONS.READ_ONLINE}
+                    </Link>
+                )}
+
                 {isAvailable ? (
                     <Link
                         href={`/sach/${book.id}/muon`}

@@ -1,12 +1,13 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { BookOpen, Plus, Sparkles } from "lucide-react";
+import { BookOpen, Plus, QrCode, Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
 import AdminBreadcrumb from "@/components/features/admin/AdminBreadcrumb";
 import AddBookModal, { InitialBookData } from "@/components/features/admin/inventory/AddBookModal";
 import BookCopiesModal from "@/components/features/admin/inventory/BookCopiesModal";
 import BookFilters from "@/components/features/admin/inventory/BookFilters";
+import BookScannerModal from "@/components/features/admin/inventory/BookScannerModal";
 import BookTable from "@/components/features/admin/inventory/BookTable";
 import ChooseAddMethodModal from "@/components/features/admin/inventory/ChooseAddMethodModal";
 import { ADMIN, ADMIN_PAGES } from "@/constants/ui-text/admin";
@@ -16,6 +17,8 @@ export default function KhoSachPage() {
     const { data: session } = useSession();
     const [isChooseModalOpen, setIsChooseModalOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [scannedIsbn, setScannedIsbn] = useState<string | null>(null);
     const [initialBookData, setInitialBookData] = useState<InitialBookData | null>(null);
     const [permissions, setPermissions] = useState<string[]>([]);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -81,11 +84,22 @@ export default function KhoSachPage() {
                 {canAddBook && (
                     <div className="flex shrink-0 items-center overflow-hidden rounded-lg shadow-sm">
                         <button
-                            onClick={() => setIsChooseModalOpen(true)}
+                            onClick={() => {
+                                setScannedIsbn(null);
+                                setIsChooseModalOpen(true);
+                            }}
                             className="focus-ring flex items-center gap-2 bg-primary-700 px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-900"
                         >
                             <Plus size={18} />
                             {ADMIN.SIDEBAR.ADD_BOOK}
+                        </button>
+                        <button
+                            onClick={() => setIsScannerOpen(true)}
+                            className="focus-ring bg-secondary-700 hover:bg-secondary-800 flex items-center gap-1.5 border-l border-white/20 px-4 py-2.5 text-[14px] font-bold text-white transition-colors"
+                            title={ADMIN_PAGES.INVENTORY.SCAN_QR_BTN}
+                        >
+                            <QrCode size={16} />
+                            {ADMIN_PAGES.INVENTORY.SCAN_QR_BTN}
                         </button>
                         <button className="focus-ring flex items-center gap-1.5 border-l border-white/20 bg-info-400 px-4 py-2.5 text-[14px] font-bold text-white transition-colors hover:bg-info-500">
                             <Sparkles size={16} />
@@ -111,20 +125,40 @@ export default function KhoSachPage() {
             {isChooseModalOpen && (
                 <ChooseAddMethodModal
                     isOpen={isChooseModalOpen}
-                    onClose={() => setIsChooseModalOpen(false)}
+                    initialIsbn={scannedIsbn || undefined}
+                    autoSearch={!!scannedIsbn}
+                    onClose={() => {
+                        setIsChooseModalOpen(false);
+                        setScannedIsbn(null);
+                    }}
                     onSelectManual={() => {
                         setIsChooseModalOpen(false);
+                        setScannedIsbn(null);
                         setInitialBookData(null);
                         setIsAddModalOpen(true);
                     }}
                     onSelectAutofill={(data) => {
                         setIsChooseModalOpen(false);
+                        setScannedIsbn(null);
                         setInitialBookData(data);
                         setIsAddModalOpen(true);
                     }}
                     onManageCopies={(id, title) => {
                         setIsChooseModalOpen(false);
+                        setScannedIsbn(null);
                         handleManageCopies(id, title);
+                    }}
+                />
+            )}
+
+            {isScannerOpen && (
+                <BookScannerModal
+                    isOpen={isScannerOpen}
+                    onClose={() => setIsScannerOpen(false)}
+                    onScanSuccess={(isbn) => {
+                        setIsScannerOpen(false);
+                        setScannedIsbn(isbn);
+                        setIsChooseModalOpen(true);
                     }}
                 />
             )}
