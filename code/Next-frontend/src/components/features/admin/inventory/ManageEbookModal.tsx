@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, ExternalLink, FileText, Loader2, Trash2, UploadCloud, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, ExternalLink, FileText, Loader2, Sparkles, Trash2, UploadCloud, X } from "lucide-react";
 import { toast } from "sonner";
 import { UI_TEXT } from "@/constants/ui-text";
 import { type AdminMembershipTier, getAdminMembershipTiers } from "@/services/adminMembershipTier";
@@ -217,10 +217,37 @@ export default function ManageEbookModal({ isOpen, onClose, bookId, bookTitle, o
                                 </div>
                             </div>
                         ) : (
-                            <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-900/60 dark:bg-amber-950/30">
+                            <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-900/60 dark:bg-amber-950/30">
                                 <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
                                     <AlertCircle className="h-5 w-5 shrink-0" />
                                     <p className="text-[13px]">{textUI.STATUS_EMPTY_DESC}</p>
+                                </div>
+                                <div className="pt-1">
+                                    <button
+                                        type="button"
+                                        disabled={isSubmitting}
+                                        onClick={async () => {
+                                            try {
+                                                setIsSubmitting(true);
+                                                const res = await ebookService.createSampleEbook(bookId, {
+                                                    previewPages,
+                                                    isFree,
+                                                    minMembershipTierId: minTierId === "none" ? undefined : minTierId,
+                                                });
+                                                setEbook(res);
+                                                toast.success(textUI.AUTO_SAMPLE_SUCCESS);
+                                                onSuccess?.();
+                                            } catch (err: any) {
+                                                toast.error(err.response?.data?.message || textUI.GENERIC_ERROR);
+                                            } finally {
+                                                setIsSubmitting(false);
+                                            }
+                                        }}
+                                        className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-[12.5px] font-semibold text-white shadow-sm transition hover:bg-amber-700 disabled:opacity-50"
+                                    >
+                                        <Sparkles size={14} />
+                                        {textUI.BTN_AUTO_SAMPLE}
+                                    </button>
                                 </div>
                             </div>
                         )}

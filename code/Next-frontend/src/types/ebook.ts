@@ -25,3 +25,31 @@ export interface EbookUpdateRequest {
     minMembershipTierId?: number | null;
     isActive?: boolean;
 }
+
+export interface WebReaderTocItem {
+    id: string;
+    title: string;
+    file: string;
+    index: number;
+}
+
+export interface WebReaderChapter {
+    id: string;
+    file: string;
+    title: string;
+    html: string;
+    wordCount: number;
+}
+
+export interface WebReaderPackage {
+    version: number;
+    format: "WEB_READER";
+    title: string;
+    author: string;
+    description: string;
+    totalChapters: number;
+    totalWords: number;
+    estimatedReadingMinutes: number;
+    toc: WebReaderTocItem[];
+    chapters: WebReaderChapter[];
+}

@@ -10,6 +10,7 @@ public interface EbookService {
     EbookResponse getEbookByBookId(Integer bookId);
     InputStream getEbookStream(Integer bookId);
     EbookResponse uploadEbook(Integer bookId, MultipartFile file, Integer previewPages, Boolean isFree, Integer minMembershipTierId, Integer totalPages);
+    EbookResponse createSampleEbook(Integer bookId, Integer previewPages, Boolean isFree, Integer minMembershipTierId);
     EbookResponse updateEbook(Integer bookId, EbookUpdateRequest request);
     void deleteEbook(Integer bookId);
 }

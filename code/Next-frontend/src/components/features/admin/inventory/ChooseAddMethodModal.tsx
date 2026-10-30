@@ -15,6 +15,7 @@ interface ChooseAddMethodModalProps {
     onManageCopies: (id: number, title: string) => void;
     initialIsbn?: string;
     autoSearch?: boolean;
+    onSuccess?: (createdBook?: any) => void;
 }
 
 export default function ChooseAddMethodModal({
@@ -348,6 +349,22 @@ export default function ChooseAddMethodModal({
             }
 
             if (bookData) {
+                // Tự động tìm kiếm sách mềm trên Standard Ebooks dựa vào tên sách và tác giả
+                try {
+                    const searchRes = await axios.get("/api/admin/books/standard-ebooks/search", {
+                        params: {
+                            title: bookData.title,
+                            author: bookData.authors?.[0] || "",
+                        },
+                        timeout: 12000,
+                    });
+                    if (searchRes.data?.found && searchRes.data?.data) {
+                        bookData.matchedEbook = searchRes.data.data;
+                    }
+                } catch (searchEbookErr) {
+                    console.warn("Background standard-ebooks search failed:", searchEbookErr);
+                }
+
                 onSelectAutofill(bookData);
             } else {
                 setError(textUI.NOT_FOUND);

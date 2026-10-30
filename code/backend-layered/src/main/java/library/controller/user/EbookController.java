@@ -29,14 +29,24 @@ public class EbookController {
     }
 
     /**
-     * Stream dữ liệu PDF an toàn trực tiếp cho viewer
+     * Stream dữ liệu sách an toàn trực tiếp cho viewer (PDF hoặc JSON Web Reader)
      */
     @GetMapping("/stream")
     public ResponseEntity<InputStreamResource> streamEbook(@PathVariable Integer bookId) {
+        EbookResponse info = ebookService.getEbookByBookId(bookId);
         InputStream stream = ebookService.getEbookStream(bookId);
+
+        MediaType mediaType = MediaType.APPLICATION_PDF;
+        String ext = "pdf";
+        if (info.getFileFormat() != null && 
+            ("WEB_READER".equalsIgnoreCase(info.getFileFormat()) || "JSON".equalsIgnoreCase(info.getFileFormat()))) {
+            mediaType = MediaType.APPLICATION_JSON;
+            ext = "json";
+        }
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"book-" + bookId + ".pdf\"")
-                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"book-" + bookId + "." + ext + "\"")
+                .contentType(mediaType)
                 .body(new InputStreamResource(stream));
     }
 }

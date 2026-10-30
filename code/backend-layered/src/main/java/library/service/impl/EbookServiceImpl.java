@@ -79,8 +79,12 @@ public class EbookServiceImpl implements EbookService {
         }
 
         String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".pdf")) {
-            throw new CustomBusinessException("Chỉ chấp nhận tệp định dạng PDF", HttpStatus.BAD_REQUEST);
+        if (originalFilename == null) {
+            throw new CustomBusinessException("Tên tệp không hợp lệ", HttpStatus.BAD_REQUEST);
+        }
+        String lowerFilename = originalFilename.toLowerCase();
+        if (!lowerFilename.endsWith(".pdf") && !lowerFilename.endsWith(".json") && !lowerFilename.endsWith(".epub") && !lowerFilename.endsWith(".html")) {
+            throw new CustomBusinessException("Chỉ chấp nhận tệp định dạng PDF, JSON (Web Reader) hoặc EPUB", HttpStatus.BAD_REQUEST);
         }
 
         // Tải lên MinIO
@@ -104,7 +108,13 @@ public class EbookServiceImpl implements EbookService {
 
         ebook.setFileKey(objectKey);
         ebook.setFileName(originalFilename);
-        ebook.setFileFormat("PDF");
+        if (lowerFilename.endsWith(".json")) {
+            ebook.setFileFormat("WEB_READER");
+        } else if (lowerFilename.endsWith(".epub")) {
+            ebook.setFileFormat("EPUB");
+        } else {
+            ebook.setFileFormat("PDF");
+        }
         ebook.setFileSizeBytes(file.getSize());
 
         int pages = (totalPages != null && totalPages > 0) ? totalPages : (book.getPages() != null && book.getPages() > 0 ? book.getPages() : 1);
@@ -117,6 +127,57 @@ public class EbookServiceImpl implements EbookService {
         ebook.setPreviewPages(previewPages != null && previewPages >= 0 ? previewPages : 5);
         ebook.setIsFree(Boolean.TRUE.equals(isFree));
         ebook.setMinMembershipTierId(minMembershipTierId);
+        ebook.setIsActive(true);
+
+        EbookEntity saved = ebookRepository.save(ebook);
+        return mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public EbookResponse createSampleEbook(Integer bookId, Integer previewPages, Boolean isFree, Integer minMembershipTierId) {
+        BookEntity book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new CustomBusinessException("Không tìm thấy sách với ID: " + bookId, HttpStatus.NOT_FOUND));
+
+        String objectKey = java.util.UUID.randomUUID().toString() + ".pdf";
+        try {
+            fileStorageService.copyFile("sample_ebook_template.pdf", objectKey);
+        } catch (Exception e) {
+            log.warn("Không thể sao chép template ebook mẫu, dùng trực tiếp template: {}", e.getMessage());
+            objectKey = "sample_ebook_template.pdf";
+        }
+
+        Optional<EbookEntity> existingOpt = ebookRepository.findByBookId(bookId);
+        EbookEntity ebook;
+        if (existingOpt.isPresent()) {
+            ebook = existingOpt.get();
+            if (!"sample_ebook_template.pdf".equals(ebook.getFileKey()) && !ebook.getFileKey().equals(objectKey)) {
+                try {
+                    fileStorageService.deleteFile(ebook.getFileKey());
+                } catch (Exception ex) {
+                    log.warn("Không thể xóa file cũ: {}", ebook.getFileKey());
+                }
+            }
+        } else {
+            ebook = new EbookEntity();
+            ebook.setBook(book);
+        }
+
+        ebook.setFileKey(objectKey);
+        ebook.setFileName(book.getTitle() + " - Bản đọc mẫu.pdf");
+        ebook.setFileFormat("PDF");
+        ebook.setFileSizeBytes(1016315L);
+
+        int pages = (book.getPages() != null && book.getPages() > 0) ? book.getPages() : 14;
+        ebook.setTotalPages(pages);
+        if (book.getPages() == null || book.getPages() == 0) {
+            book.setPages(pages);
+            bookRepository.save(book);
+        }
+
+        ebook.setPreviewPages(previewPages != null && previewPages >= 0 ? previewPages : 5);
+        ebook.setIsFree(Boolean.TRUE.equals(isFree));
+        ebook.setMinMembershipTierId(minMembershipTierId != null && minMembershipTierId > 0 ? minMembershipTierId : null);
         ebook.setIsActive(true);
 
         EbookEntity saved = ebookRepository.save(ebook);

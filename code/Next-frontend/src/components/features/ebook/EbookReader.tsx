@@ -6,6 +6,7 @@ import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import { ebookService } from "@/services/ebook";
 import type { EbookInfo } from "@/types/ebook";
+import StandardWebReader from "./StandardWebReader";
 
 interface EbookReaderProps {
     bookId: number;
@@ -20,7 +21,7 @@ export default function EbookReader({ bookId, initialEbookInfo }: EbookReaderPro
 
     const [ebookInfo, setEbookInfo] = useState<EbookInfo | null>(initialEbookInfo || null);
     const [loadingInfo, setLoadingInfo] = useState(!initialEbookInfo);
-    const [loadingPdf, setLoadingPdf] = useState(true);
+    const [loadingPdf, setLoadingPdf] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const [pdfDoc, setPdfDoc] = useState<any>(null);
@@ -65,6 +66,10 @@ export default function EbookReader({ bookId, initialEbookInfo }: EbookReaderPro
     // 2. Load PDF document using pdfjs-dist
     useEffect(() => {
         if (!ebookInfo) return;
+        if (ebookInfo.fileFormat === "WEB_READER" || ebookInfo.fileFormat === "JSON") {
+            setLoadingPdf(false);
+            return;
+        }
 
         let isMounted = true;
         const loadPdf = async () => {
@@ -264,7 +269,7 @@ export default function EbookReader({ bookId, initialEbookInfo }: EbookReaderPro
     };
 
     // Loading State
-    if (loadingInfo || loadingPdf) {
+    if (loadingInfo) {
         return (
             <div className="flex h-[80vh] w-full flex-col items-center justify-center gap-4 bg-surface dark:bg-slate-950">
                 <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -285,11 +290,26 @@ export default function EbookReader({ bookId, initialEbookInfo }: EbookReaderPro
                 <div className="flex gap-3">
                     <Link
                         href={`/sach/${bookId}`}
-                        className="hover:bg-primary-600 rounded-lg bg-primary px-4 py-2 text-[14px] font-medium text-white transition dark:bg-primary-500"
+                        className="rounded-lg border border-slate-300 px-4 py-2 text-[14px] font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                         {UI_TEXT.EBOOK_READER.HEADER.BACK_TO_DETAIL}
                     </Link>
                 </div>
+            </div>
+        );
+    }
+
+    // Standard Ebooks Web Reader
+    if (ebookInfo.fileFormat === "WEB_READER" || ebookInfo.fileFormat === "JSON") {
+        return <StandardWebReader bookId={bookId} ebookInfo={ebookInfo} streamUrl={ebookService.getEbookStreamUrl(bookId)} />;
+    }
+
+    // PDF Loading State
+    if (loadingPdf) {
+        return (
+            <div className="flex h-[80vh] w-full flex-col items-center justify-center gap-4 bg-surface dark:bg-slate-950">
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                <p className="font-sans text-[16px] text-on-surface-variant dark:text-slate-300">{UI_TEXT.EBOOK_READER.HEADER.LOADING}</p>
             </div>
         );
     }

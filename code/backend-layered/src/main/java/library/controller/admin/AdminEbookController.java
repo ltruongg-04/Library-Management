@@ -35,6 +35,18 @@ public class AdminEbookController {
                 .body(ApiResponse.success("Tải lên sách mềm thành công", response));
     }
 
+    @PostMapping("/auto-sample")
+    public ResponseEntity<ApiResponse<EbookResponse>> createSampleEbook(
+            @PathVariable Integer bookId,
+            @RequestParam(value = "previewPages", required = false, defaultValue = "5") Integer previewPages,
+            @RequestParam(value = "isFree", required = false, defaultValue = "false") Boolean isFree,
+            @RequestParam(value = "minMembershipTierId", required = false) Integer minMembershipTierId) {
+
+        EbookResponse response = ebookService.createSampleEbook(bookId, previewPages, isFree, minMembershipTierId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Tự động gán sách mềm mẫu thành công", response));
+    }
+
     @PutMapping
     public ResponseEntity<ApiResponse<EbookResponse>> updateEbook(
             @PathVariable Integer bookId,

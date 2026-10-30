@@ -184,4 +184,21 @@ public class FileStorageServiceImpl implements FileStorageService {
             log.warn("Không thể xóa tệp từ MinIO: {}", objectKey, e);
         }
     }
+
+    @Override
+    public String copyFile(String sourceKey, String targetKey) {
+        try {
+            minioClient.copyObject(
+                    io.minio.CopyObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(targetKey)
+                            .source(io.minio.CopySource.builder().bucket(bucketName).object(sourceKey).build())
+                            .build()
+            );
+            return targetKey;
+        } catch (Exception e) {
+            log.error("Lỗi khi sao chép tệp trong MinIO: {}", e.getMessage());
+            throw new CustomBusinessException("Không thể sao chép tệp lưu trữ: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

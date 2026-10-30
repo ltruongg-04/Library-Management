@@ -148,6 +148,9 @@ export default function KhoSachPage() {
                         setScannedIsbn(null);
                         handleManageCopies(id, title);
                     }}
+                    onSuccess={() => {
+                        triggerRefresh();
+                    }}
                 />
             )}
 

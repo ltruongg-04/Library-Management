@@ -10,4 +10,5 @@ public interface FileStorageService {
     String resolveFullUrl(String objectKey);
     InputStream getFileStream(String objectKey);
     void deleteFile(String objectKey);
+    String copyFile(String sourceKey, String targetKey);
 }
