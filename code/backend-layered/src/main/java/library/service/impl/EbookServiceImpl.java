@@ -38,6 +38,7 @@ public class EbookServiceImpl implements EbookService {
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final MembershipTierRepository membershipTierRepository;
+    private final library.service.impl.helper.EbookPreviewHelper ebookPreviewHelper;
 
     @Override
     @Transactional(readOnly = true)
@@ -65,7 +66,14 @@ public class EbookServiceImpl implements EbookService {
             throw new CustomBusinessException("Sách mềm này hiện đang tạm ẩn", HttpStatus.FORBIDDEN);
         }
 
-        return fileStorageService.getFileStream(ebook.getFileKey());
+        EbookResponse access = mapToResponse(ebook);
+        InputStream source = fileStorageService.getFileStream(ebook.getFileKey());
+        if (!Boolean.TRUE.equals(access.getPreviewOnly())) {
+            return source;
+        }
+
+        // Không đủ quyền đọc full: chỉ gửi phần đọc thử, không phó mặc giới hạn cho giao diện
+        return ebookPreviewHelper.createPreview(source, ebook.getFileFormat(), access.getAllowedPages());
     }
 
     @Override

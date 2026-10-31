@@ -33,6 +33,10 @@ def find_browser_executable():
 def normalize_url(url_or_slug: str) -> str:
     url_or_slug = url_or_slug.strip()
     if url_or_slug.startswith("http://") or url_or_slug.startswith("https://"):
+        # Chặn SSRF: script chỉ được tải dữ liệu từ Standard Ebooks
+        parsed = urllib.parse.urlparse(url_or_slug)
+        if parsed.scheme != "https" or parsed.hostname not in ("standardebooks.org", "www.standardebooks.org"):
+            raise Exception("Chỉ hỗ trợ đường link https://standardebooks.org")
         return url_or_slug
     clean_slug = url_or_slug.strip("/")
     return f"https://standardebooks.org/ebooks/{clean_slug}"

@@ -28,6 +28,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     @Value("${FRONTEND_URL:https://library-management-lovat-theta.vercel.app}")
     private String frontendUrl;
@@ -51,12 +52,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/vnpay/**").permitAll()
                         .requestMatchers("/api/public/borrow/**").permitAll()
                         .requestMatchers("/api/public/book-visits/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/public/support-requests").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/books/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/tags/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/banners/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/policies/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/policies/**").permitAll()
+                        // Mọi người dùng đã đăng nhập đều được xem quyền của chính mình
+                        .requestMatchers(HttpMethod.GET, "/api/admin/roles/me/permissions").authenticated()
+                        // Lớp chặn mặc định: endpoint quản trị mới dù quên @PreAuthorize vẫn không lộ cho customer
+                        .requestMatchers("/api/admin/**", "/api/files/**").hasAnyRole("ADMIN", "LIBRARIAN")
                         // Các request khác yêu cầu authenticated
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
@@ -64,7 +70,8 @@ public class SecurityConfig {
                     response.setContentType("application/json;charset=UTF-8");
                     response.getWriter().write(String.format("{\"success\":false,\"message\":\"%s\",\"data\":null}", library.common.constant.ErrorMessages.UNAUTHORIZED));
                 }))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

@@ -182,7 +182,7 @@ Một số nhóm cấu hình quan trọng:
 - Auth: `JWT_SECRET`, `NEXTAUTH_SECRET`, Google OAuth client.
 - CORS/URL: `BACKEND_URL`, `FRONTEND_URL`, `CORS_ALLOWED_ORIGIN_PATTERNS`.
 - Storage: `MINIO_URL`, `MINIO_BUCKET_NAME`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`.
-- Payment: `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_PAY_URL`, `VNPAY_RETURN_URL`, `VNPAY_IPN_URL`.
+- Payment: `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_PAY_URL`, `VNPAY_RETURN_URL`, `VNPAY_IPN_URL`, `VNPAY_PROCESS_ON_RETURN` (chỉ đặt `true` ở môi trường VNPay không gọi được IPN, ví dụ localhost; IPN phải được đăng ký trên cổng quản trị merchant của VNPay).
 - Email: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`.
 - Bot protection: `RECAPTCHA_SECRET_KEY`, `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`.
 

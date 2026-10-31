@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -23,7 +24,6 @@ import java.util.*;
 @Slf4j
 public class VnPayServiceImpl implements VnPayService {
 
-    private static final int VND_MULTIPLIER = 100;
     private static final int PAYMENT_TIMEOUT_MINUTES = 15;
     private static final String DATE_FORMAT = "yyyyMMddHHmmss";
 
@@ -34,8 +34,7 @@ public class VnPayServiceImpl implements VnPayService {
     public String createPaymentUrl(String txnRef, String orderInfo, BigDecimal amount, String ipAddress) {
         log.info("Creating VNPay payment URL for txnRef={}, amount={}", txnRef, amount);
 
-        // VNPay requires amount in VND * 100 (no decimals)
-        long vnpAmount = amount.longValue() * VND_MULTIPLIER;
+        long vnpAmount = VnPayUtil.toVnpAmount(amount);
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
@@ -101,7 +100,9 @@ public class VnPayServiceImpl implements VnPayService {
         }
 
         String computedHash = VnPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
-        boolean isValid = computedHash.equalsIgnoreCase(vnpSecureHash);
+        boolean isValid = MessageDigest.isEqual(
+                computedHash.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.US_ASCII),
+                vnpSecureHash.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.US_ASCII));
 
         if (!isValid) {
             log.warn("VNPay callback hash validation failed for vnp_TxnRef={}", params.get("vnp_TxnRef"));

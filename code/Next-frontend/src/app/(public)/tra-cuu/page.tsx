@@ -78,6 +78,9 @@ export default function GuestLookupPage() {
                 }
 
                 const response = await getGuestBorrowOrders(identifier, isEmail ? otp.trim() : undefined, !isEmail ? (recaptchaToken ?? undefined) : undefined);
+                // OTP chỉ dùng được một lần: tra cứu lại phải yêu cầu mã mới
+                setIsOtpSent(false);
+                setOtp("");
                 if (response.data && response.data.length > 0) {
                     setOrderList(response.data);
                 } else {

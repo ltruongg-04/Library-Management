@@ -5,6 +5,7 @@ import library.dto.response.EbookResponse;
 import library.service.EbookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,9 @@ public class EbookController {
             ext = "json";
         }
 
+        // Nội dung phụ thuộc quyền của người đọc (bản đầy đủ hoặc đọc thử) nên không được cache
         return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"book-" + bookId + "." + ext + "\"")
                 .contentType(mediaType)
                 .body(new InputStreamResource(stream));

@@ -1,5 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { NextResponse } from "next/server";
+import { requireStaffSession } from "@/lib/auth";
 
 const FAHASA_ELASTIC_URL = "https://www.fahasa.com/api/elsearch/api/as/v1/engines/fhs-production-v2/search";
 const FAHASA_AUTH_TOKEN = "Bearer search-zs5622edvxg9bt9nb5y9m2oo";
@@ -269,6 +270,11 @@ async function searchFahasa(query: string): Promise<NormalizedBookData | null> {
 }
 
 export async function GET(request: Request) {
+    const staff = await requireStaffSession();
+    if (staff.errorResponse) {
+        return staff.errorResponse;
+    }
+
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("query") || searchParams.get("barcode") || searchParams.get("isbn");
 

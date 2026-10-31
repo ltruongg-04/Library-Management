@@ -94,9 +94,10 @@ public class PublicBorrowController {
             if (otp == null || otp.trim().isEmpty()) {
                 throw new CustomBusinessException("Vui lòng cung cấp mã OTP để tra cứu bằng email", HttpStatus.BAD_REQUEST);
             }
-            if (!otpService.validateOtp(identifier, otp)) {
+            if (!otpService.validateOtp(OtpService.Purpose.GUEST_LOOKUP, identifier, otp)) {
                 throw new CustomBusinessException("Mã OTP không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED);
             }
+            otpService.clearOtp(OtpService.Purpose.GUEST_LOOKUP, identifier);
         } else {
             // Tra cứu bằng mã đơn -> Kiểm tra reCAPTCHA
             if (recaptchaToken == null || recaptchaToken.trim().isEmpty()) {

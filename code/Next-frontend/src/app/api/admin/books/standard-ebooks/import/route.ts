@@ -1,19 +1,23 @@
 /* eslint-disable i18next/no-literal-string */
 import { execFile } from "child_process";
 import fs from "fs";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import os from "os";
 import path from "path";
 import util from "util";
 import { getServerBackendUrl } from "@/config/env";
-import { authOptions } from "@/lib/auth";
+import { requireStaffSession } from "@/lib/auth";
 
 const execFileAsync = util.promisify(execFile);
 const BACKEND_URL = getServerBackendUrl();
 
 export async function POST(request: Request) {
     try {
+        const staff = await requireStaffSession();
+        if (staff.errorResponse) {
+            return staff.errorResponse;
+        }
+
         const body = await request.json();
         const { url, previewPages = 5, isFree = false, minMembershipTierId = null, depositPrice, initialQuantity, shelfLocation } = body;
 
@@ -21,24 +25,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: false, message: "Thiếu đường link sách Standard Ebooks" }, { status: 400 });
         }
 
-        const authHeader = request.headers.get("authorization");
-        const cookieHeader = request.headers.get("cookie");
-        const forwardHeaders: Record<string, string> = {};
-        if (cookieHeader) forwardHeaders["Cookie"] = cookieHeader;
-
-        if (authHeader && authHeader.startsWith("Bearer ")) {
-            forwardHeaders["Authorization"] = authHeader;
-        } else {
-            const session = await getServerSession(authOptions);
-            const token = (session as any)?.backendToken;
-            if (token) {
-                forwardHeaders["Authorization"] = `Bearer ${token}`;
-            }
-        }
-
-        if (!forwardHeaders["Authorization"]) {
-            return NextResponse.json({ success: false, message: "Bạn cần đăng nhập với quyền quản trị viên để thực hiện thao tác này." }, { status: 401 });
-        }
+        const forwardHeaders: Record<string, string> = { Authorization: `Bearer ${staff.backendToken}` };
 
         // 1. Generate temp JSON package path
         const tempJsonName = `se_${Date.now()}_${Math.random().toString(36).substring(7)}.json`;

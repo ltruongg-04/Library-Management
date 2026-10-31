@@ -20,6 +20,7 @@ public class BookCopyController {
     private final BookCopyService bookCopyService;
 
     @GetMapping("/{bookId}/copies")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<List<BookCopyResponse>> getCopies(@PathVariable Integer bookId) {
         return ResponseEntity.ok(bookCopyService.getCopiesByBookId(bookId));
     }

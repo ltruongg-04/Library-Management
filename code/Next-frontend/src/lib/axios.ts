@@ -36,7 +36,7 @@ export function invalidateAuthTokenCache() {
     pendingSessionPromise = null;
 }
 
-async function getAuthToken(): Promise<string | null> {
+export async function getAuthToken(): Promise<string | null> {
     const now = Date.now();
     if (cachedSessionToken && cachedSessionToken.expiresAt > now) {
         return cachedSessionToken.token;

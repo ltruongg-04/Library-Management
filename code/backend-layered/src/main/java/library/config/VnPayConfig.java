@@ -20,4 +20,5 @@ public class VnPayConfig {
     private String command;
     private String orderType;
     private String frontendUrl;
+    private boolean processOnReturn;
 }

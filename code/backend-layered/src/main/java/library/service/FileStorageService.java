@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 public interface FileStorageService {
     String uploadFile(MultipartFile file);
+    String uploadImage(MultipartFile file);
     String uploadFileFromUrl(String fileUrl);
     String resolveFullUrl(String objectKey);
     InputStream getFileStream(String objectKey);

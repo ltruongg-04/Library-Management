@@ -48,13 +48,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public library.dto.response.VerifyOtpResponse verifyForgotPasswordOtp(library.dto.request.VerifyOtpRequest request) {
-        boolean isValid = otpService.validateOtp(request.getEmail(), request.getOtp());
+        boolean isValid = otpService.validateOtp(OtpService.Purpose.PASSWORD_RESET, request.getEmail(), request.getOtp());
         if (!isValid) {
             throw new library.common.exception.CustomBusinessException(ErrorMessages.AUTH_OTP_INVALID, HttpStatus.BAD_REQUEST);
         }
 
         // OTP is valid, we can clear it and issue a reset token
-        otpService.clearOtp(request.getEmail());
+        otpService.clearOtp(OtpService.Purpose.PASSWORD_RESET, request.getEmail());
         String resetToken = otpService.generateResetToken(request.getEmail());
         
         return library.dto.response.VerifyOtpResponse.builder()

@@ -36,9 +36,14 @@ public class AdminUserServiceImpl implements AdminUserService {
                 .orElseThrow(() -> new library.common.exception.CustomBusinessException("Không tìm thấy người dùng", org.springframework.http.HttpStatus.NOT_FOUND));
         
         user.setActive(isActive);
+        if (!isActive) {
+            // Hủy token kích hoạt còn hiệu lực để người bị khóa không tự mở lại được
+            user.setActivationToken(null);
+            user.setActivationTokenExpiresAt(null);
+        }
         userRepository.save(user);
-        
-        systemLogService.logAction("Cập nhật trạng thái người dùng", 
+
+        systemLogService.logAction("Cập nhật trạng thái người dùng",
             "Admin đã " + (isActive ? "mở khóa" : "khóa") + " tài khoản: " + user.getEmail());
     }
 

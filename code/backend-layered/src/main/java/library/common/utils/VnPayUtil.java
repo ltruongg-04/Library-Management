@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -18,9 +19,27 @@ public final class VnPayUtil {
 
     private static final String HMAC_SHA512 = "HmacSHA512";
     private static final int BYTE_MASK = 0xff;
+    private static final int VND_MULTIPLIER = 100;
+    private static final String RESPONSE_CODE_SUCCESS = "00";
 
     private VnPayUtil() {
         // Utility class — prevent instantiation
+    }
+
+    /**
+     * VNPay requires amount in VND * 100 (no decimals).
+     */
+    public static long toVnpAmount(BigDecimal amount) {
+        return amount.longValue() * VND_MULTIPLIER;
+    }
+
+    /**
+     * Giao dịch chỉ thành công khi cả mã phản hồi và trạng thái giao dịch đều là thành công.
+     */
+    public static boolean isSuccessfulCallback(Map<String, String> params) {
+        String transactionStatus = params.get("vnp_TransactionStatus");
+        return RESPONSE_CODE_SUCCESS.equals(params.get("vnp_ResponseCode"))
+                && (transactionStatus == null || RESPONSE_CODE_SUCCESS.equals(transactionStatus));
     }
 
     /**

@@ -5,6 +5,7 @@ import library.dto.admin.BorrowingPolicyDto;
 import library.service.FeeCalculatorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 
@@ -22,6 +23,7 @@ public class AdminPolicyController {
      * Lấy chính sách mượn sách hiện hành
      */
     @GetMapping("/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<ApiResponse<BorrowingPolicyDto>> getActivePolicy() {
         var policy = feeCalculatorService.getActivePolicy();
         BorrowingPolicyDto dto = BorrowingPolicyDto.builder()
@@ -41,6 +43,7 @@ public class AdminPolicyController {
      * Cập nhật chính sách mượn sách (đồng bộ từ frontend admin settings)
      */
     @PutMapping("/active")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('settings.manage')")
     public ResponseEntity<ApiResponse<BorrowingPolicyDto>> updatePolicy(@RequestBody BorrowingPolicyDto dto) {
         BorrowingPolicyDto updated = feeCalculatorService.updatePolicy(dto);
         return ResponseEntity.ok(ApiResponse.success("Cập nhật chính sách thành công", updated));

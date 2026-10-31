@@ -3,6 +3,7 @@ package library.controller;
 import library.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,13 +14,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
 public class FileController {
 
     private final FileStorageService fileStorageService;
 
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
-        String objectKey = fileStorageService.uploadFile(file);
+        String objectKey = fileStorageService.uploadImage(file);
         return ResponseEntity.ok(Map.of("url", fileStorageService.resolveFullUrl(objectKey)));
     }
 

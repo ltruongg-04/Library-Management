@@ -1,5 +1,5 @@
 import { getClientApiBaseUrl } from "@/config/env";
-import axiosInstance from "@/lib/axios";
+import axiosInstance, { getAuthToken } from "@/lib/axios";
 import type { ApiResponse } from "@/types/api";
 import type { EbookInfo, EbookUpdateRequest } from "@/types/ebook";
 
@@ -11,6 +11,12 @@ export const ebookService = {
 
     getEbookStreamUrl: (bookId: number): string => {
         return `${getClientApiBaseUrl()}/api/books/${bookId}/ebook/stream`;
+    },
+
+    // Reader tải file ngoài axiosInstance nên phải tự gắn token, nếu không backend coi là khách và chỉ trả bản đọc thử
+    getEbookStreamHeaders: async (): Promise<Record<string, string>> => {
+        const token = await getAuthToken();
+        return token ? { Authorization: `Bearer ${token}` } : {};
     },
 
     uploadEbook: async (bookId: number, formData: FormData): Promise<EbookInfo> => {

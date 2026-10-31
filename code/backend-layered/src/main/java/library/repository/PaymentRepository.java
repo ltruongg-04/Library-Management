@@ -14,6 +14,10 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Integer>
 
     Optional<PaymentEntity> findByTransactionCode(String transactionCode);
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM PaymentEntity p WHERE p.transactionCode = :transactionCode")
+    Optional<PaymentEntity> findByTransactionCodeForUpdate(@org.springframework.data.repository.query.Param("transactionCode") String transactionCode);
+
     Optional<PaymentEntity> findByBorrowOrderIdAndPaymentType(Integer borrowOrderId, PaymentType paymentType);
 
     java.util.List<PaymentEntity> findByBorrowOrderIdAndPaymentStatus(Integer borrowOrderId, library.entity.PaymentStatus paymentStatus);

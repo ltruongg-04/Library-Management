@@ -136,25 +136,20 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     @Transactional
     public BorrowResponseDto createGuestBorrowOrder(library.dto.borrow.GuestBorrowRequestDto request,
             HttpServletRequest httpRequest) {
-        // Get or create customer profile
-        CustomerEntity customer = customerRepository.findByPhone(request.getPhone()).orElseGet(() -> {
-            return CustomerEntity.builder()
+        // Người gửi chưa xác minh SĐT nên chỉ được dùng hồ sơ cũ, không được sửa: đổi email ở đây
+        // sẽ cho phép xem các phiếu của chủ SĐT qua luồng tra cứu bằng email + OTP
+        CustomerEntity customer = customerRepository.findByPhone(request.getPhone()).orElse(null);
+        if (customer == null) {
+            customer = customerRepository.save(CustomerEntity.builder()
                     .user(null)
                     .fullName(request.getFullName() != null && !request.getFullName().trim().isEmpty() ? request.getFullName() : "Khách vãng lai")
                     .phone(request.getPhone())
                     .email(request.getEmail())
                     .address("Chưa cập nhật")
-                    .build();
-        });
-
-        // Update customer details if provided
-        if (request.getFullName() != null && !request.getFullName().trim().isEmpty()) {
-            customer.setFullName(request.getFullName());
+                    .build());
+        } else if (customer.getUser() != null) {
+            throw new CustomBusinessException("Số điện thoại này đã gắn với một tài khoản. Vui lòng đăng nhập để mượn sách.", HttpStatus.CONFLICT);
         }
-        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            customer.setEmail(request.getEmail());
-        }
-        customer = customerRepository.save(customer);
 
         BookEntity book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> new CustomBusinessException(ErrorMessages.NOT_FOUND_BOOK, HttpStatus.NOT_FOUND));
@@ -178,18 +173,15 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
         );
         cacheInvalidationService.evictBookCaches();
 
-        // Send confirmation email if email is provided
-        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            String emailName = (request.getFullName() != null && !request.getFullName().trim().isEmpty()) 
-                                ? request.getFullName() : customer.getFullName();
-            
+        // Gửi tới email trong hồ sơ, không gửi tới email chưa xác minh trong request
+        if (customer.getEmail() != null && !customer.getEmail().trim().isEmpty()) {
             java.text.NumberFormat currencyFormatter = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.of("vi", "VN"));
             String formattedRentalFee = currencyFormatter.format(rentalFee);
             String formattedDepositPrice = currencyFormatter.format(book.getDepositPrice() != null ? book.getDepositPrice() : BigDecimal.ZERO);
 
             emailService.sendGuestBorrowConfirmationEmail(
-                    request.getEmail(),
-                    emailName,
+                    customer.getEmail(),
+                    customer.getFullName(),
                     response.getOrderCode(),
                     request.getPickupDate(),
                     request.getReturnDate(),

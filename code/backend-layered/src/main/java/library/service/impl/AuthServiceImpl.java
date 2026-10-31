@@ -15,6 +15,7 @@ import library.entity.UserEntity;
 import library.repository.UserRepository;
 import library.service.AuthService;
 import library.service.EmailService;
+import library.service.LoginAttemptService;
 import library.service.NotificationService;
 import library.service.SystemLogService;
 import library.service.TokenService;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -35,9 +37,6 @@ import java.util.UUID;
 @Slf4j
 @Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService {
-    private static final int MAX_FAILED_LOGIN_ATTEMPTS = 5;
-    private static final int LOCK_MINUTES = 15;
-
     @Value("${GOOGLE_CLIENT_ID:${app.google.client-id:}}")
     private String googleClientId;
 
@@ -51,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
     private final library.mapper.UserMapper userMapper;
     private final EmailService emailService;
     private final NotificationService notificationService;
+    private final LoginAttemptService loginAttemptService;
 
     @Override
     @Transactional
@@ -84,8 +84,12 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toRegisterResponse(savedUser, null, null);
     }
 
+    /**
+     * Không bao trong transaction: BCrypt chạy chậm không nên giữ connection DB,
+     * và exception đăng nhập sai không được rollback bộ đếm ở LoginAttemptService.
+     */
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public LoginResponse login(LoginRequest request) {
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomBusinessException("Email hoặc mật khẩu không chính xác",
@@ -94,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
         validateLockout(user);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            registerFailedLogin(user);
+            loginAttemptService.recordFailedLogin(user.getId());
             throw new CustomBusinessException("Email hoặc mật khẩu không chính xác", HttpStatus.UNAUTHORIZED);
         }
 
@@ -223,6 +227,11 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomBusinessException("Tài khoản đã được kích hoạt", HttpStatus.BAD_REQUEST);
         }
 
+        // Không có yêu cầu kích hoạt đang chờ nghĩa là tài khoản do admin khóa, không được tự mở lại qua email
+        if (user.getActivationToken() == null) {
+            throw new CustomBusinessException("Tài khoản đã bị khóa. Vui lòng liên hệ thư viện.", HttpStatus.FORBIDDEN);
+        }
+
         user.setActivationToken(UUID.randomUUID().toString());
         user.setActivationTokenExpiresAt(LocalDateTime.now().plusHours(24));
         userRepository.save(user);
@@ -249,21 +258,5 @@ public class AuthServiceImpl implements AuthService {
         if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now())) {
             throw new CustomBusinessException("Tài khoản đã bị tạm khóa do đăng nhập sai nhiều lần. Vui lòng thử lại sau 15 phút.", HttpStatus.FORBIDDEN);
         }
-
-        if (user.getLockedUntil() != null && !user.getLockedUntil().isAfter(LocalDateTime.now())) {
-            user.setLockedUntil(null);
-            user.setFailedLoginAttempts(0);
-            userRepository.save(user);
-        }
-    }
-
-    private void registerFailedLogin(UserEntity user) {
-        int attempts = user.getFailedLoginAttempts() + 1;
-        user.setFailedLoginAttempts(attempts);
-        if (attempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-            user.setLockedUntil(LocalDateTime.now().plusMinutes(LOCK_MINUTES));
-            systemLogService.logAction(user, "Khóa tài khoản tạm thời", "Tài khoản " + user.getEmail() + " bị khóa do đăng nhập sai nhiều lần.");
-        }
-        userRepository.save(user);
     }
 }

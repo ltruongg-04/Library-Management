@@ -72,6 +72,8 @@ vnpay:
   version: "2.1.0"
   command: "pay"
   order-type: "other"
+  # Chỉ bật khi VNPay không gọi được IPN (localhost). Production dùng IPN làm nguồn trạng thái duy nhất
+  process-on-return: ${VNPAY_PROCESS_ON_RETURN:false}
 
 minio:
   url: ${MINIO_URL}

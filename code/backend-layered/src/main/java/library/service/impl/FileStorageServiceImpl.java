@@ -4,6 +4,8 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import library.service.FileStorageService;
 import library.common.exception.CustomBusinessException;
+import library.common.utils.ImageTypeDetector;
+import library.common.utils.PublicUrlValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,16 +13,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FileStorageServiceImpl implements FileStorageService {
+
+    private static final int MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+    private static final int MAX_REDIRECTS = 5;
+    private static final String NOT_AN_IMAGE_MESSAGE = "Chỉ chấp nhận ảnh định dạng JPG, PNG, GIF hoặc WEBP";
+    private static final String IMAGE_TOO_LARGE_MESSAGE = "Ảnh không được vượt quá 10MB";
 
     private final MinioClient minioClient;
 
@@ -59,85 +68,96 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public String uploadFileFromUrl(String fileUrl) {
+    public String uploadImage(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new CustomBusinessException(NOT_AN_IMAGE_MESSAGE, HttpStatus.BAD_REQUEST);
+        }
+        if (file.getSize() > MAX_IMAGE_SIZE_BYTES) {
+            throw new CustomBusinessException(IMAGE_TOO_LARGE_MESSAGE, HttpStatus.BAD_REQUEST);
+        }
         try {
-            URL url = new URI(fileUrl).toURL();
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            return storeImage(file.getBytes());
+        } catch (IOException e) {
+            log.error("Không đọc được tệp ảnh tải lên", e);
+            throw new CustomBusinessException(library.common.constant.ErrorMessages.FILE_UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public String uploadFileFromUrl(String fileUrl) {
+        HttpURLConnection connection = null;
+        try {
+            connection = openPublicConnection(fileUrl);
+            byte[] content;
+            try (InputStream inputStream = connection.getInputStream()) {
+                // Đọc dư một byte để phát hiện file vượt giới hạn mà không phải tải hết về
+                content = inputStream.readNBytes(MAX_IMAGE_SIZE_BYTES + 1);
+            }
+            if (content.length > MAX_IMAGE_SIZE_BYTES) {
+                throw new CustomBusinessException(IMAGE_TOO_LARGE_MESSAGE, HttpStatus.BAD_REQUEST);
+            }
+            return storeImage(content);
+        } catch (CustomBusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Đã xảy ra lỗi khi tải tệp từ URL lên MinIO", e);
+            throw new CustomBusinessException("Không thể tải ảnh từ URL", HttpStatus.BAD_REQUEST);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    /**
+     * Tự xử lý redirect để kiểm tra lại từng địa chỉ: URL công khai có thể redirect vào mạng nội bộ.
+     */
+    private HttpURLConnection openPublicConnection(String fileUrl) throws IOException, URISyntaxException {
+        URI uri = new URI(fileUrl);
+        for (int redirects = 0; redirects <= MAX_REDIRECTS; redirects++) {
+            PublicUrlValidator.validate(uri);
+
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
             connection.setConnectTimeout(8000);
             connection.setReadTimeout(15000);
-            connection.setInstanceFollowRedirects(true);
+            connection.setInstanceFollowRedirects(false);
             connection.connect();
 
             int responseCode = connection.getResponseCode();
-            int redirects = 0;
-            while ((responseCode == HttpURLConnection.HTTP_MOVED_TEMP
-                    || responseCode == HttpURLConnection.HTTP_MOVED_PERM
-                    || responseCode == HttpURLConnection.HTTP_SEE_OTHER
-                    || responseCode == 307
-                    || responseCode == 308) && redirects < 5) {
-                String newUrl = connection.getHeaderField("Location");
-                if (newUrl == null || newUrl.isBlank()) break;
-                connection.disconnect();
-                url = new URI(newUrl).toURL();
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-                connection.setConnectTimeout(8000);
-                connection.setReadTimeout(15000);
-                connection.setInstanceFollowRedirects(true);
-                connection.connect();
-                responseCode = connection.getResponseCode();
-                redirects++;
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                return connection;
             }
 
-            if (responseCode != 200) {
+            String location = connection.getHeaderField("Location");
+            connection.disconnect();
+            if (responseCode / 100 != 3 || location == null || location.isBlank()) {
                 throw new CustomBusinessException("Không thể tải ảnh từ URL, mã phản hồi: " + responseCode, HttpStatus.BAD_REQUEST);
             }
+            uri = uri.resolve(location);
+        }
+        throw new CustomBusinessException("Không thể tải ảnh từ URL: chuyển hướng quá nhiều lần", HttpStatus.BAD_REQUEST);
+    }
 
-            String contentType = connection.getContentType();
-            if (contentType == null) {
-                contentType = "application/octet-stream";
-            }
+    private String storeImage(byte[] content) {
+        ImageTypeDetector.ImageType imageType = ImageTypeDetector.detect(content)
+                .orElseThrow(() -> new CustomBusinessException(NOT_AN_IMAGE_MESSAGE, HttpStatus.BAD_REQUEST));
+        String fileName = UUID.randomUUID() + imageType.getExtension();
 
-            String extension = "";
-            if (contentType.contains("image/jpeg") || contentType.contains("image/jpg")) {
-                extension = ".jpg";
-            } else if (contentType.contains("image/png")) {
-                extension = ".png";
-            } else if (contentType.contains("image/gif")) {
-                extension = ".gif";
-            } else if (contentType.contains("image/webp")) {
-                extension = ".webp";
-            } else {
-                String path = url.getPath();
-                if (path != null && path.contains(".")) {
-                    extension = path.substring(path.lastIndexOf("."));
-                }
-            }
-
-            String fileName = UUID.randomUUID().toString() + extension;
-
-            long contentLength = connection.getContentLengthLong();
-            long objectSize = contentLength > 0 ? contentLength : -1;
-            long partSize = objectSize == -1 ? 10485760 : -1;
-
-            try (InputStream inputStream = connection.getInputStream()) {
-                minioClient.putObject(
-                        PutObjectArgs.builder()
-                                .bucket(bucketName)
-                                .object(fileName)
-                                .stream(inputStream, objectSize, partSize)
-                                .contentType(contentType)
-                                .build()
-                );
-            }
-
+        try (InputStream inputStream = new ByteArrayInputStream(content)) {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .stream(inputStream, content.length, -1)
+                            .contentType(imageType.getContentType())
+                            .build()
+            );
             return fileName;
         } catch (Exception e) {
-            log.error("Đã xảy ra lỗi khi tải tệp từ URL lên MinIO", e);
-            throw new CustomBusinessException("Đã xảy ra lỗi khi tải tệp từ URL lên MinIO: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("Đã xảy ra lỗi khi tải ảnh lên MinIO", e);
+            throw new CustomBusinessException(library.common.constant.ErrorMessages.FILE_UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

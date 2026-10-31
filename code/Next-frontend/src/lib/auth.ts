@@ -1,12 +1,30 @@
 import axios from "axios";
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, getServerSession } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import { NextResponse } from "next/server";
 import { getServerBackendUrl } from "@/config/env";
 import { API_ERRORS } from "@/constants/ui-text/shared/api";
 
 const API_URL = getServerBackendUrl();
+const STAFF_ROLES = ["ADMIN", "LIBRARIAN"];
+
+type StaffSessionResult = { backendToken: string; errorResponse?: undefined } | { backendToken?: undefined; errorResponse: NextResponse };
+
+/**
+ * Chặn route handler quản trị của Next: các route này không đi qua Spring Security nên phải tự kiểm tra vai trò.
+ */
+export async function requireStaffSession(): Promise<StaffSessionResult> {
+    const session = await getServerSession(authOptions);
+    if (!session?.backendToken) {
+        return { errorResponse: NextResponse.json({ success: false, message: API_ERRORS.STAFF_LOGIN_REQUIRED }, { status: 401 }) };
+    }
+    if (!STAFF_ROLES.includes(session.user?.role?.toUpperCase() ?? "")) {
+        return { errorResponse: NextResponse.json({ success: false, message: API_ERRORS.STAFF_ROLE_REQUIRED }, { status: 403 }) };
+    }
+    return { backendToken: session.backendToken };
+}
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
     // Không có refreshToken (ví dụ: Google OAuth thuần frontend) → bỏ qua refresh

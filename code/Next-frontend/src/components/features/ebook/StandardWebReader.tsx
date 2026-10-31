@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
+import { ebookService } from "@/services/ebook";
 import type { EbookInfo, WebReaderPackage } from "@/types/ebook";
 
 interface StandardWebReaderProps {
@@ -128,7 +129,7 @@ export default function StandardWebReader({ bookId, ebookInfo, streamUrl }: Stan
                 setLoading(true);
                 setError(null);
                 const res = await fetch(streamUrl, {
-                    credentials: "include",
+                    headers: await ebookService.getEbookStreamHeaders(),
                 });
                 if (!res.ok) {
                     throw new Error(UI_TEXT.EBOOK_READER.ERROR_STATE.SUBTITLE);

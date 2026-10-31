@@ -85,7 +85,7 @@ export default function EbookReader({ bookId, initialEbookInfo }: EbookReaderPro
                 const streamUrl = ebookService.getEbookStreamUrl(bookId);
                 const loadingTask = pdfjsLib.getDocument({
                     url: streamUrl,
-                    withCredentials: true,
+                    httpHeaders: await ebookService.getEbookStreamHeaders(),
                 });
 
                 const doc = await loadingTask.promise;

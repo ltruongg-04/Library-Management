@@ -3,10 +3,16 @@ import { execFile } from "child_process";
 import { NextResponse } from "next/server";
 import path from "path";
 import util from "util";
+import { requireStaffSession } from "@/lib/auth";
 
 const execFileAsync = util.promisify(execFile);
 
 export async function GET(request: Request) {
+    const staff = await requireStaffSession();
+    if (staff.errorResponse) {
+        return staff.errorResponse;
+    }
+
     const { searchParams } = new URL(request.url);
     const url = searchParams.get("url");
 

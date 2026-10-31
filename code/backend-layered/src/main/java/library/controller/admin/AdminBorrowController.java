@@ -23,6 +23,7 @@ public class AdminBorrowController {
     private final AdminBorrowService adminBorrowService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<ApiResponse<List<AdminBorrowOrderDto>>> getAllBorrows(
             @RequestParam(required = false) String status,
             @RequestParam(required = false, defaultValue = "ALL") String customerType,
@@ -71,6 +72,7 @@ public class AdminBorrowController {
     }
 
     @GetMapping("/{orderCode}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<ApiResponse<library.dto.admin.AdminBorrowOrderDetailDto>> getBorrowOrderDetail(@PathVariable String orderCode) {
         library.dto.admin.AdminBorrowOrderDetailDto detail = adminBorrowService.getBorrowOrderDetail(orderCode);
         return ResponseEntity.ok(ApiResponse.success("Lấy chi tiết lượt mượn thành công", detail));

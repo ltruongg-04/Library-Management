@@ -74,15 +74,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
 
-                
-                // Spring Security expects roles to start with ROLE_
-                String roleString = claims.get("role", String.class);
-                String role = roleString != null && !roleString.startsWith("ROLE_") 
-                              ? "ROLE_" + roleString 
-                              : roleString;
-
+                // Lấy vai trò từ DB thay vì claim trong token để hạ quyền có hiệu lực ngay
                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority(role));
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
                 adminRoleService.getPermissionIds(user.getRole()).stream()
                         .map(SimpleGrantedAuthority::new)
                         .forEach(authorities::add);

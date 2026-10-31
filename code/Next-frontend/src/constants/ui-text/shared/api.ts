@@ -68,4 +68,6 @@ export const API_ERRORS = {
     REVIEW_REPORT_FAILED: "Báo cáo đánh giá thất bại",
     ADMIN_REVIEW_FETCH_FAILED: "Không thể tải danh sách đánh giá quản trị",
     ADMIN_REVIEW_STATUS_FAILED: "Cập nhật trạng thái đánh giá thất bại",
+    STAFF_LOGIN_REQUIRED: "Bạn cần đăng nhập với quyền quản trị viên để thực hiện thao tác này.",
+    STAFF_ROLE_REQUIRED: "Bạn không có quyền thực hiện thao tác này.",
 };

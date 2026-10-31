@@ -79,6 +79,7 @@ services:
       - VNPAY_PAY_URL=${VNPAY_PAY_URL:?Set VNPAY_PAY_URL in your local environment}
       - VNPAY_RETURN_URL=${VNPAY_RETURN_URL:?Set VNPAY_RETURN_URL in your local environment}
       - VNPAY_IPN_URL=${VNPAY_IPN_URL:?Set VNPAY_IPN_URL in your local environment}
+      - VNPAY_PROCESS_ON_RETURN=${VNPAY_PROCESS_ON_RETURN:-false}
       - RESEND_API_KEY=${RESEND_API_KEY:?Set RESEND_API_KEY in your local environment}
       - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL:?Set RESEND_FROM_EMAIL in your local environment}
       - RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY:?Set RECAPTCHA_SECRET_KEY in your local environment}
