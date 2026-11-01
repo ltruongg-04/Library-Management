@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminSessionDto implements Serializable {
-    private String id; // Token ID
+    private String id; // Session ID, không phải refresh token
     private Integer userId;
     private String username;
     private String fullName;

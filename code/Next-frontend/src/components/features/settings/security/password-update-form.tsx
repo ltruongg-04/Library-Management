@@ -2,9 +2,11 @@
 
 import { type ChangeEvent, useState } from "react";
 import { KeyRound } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { BaseButton } from "@/components/base/base-button";
 import { BaseInput } from "@/components/base/base-input";
 import { UI_TEXT } from "@/constants/ui-text";
+import { invalidateAuthTokenCache } from "@/lib/axios";
 import { getErrorMessage } from "@/lib/utils";
 import { authService } from "@/services/auth";
 
@@ -57,6 +59,10 @@ export function PasswordUpdateForm({ showSuccess }: Props) {
             });
 
             showSuccess(securityText.SUCCESS_MESSAGES.PASSWORD_UPDATED);
+
+            // Đổi mật khẩu thu hồi mọi phiên, kể cả phiên hiện tại, nên phải đăng nhập lại
+            invalidateAuthTokenCache();
+            await signOut({ callbackUrl: "/login" });
         } catch (error: unknown) {
             setPasswordError(getErrorMessage(error, securityText.ERROR_MESSAGES.PASSWORD_UPDATE_FAILED));
         } finally {

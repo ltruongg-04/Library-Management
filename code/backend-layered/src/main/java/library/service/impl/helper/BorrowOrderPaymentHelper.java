@@ -1,7 +1,7 @@
 package library.service.impl.helper;
 
 import jakarta.servlet.http.HttpServletRequest;
-import library.common.utils.VnPayUtil;
+import library.config.ClientIpResolver;
 import library.entity.BorrowOrderEntity;
 import library.entity.PaymentEntity;
 import library.entity.PaymentMethod;
@@ -22,6 +22,7 @@ public class BorrowOrderPaymentHelper {
 
     private final PaymentRepository paymentRepository;
     private final VnPayService vnPayService;
+    private final ClientIpResolver clientIpResolver;
 
     public PaymentEntity createDepositPayment(BorrowOrderEntity borrowOrder, BigDecimal depositPrice, PaymentMethod paymentMethod) {
         PaymentStatus initialStatus = depositPrice.compareTo(BigDecimal.ZERO) <= 0 
@@ -53,7 +54,7 @@ public class BorrowOrderPaymentHelper {
                 .build();
         paymentRepository.save(payment);
 
-        String ipAddress = VnPayUtil.getIpAddress(httpRequest);
+        String ipAddress = clientIpResolver.resolve(httpRequest);
         String orderInfo = overdueFee.compareTo(BigDecimal.ZERO) > 0
                 ? "Gia han va nop phat don hang " + order.getOrderCode()
                 : "Gia han don hang " + order.getOrderCode();

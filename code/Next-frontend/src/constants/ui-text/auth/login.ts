@@ -24,6 +24,7 @@ export const LOGIN = {
     },
     ERROR_MSG: "Đăng nhập thất bại. Vui lòng thử lại.",
     REGISTER_SUCCESS: "Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản trước khi đăng nhập.",
+    ACTIVATION_HELP_LINK: "Chưa nhận được email? Gửi lại mã kích hoạt",
     RESET_SUCCESS: "Đặt lại mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.",
     SUCCESS_ICON: "✅",
 };

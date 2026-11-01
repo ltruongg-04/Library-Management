@@ -179,11 +179,12 @@ Không commit secret thật vào repository. Các file mẫu hiện có:
 Một số nhóm cấu hình quan trọng:
 
 - Database: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, pool config.
-- Auth: `JWT_SECRET`, `NEXTAUTH_SECRET`, Google OAuth client.
+- Auth: `JWT_SECRET`, `NEXTAUTH_SECRET`, Google OAuth client. Backend từ chối đăng nhập Google nếu thiếu `GOOGLE_CLIENT_ID`.
 - CORS/URL: `BACKEND_URL`, `FRONTEND_URL`, `CORS_ALLOWED_ORIGIN_PATTERNS`.
+- Proxy: `TRUSTED_PROXY_HOPS` là số reverse proxy tin cậy đứng trước backend (Caddy hoặc Cloud Run: `1`, chạy trực tiếp ở local: `0`). Đặt sai thì mọi người dùng chung một giới hạn request hoặc client giả mạo được IP.
 - Storage: `MINIO_URL`, `MINIO_BUCKET_NAME`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`.
 - Payment: `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_PAY_URL`, `VNPAY_RETURN_URL`, `VNPAY_IPN_URL`, `VNPAY_PROCESS_ON_RETURN` (chỉ đặt `true` ở môi trường VNPay không gọi được IPN, ví dụ localhost; IPN phải được đăng ký trên cổng quản trị merchant của VNPay).
-- Email: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`.
+- Email: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`. Tài khoản mới phải kích hoạt qua email nên `RESEND_FROM_EMAIL` phải thuộc domain đã xác minh trên Resend; địa chỉ `onboarding@resend.dev` chỉ gửi được tới email chủ tài khoản Resend.
 - Bot protection: `RECAPTCHA_SECRET_KEY`, `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`.
 
 ## Database Và Migration

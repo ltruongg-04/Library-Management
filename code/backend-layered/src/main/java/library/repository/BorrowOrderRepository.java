@@ -62,6 +62,25 @@ public interface BorrowOrderRepository extends JpaRepository<BorrowOrderEntity, 
             @Param("cutoff") LocalDateTime cutoff);
 
     @Query("""
+            SELECT payment.borrowOrder.orderCode
+            FROM PaymentEntity payment
+            WHERE payment.paymentMethod = library.entity.PaymentMethod.VNPAY
+              AND payment.paymentType = library.entity.PaymentType.DEPOSIT
+              AND payment.paymentStatus = library.entity.PaymentStatus.PENDING
+              AND payment.borrowOrder.status = library.entity.BorrowOrderStatus.PENDING
+              AND payment.createdAt < :cutoff
+            """)
+    List<String> findOrderCodesWithUnpaidVnPayDepositBefore(@Param("cutoff") LocalDateTime cutoff);
+
+    @Query("""
+            SELECT orderEntity.orderCode
+            FROM BorrowOrderEntity orderEntity
+            WHERE orderEntity.status = library.entity.BorrowOrderStatus.PENDING
+              AND orderEntity.createdAt < :cutoff
+            """)
+    List<String> findPendingOrderCodesCreatedBefore(@Param("cutoff") LocalDateTime cutoff);
+
+    @Query("""
             SELECT orderEntity.orderCode,
                    COALESCE(customer.fullName, ''),
                    COALESCE(MIN(book.title), ''),

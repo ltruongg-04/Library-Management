@@ -1,6 +1,7 @@
 package library.service.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
+import library.config.ClientIpResolver;
 import library.entity.SystemLogEntity;
 import library.entity.UserEntity;
 import library.repository.SystemLogRepository;
@@ -22,6 +23,7 @@ public class SystemLogServiceImpl implements SystemLogService {
 
     private final SystemLogRepository systemLogRepository;
     private final UserRepository userRepository;
+    private final ClientIpResolver clientIpResolver;
 
     @Override
     @Transactional
@@ -69,10 +71,7 @@ public class SystemLogServiceImpl implements SystemLogService {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attributes != null) {
                 HttpServletRequest request = attributes.getRequest();
-                ipAddress = request.getHeader("X-Forwarded-For");
-                if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
-                    ipAddress = request.getRemoteAddr();
-                }
+                ipAddress = clientIpResolver.resolve(request);
             }
 
             SystemLogEntity logEntity = SystemLogEntity.builder()

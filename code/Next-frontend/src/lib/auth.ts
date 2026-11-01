@@ -33,8 +33,8 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     }
 
     try {
-        const res = await axios.post(`${API_URL}/api/auth/refresh-token`, null, {
-            params: { token: token.refreshToken },
+        const res = await axios.post(`${API_URL}/api/auth/refresh-token`, {
+            refreshToken: token.refreshToken,
         });
 
         const data = res.data;

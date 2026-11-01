@@ -68,8 +68,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshToken(@RequestParam String token) {
-        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_TOKEN_REFRESH, authService.refreshToken(token)));
+    public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_TOKEN_REFRESH, authService.refreshToken(request.getRefreshToken())));
     }
 
     @PostMapping("/logout")
@@ -79,7 +79,7 @@ public class AuthController {
         } else {
             String bearerToken = request.getHeader("Authorization");
             if (org.springframework.util.StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-                authService.logout(bearerToken.substring(7));
+                authService.logoutByAccessToken(bearerToken.substring(7));
             }
         }
         return ResponseEntity.ok(ApiResponse.success(SuccessMessages.AUTH_LOGOUT, null));

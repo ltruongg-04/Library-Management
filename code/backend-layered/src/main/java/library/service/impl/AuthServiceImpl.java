@@ -17,6 +17,7 @@ import library.service.AuthService;
 import library.service.EmailService;
 import library.service.LoginAttemptService;
 import library.service.NotificationService;
+import library.service.RateLimitService;
 import library.service.SystemLogService;
 import library.service.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +29,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -37,6 +40,11 @@ import java.util.UUID;
 @Slf4j
 @Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService {
+    private static final int ACTIVATION_TOKEN_HOURS = 24;
+    private static final int MAX_ACTIVATION_EMAILS_PER_HOUR = 5;
+    private static final String ACTIVATION_SEND_PREFIX = "activation:sends:";
+    private static final String NO_PHONE = "0000000000";
+
     @Value("${GOOGLE_CLIENT_ID:${app.google.client-id:}}")
     private String googleClientId;
 
@@ -51,12 +59,17 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final NotificationService notificationService;
     private final LoginAttemptService loginAttemptService;
+    private final RateLimitService rateLimitService;
 
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new CustomBusinessException("Email đã được sử dụng", HttpStatus.CONFLICT);
+        UserEntity existing = userRepository.findByEmail(request.getEmail()).orElse(null);
+        if (existing != null) {
+            if (!isPendingActivation(existing)) {
+                throw new CustomBusinessException("Email đã được sử dụng", HttpStatus.CONFLICT);
+            }
+            return restartPendingRegistration(existing, request);
         }
 
         UserEntity user = UserEntity.builder()
@@ -65,23 +78,43 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
                 .role(UserEntity.Role.CUSTOMER)
-                .active(true)
+                .active(false)
                 .build();
+        issueActivationToken(user);
 
         UserEntity savedUser = userRepository.save(user);
 
         library.entity.CustomerEntity customer = library.entity.CustomerEntity.builder()
                 .user(savedUser)
                 .fullName(savedUser.getFullName())
-                .phone(savedUser.getPhone() != null ? savedUser.getPhone() : "0000000000")
+                .phone(savedUser.getPhone() != null ? savedUser.getPhone() : NO_PHONE)
                 .email(savedUser.getEmail())
                 .address("Chưa cập nhật")
                 .build();
         customerRepository.save(customer);
 
-        systemLogService.logAction(savedUser, "Đăng ký tài khoản", "Người dùng " + savedUser.getEmail() + " đã đăng ký tài khoản mới.");
+        emailService.sendAccountActivationEmail(savedUser.getEmail(), savedUser.getFullName(), savedUser.getActivationToken());
+        systemLogService.logAction(savedUser, "Đăng ký tài khoản", "Người dùng " + savedUser.getEmail() + " đã đăng ký tài khoản mới, chờ kích hoạt email.");
 
         return userMapper.toRegisterResponse(savedUser, null, null);
+    }
+
+    /**
+     * Email chưa được xác minh nên chưa ai là chủ của đăng ký này: lần đăng ký sau thay toàn bộ dữ liệu và làm
+     * mất hiệu lực link cũ, tránh việc kẻ đăng ký trước bằng email người khác chiếm luôn email đó.
+     */
+    private RegisterResponse restartPendingRegistration(UserEntity user, RegisterRequest request) {
+        user.setFullName(request.getFullName());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhone(request.getPhone());
+        issueActivationToken(user);
+        userRepository.save(user);
+        resetCustomerProfile(user, request.getFullName(), request.getPhone() != null ? request.getPhone() : NO_PHONE);
+
+        emailService.sendAccountActivationEmail(user.getEmail(), user.getFullName(), user.getActivationToken());
+        systemLogService.logAction(user, "Đăng ký tài khoản", "Đăng ký lại tài khoản chờ kích hoạt: " + user.getEmail());
+
+        return userMapper.toRegisterResponse(user, null, null);
     }
 
     /**
@@ -126,6 +159,9 @@ public class AuthServiceImpl implements AuthService {
         if (email == null || email.isBlank()) {
             throw new CustomBusinessException("Không thể trích xuất địa chỉ email từ Google ID Token", HttpStatus.BAD_REQUEST);
         }
+        if (!Boolean.TRUE.equals(payload.getEmailVerified())) {
+            throw new CustomBusinessException("Email Google chưa được xác minh", HttpStatus.FORBIDDEN);
+        }
 
         String fullName = (String) payload.get("name");
         if (fullName == null || fullName.isBlank()) {
@@ -147,7 +183,7 @@ public class AuthServiceImpl implements AuthService {
                     library.entity.CustomerEntity customer = library.entity.CustomerEntity.builder()
                             .user(savedUser)
                             .fullName(savedUser.getFullName())
-                            .phone("0000000000")
+                            .phone(NO_PHONE)
                             .email(savedUser.getEmail())
                             .address("Chưa cập nhật")
                             .build();
@@ -155,6 +191,10 @@ public class AuthServiceImpl implements AuthService {
 
                     return savedUser;
                 });
+
+        if (isPendingActivation(user)) {
+            claimPendingRegistration(user, finalFullName);
+        }
 
         if (!user.isActive()) {
             throw new CustomBusinessException("Tài khoản đã bị khóa", HttpStatus.FORBIDDEN);
@@ -170,16 +210,41 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toLoginResponse(user, tokens.getToken(), tokens.getRefreshToken());
     }
 
+    /**
+     * Google đã xác minh chủ email, còn đăng ký đang chờ kích hoạt thì chưa: phải bỏ mật khẩu và thông tin đã nhập,
+     * nếu không người đã đăng ký trước bằng email này vẫn đăng nhập được vào tài khoản của chủ email.
+     */
+    private void claimPendingRegistration(UserEntity user, String fullName) {
+        user.setActive(true);
+        user.setActivationToken(null);
+        user.setActivationTokenExpiresAt(null);
+        user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        user.setFullName(fullName);
+        user.setPhone(null);
+        resetCustomerProfile(user, fullName, NO_PHONE);
+    }
+
+    private void resetCustomerProfile(UserEntity user, String fullName, String phone) {
+        customerRepository.findByUserId(user.getId()).ifPresent(customer -> {
+            customer.setFullName(fullName);
+            customer.setPhone(phone);
+            customerRepository.save(customer);
+        });
+    }
+
     private GoogleIdToken.Payload verifyGoogleIdToken(String idTokenString) {
+        // Thiếu client ID thì token cấp cho bất kỳ ứng dụng Google nào cũng qua được, nên phải từ chối thay vì bỏ qua
+        if (googleClientId == null || googleClientId.isBlank()) {
+            throw new CustomBusinessException("Đăng nhập Google chưa được cấu hình", HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
         try {
             if (this.tokenVerifier == null) {
                 GoogleIdTokenVerifier.Builder builder = new GoogleIdTokenVerifier.Builder(
                         GoogleNetHttpTransport.newTrustedTransport(),
                         GsonFactory.getDefaultInstance()
                 );
-                if (googleClientId != null && !googleClientId.isBlank()) {
-                    builder.setAudience(Collections.singletonList(googleClientId.trim()));
-                }
+                builder.setAudience(Collections.singletonList(googleClientId.trim()));
                 this.tokenVerifier = builder.build();
             }
 
@@ -232,8 +297,7 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomBusinessException("Tài khoản đã bị khóa. Vui lòng liên hệ thư viện.", HttpStatus.FORBIDDEN);
         }
 
-        user.setActivationToken(UUID.randomUUID().toString());
-        user.setActivationTokenExpiresAt(LocalDateTime.now().plusHours(24));
+        issueActivationToken(user);
         userRepository.save(user);
         emailService.sendAccountActivationEmail(user.getEmail(), user.getFullName(), user.getActivationToken());
         systemLogService.logAction(user, "Gửi lại email kích hoạt", "Đã gửi lại email kích hoạt cho " + user.getEmail());
@@ -248,10 +312,33 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void logout(String token) {
-        tokenService.revokeToken(token).ifPresent(user -> {
-            systemLogService.logAction(user, library.common.constant.SystemLogConstants.ACTION_LOGOUT, 
-                String.format(library.common.constant.SystemLogConstants.DETAIL_LOGOUT_SUCCESS, user.getEmail()));
-        });
+        tokenService.revokeToken(token).ifPresent(this::logLogout);
+    }
+
+    @Override
+    @Transactional
+    public void logoutByAccessToken(String accessToken) {
+        tokenService.revokeSessionOfAccessToken(accessToken).ifPresent(this::logLogout);
+    }
+
+    private void logLogout(UserEntity user) {
+        systemLogService.logAction(user, library.common.constant.SystemLogConstants.ACTION_LOGOUT,
+            String.format(library.common.constant.SystemLogConstants.DETAIL_LOGOUT_SUCCESS, user.getEmail()));
+    }
+
+    private boolean isPendingActivation(UserEntity user) {
+        return !user.isActive() && user.getActivationToken() != null;
+    }
+
+    private void issueActivationToken(UserEntity user) {
+        // Giới hạn theo email: đăng ký và gửi lại không được dùng để spam hộp thư của người khác
+        String sendKey = ACTIVATION_SEND_PREFIX + user.getEmail().trim().toLowerCase(Locale.ROOT);
+        if (!rateLimitService.tryAcquire(sendKey, MAX_ACTIVATION_EMAILS_PER_HOUR, Duration.ofHours(1))) {
+            throw new CustomBusinessException(library.common.constant.ErrorMessages.TOO_MANY_REQUESTS, HttpStatus.TOO_MANY_REQUESTS);
+        }
+
+        user.setActivationToken(UUID.randomUUID().toString());
+        user.setActivationTokenExpiresAt(LocalDateTime.now().plusHours(ACTIVATION_TOKEN_HOURS));
     }
 
     private void validateLockout(UserEntity user) {

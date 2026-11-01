@@ -3,7 +3,6 @@ package library.service.impl;
 import jakarta.servlet.http.HttpServletRequest;
 import library.common.constant.ErrorMessages;
 import library.common.exception.CustomBusinessException;
-import library.common.utils.VnPayUtil;
 import library.dto.borrow.BorrowRequestDto;
 import library.dto.borrow.BorrowResponseDto;
 
@@ -52,6 +51,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
     private final library.service.impl.helper.BorrowOrderPaymentHelper paymentHelper;
 
     private final library.service.AdminBorrowService adminBorrowService;
+    private final library.config.ClientIpResolver clientIpResolver;
 
     @Override
     @Transactional
@@ -277,7 +277,7 @@ public class BorrowOrderCommandServiceImpl implements library.service.BorrowOrde
 
         if (paymentMethod == PaymentMethod.VNPAY) {
             if (depositPrice.compareTo(BigDecimal.ZERO) > 0) {
-                String ipAddress = VnPayUtil.getIpAddress(httpRequest);
+                String ipAddress = clientIpResolver.resolve(httpRequest);
                 String paymentUrl = vnPayService.createPaymentUrl(
                         payment.getTransactionCode(),
                         "Thanh toan dat coc don hang " + borrowOrder.getOrderCode(),

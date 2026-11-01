@@ -1,6 +1,6 @@
 export const ACTIVATION = {
     HEADING: "Kích hoạt tài khoản",
-    SUBHEADING: "Nhập mã kích hoạt trong email để mở quyền đăng nhập.",
+    SUBHEADING: "Bấm Kích hoạt nếu bạn mở trang này từ email, hoặc dán mã kích hoạt trong email.",
     TOKEN_LABEL: "Mã kích hoạt",
     TOKEN_PLACEHOLDER: "Dán mã kích hoạt",
     EMAIL_LABEL: "Email",

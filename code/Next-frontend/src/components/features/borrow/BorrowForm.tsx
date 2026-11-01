@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { Captcha } from "@/components/base/captcha";
 import { MaterialIcon } from "@/components/base/material-icon";
 import { UI_TEXT } from "@/constants/ui-text";
 import { BorrowingPolicyDto, getActivePolicy } from "@/services/policy";
@@ -22,6 +23,8 @@ interface BorrowFormProps {
     setPhone?: (phone: string) => void;
     email?: string;
     setEmail?: (email: string) => void;
+    captchaKey?: number;
+    onCaptchaChange?: (token: string | null) => void;
 }
 
 export default function BorrowForm({
@@ -39,6 +42,8 @@ export default function BorrowForm({
     setPhone,
     email,
     setEmail,
+    captchaKey,
+    onCaptchaChange,
 }: BorrowFormProps) {
     const { BORROW } = UI_TEXT;
     const [policy, setPolicy] = useState<BorrowingPolicyDto | null>(null);
@@ -154,6 +159,7 @@ export default function BorrowForm({
                                 />
                             </div>
                         </div>
+                        {onCaptchaChange && <Captcha key={captchaKey} onValidate={onCaptchaChange} />}
                     </div>
                 )}
 

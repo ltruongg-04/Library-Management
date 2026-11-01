@@ -3,6 +3,7 @@ package library.service.impl;
 import library.common.constant.ErrorMessages;
 import library.entity.UserEntity;
 import library.repository.UserRepository;
+import library.service.AdminSessionService;
 import library.service.OtpService;
 import library.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
+    private final AdminSessionService sessionService;
 
     @Override
     @Transactional
@@ -36,12 +38,16 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+        // Người có mật khẩu hoặc phiên bị lộ không được tiếp tục dùng phiên cũ
+        sessionService.terminateAllUserSessions(user.getId());
     }
 
     @Override
     public void forgotPassword(library.dto.request.ForgotPasswordRequest request) {
-        userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new library.common.exception.CustomBusinessException(ErrorMessages.NOT_FOUND_USER_BY_EMAIL, HttpStatus.NOT_FOUND));
+        // Phản hồi giống nhau dù email có tồn tại hay không để không dò được email đã đăng ký
+        if (userRepository.findByEmail(request.getEmail()).isEmpty()) {
+            return;
+        }
 
         otpService.requestForgotPasswordOtp(request.getEmail());
     }
@@ -79,7 +85,8 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
-        
+        sessionService.terminateAllUserSessions(user.getId());
+
         // Remove reset token after successful reset
         otpService.clearResetToken(request.getResetToken());
     }

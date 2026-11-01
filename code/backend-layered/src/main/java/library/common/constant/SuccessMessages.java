@@ -16,7 +16,7 @@ public final class SuccessMessages {
     public static final String AUTH_LOGOUT = "Đăng xuất thành công";
     public static final String AUTH_TOKEN_REFRESH = "Làm mới token thành công";
     public static final String AUTH_PASSWORD_CHANGED = "Đổi mật khẩu thành công";
-    public static final String AUTH_FORGOT_PASSWORD = "Mã xác nhận đã được gửi tới email";
+    public static final String AUTH_FORGOT_PASSWORD = "Nếu email đã đăng ký, mã xác nhận sẽ được gửi tới hộp thư của bạn";
     public static final String AUTH_VERIFY_OTP = "Xác thực OTP thành công";
     public static final String AUTH_RESET_PASSWORD = "Đặt lại mật khẩu thành công";
 

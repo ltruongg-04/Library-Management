@@ -127,6 +127,12 @@ export function LoginForm() {
                 </div>
             )}
 
+            {(isRegistered || errors.email?.includes(API_ERRORS.ACCOUNT_NOT_ACTIVATED_HINT)) && (
+                <Link href="/activate" className="mb-6 block text-sm font-semibold text-primary-500 hover:text-primary-700">
+                    {UI_TEXT.AUTH.LOGIN.ACTIVATION_HELP_LINK}
+                </Link>
+            )}
+
             {isReset && (
                 <div className="mb-6 flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
                     <span>{UI_TEXT.AUTH.LOGIN.SUCCESS_ICON}</span>

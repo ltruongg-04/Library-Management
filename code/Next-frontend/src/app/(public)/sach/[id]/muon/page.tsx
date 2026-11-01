@@ -31,6 +31,8 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
     const [fullName, setFullName] = useState<string>("");
     const [phone, setPhone] = useState<string>("");
     const [email, setEmail] = useState<string>("");
+    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+    const [captchaKey, setCaptchaKey] = useState<number>(0);
 
     // Allow both authenticated and unauthenticated users
 
@@ -59,6 +61,10 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
                     setSubmitError(UI_TEXT.BORROW.FORM.ERRORS.MISSING_GUEST_INFO);
                     return;
                 }
+                if (!recaptchaToken) {
+                    setSubmitError(UI_TEXT.BORROW.FORM.ERRORS.MISSING_CAPTCHA);
+                    return;
+                }
                 response = await createGuestBorrowRequest({
                     bookId: book.id,
                     pickupDate,
@@ -67,6 +73,7 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
                     fullName,
                     phone,
                     email,
+                    recaptchaToken,
                 });
             }
 
@@ -81,6 +88,9 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
         } catch (err: any) {
             console.error("Lỗi đặt mượn sách:", err);
             setSubmitError(err.response?.data?.message || err.message || UI_TEXT.BORROW.FORM.ERRORS.SUBMIT_FAILED);
+            // Mỗi token CAPTCHA chỉ dùng được một lần nên phải tạo lại widget sau khi gửi lỗi
+            setRecaptchaToken(null);
+            setCaptchaKey((key) => key + 1);
         } finally {
             setIsSubmitting(false);
         }
@@ -180,6 +190,8 @@ export default function BorrowPage({ params }: { params: { id: string } }) {
                     setPhone={setPhone}
                     email={email}
                     setEmail={setEmail}
+                    captchaKey={captchaKey}
+                    onCaptchaChange={setRecaptchaToken}
                 />
                 <LoanSummary
                     book={book}

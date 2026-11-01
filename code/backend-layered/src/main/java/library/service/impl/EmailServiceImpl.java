@@ -35,6 +35,9 @@ public class EmailServiceImpl implements EmailService {
     @Value("${resend.from-email}")
     private String senderEmail;
 
+    @Value("${vnpay.frontend-url}")
+    private String frontendUrl;
+
     private final String resendApiKey;
 
     public EmailServiceImpl(TemplateEngine templateEngine, @Value("${resend.api-key:}") String resendApiKey) {
@@ -377,9 +380,11 @@ public class EmailServiceImpl implements EmailService {
         String htmlContent = "<div style=\"font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px;\">"
                 + "<h2>Kích hoạt tài khoản</h2>"
                 + "<p>Chào " + safe(fullName) + ",</p>"
-                + "<p>Vui lòng dùng mã/token bên dưới để kích hoạt tài khoản của bạn:</p>"
+                + "<p>Vui lòng bấm vào link bên dưới để kích hoạt tài khoản của bạn:</p>"
+                + "<p><a href=\"" + safe(frontendUrl + "/activate?token=" + activationToken) + "\">Kích hoạt tài khoản</a></p>"
+                + "<p>Hoặc nhập mã sau tại trang kích hoạt:</p>"
                 + "<pre style=\"padding:12px;background:#f4f4f4;border-radius:6px;white-space:pre-wrap;\">" + safe(activationToken) + "</pre>"
-                + "<p>Token có hiệu lực trong 24 giờ.</p>"
+                + "<p>Link có hiệu lực trong 24 giờ. Nếu bạn không đăng ký tài khoản này, hãy bỏ qua email.</p>"
                 + "</div>";
         sendSimpleEmail(toEmail, subject, htmlContent);
     }

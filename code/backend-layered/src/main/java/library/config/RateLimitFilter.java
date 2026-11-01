@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import library.common.utils.VnPayUtil;
 import library.service.RateLimitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +20,8 @@ import java.util.Map;
 /**
  * Giới hạn số request theo IP cho các API công khai dễ bị lạm dụng.
  *
- * IP lấy từ X-Forwarded-For nên client có thể giả mạo; đây chỉ là lớp giảm tải. Giới hạn theo email ở
- * OtpServiceImpl và khóa tài khoản ở LoginAttemptServiceImpl mới là lớp bảo vệ chính.
+ * Đây chỉ là lớp giảm tải: một người vẫn có thể dùng nhiều IP. Giới hạn theo email ở OtpServiceImpl
+ * và khóa tài khoản ở LoginAttemptServiceImpl mới là lớp bảo vệ chính.
  *
  * Không áp dụng cho /api/auth/login vì NextAuth gọi API này từ server, mọi người dùng sẽ chung một IP.
  */
@@ -49,6 +48,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             Map.entry("/api/public/book-visits/confirm", 10));
 
     private final RateLimitService rateLimitService;
+    private final ClientIpResolver clientIpResolver;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -70,7 +70,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private boolean isAllowed(String path, HttpServletRequest request, int limit) {
-        String clientIp = VnPayUtil.getIpAddress(request);
+        String clientIp = clientIpResolver.resolve(request);
         if (clientIp.length() > MAX_IP_KEY_LENGTH) {
             clientIp = clientIp.substring(0, MAX_IP_KEY_LENGTH);
         }

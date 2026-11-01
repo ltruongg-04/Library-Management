@@ -1,6 +1,7 @@
 package library.unitest;
 
 import library.common.exception.GlobalExceptionHandler;
+import library.config.ClientIpResolver;
 import library.config.JwtAuthenticationFilter;
 import library.config.JwtUtil;
 import library.config.RateLimitFilter;
@@ -66,7 +67,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {
         SecurityConfig.class,
         JwtAuthenticationFilter.class,
-        RateLimitFilter.class,
+        RateLimitFilter.class, ClientIpResolver.class,
         GlobalExceptionHandler.class,
         AdminBookReturnController.class,
         AdminBorrowController.class,

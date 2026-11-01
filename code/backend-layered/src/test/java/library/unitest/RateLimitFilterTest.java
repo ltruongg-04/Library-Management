@@ -1,5 +1,6 @@
 package library.unitest;
 
+import library.config.ClientIpResolver;
 import library.config.RateLimitFilter;
 import library.service.RateLimitService;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ class RateLimitFilterTest {
     private static final String OTP_PATH = "/api/public/borrow/otp/request";
 
     private final RateLimitService rateLimitService = mock(RateLimitService.class);
-    private final RateLimitFilter filter = new RateLimitFilter(rateLimitService);
+    private final RateLimitFilter filter = new RateLimitFilter(rateLimitService, new ClientIpResolver(1));
 
     @Test
     void returns429WhenLimitIsExceeded() throws Exception {
@@ -40,7 +41,7 @@ class RateLimitFilterTest {
                 .thenReturn(true);
 
         MockHttpServletRequest request = new MockHttpServletRequest("POST", OTP_PATH);
-        request.addHeader("X-Forwarded-For", "203.0.113.9, 10.0.0.1");
+        request.addHeader("X-Forwarded-For", "198.51.100.1, 203.0.113.9");
         MockFilterChain chain = new MockFilterChain();
         filter.doFilter(request, new MockHttpServletResponse(), chain);
 

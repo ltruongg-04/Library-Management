@@ -5,6 +5,8 @@ export const API_SUCCESS = {
 };
 
 export const API_ERRORS = {
+    // Khớp với thông báo backend trả về khi đăng nhập bằng tài khoản chưa kích hoạt
+    ACCOUNT_NOT_ACTIVATED_HINT: "chưa được kích hoạt",
     FAVORITE_UPDATE_FAILED: "Cập nhật danh sách yêu thích thất bại",
     BOOK_LOAD_FAILED: "Lỗi tải thông tin sách",
     BOOK_DETAIL_FAILED: "Lỗi tải chi tiết sách",

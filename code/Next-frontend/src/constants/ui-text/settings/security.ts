@@ -27,7 +27,7 @@ export const SETTINGS_SECURITY = {
             PASSWORD_UPDATE_FAILED: "Đổi mật khẩu thất bại",
         },
         SUCCESS_MESSAGES: {
-            PASSWORD_UPDATED: "Mật khẩu đã được cập nhật thành công.",
+            PASSWORD_UPDATED: "Mật khẩu đã được cập nhật. Vui lòng đăng nhập lại.",
             TWO_FACTOR_ENABLED: "Xác thực hai lớp đã được bật.",
             TWO_FACTOR_DISABLED: "Xác thực hai lớp đã được tắt.",
             LOGGED_OUT_ALL: "Tất cả phiên đăng nhập khác đã được đăng xuất.",

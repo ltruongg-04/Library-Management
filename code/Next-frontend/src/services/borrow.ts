@@ -31,6 +31,7 @@ export interface GuestBorrowRequestPayload extends BorrowRequestPayload {
     fullName: string;
     phone: string;
     email?: string;
+    recaptchaToken: string;
 }
 
 export const createGuestBorrowRequest = async (payload: GuestBorrowRequestPayload): Promise<ApiResponse<BorrowResponse>> => {

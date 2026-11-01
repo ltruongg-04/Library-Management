@@ -20,6 +20,7 @@ export const BORROW = {
         ERRORS: {
             MISSING_DATES: "Vui lòng chọn ngày lấy và trả sách.",
             MISSING_GUEST_INFO: "Vui lòng nhập đầy đủ Họ tên, Số điện thoại và Email.",
+            MISSING_CAPTCHA: "Vui lòng xác nhận CAPTCHA.",
             SUBMIT_FAILED: "Không thể tạo đơn mượn sách. Vui lòng thử lại.",
         },
     },

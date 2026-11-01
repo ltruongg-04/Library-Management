@@ -41,4 +41,7 @@ public class GuestBorrowRequestDto {
 
     @NotNull(message = "Vui lòng chọn phương thức thanh toán")
     private PaymentMethod paymentMethod;
+
+    @NotBlank(message = "Vui lòng xác nhận CAPTCHA")
+    private String recaptchaToken;
 }

@@ -73,6 +73,7 @@ services:
       - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-library-bucket}
       - BACKEND_URL=${BACKEND_URL:?Set BACKEND_URL in your local environment}
       - FRONTEND_URL=${FRONTEND_URL:?Set FRONTEND_URL in your local environment}
+      - TRUSTED_PROXY_HOPS=${TRUSTED_PROXY_HOPS:-1}
       - CORS_ALLOWED_ORIGIN_PATTERNS=${CORS_ALLOWED_ORIGIN_PATTERNS:?Set CORS_ALLOWED_ORIGIN_PATTERNS in your local environment}
       - VNPAY_TMN_CODE=${VNPAY_TMN_CODE:?Set VNPAY_TMN_CODE in your local environment}
       - VNPAY_HASH_SECRET=${VNPAY_HASH_SECRET:?Set VNPAY_HASH_SECRET in your local environment}

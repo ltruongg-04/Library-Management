@@ -1,7 +1,5 @@
 package library.common.utils;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
@@ -114,28 +112,6 @@ public final class VnPayUtil {
         query.append(vnpSecureHash);
 
         return query.toString();
-    }
-
-    /**
-     * Extracts the client IP address from an HTTP request,
-     * accounting for common proxy headers.
-     *
-     * @param request the HTTP request
-     * @return the client IP address
-     */
-    public static String getIpAddress(HttpServletRequest request) {
-        String ipAddress = request.getHeader("X-FORWARDED-FOR");
-        if (ipAddress == null || ipAddress.isEmpty()) {
-            ipAddress = request.getHeader("X-Real-IP");
-        }
-        if (ipAddress == null || ipAddress.isEmpty()) {
-            ipAddress = request.getRemoteAddr();
-        }
-        // If multiple IPs (from proxy chain), take the first one
-        if (ipAddress != null && ipAddress.contains(",")) {
-            ipAddress = ipAddress.split(",")[0].trim();
-        }
-        return ipAddress;
     }
 
     /**

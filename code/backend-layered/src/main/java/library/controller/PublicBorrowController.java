@@ -41,7 +41,10 @@ public class PublicBorrowController {
     public ResponseEntity<ApiResponse<BorrowResponseDto>> createGuestBorrowOrder(
             @Valid @RequestBody GuestBorrowRequestDto request,
             HttpServletRequest httpRequest) {
-        
+        if (!reCaptchaService.verifyToken(request.getRecaptchaToken())) {
+            throw new CustomBusinessException("Mã CAPTCHA không hợp lệ. Vui lòng thử lại", HttpStatus.UNAUTHORIZED);
+        }
+
         BorrowResponseDto response = borrowOrderService.createGuestBorrowOrder(request, httpRequest);
         
         return ResponseEntity.ok(ApiResponse.<BorrowResponseDto>builder()

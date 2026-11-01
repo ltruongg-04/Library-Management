@@ -23,7 +23,7 @@ export const FORGOT_PASSWORD = {
     },
     SUCCESS: "Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.",
     MESSAGES: {
-        OTP_SENT_SUCCESS: "Mã xác nhận đã được gửi đến email của bạn",
+        OTP_SENT_SUCCESS: "Nếu email đã đăng ký, mã xác nhận sẽ được gửi tới hộp thư của bạn",
         OTP_VERIFIED_SUCCESS: "Xác thực thành công, vui lòng nhập mật khẩu mới",
         RESET_SUCCESS: "Đặt lại mật khẩu thành công",
     },
